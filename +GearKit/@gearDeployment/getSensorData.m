@@ -96,7 +96,9 @@ function [time,varargout] = getSensorData(obj,parameter,varargin)
                      'dataSourceId',        num2cell(categorical({obj.sensors.id}')),...
                      'dataSourceDomain',    num2cell(categorical({obj.sensors.mountingDomain}')),...
                      'mountingLocation',    num2cell(categorical({obj.sensors.mountingLocation}')),...
-                     'dependantVariables',  {'time'});
+                     'dependantVariables',  {'time'},...
+                     'name',                {''},...
+                     'unit',                {''});
 
     % only keep sensors with requested sensorId
     maskSensor  = true(nSensor,1);
@@ -123,15 +125,20 @@ function [time,varargout] = getSensorData(obj,parameter,varargin)
                                     'Raw',                  raw);
                                 
         meta                = meta(maskSensor);
-
-        dataNotEmpty        = ~cellfun(@isempty,data) | ~cellfun(@isempty,time);
-        maskEmtpyDataSource = ~all(~dataNotEmpty,2);
+    
+        % replace all NaNs with empty arrays
+        dataIsNaN           = cellfun(@(d) all(isnan(d)),data) | cellfun(@(d) all(isnan(d)),time);
+        data(dataIsNaN)     = {[]};
+        time(dataIsNaN)     = {[]};
+        
+        % remove empty data sources (rows)
+        dataIsEmpty         = ~(~cellfun(@isempty,data) | ~cellfun(@isempty,time));
+        maskEmtpyDataSource = ~all(dataIsEmpty,2);
         data                = data(maskEmtpyDataSource,:);
         time                = time(maskEmtpyDataSource,:);
         meta                = meta(maskEmtpyDataSource);
     end
     
-    % TODO
     if nargout >= 2
         varargout{1}	= data;
     end

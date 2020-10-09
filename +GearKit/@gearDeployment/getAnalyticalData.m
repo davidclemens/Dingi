@@ -28,38 +28,55 @@ function [time,varargout] = getAnalyticalData(obj,parameter,varargin)
 
     [uSampleIds,~,indSampleIds]     = unique(analyticalSamples(:,{'Subgear','SampleId'}),'rows');
     nSampleIds                      = size(uSampleIds,1);
+    
+    % find parameter that is missing
+    maskParameterExists = ismember(parameter,analyticalSamples{:,'ParameterId'});
 
     % average replicates
-    time = accumarray([indSampleIds,indAnalyticalParameterIds],datenum(analyticalSamples{:,'Time'}),[],@nanmean);
-    data = accumarray([indSampleIds,indAnalyticalParameterIds],analyticalSamples{:,'Value'},[],@nanmean);
+    time = accumarray([indSampleIds,indAnalyticalParameterIds],datenum(analyticalSamples{:,'Time'}),[nSampleIds,nParameter],@nanmean,NaN);
+    data = accumarray([indSampleIds,indAnalyticalParameterIds],analyticalSamples{:,'Value'},[nSampleIds,nParameter],@nanmean,NaN);
     
     % accumulate according to Subgear and SourceId
  	dataSourceId                        = regexprep(cellstr(uSampleIds{:,'SampleId'}),'\d+$','');
     [uDataSourceId,~,indDataSourceId] 	= unique(cat(2,uSampleIds(:,'Subgear'),cell2table(dataSourceId,'VariableNames',{'DataSourceId'})),'rows');
 
-
 	time    = accumarray([repmat(indDataSourceId,nParameter,1),reshape(repmat(1:nParameter,nSampleIds,1),[],1)],time(:),[],@(x) {x});
     data    = accumarray([repmat(indDataSourceId,nParameter,1),reshape(repmat(1:nParameter,nSampleIds,1),[],1)],data(:),[],@(x) {x});
     
-    % compile metadata
-    meta	= struct('dataSourceType',      categorical({'analyticalSample'}),...
-                     'dataSourceId',        num2cell(categorical(uDataSourceId{:,'DataSourceId'})),...
-                     'dataSourceDomain',    num2cell(categorical(uDataSourceId{:,'Subgear'})),...
-                     'mountingLocation',    [],...
-                     'dependantVariables',  {'time'});
-    
-    dataNotEmpty        = ~cellfun(@isempty,data) | ~cellfun(@isempty,time);
-    maskEmtpyDataSource = ~all(~dataNotEmpty,2);
+    if ~iscell(time) || isempty(time)
+        time = cell.empty;
+        data = cell.empty;
+        meta	= struct('dataSourceType',      categorical(NaN),...
+                         'dataSourceId',        categorical(NaN),...
+                         'dataSourceDomain',    categorical(NaN),...
+                         'mountingLocation',    [],...
+                         'dependantVariables',  {''},...
+                         'name',                {''},...
+                         'unit',                {''});
+        meta = meta(false(size(meta)));
+    else
+        % compile metadata
+        meta	= struct('dataSourceType',      categorical({'analyticalSample'}),...
+                         'dataSourceId',        num2cell(categorical(uDataSourceId{:,'DataSourceId'})),...
+                         'dataSourceDomain',    num2cell(categorical(uDataSourceId{:,'Subgear'})),...
+                         'mountingLocation',    [],...
+                         'dependantVariables',  {'time'},...
+                         'name',                {''},...
+                         'unit',                {''});
 
+        % replace all NaNs with empty arrays
+        dataIsNaN           = cellfun(@(d) all(isnan(d)),data) | cellfun(@(d) all(isnan(d)),time);
+        data(dataIsNaN)     = {[]};
+        time(dataIsNaN)     = {[]};
+
+        % remove empty data sources (rows)
+        dataIsEmpty         = ~(~cellfun(@isempty,data) | ~cellfun(@isempty,time));
+        maskEmtpyDataSource = ~all(dataIsEmpty,2);
+        data                = data(maskEmtpyDataSource,:);
+        time                = time(maskEmtpyDataSource,:);
+        meta                = meta(maskEmtpyDataSource);
+    end
     
-    data            = data(maskEmtpyDataSource,:);
-    time            = time(maskEmtpyDataSource,:);
-    meta            = meta(maskEmtpyDataSource);
-    
-	% only keep one replicate of the time
- 	time    = time(:,1);
-                 
-    % TODO
     if nargout >= 2
         varargout{1}	= data;
     end

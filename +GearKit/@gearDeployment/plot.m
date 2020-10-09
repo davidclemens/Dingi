@@ -72,8 +72,6 @@ function varargout = plot(obj,parameter,varargin)
     
     nvarargin   = numel(varargin);
     
-    
-    
     % parse Name-Value pairs
     optionName          = {'FontSize','TitleFontSizeMultiplier','LabelFontSizeMultiplier'}; % valid options (Name)
     optionDefaultValue  = {10,1,1}; % default value (Value)
@@ -87,6 +85,7 @@ function varargout = plot(obj,parameter,varargin)
     plotParametersAvailable = cellstr(unique(plotParametersAvailable.Parameter));
     if nargin - nvarargin == 1
         plotParameterY      = plotParametersAvailable;
+        error('TODO: implement a selection of all available parameters. All is too much.')
     elseif nargin - nvarargin == 2
         if ischar(parameter)
             parameter	= cellstr(parameter);
@@ -182,10 +181,9 @@ function varargout = plot(obj,parameter,varargin)
                     hlgnd(spi(row,col))	= legend({info.name},...
                                                  'Location',        'best',...
                                                  'Interpreter',     'none');
-                    yLabelString{row,col}	= [plotParameterY{par},' (',info(1).unit{:},')'];
+                    yLabelString{row,col}	= [plotParameterY{par},' (',info(1).unit,')'];
                     titleString{row,col} 	= strjoin([cellstr(obj(gear).cruise),cellstr(obj(gear).gear)],' ');
                 end
-                
         end
     end
     
