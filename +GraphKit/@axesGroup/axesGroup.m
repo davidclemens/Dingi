@@ -1,11 +1,24 @@
 classdef axesGroup < handle
+% AXESGROUP groups and nests existing axes to reduce white space.
+%   The AXESGROUP class arranges its children axes so that the white space
+%   inbetween is removed. This results in overlapping axes if the actual
+%   data within the axes allows it. The actual data will never overlap.
+%
+% AXESGROUP Properties:
+%   Children - The children axes as axes array.
+%   Parent - The figure handle of parent figure.
+%   CommonAxis - The axis common to all axes of axesGroup.
+%
+% AXESGROUP Methods:
+%    axesGroup - Constructs an axesGroup instance from existing axes handles.
+%
+% Copyright 2020 David Clemens (dclemens@geomar.de)
 
-    % TODO: handle reversed individual axes
-
+% TODO: handle reversed individual axes
     properties
-        Children
-        Parent
-        CommonAxis = 'XAxis'
+        Children % The children axes as axes array.
+        Parent % The figure handle of parent figure.
+        CommonAxis = 'XAxis' % The axis common to all axes of axesGroup.
     end
     properties %(Hidden)
         IsInitialized = false
@@ -45,8 +58,43 @@ classdef axesGroup < handle
     end
 
     methods
-        function obj = axesGroup(hax,varargin)
-            % AXESGROUP
+        function obj = axesGroup(hax,varargin)      
+        % AXESGROUP Constructs an axesGroup instance from existing axes handles.
+        %   Create a axesGroup object from existing axes handles.
+        %
+        % Syntax
+        %   axesGroup = AXESGROUP(hax)
+        %   axesGroup = AXESGROUP(__,Name,Value)
+        %
+        %
+        % Description
+        %   axesGroup = AXESGROUP(hax) creates an axesGroup instance from the axes
+        %       handles hax.
+        %
+        %   axesGroup = AXESGROUP(__,Name,Value) specifies additional parameters
+        %       for the NortekInstrumentFile using one or more name-value pair
+        %       arguments as listed below.
+        %
+        %
+        % Example(s) 
+        %
+        %
+        % Input Arguments
+        %   hax - axes handles
+        %       Axes array
+        %       Array of axes handles to the axes to be included in the axesGroup
+        %       object.
+        %
+        %
+        % Name-Value Pair Arguments
+        %	CommonAxis - Axis common to all axes included in the axesGroup
+        %       'XAxis' (default) | 'YAxis'
+        %           Sets which axis is common to all axes in the axesGroup.
+        %
+        % 
+        % See also AXES
+        %
+        % Copyright 2020 David Clemens (dclemens@geomar.de)
 
             % parse Name-Value pairs
             optionName          = {'CommonAxis'}; % valid options (Name)
