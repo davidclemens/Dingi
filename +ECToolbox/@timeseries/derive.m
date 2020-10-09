@@ -1,0 +1,6 @@
+function tsDerived = derive(ts)
+    tsDerived       = ts;
+    tsDerived.Data  = [NaN(1,size(ts.Data,2));...
+                       0.5.*(ts.Data(3:end,:) - ts.Data(1:end - 2,:));...
+                       NaN(1,size(ts.Data,2))];
+end

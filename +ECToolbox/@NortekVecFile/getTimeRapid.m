@@ -1,0 +1,16 @@
+function timeRapid = getTimeRapid(obj)
+    structureId   	= 18;
+    timeRapidRaw  	= [obj.getDataArray(structureId,5,'uint8'),...
+                       obj.getDataArray(structureId,6,'uint8'),...
+                       obj.getDataArray(structureId,7,'uint8'),...
+                       obj.getDataArray(structureId,8,'uint8'),...
+                       obj.getDataArray(structureId,9,'uint8'),...
+                       obj.getDataArray(structureId,10,'uint8')];
+
+    if isempty(timeRapidRaw)
+        timeRapid       = obj.timeSlow(1) + duration([zeros(obj.nSamplesRapid,2),(0:1/obj.sampleRateRapid:(obj.nSamplesRapid - 1)/obj.sampleRateRapid)']);
+    else
+        warning('not implemented yet')
+        timeRapid       = obj.timeSlow(1) + duration([zeros(obj.nSamplesRapid,2),(0:1/obj.sampleRateRapid:(obj.nSamplesRapid - 1)/obj.sampleRateRapid)']);
+    end
+end
