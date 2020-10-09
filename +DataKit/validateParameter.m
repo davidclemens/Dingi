@@ -14,7 +14,7 @@ function [parameterIsValid,varargout] = validateParameter(parameter)
     nRequestedParameters  	= numel(parameter);
     
     
-    validParameters         = DataKit.importTableFile([DataKit.getToolboxRessources,'/validParameters.xlsx']);
+    validParameters         = DataKit.importTableFile([getToolboxRessources('DataKit'),'/validParameters.xlsx']);
  
     maskRequestedParameters = false(size(validParameters,1),nRequestedParameters);
     for par = 1:nRequestedParameters

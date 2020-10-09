@@ -1,10 +1,9 @@
 function t = readProtocolFile(filename,version,controlUnit)
 % READPROTOCOLFILE
     
-    import GearKit.getToolboxRessources
     import DataKit.importTableFile
     
-    pathRessources  = getToolboxRessources();
+    pathRessources  = getToolboxRessources('GearKit');
     
     % read raw text first
     rawText     = fileread(filename);

@@ -7,7 +7,7 @@ function [parameterIdIsValid,varargout] = validateParameterId(parameterId)
     nRequestedParameters  	= numel(parameterId);
     
     
-    validParameters         = DataKit.importTableFile([DataKit.getToolboxRessources,'/validParameters.xlsx']);
+    validParameters         = DataKit.importTableFile([getToolboxRessources('DataKit'),'/validParameters.xlsx']);
      
     [parameterIdIsValid,parameterInfoIndex] = ismember(parameterId,validParameters{:,'ParameterId'});
 
