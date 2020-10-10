@@ -1,4 +1,16 @@
 classdef ecDeployment < GearKit.gearDeployment
+% ECDEPLOYMENT Represents a Geomar BIGO deployment
+%	The ECDEPLOYMENT class reads all data related to a single Geomar EC
+%	deployment. The resulting object has plot, analysis and export methods.
+%
+% ECDEPLOYMENT Properties:
+%
+% ECDEPLOYMENT Methods:
+%	ecDeployment - 
+%
+%
+% Copyright 2020 David Clemens (dclemens@geomar.de)
+
 	properties
     end
     

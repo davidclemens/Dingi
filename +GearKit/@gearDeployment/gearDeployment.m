@@ -1,7 +1,38 @@
 classdef gearDeployment
 % GEARDEPLOYMENT The superclass to all gear deployments
-%   The GEARDEPLOYMENT class defines basic metadata on a gear deployment
-%   and reads it upon construction.
+%	The GEARDEPLOYMENT class defines basic metadata on a gear deployment
+%	and reads it upon construction.
+%
+% GEARDEPLOYMENT Properties:
+%	sensors - 
+%	analyticalSamples - 
+%	gearType - 
+%	cruise - 
+%	gear - 
+%	station - 
+%	areaId - 
+%	longitude - 
+%	latitude - 
+%	depth - 
+%	timeDeployment - 
+%	timeRecovery - 
+%	timeOfInterestStart - 
+%	timeOfInterestEnd - 
+%	calibration - 
+%	analysis - 
+%	dataFolderInfo - 
+%	parameters - 
+%	hasSensorData - 
+%	hasAnalyticalData - 
+%	validGearTypes - 
+%	debugger - 
+%	dataVersion - 
+%
+% GEARDEPLOYMENT Methods:
+%	gearDeployment - Constructs an gearDeployment instance
+%	exportData - 
+%	plot - 
+%	runAnalysis - 
 %
 % Copyright 2020 David Clemens (dclemens@geomar.de)
 
