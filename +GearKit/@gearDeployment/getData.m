@@ -95,19 +95,24 @@ function [time,varargout] = getData(obj,parameter,varargin)
 
         % only keep one copy of the time cell
         [rInd,cInd]	= find(~cellfun(@isempty,time));
-        [rInd,uInd]= unique(rInd);
+        [rInd,uInd] = unique(rInd);
         cInd        = cInd(uInd);
         tInd        = sub2ind(size(time),rInd,cInd);
         time        = time(tInd);
 
         % add name to meta
+        maskDataIsEmpty = cellfun(@isempty,data);
         dataName    = repmat(strcat(cellstr(cat(1,meta.dataSourceId)),{' '},cellstr(cat(1,meta.dataSourceDomain)),{' '}),[1,nParameter]);
         dataName    = strcat(dataName,repmat(parameterInfo{parameterIsValid,'Symbol'}',[size(data,1),1]));
-        [meta.name] = dataName{tInd};
+        dataName(maskDataIsEmpty) = {''};
+        dataName    = mat2cell(dataName,ones(1,size(dataName,1)));
+        [meta.name] = dataName{:};
 
         % add unit to meta
         dataUnit    = cellstr(repmat(parameterInfo{parameterIsValid,'Unit'}',[size(data,1),1]));
-        [meta.unit] = dataUnit{tInd};
+        dataUnit(maskDataIsEmpty) = {''};
+        dataUnit    = mat2cell(dataUnit,ones(1,size(dataUnit,1)));
+        [meta.unit] = dataUnit{:};
 
         % make sure the masking didn't result in empty data
         maskTimeIsEmtpy     = cellfun(@isempty,time);
