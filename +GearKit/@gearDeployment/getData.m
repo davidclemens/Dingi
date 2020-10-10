@@ -45,33 +45,32 @@ function [time,varargout] = getData(obj,parameter,varargin)
     end
     
 	% initialize empty meta struct     
-    metaEmpty	= struct('dataSourceType',	categorical(NaN),...
-                 'dataSourceId',        categorical(NaN),...
-                 'dataSourceDomain',    categorical(NaN),...
-                 'mountingLocation',    categorical(NaN),...
-                 'dependantVariables',  {''});
+    metaEmpty	= struct('dataSourceType',      categorical(NaN),...
+                         'dataSourceId',        categorical(NaN),...
+                         'dataSourceDomain',    categorical(NaN),...
+                         'mountingLocation',    categorical(NaN),...
+                         'dependantVariables',  {''});
     metaEmpty(:)	= [];
                
-               
-    time    = cell.empty;
-    data    = cell.empty;
-    meta    = metaEmpty;
-    time2   = cell.empty;
-    data2   = cell.empty;
-    meta2   = metaEmpty;
+	% initialize
+    timeSensor      = cell.empty;
+    dataSensor      = cell.empty;
+    metaSensor      = metaEmpty;
+    timeAnalytical  = cell.empty;
+    dataAnalytical  = cell.empty;
+    metaAnalytical  = metaEmpty;
     
-    
-    [time,data,meta]	= obj.getSensorData(parameterInfo{parameterIsValid,'ParameterId'},...
-                            'SensorIndex',	sensorIndex,...
-                            'SensorId',     sensorId,...
-                            'Raw',        	raw);
-    [time2,data2,meta2]	= obj.getAnalyticalData(parameterInfo{parameterIsValid,'ParameterId'});
+    % get data
+    [timeSensor,dataSensor,metaSensor]	= obj.getSensorData(parameterInfo{parameterIsValid,'ParameterId'},...
+                                            'SensorIndex',	sensorIndex,...
+                                            'SensorId',     sensorId,...
+                                            'Raw',        	raw);
+    [timeAnalytical,dataAnalytical,metaAnalytical]	= obj.getAnalyticalData(parameterInfo{parameterIsValid,'ParameterId'});
 
-    
-    time    = cat(1,time,time2);
-    data    = cat(1,data,data2);
-    meta    = cat(1,meta,meta2);
-    
+    % merge data
+    time    = cat(1,timeSensor,timeAnalytical);
+    data    = cat(1,dataSensor,dataAnalytical);
+    meta    = cat(1,metaSensor,metaAnalytical);
     
     if ~iscell(time) || isempty(time)
         
