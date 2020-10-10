@@ -1,6 +1,5 @@
 classdef bigoFluxAnalysis < AnalysisKit.analysis
-% EDDYFLUXANALYSIS
-%
+% BIGOFLUXANALYSIS
 
 
 % TODO:
@@ -23,10 +22,21 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
         timeRaw
         fluxParameterRaw
         
+        timeUnit
+        fluxParameterUnit
+        
+        flux
     end
     properties %(Hidden)
         initialized = false
         excluded
+        fitObjects
+        fitGOF
+        fitOutput
+        
+        indSource
+        indParameter
+        nFits
     end
     properties (Hidden, Constant)
         validFitTypes = {'linear','sigmoidal'};
@@ -35,10 +45,12 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
         function obj = bigoFluxAnalysis(time,fluxParameter,varargin)
                         
             % parse Name-Value pairs
-            optionName          = {'FitType','FitInterval'}; % valid options (Name)
-            optionDefaultValue  = {'linear',[0,8]}; % default value (Value)
+            optionName          = {'FitType','FitInterval','TimeUnit','FluxParameterUnit'}; % valid options (Name)
+            optionDefaultValue  = {'linear',[0,8],'h',repmat({' '},1,size(fluxParameter,2))}; % default value (Value)
             [FitType,...
              FitInterval,...
+             TimeUnit,...
+             FluxParameterUnit,...
                 ]	= internal.stats.parseArgs(optionName,optionDefaultValue,varargin{:}); % parse function arguments
 
             % call superclass constructor
@@ -50,6 +62,18 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
             
             obj.fitType             = FitType;
             obj.fitInterval         = FitInterval;
+            obj.timeUnit            = TimeUnit;
+            obj.fluxParameterUnit   = FluxParameterUnit;
+            
+            % initialize exclude mask to exclude NaNs
+            obj.excluded            = cellfun(@(fp) isnan(fp),obj.fluxParameterRaw,'un',0);
+            
+            % intialize others
+            [obj.indSource,obj.indParameter]    = find(~cellfun(@isempty,obj.fluxParameterRaw));
+            obj.nFits                          	= numel(obj.indSource);
+            
+            % initialize flux
+            obj.flux                = NaN(obj.nFits,3);
             
             % set initialized flag
             obj.initialized         = true;
@@ -61,6 +85,7 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
         % methods in other files
         obj         = calculate(obj,varargin)
         obj         = fit(obj,varargin)
+        obj         = calculateFlux(obj)
         varargout   = plot(obj,varargin)
         func        = fitLinear(x,y,varargin)
         
