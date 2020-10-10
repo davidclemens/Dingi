@@ -28,10 +28,16 @@ function [time,varargout] = getData(obj,parameter,varargin)
          	'The requested parameter has to be specified as a char or cellstr.')
     end
    	parameter	= parameter(:);
-    nParameter  = numel(parameter);
-    
     [parameterIsValid,parameterInfo]    = DataKit.validateParameter(parameter);
-               
+    nParameter  = sum(parameterIsValid);
+    if any(~parameterIsValid)
+        warning('GearKit:gearDeployment:getData:someInvalidParameters',...
+            'The following requested parameters are invalid:\n\t%s\nThey are ignored.',strjoin(parameter(~parameterIsValid),'\n\t'))
+    elseif all(~parameterIsValid)
+        error('GearKit:gearDeployment:getData:allInvalidParameters',...
+            'All requested parameters are invalid.')        
+    end
+    
     % input check: deploymentDataOnly & timeOfInterestDataOnly
     if deploymentDataOnly + timeOfInterestDataOnly > 1
         error('GearKit:gearDeployment:getData:modalDataOnly',...
@@ -53,35 +59,14 @@ function [time,varargout] = getData(obj,parameter,varargin)
     time2   = cell.empty;
     data2   = cell.empty;
     meta2   = metaEmpty;
+    
+    
+    [time,data,meta]	= obj.getSensorData(parameterInfo{parameterIsValid,'ParameterId'},...
+                            'SensorIndex',	sensorIndex,...
+                            'SensorId',     sensorId,...
+                            'Raw',        	raw);
+    [time2,data2,meta2]	= obj.getAnalyticalData(parameterInfo{parameterIsValid,'ParameterId'});
 
-% 	if obj.hasSensorData
-%         im              = ismember(parameterInfo{parameterIsValid,'ParameterId'},obj.parameters{:,'ParameterId'});
-%         parameterSensor = false(size(parameter));
-%         parameterSensor(parameterIsValid) = im;
-%         if any(im)
-%             [time,data,meta]    = obj.getSensorData(parameterInfo{parameterSensor,'ParameterId'},...
-%                                     'SensorIndex',	sensorIndex,...
-%                                     'SensorId',     sensorId,...
-%                                  	'Raw',        	raw);
-            [time,data,meta]    = obj.getSensorData(parameterInfo{:,'ParameterId'},...
-                                    'SensorIndex',	sensorIndex,...
-                                    'SensorId',     sensorId,...
-                                 	'Raw',        	raw);
-%         end
-% 	end
-%     
-% 	if obj.hasAnalyticalData
-%     	uAnalyticalParameterIds = unique(obj.analyticalSamples{:,'ParameterId'});
-%         
-%      	im              = ismember(parameterInfo{parameterIsValid,'ParameterId'},uAnalyticalParameterIds);
-%         parameterAnalytical= false(size(parameter));
-%         parameterAnalytical(parameterIsValid) = im;
-% 
-%         if any(im)
-%             [time2,data2,meta2]    = obj.getAnalyticalData(parameterInfo{parameterAnalytical,'ParameterId'});
-            [time2,data2,meta2]    = obj.getAnalyticalData(parameterInfo{:,'ParameterId'});
-%         end
-% 	end
     
     time    = cat(1,time,time2);
     data    = cat(1,data,data2);
@@ -111,18 +96,18 @@ function [time,varargout] = getData(obj,parameter,varargin)
 
         % only keep one copy of the time cell
         [rInd,cInd]	= find(~cellfun(@isempty,time));
-        [rInd,sInd] = sort(rInd);
-        cInd        = cInd(sInd);
+        [rInd,uInd]= unique(rInd);
+        cInd        = cInd(uInd);
         tInd        = sub2ind(size(time),rInd,cInd);
         time        = time(tInd);
 
         % add name to meta
         dataName    = repmat(strcat(cellstr(cat(1,meta.dataSourceId)),{' '},cellstr(cat(1,meta.dataSourceDomain)),{' '}),[1,nParameter]);
-        dataName    = strcat(dataName,repmat(parameterInfo{:,'Symbol'}',[size(data,1),1]));
+        dataName    = strcat(dataName,repmat(parameterInfo{parameterIsValid,'Symbol'}',[size(data,1),1]));
         [meta.name] = dataName{tInd};
 
         % add unit to meta
-        dataUnit    = cellstr(repmat(parameterInfo{:,'Unit'}',[size(data,1),1]));
+        dataUnit    = cellstr(repmat(parameterInfo{parameterIsValid,'Unit'}',[size(data,1),1]));
         [meta.unit] = dataUnit{tInd};
 
         % make sure the masking didn't result in empty data

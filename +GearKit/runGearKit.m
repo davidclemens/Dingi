@@ -6,7 +6,7 @@ pathName        = '/Users/David/Dropbox/David/university/PostDoc/data/cruises/';
 
 %% import BIGO deployments
 
-%{
+%%{
 dirListCruises 	= dir([pathName,'*_BIGO_data*']);
 tmpCruiseIds    = regexp({dirListCruises.name},'([A-Z]+\d+)_BIGO_data','tokens');
 tmpCruiseIds    = [tmpCruiseIds{:}]';
@@ -30,7 +30,7 @@ end
 
 %% import EC deployments
 
-%%{
+%{
 dirListCruises 	= dir([pathName,'*_EC_data*']);
 tmpCruiseIds    = regexp({dirListCruises.name},'([A-Z]+\d+)_EC_data','tokens');
 tmpCruiseIds    = [tmpCruiseIds{:}]';
