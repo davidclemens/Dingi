@@ -49,7 +49,10 @@ function [time,varargout] = getData(obj,parameter,varargin)
                          'dataSourceId',        categorical(NaN),...
                          'dataSourceDomain',    categorical(NaN),...
                          'mountingLocation',    categorical(NaN),...
-                         'dependantVariables',  {''});
+                         'dependantVariables',  {''},...
+                         'name',                {''},...
+                         'unit',                {''},...
+                         'parameterId',         uint16.empty);
     metaEmpty(:)	= [];
                
 	% initialize
@@ -113,6 +116,10 @@ function [time,varargout] = getData(obj,parameter,varargin)
         dataUnit(maskDataIsEmpty) = {''};
         dataUnit    = mat2cell(dataUnit,ones(1,size(dataUnit,1)));
         [meta.unit] = dataUnit{:};
+        
+        % add parameterId to meta
+        dataParameterId     = repmat({parameterInfo{parameterIsValid,'ParameterId'}'},[size(data,1),1]);
+        [meta.parameterId]  = dataParameterId{:};
 
         % make sure the masking didn't result in empty data
         maskTimeIsEmtpy     = cellfun(@isempty,time);
