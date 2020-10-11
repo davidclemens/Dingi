@@ -22,8 +22,7 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
         timeRaw
         fluxParameterRaw
         
-        fluxParameterId
-        
+        meta
         timeUnit
         
         flux
@@ -43,13 +42,14 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
         nFits
     end
     properties (Dependent)
+        fluxParameterId
         fluxParameterUnit
     end
     properties (Hidden, Constant)
         validFitTypes = {'linear','sigmoidal'};
     end
     methods
-        function obj = bigoFluxAnalysis(time,fluxParameterData,fluxParameterId,varargin)
+        function obj = bigoFluxAnalysis(time,fluxParameterData,meta,varargin)
                         
             % parse Name-Value pairs
             optionName          = {'FitType','FitInterval','TimeUnit','FluxVolume','FluxCrossSection'}; % valid options (Name)
@@ -71,7 +71,7 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
             obj.fitType             = FitType;
             obj.fitInterval         = FitInterval;
             
-            obj.fluxParameterId     = fluxParameterId;
+            obj.meta                = meta;
             
             obj.timeUnit            = TimeUnit;
             
@@ -108,6 +108,9 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
         function fluxParameterUnit = get.fluxParameterUnit(obj)
             [~,parameterInfo]   = DataKit.validateParameterId(obj.fluxParameterId);
             fluxParameterUnit   = cellstr(parameterInfo{:,'Unit'})';
+        end
+        function fluxParameterId = get.fluxParameterId(obj)
+            fluxParameterId     = obj.meta(1).parameterId;
         end
         
         % set methods
