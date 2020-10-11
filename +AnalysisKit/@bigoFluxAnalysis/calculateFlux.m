@@ -2,12 +2,20 @@ function obj = calculateFlux(obj)
 % CALCULATEFLUX
     
     n       = 100;
-    flux    = NaN(obj.nFits,3);
+    
+    fluxFactorSource        = obj.fluxVolume./obj.fluxCrossSection; % L/m2
+    fluxFactorParameter     = 1e-3.*24.*ones(1,numel(obj.fluxParameterUnit));
+    
+    statisticalParameters 	= {'Mean',          'Median',           'Perc25',           'Perc75',           'Min',          'Max',          'Std',          'IQR'};
+    statisticalFunctions   	= {@(x) nanmean(x), @(x) nanmedian(x),	@(x) prctile(x,25),	@(x) prctile(x,75),	@(x) nanmin(x), @(x) nanmax(x), @(x) nanstd(x), @(x) iqr(x)};
+    nStatisticalParameters  = numel(statisticalParameters);
+    
+    flux    = NaN(obj.nFits,nStatisticalParameters);
     xq      = linspace(obj.fitInterval(1),obj.fitInterval(2),n)';
     fluxes  = NaN(size(xq));
     for ff = 1:obj.nFits
         fluxes      = differentiate(obj.fitObjects{ff},xq); % dUnit/dt
-        flux(ff,1)  = median(fluxes);
+        flux(ff,:)  = cellfun(@(func) func(fluxFactorParameter(obj.indParameter(ff)).*fluxFactorSource(obj.indSource(ff)).*fluxes),statisticalFunctions);
     end
     obj.flux = flux;
 end

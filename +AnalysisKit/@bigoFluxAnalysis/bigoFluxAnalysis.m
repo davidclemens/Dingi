@@ -22,10 +22,14 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
         timeRaw
         fluxParameterRaw
         
+        fluxParameterId
+        
         timeUnit
-        fluxParameterUnit
         
         flux
+        
+        fluxVolume
+        fluxCrossSection
     end
     properties %(Hidden)
         initialized = false
@@ -38,19 +42,23 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
         indParameter
         nFits
     end
+    properties (Dependent)
+        fluxParameterUnit
+    end
     properties (Hidden, Constant)
         validFitTypes = {'linear','sigmoidal'};
     end
     methods
-        function obj = bigoFluxAnalysis(time,fluxParameter,varargin)
+        function obj = bigoFluxAnalysis(time,fluxParameterData,fluxParameterId,varargin)
                         
             % parse Name-Value pairs
-            optionName          = {'FitType','FitInterval','TimeUnit','FluxParameterUnit'}; % valid options (Name)
-            optionDefaultValue  = {'linear',[0,8],'h',repmat({' '},1,size(fluxParameter,2))}; % default value (Value)
+            optionName          = {'FitType','FitInterval','TimeUnit','FluxVolume','FluxCrossSection'}; % valid options (Name)
+            optionDefaultValue  = {'linear',[0,8],'h',ones(size(fluxParameterData,1),1),ones(size(fluxParameterData,1),1)}; % default value (Value)
             [FitType,...
              FitInterval,...
              TimeUnit,...
-             FluxParameterUnit,...
+             FluxVolume,...
+             FluxCrossSection...
                 ]	= internal.stats.parseArgs(optionName,optionDefaultValue,varargin{:}); % parse function arguments
 
             % call superclass constructor
@@ -58,28 +66,33 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
             
             % populate properties
             obj.timeRaw             = time;
-            obj.fluxParameterRaw    = fluxParameter;
+            obj.fluxParameterRaw    = fluxParameterData;
             
             obj.fitType             = FitType;
             obj.fitInterval         = FitInterval;
+            
+            obj.fluxParameterId     = fluxParameterId;
+            
             obj.timeUnit            = TimeUnit;
-            obj.fluxParameterUnit   = FluxParameterUnit;
+            
+            obj.fluxVolume          = FluxVolume;
+            obj.fluxCrossSection    = FluxCrossSection;
             
             % initialize exclude mask to exclude NaNs
-            obj.excluded            = cellfun(@(fp) isnan(fp),obj.fluxParameterRaw,'un',0);
+            obj.excluded  	= cellfun(@(fp) isnan(fp),obj.fluxParameterRaw,'un',0);
             
             % intialize others
             [obj.indSource,obj.indParameter]    = find(~cellfun(@isempty,obj.fluxParameterRaw));
             obj.nFits                          	= numel(obj.indSource);
             
             % initialize flux
-            obj.flux                = NaN(obj.nFits,3);
+            obj.flux       	= NaN(obj.nFits,3);
             
             % set initialized flag
-            obj.initialized         = true;
+            obj.initialized	= true;
             
             % calculate
-            obj = obj.calculate();
+            obj             = obj.calculate();
         end
         
         % methods in other files
@@ -89,7 +102,13 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
         varargout   = plot(obj,varargin)
         func        = fitLinear(x,y,varargin)
         
+        tbl         = getFlux(obj,parameters)
+        
         % get methods
+        function fluxParameterUnit = get.fluxParameterUnit(obj)
+            [~,parameterInfo]   = DataKit.validateParameterId(obj.fluxParameterId);
+            fluxParameterUnit   = cellstr(parameterInfo{:,'Unit'})';
+        end
         
         % set methods
         function obj = set.fitType(obj,value)
