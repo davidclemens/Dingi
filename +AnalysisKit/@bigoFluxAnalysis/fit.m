@@ -42,8 +42,12 @@ function obj = fit(obj,varargin)
                 error('AnalysisKit:bigoFluxAnalysis:fit:unknownFitType',...
                     'The fit type ''%s'' is not defined yet.',obj.fitType)
         end
-         
-        [fitObj{ff},fitGOF{ff},fitOutput{ff}] = fit(obj.timeRaw{obj.indSource(ff)},obj.fluxParameterRaw{obj.indSource(ff),obj.indParameter(ff)},fitType,fitOptions);
+        XData   = obj.timeRaw{obj.indSource(ff)};
+        YData   = obj.fluxParameterRaw{obj.indSource(ff),obj.indParameter(ff)};
+        
+        
+        
+        [fitObj{ff},fitGOF{ff},fitOutput{ff}] = fit(XData,YData,fitType,fitOptions);
     end
     
     obj.fitObjects  = fitObj;

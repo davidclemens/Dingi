@@ -25,6 +25,7 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
         meta
         timeUnit
         
+        fluxStatistics
         flux
         
         fluxVolume

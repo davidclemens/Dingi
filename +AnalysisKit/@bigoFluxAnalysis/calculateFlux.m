@@ -12,10 +12,11 @@ function obj = calculateFlux(obj)
     
     flux    = NaN(obj.nFits,nStatisticalParameters);
     xq      = linspace(obj.fitInterval(1),obj.fitInterval(2),n)';
-    fluxes  = NaN(size(xq));
+    fluxes  = NaN(obj.nFits,numel(xq));
     for ff = 1:obj.nFits
-        fluxes      = differentiate(obj.fitObjects{ff},xq); % dUnit/dt
-        flux(ff,:)  = cellfun(@(func) func(fluxFactorParameter(obj.indParameter(ff)).*fluxFactorSource(obj.indSource(ff)).*fluxes),statisticalFunctions);
+        fluxes(ff,:)	= differentiate(obj.fitObjects{ff},xq); % dUnit/dt
+        flux(ff,:)      = cellfun(@(func) func(fluxFactorParameter(obj.indParameter(ff)).*fluxFactorSource(obj.indSource(ff)).*fluxes(ff,:)),statisticalFunctions);
     end
-    obj.flux = flux;
+    obj.flux           = fluxes;
+    obj.fluxStatistics = flux;
 end
