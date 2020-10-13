@@ -21,14 +21,19 @@ function [time,varargout] = getData(obj,parameter,varargin)
 	end
    
     % input check: parameter
-    if ischar(parameter)
-        parameter	= cellstr(parameter);
-    elseif ~iscellstr(parameter)
+    if ischar(parameter) || iscellstr(parameter)
+        if ischar(parameter)
+            parameter	= cellstr(parameter);
+        end
+        parameter	= parameter(:);
+        [parameterIsValid,parameterInfo]    = DataKit.validateParameter(parameter);
+    elseif isa(parameter,'uint16')
+        parameter	= parameter(:);
+        [parameterIsValid,parameterInfo]    = DataKit.validateParameterId(parameter);
+    else
         error('GearKit:gearDeployment:getData:invalidParameterType',...
          	'The requested parameter has to be specified as a char or cellstr.')
     end
-   	parameter	= parameter(:);
-    [parameterIsValid,parameterInfo]    = DataKit.validateParameter(parameter);
     nParameter  = sum(parameterIsValid);
     if any(~parameterIsValid)
         warning('GearKit:gearDeployment:getData:someInvalidParameters',...
@@ -44,24 +49,12 @@ function [time,varargout] = getData(obj,parameter,varargin)
             'Only DeploymentDataOnly OR TimeOfInterestDataOnly can be requested. Not both at the same time.')
     end
     
-	% initialize empty meta struct     
-    metaEmpty	= struct('dataSourceType',      categorical(NaN),...
-                         'dataSourceId',        categorical(NaN),...
-                         'dataSourceDomain',    categorical(NaN),...
-                         'mountingLocation',    categorical(NaN),...
-                         'dependantVariables',  {''},...
-                         'name',                {''},...
-                         'unit',                {''},...
-                         'parameterId',         uint16.empty);
-    metaEmpty(:)	= [];
-               
+    
 	% initialize
-    timeSensor      = cell.empty;
-    dataSensor      = cell.empty;
-    metaSensor      = metaEmpty;
-    timeAnalytical  = cell.empty;
-    dataAnalytical  = cell.empty;
-    metaAnalytical  = metaEmpty;
+    [timeSensor,dataSensor,metaSensor] = GearKit.gearDeployment.initializeGetDataOutputs();
+    timeAnalytical  = timeSensor;
+    dataAnalytical  = dataSensor;
+    metaAnalytical  = metaSensor;
     
     % get data
     [timeSensor,dataSensor,metaSensor]	= obj.getSensorData(parameterInfo{parameterIsValid,'ParameterId'},...
@@ -93,15 +86,8 @@ function [time,varargout] = getData(obj,parameter,varargin)
             end
 
             time        = cellfun(@(t,m) t(m),time,maskTime,'un',0);
-            data        = cellfun(@(d,m) d(m,:),data,maskTime,'un',0);
+            data        = cellfun(@(d,m) d(m),data,maskTime,'un',0);
         end
-
-        % only keep one copy of the time cell
-        [rInd,cInd]	= find(~cellfun(@isempty,time));
-        [rInd,uInd] = unique(rInd);
-        cInd        = cInd(uInd);
-        tInd        = sub2ind(size(time),rInd,cInd);
-        time        = time(tInd);
 
         % add name to meta
         maskDataIsEmpty = cellfun(@isempty,data);
@@ -127,6 +113,13 @@ function [time,varargout] = getData(obj,parameter,varargin)
         data                = data(~maskTimeIsEmtpy,:);
         meta                = meta(~maskTimeIsEmtpy);
 
+        % only keep one copy of the time cell
+        [rInd,cInd]	= find(~cellfun(@isempty,time));
+        [rInd,uInd] = unique(rInd);
+        cInd        = cInd(uInd);
+        tInd        = sub2ind(size(time),rInd,cInd);
+        time        = time(tInd);
+        
         if ~isempty(relativeTime)
             timeAsDatetime  = cellfun(@(t) datetime(t,'ConvertFrom','datenum'),time,'un',0);
             timeRelative  	= cellfun(@(t) t - obj.timeOfInterestStart,timeAsDatetime,'un',0);

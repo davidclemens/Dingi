@@ -15,17 +15,25 @@ function [time,varargout] = getAnalyticalData(obj,parameter,varargin)
    	parameter	= parameter(:);
     nParameter 	= numel(parameter);
     
-    analyticalSamples	= outerjoin(obj.analyticalSamples,obj.protocol,...
-                            'Keys',             {'Subgear','SampleId'},...
-                            'MergeKeys',        true,...
-                            'RightVariables',   {'Time','TimeRelative'},...
-                            'Type',             'left');
-
+    analyticalSamples	= obj.analyticalSamples;
+    
     % only keep table entries with requested parameter
     [maskAnalyticalSamples,indAnalyticalParameterIds] = ismember(analyticalSamples{:,'ParameterId'},parameter);
     analyticalSamples               = analyticalSamples(maskAnalyticalSamples,:);
     indAnalyticalParameterIds       = indAnalyticalParameterIds(maskAnalyticalSamples);
-
+    nAnalyticalSamples              = size(analyticalSamples,1);
+    
+    if nAnalyticalSamples == 0
+        [time,data,meta] = GearKit.gearDeployment.initializeGetDataOutputs();
+        if nargout >= 2
+            varargout{1}	= data;
+        end
+        if nargout >= 3
+            varargout{2}    = meta;
+        end
+        return
+    end
+    
     [uSampleIds,~,indSampleIds]     = unique(analyticalSamples(:,{'Subgear','SampleId'}),'rows');
     nSampleIds                      = size(uSampleIds,1);
     
@@ -44,17 +52,7 @@ function [time,varargout] = getAnalyticalData(obj,parameter,varargin)
     data    = accumarray([repmat(indDataSourceId,nParameter,1),reshape(repmat(1:nParameter,nSampleIds,1),[],1)],data(:),[],@(x) {x});
     
     if ~iscell(time) || isempty(time)
-        time = cell.empty;
-        data = cell.empty;
-        meta	= struct('dataSourceType',      categorical(NaN),...
-                         'dataSourceId',        categorical(NaN),...
-                         'dataSourceDomain',    categorical(NaN),...
-                         'mountingLocation',    [],...
-                         'dependantVariables',  {''},...
-                         'name',                {''},...
-                         'unit',                {''},...
-                         'parameterId',         uint16.empty);
-        meta = meta(false(size(meta)));
+        [time,data,meta] = initializeGetDataOutputs();
     else
         % compile metadata
         meta	= struct('dataSourceType',      categorical({'analyticalSample'}),...

@@ -24,11 +24,8 @@ classdef bigoDeployment < GearKit.gearDeployment
             obj     = readProtocol(obj);
             obj     = readInternalSensors(obj);
             
-            meanExperimentStart = mean(obj.protocol{obj.protocol{:,'Event'} == 'Experiment Start','Time'},'omitnan');
-            meanExperimentEnd   = mean(obj.protocol{obj.protocol{:,'Event'} == 'Slide Down','StartTime'},'omitnan');
-                                    
-            obj.timeOfInterestStart     = meanExperimentStart;
-            obj.timeOfInterestEnd       = meanExperimentEnd;
+            obj.timeOfInterestStart	= mean(obj.protocol{obj.protocol{:,'Event'} == 'Experiment Start','Time'},'omitnan');
+            obj.timeOfInterestEnd   = mean(obj.protocol{obj.protocol{:,'Event'} == 'Slide Down','StartTime'},'omitnan');
             
             obj     = readAuxillarySensors(obj);
             obj     = assignSensorMountingData(obj);
@@ -41,6 +38,7 @@ classdef bigoDeployment < GearKit.gearDeployment
     methods (Access = public)
        	obj	= runAnalysis(obj)
         varargout = exportProtocol(obj,varargin)
+        tbl = getFlux(obj,parameter)
     end
     
     methods (Access = protected)

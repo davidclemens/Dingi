@@ -107,6 +107,9 @@ classdef gearDeployment
         obj = calibrateSensors(obj)
         obj = readAnalyticalSamples(obj)
     end
+    methods (Access = protected, Static)
+        [time,data,meta] = initializeGetDataOutputs()
+    end
     methods (Access = protected, Abstract)
         internalSensors = readInternalSensors(obj)
     end

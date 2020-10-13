@@ -117,9 +117,7 @@ function [time,varargout] = getSensorData(obj,parameter,varargin)
     maskSensor     	= maskSensor & ismember((1:numel(obj.sensors))',unique(cat(1,tmpSensorIndex{:})));
 
     if sum(maskSensor) == 0
-        time = cell.empty;
-        data = cell.empty;
-        meta = meta(false(size(meta)));
+        [time,data,meta] = GearKit.gearDeployment.initializeGetDataOutputs();
     else
         % filter by maskSensor
         [time,data]	= obj.sensors(maskSensor).gd(parameter,...
@@ -128,7 +126,7 @@ function [time,varargout] = getSensorData(obj,parameter,varargin)
         meta                = meta(maskSensor);
     
         % replace all NaNs with empty arrays
-        dataIsNaN           = cellfun(@(d) all(isnan(d)),data) | cellfun(@(d) all(isnan(d)),time);
+        dataIsNaN           = cellfun(@(d) all(all(isnan(d),2)),data) | cellfun(@(t) all(all(isnan(t),2)),time);
         data(dataIsNaN)     = {[]};
         time(dataIsNaN)     = {[]};
         
