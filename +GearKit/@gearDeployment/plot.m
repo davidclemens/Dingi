@@ -72,17 +72,57 @@ function varargout = plot(obj,parameter,varargin)
     
     nvarargin   = numel(varargin);
     
+    
+    % Figure settings
+	Menubar                     = 'figure';
+    maxFigureSize               = getMaxFigureSize('Menubar',Menubar);
+    PaperWidth                  = maxFigureSize(1);
+    PaperHeight                 = maxFigureSize(2);
+    PaperPos                    = [PaperWidth PaperHeight];
+    
+    % Axis settings
+    cmap                        = cbrewer('qual','Set1',7);
+    
     % parse Name-Value pairs
-    optionName          = {'FontSize','TitleFontSizeMultiplier','LabelFontSizeMultiplier'}; % valid options (Name)
-    optionDefaultValue  = {10,1,1}; % default value (Value)
-    [FontSize,...
-     TitleFontSizeMultiplier,...
-     LabelFontSizeMultiplier,...
-    ]	= internal.stats.parseArgs(optionName,optionDefaultValue,varargin{:}); % parse function arguments
-     
+    optionName          = {'FigureNameValue','AxisNameValue','DataDomain','LegendVisible','MarginOuter','MarginInner','RelativeTime'}; % valid options (Name)
+    optionDefaultValue  = {{'Name',                 'gear deployments',...
+                            'Menubar',              Menubar,...
+                            'Toolbar',              'auto',...
+                            'PaperSize',            PaperPos,...
+                            'PaperOrientation',     'Portrait'},...
+                           {'NextPlot',                 'add',...
+                            'Layer',                    'top',...
+                            'Box',                      'off',...
+                            'FontSize',                 12,...
+                            'TitleFontSizeMultiplier',  1,...
+                            'LabelFontSizeMultiplier',  1,...
+                            'TitleFontWeight',          'normal',...
+                            'TickDir',                  'out',...
+                            'ColorOrder',               cmap},...
+                            {},...
+                            'show',...
+                            0.5,...
+                            0,...
+                            'h'}; % default value (Value)
+    [FigureNameValue,...
+     AxesNameValue,...
+     DataDomain,...
+     LegendVisible,...
+     MarginOuter,...
+     MarginInner,...
+     RelativeTime,...
+    ]	= internal.stats.parseArgs(optionName,optionDefaultValue,varargin{:}); % parse function arguments   
+    
     % parse parameter input
-    plotParametersAvailable = cat(1,obj.parameters);
-    plotParametersAvailable = cellstr(unique(plotParametersAvailable.Parameter));
+    plotParametersAvailableInfo     = cat(1,obj.parameters);
+    [~,uInd]                        = unique(plotParametersAvailableInfo{:,'ParameterId'});
+    plotParametersAvailableInfo     = plotParametersAvailableInfo(uInd,:);
+    
+    plotParametersAvailableInfo     = outerjoin(plotParametersAvailableInfo,DataKit.importTableFile([getToolboxRessources('DataKit'),'/validParameters.xlsx']),...
+                                        'Keys',         {'ParameterId','Parameter'},...
+                                        'MergeKeys',    true,...
+                                        'Type',         'left');
+    plotParametersAvailable         = plotParametersAvailableInfo{:,'Parameter'};
     if nargin - nvarargin == 1
         plotParameterY      = plotParametersAvailable;
         error('TODO: implement a selection of all available parameters. All is too much.')
@@ -101,38 +141,24 @@ function varargout = plot(obj,parameter,varargin)
         end
     end
  	nParameter      	= numel(plotParameterY);
+    [~,parameterInfo]  = DataKit.validateParameter(plotParameterY);
     
     % initialize figure
     hfig        = figure(99);
     set(hfig,...
-       	'Visible',      'off');
+       	'Visible',      'on');
     clf
+    set(hfig,FigureNameValue{:})
     
     
-    cmap                        = cbrewer('qual','Set1',7);
-    fOutFigName                 = 'gear deployments';
-    Menubar                     = 'figure';
-    Toolbar                     = 'auto';
-    maxFigureSize               = getMaxFigureSize('Menubar',Menubar);
+    
     hsp                         = gobjects();
     hlgnd                       = gobjects();
     hp                          = gobjects();
     spnx                        = numel(obj);
     spny                        = nParameter;
     spi                         = reshape(1:spnx*spny,spnx,spny)';
-  	PaperWidth                  = maxFigureSize(1);
-    PaperHeight                 = maxFigureSize(2);
-    PaperPos                    = [PaperWidth PaperHeight];
-    MarginOuter                 = 0.2;
-    MarginInner                 = 0;  % cm
-
-    set(hfig,...
-        'Name',                 fOutFigName,...
-        'Menubar',              Menubar,...
-        'Toolbar',              Toolbar,...
-        'PaperSize',            PaperPos,...
-        'PaperOrientation',     'Portrait')
-    
+        
     parameterNotInDeployment    = false(spny,spnx);
     yLabelString                = repmat({''},spny,spnx);
     titleString                 = repmat({''},spny,spnx);
@@ -140,20 +166,11 @@ function varargout = plot(obj,parameter,varargin)
         gear	= col;
         for row = 1:spny
             par     = row;
-            hsp(spi(row,col))   = subplot(spny,spnx,spi(row,col),...
-                                    'NextPlot',                 'add',...
-                                    'Layer',                    'top',...
-                                    'Box',                      'off',...
-                                    'FontSize',                 FontSize,...
-                                    'TitleFontSizeMultiplier',  TitleFontSizeMultiplier,...
-                                    'LabelFontSizeMultiplier',  LabelFontSizeMultiplier,...
-                                    'TitleFontWeight',          'normal',...
-                                    'TickDir',                  'out',...
-                                    'ColorOrder',               cmap);
+            hsp(spi(row,col))   = subplot(spny,spnx,spi(row,col),AxesNameValue{:});
                 try
                     [time,data,info]    = obj(gear).getData(plotParameterY{par},...
-                                            'DeploymentDataOnly',       true,...
-                                            'RelativeTime',             'h');
+                                            'timeOfInterestDataOnly', 	true,...
+                                            'RelativeTime',             RelativeTime);
                 catch ME
                     switch ME.identifier
                         case 'GearKit:gearDeployment:gd:invalidParameter'
@@ -161,6 +178,13 @@ function varargout = plot(obj,parameter,varargin)
                         otherwise
                             rethrow(ME)
                     end
+                end
+                
+                if ~isempty(DataDomain)
+                    maskDataDomain  = any(DataDomain == cat(1,info.dataSourceDomain),2);
+                    time    = time(maskDataDomain,:);
+                    data    = data(maskDataDomain,:);
+                    info    = info(maskDataDomain);
                 end
                 
                 iihp    = 1;
@@ -173,15 +197,17 @@ function varargout = plot(obj,parameter,varargin)
                         XData  	= time{sens};
                         YData	= movmean(data{sens},10/60,...
                                           'SamplePoints',     XData);
-                        hptmp   = plot(XData,YData);
+                        hptmp   = plot(XData,YData,...
+                                    'LineWidth',    1.5);
                         nhp     = numel(hptmp);
                         hp(iihp:iihp + nhp - 1,spi(row,col))	= hptmp;
                         iihp    = iihp + nhp;
                     end
-                    hlgnd(spi(row,col))	= legend({info.name},...
+                    hlgnd(spi(row,col))	= legend(regexprep([info.name],[' ',parameterInfo{par,'Symbol'}{:}],''),...
                                                  'Location',        'best',...
                                                  'Interpreter',     'none');
-                    yLabelString{row,col}	= [plotParameterY{par},' (',info(1).unit,')'];
+                    legend(LegendVisible)
+                    yLabelString{row,col}	= [char(parameterInfo{par,'Abbreviation'}),' (',char(parameterInfo{par,'Unit'}),')'];
                     titleString{row,col} 	= strjoin([cellstr(obj(gear).cruise),cellstr(obj(gear).gear)],' ');
                 end
         end
@@ -224,6 +250,9 @@ function varargout = plot(obj,parameter,varargin)
                     'HorizontalAlignment',  'center',...
                     'FontSize',             FontSize*LabelFontSizeMultiplier)
             end
+            if row == spny
+                xlabel(hsp(spi(row,col)),['time (',RelativeTime,')'])
+            end
         end
     end
     
@@ -249,7 +278,7 @@ function varargout = plot(obj,parameter,varargin)
     varargout{1}    = hfig;
     varargout{2}    = hsp;
     
-    TightFig(hfig,hsp(1:spnx*spny),spi,PaperPos,MarginOuter,MarginInner);
+    TightFig(hfig,hsp(1:spnx*spny),spi,FigureNameValue{find(strcmp('PaperSize',FigureNameValue)) + 1},MarginOuter,MarginInner);
     
     hfig.Visible    = 'on';
 end
