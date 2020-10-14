@@ -108,10 +108,10 @@ function [time,varargout] = getData(obj,parameter,varargin)
         [meta.parameterId]  = dataParameterId{:};
 
         % make sure the masking didn't result in empty data
-        maskTimeIsEmtpy     = cellfun(@isempty,time);
-        time                = time(~maskTimeIsEmtpy);
-        data                = data(~maskTimeIsEmtpy,:);
-        meta                = meta(~maskTimeIsEmtpy);
+        maskTimeIsNotEmtpy 	= any(~cellfun(@isempty,time),2);
+        time                = time(maskTimeIsNotEmtpy,:);
+        data                = data(maskTimeIsNotEmtpy,:);
+        meta                = meta(maskTimeIsNotEmtpy);
 
         % only keep one copy of the time cell
         [rInd,cInd]	= find(~cellfun(@isempty,time));
