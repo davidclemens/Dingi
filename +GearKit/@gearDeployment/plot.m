@@ -102,7 +102,7 @@ function varargout = plot(obj,parameter,varargin)
                             {},...
                             'show',...
                             0.5,...
-                            0,...
+                            0.2,...
                             'h'}; % default value (Value)
     [FigureNameValue,...
      AxesNameValue,...
@@ -207,7 +207,7 @@ function varargout = plot(obj,parameter,varargin)
                                                  'Location',        'best',...
                                                  'Interpreter',     'none');
                     legend(LegendVisible)
-                    yLabelString{row,col}	= [char(parameterInfo{par,'Abbreviation'}),' (',char(parameterInfo{par,'Unit'}),')'];
+                    yLabelString{row,col}	= [char(parameterInfo{par,'Abbreviation'}),'\color[rgb]{0.6 0.6 0.6} (',char(parameterInfo{par,'Unit'}),')'];
                     titleString{row,col} 	= strjoin([cellstr(obj(gear).cruise),cellstr(obj(gear).gear)],' ');
                 end
         end
@@ -229,6 +229,8 @@ function varargout = plot(obj,parameter,varargin)
             else
                 set(hsp(spi(row,col)),...
                     'YColor',           'none');
+                set(hsp(spi(row,col)),...
+                    'YTickLabel',       '');
                 set(hsp(spi(row,col)).YAxis,...
                     'Visible',          'off');
             end
@@ -238,11 +240,13 @@ function varargout = plot(obj,parameter,varargin)
             else
                 set(hsp(spi(row,col)),...
                     'XColor',           'none');
+                set(hsp(spi(row,col)),...
+                    'XTickLabel',     	'');
                 set(hsp(spi(row,col)).XAxis,...
                     'Visible',          'off');
             end
             if row == 1
-                title(hsp(spi(row,col)),titleString{col})
+%                 title(hsp(spi(row,col)),titleString{col})
             end
             if parameterNotInDeployment(row,col)
                 text(hsp(spi(row,col)),0.5,0.5,'no data',...
@@ -251,7 +255,7 @@ function varargout = plot(obj,parameter,varargin)
                     'FontSize',             FontSize*LabelFontSizeMultiplier)
             end
             if row == spny
-                xlabel(hsp(spi(row,col)),['time (',RelativeTime,')'])
+                xlabel(hsp(spi(row,col)),['time\color[rgb]{0.6 0.6 0.6} (',RelativeTime,')'])
             end
         end
     end
