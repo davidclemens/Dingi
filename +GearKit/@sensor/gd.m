@@ -1,4 +1,4 @@
-function [t,d] = gd(obj,parameter,varargin)
+function [t,d,varargout] = gd(obj,parameter,varargin)
 % GD (get data) returns the specified sensor data for a sensor or sensor
 % array.
 
@@ -23,6 +23,7 @@ function [t,d] = gd(obj,parameter,varargin)
     
     t       = cell(nObj,nParameter);
     d       = cell(nObj,nParameter);
+    outlier = cell(nObj,nParameter);
     for oo = 1:nObj
         
         imParameter = ismember(parameter,obj(oo).dataParameters);
@@ -35,7 +36,8 @@ function [t,d] = gd(obj,parameter,varargin)
         ind         = parameter == obj(oo).dataParameters;
         [par,dat]   = find([ind;false(1,size(ind,2))]);
         
-        t(oo,:) = accumarray(par,ones(size(par)),[nParameter,1],@(d) {obj(oo).time(:,d)},{})';
+        t(oo,:)         = accumarray(par,ones(size(par)),[nParameter,1],@(d) {obj(oo).time(:,d)},{})';
+        outlier(oo,:)   = accumarray(par,dat,[nParameter,1],@(d) {obj(oo).isOutlier(:,d)},{})';
         if raw
             d(oo,:) 	= accumarray(par,dat,[nParameter,1],@(d) {obj(oo).dataRaw(:,d)},{})';
         else
@@ -48,4 +50,6 @@ function [t,d] = gd(obj,parameter,varargin)
 %         error('GearKit:gearDeployment:gd:invalidParameter',...
 %           '''%s'' is not a valid parameter for any of the sensors. Valid parameters are:\n\t%s\n',char(parameter(invalidParameterIndex)),strjoin(unique(cat(2,obj.dataParameters)),'\n\t'))
     end
+    
+    varargout{1} = outlier;
 end

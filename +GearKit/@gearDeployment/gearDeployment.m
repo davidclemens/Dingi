@@ -24,7 +24,8 @@ classdef gearDeployment
         analysis % Data analysis object
         dataFolderInfo	= struct('gearName',   	char.empty,...
                                  'rootFolder',	char.empty,...
-                                 'dataFolder', 	char.empty);    % Structure that holds metadata on the gear deployment folder
+                                 'dataFolder', 	char.empty,...
+                                 'saveFile',    char.empty);    % Structure that holds metadata on the gear deployment folder
     end
     properties (Dependent)
         parameters
@@ -98,6 +99,9 @@ classdef gearDeployment
         [time,data,varargout]   = getSensorData(obj,parameter,varargin)
         varargout               = exportData(obj,parameter,filename,varargin)
         varargout               = plot(obj,varargin)
+        obj                     = markQualityFlags(obj)
+        obj = loadobj(obj)
+        obj = saveobj(obj)
     end
     methods (Access = protected)
         obj	= getGearDeploymentMetadata(obj,pathName)
@@ -108,7 +112,7 @@ classdef gearDeployment
         obj = readAnalyticalSamples(obj)
     end
     methods (Access = protected, Static)
-        [time,data,meta] = initializeGetDataOutputs()
+        [time,data,meta,outlier] = initializeGetDataOutputs()
     end
     methods (Access = protected, Abstract)
         internalSensors = readInternalSensors(obj)

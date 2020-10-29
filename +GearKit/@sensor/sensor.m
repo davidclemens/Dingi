@@ -19,6 +19,7 @@ classdef sensor
         time double = []; % data timeline as datenum
         depth double = []; % data depth
         data double = []; % data
+        isOutlier logical = [];
         dataRaw double = []; % raw data
         timeInfo GearKit.timeMetadata = GearKit.timeMetadata() % metadata on the timeline
         dataInfo GearKit.dataMetadata = GearKit.dataMetadata() % metadata on the data
@@ -93,7 +94,7 @@ classdef sensor
         obj = readSBECTD(obj)
       	obj = readO2Logger(obj)
         
-        [t,d]   = gd(obj,parameter,varargin)
+        [t,d,varargout]   = gd(obj,parameter,varargin)
         
         % overloaded methods
         s = plus(obj1,obj2)

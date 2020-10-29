@@ -27,6 +27,7 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
         
         fluxStatistics
         flux
+        fluxConfInt
         
         fluxVolume
         fluxCrossSection
@@ -53,13 +54,14 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
         function obj = bigoFluxAnalysis(time,fluxParameterData,meta,varargin)
                         
             % parse Name-Value pairs
-            optionName          = {'FitType','FitInterval','TimeUnit','FluxVolume','FluxCrossSection'}; % valid options (Name)
-            optionDefaultValue  = {'linear',[0,8],'h',ones(size(fluxParameterData,1),1),ones(size(fluxParameterData,1),1)}; % default value (Value)
+            optionName          = {'FitType','FitInterval','TimeUnit','FluxVolume','FluxCrossSection','Outlier'}; % valid options (Name)
+            optionDefaultValue  = {'linear',[0,8],'h',ones(size(fluxParameterData,1),1),ones(size(fluxParameterData,1),1),cellfun(@(s) false(size(s)),fluxParameterData,'un',0)}; % default value (Value)
             [FitType,...
              FitInterval,...
              TimeUnit,...
              FluxVolume,...
-             FluxCrossSection...
+             FluxCrossSection,...
+             Outlier...
                 ]	= internal.stats.parseArgs(optionName,optionDefaultValue,varargin{:}); % parse function arguments
 
             % call superclass constructor
@@ -80,7 +82,7 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
             obj.fluxCrossSection    = FluxCrossSection;
             
             % initialize exclude mask to exclude NaNs
-            obj.excluded  	= cellfun(@(fp) isnan(fp),obj.fluxParameterRaw,'un',0);
+            obj.excluded  	= cellfun(@(fp,o) isnan(fp) | o,obj.fluxParameterRaw,Outlier,'un',0);
             
             % intialize others
             [obj.indSource,obj.indParameter]    = find(~cellfun(@isempty,obj.fluxParameterRaw));

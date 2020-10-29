@@ -57,16 +57,23 @@ function [time,varargout] = getData(obj,parameter,varargin)
     metaAnalytical  = metaSensor;
     
     % get data
-    [timeSensor,dataSensor,metaSensor]	= obj.getSensorData(parameterInfo{parameterIsValid,'ParameterId'},...
+    [timeSensor,...
+     dataSensor,...
+     metaSensor,...
+     outlierSensor]	= obj.getSensorData(parameterInfo{parameterIsValid,'ParameterId'},...
                                             'SensorIndex',	sensorIndex,...
                                             'SensorId',     sensorId,...
                                             'Raw',        	raw);
-    [timeAnalytical,dataAnalytical,metaAnalytical]	= obj.getAnalyticalData(parameterInfo{parameterIsValid,'ParameterId'});
+    [timeAnalytical,...
+     dataAnalytical,...
+     metaAnalytical,...
+     outlierAnalytical]	= obj.getAnalyticalData(parameterInfo{parameterIsValid,'ParameterId'});
 
     % merge data
     time    = cat(1,timeSensor,timeAnalytical);
     data    = cat(1,dataSensor,dataAnalytical);
     meta    = cat(1,metaSensor,metaAnalytical);
+    outlier	= cat(1,outlierSensor,outlierAnalytical);
     
     if ~iscell(time) || isempty(time)
         
@@ -87,6 +94,7 @@ function [time,varargout] = getData(obj,parameter,varargin)
 
             time        = cellfun(@(t,m) t(m),time,maskTime,'un',0);
             data        = cellfun(@(d,m) d(m),data,maskTime,'un',0);
+            outlier     = cellfun(@(d,m) d(m),outlier,maskTime,'un',0);
         end
 
         % add name to meta
@@ -112,6 +120,7 @@ function [time,varargout] = getData(obj,parameter,varargin)
         time                = time(maskTimeIsNotEmtpy,:);
         data                = data(maskTimeIsNotEmtpy,:);
         meta                = meta(maskTimeIsNotEmtpy);
+        outlier          	= outlier(maskTimeIsNotEmtpy,:);
 
         % only keep one copy of the time cell
         [rInd,cInd]	= find(~cellfun(@isempty,time));
@@ -154,5 +163,8 @@ function [time,varargout] = getData(obj,parameter,varargin)
     end
     if nargout >= 3
         varargout{2}    = meta;
+    end
+    if nargout >= 4
+        varargout{3}    = outlier;
     end
 end

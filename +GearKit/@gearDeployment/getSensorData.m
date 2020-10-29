@@ -117,10 +117,10 @@ function [time,varargout] = getSensorData(obj,parameter,varargin)
     maskSensor     	= maskSensor & ismember((1:numel(obj.sensors))',unique(cat(1,tmpSensorIndex{:})));
 
     if sum(maskSensor) == 0
-        [time,data,meta] = GearKit.gearDeployment.initializeGetDataOutputs();
+        [time,data,meta,outlier] = GearKit.gearDeployment.initializeGetDataOutputs();
     else
         % filter by maskSensor
-        [time,data]	= obj.sensors(maskSensor).gd(parameter,...
+        [time,data,outlier]	= obj.sensors(maskSensor).gd(parameter,...
                                     'Raw',                  raw);
                                 
         meta                = meta(maskSensor);
@@ -129,6 +129,7 @@ function [time,varargout] = getSensorData(obj,parameter,varargin)
         dataIsNaN           = cellfun(@(d) all(all(isnan(d),2)),data) | cellfun(@(t) all(all(isnan(t),2)),time);
         data(dataIsNaN)     = {[]};
         time(dataIsNaN)     = {[]};
+        outlier(dataIsNaN)  = {logical.empty};
         
         % remove empty data sources (rows)
         dataIsEmpty         = ~(~cellfun(@isempty,data) | ~cellfun(@isempty,time));
@@ -136,6 +137,7 @@ function [time,varargout] = getSensorData(obj,parameter,varargin)
         data                = data(maskEmtpyDataSource,:);
         time                = time(maskEmtpyDataSource,:);
         meta                = meta(maskEmtpyDataSource);
+        outlier             = outlier(maskEmtpyDataSource,:);
     end
     
     if nargout >= 2
@@ -143,5 +145,8 @@ function [time,varargout] = getSensorData(obj,parameter,varargin)
     end
     if nargout >= 3
         varargout{2}    = meta;
+    end
+    if nargout >= 4
+        varargout{3}    = outlier;
     end
 end

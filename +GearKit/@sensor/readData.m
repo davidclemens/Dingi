@@ -29,6 +29,9 @@ function obj = readData(obj)
     end
     
     [obj.dataRaw]       = obj.data;
+    for oo = 1:numel(obj)
+        obj(oo).isOutlier     = false(size(obj(oo).data));
+    end
     for sens = 1:numel(obj)
         obj(sens).dataInfo.idRaw                = obj(sens).dataInfo.id;  
         obj(sens).dataInfo.calibrationFunction  = repmat({@(x) x},1,obj(sens).dataInfo.nParameters);

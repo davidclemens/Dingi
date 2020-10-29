@@ -24,12 +24,15 @@ function [time,varargout] = getAnalyticalData(obj,parameter,varargin)
     nAnalyticalSamples              = size(analyticalSamples,1);
     
     if nAnalyticalSamples == 0
-        [time,data,meta] = GearKit.gearDeployment.initializeGetDataOutputs();
+        [time,data,meta,outlier] = GearKit.gearDeployment.initializeGetDataOutputs();
         if nargout >= 2
             varargout{1}	= data;
         end
         if nargout >= 3
             varargout{2}    = meta;
+        end
+        if nargout >= 4
+            varargout{3}    = outlier;
         end
         return
     end
@@ -41,18 +44,22 @@ function [time,varargout] = getAnalyticalData(obj,parameter,varargin)
     maskParameterExists = ismember(parameter,analyticalSamples{:,'ParameterId'});
 
     % average replicates
-    time = accumarray([indSampleIds,indAnalyticalParameterIds],datenum(analyticalSamples{:,'Time'}),[nSampleIds,nParameter],@nanmean,NaN);
-    data = accumarray([indSampleIds,indAnalyticalParameterIds],analyticalSamples{:,'Value'},[nSampleIds,nParameter],@nanmean,NaN);
-    
+    dataValues  = analyticalSamples{:,'Value'};
+    dataValues(analyticalSamples{:,'isOutlier'}) = NaN;
+    time    = accumarray([indSampleIds,indAnalyticalParameterIds],datenum(analyticalSamples{:,'Time'}),[nSampleIds,nParameter],@nanmean,NaN);
+    data    = accumarray([indSampleIds,indAnalyticalParameterIds],dataValues,[nSampleIds,nParameter],@nanmean,NaN);
+ 	outlier = accumarray([indSampleIds,indAnalyticalParameterIds],analyticalSamples{:,'isOutlier'},[nSampleIds,nParameter],@any,false);
+
     % accumulate according to Subgear and SourceId
  	dataSourceId                        = regexprep(cellstr(uSampleIds{:,'SampleId'}),'\d+$','');
     [uDataSourceId,~,indDataSourceId] 	= unique(cat(2,uSampleIds(:,'Subgear'),cell2table(dataSourceId,'VariableNames',{'DataSourceId'})),'rows');
 
 	time    = accumarray([repmat(indDataSourceId,nParameter,1),reshape(repmat(1:nParameter,nSampleIds,1),[],1)],time(:),[],@(x) {x});
     data    = accumarray([repmat(indDataSourceId,nParameter,1),reshape(repmat(1:nParameter,nSampleIds,1),[],1)],data(:),[],@(x) {x});
-    
+	outlier	= accumarray([repmat(indDataSourceId,nParameter,1),reshape(repmat(1:nParameter,nSampleIds,1),[],1)],outlier(:),[],@(x) {x});
+
     if ~iscell(time) || isempty(time)
-        [time,data,meta] = initializeGetDataOutputs();
+        [time,data,meta,outlier] = GearKit.gearDeployment.initializeGetDataOutputs();
     else
         % compile metadata
         meta	= struct('dataSourceType',      categorical({'analyticalSample'}),...
@@ -68,6 +75,7 @@ function [time,varargout] = getAnalyticalData(obj,parameter,varargin)
         dataIsNaN           = cellfun(@(d) all(isnan(d)),data) | cellfun(@(d) all(isnan(d)),time);
         data(dataIsNaN)     = {[]};
         time(dataIsNaN)     = {[]};
+        outlier(dataIsNaN)  = {logical.empty};
 
         % remove empty data sources (rows)
         dataIsEmpty         = ~(~cellfun(@isempty,data) | ~cellfun(@isempty,time));
@@ -75,6 +83,7 @@ function [time,varargout] = getAnalyticalData(obj,parameter,varargin)
         data                = data(maskEmtpyDataSource,:);
         time                = time(maskEmtpyDataSource,:);
         meta                = meta(maskEmtpyDataSource);
+        outlier             = outlier(maskEmtpyDataSource,:);
     end
     
     if nargout >= 2
@@ -82,5 +91,8 @@ function [time,varargout] = getAnalyticalData(obj,parameter,varargin)
     end
     if nargout >= 3
         varargout{2}    = meta;
+    end
+    if nargout >= 4
+        varargout{3}    = outlier;
     end
 end

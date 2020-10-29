@@ -1,4 +1,4 @@
-function [time,data,meta] = initializeGetDataOutputs()
+function [time,data,meta,outlier] = initializeGetDataOutputs()
 % INITIALIZEGETDATAOUTPUTS
 
     time = cell.empty;
@@ -12,4 +12,5 @@ function [time,data,meta] = initializeGetDataOutputs()
                      'unit',                {''},...
                      'parameterId',         uint16.empty);
     meta = meta(false(size(meta)));
+    outlier = cell.empty;
 end

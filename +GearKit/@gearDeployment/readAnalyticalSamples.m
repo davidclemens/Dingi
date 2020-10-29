@@ -20,6 +20,7 @@ function obj = readAnalyticalSamples(obj)
                                     'MergeKeys',        true,...
                                     'RightVariables',   {'Time','TimeRelative'},...
                                     'Type',             'left');
+        
     catch ME
         switch ME.identifier
             case 'MATLAB:xlsread:FileNotFound'
@@ -39,6 +40,7 @@ function obj = readAnalyticalSamples(obj)
                 rethrow(ME)
         end
     end
+    obj.analyticalSamples{:,'isOutlier'} = false;
     
 	if obj.debugger.debugLevel >= 'Info'
         fprintf('INFO: reading %s analytical samples data... done\n',obj.gearType);
