@@ -3,6 +3,9 @@ function drawNow(obj)
     
     obj.Parent.Visible	= 'off';
     
+    
+	obj = getAxesData(obj);
+    
     obj = initializeAxesAppearance(obj);
     
     maxIterations = 10;

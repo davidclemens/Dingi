@@ -14,7 +14,10 @@ classdef axesGroup < handle
 %
 % Copyright 2020 David Clemens (dclemens@geomar.de)
 
-% TODO: handle reversed individual axes
+% TODO:     [] handle reversed individual axes
+%           [] handle DatetimeRuler, DurationRuler, CategoricalRuler &
+%           Numeric Ruler
+
     properties
         Children % The children axes as axes array.
         Parent % The figure handle of parent figure.
@@ -25,21 +28,25 @@ classdef axesGroup < handle
         CommonAxesLink
         CommonAxesData % axes index, value
         IndividualAxesData % axes index, value
-        CommonAxesIsDatetime
-        IndividualAxesIsDatetime
     end
     properties (Dependent) % Hidden
         CommonAxesIndex
         CommonAxesDataLimits
+        CommonAxesDataLimitsDouble
         CommonAxesSize % (cm)
         CommonAxesDirection
+        CommonAxesIsDatetime
+        CommonAxesRulerType
         IndividualAxis
         IndividualAxesIndex
         IndividualAxesDataLimits
+        IndividualAxesDataLimitsDouble
         IndividualAxesLength % (cm)
         IndividualAxesEnvelope % common axis bins, axes, min/max (cm)
         IndividualAxesEnvelopeInset % left, bottom, right, top (cm)
         IndividualAxesDirection
+        IndividualAxesIsDatetime
+        IndividualAxesRulerType
         XAxesN
         YAxesN
         NAxes
@@ -49,6 +56,7 @@ classdef axesGroup < handle
         AxesPosition % x, y, width, height (cm)
         AxesTightInsetCurrent % left, bottom, right, top (cm)
         AxesPositionDelta
+        AxesNoData
     end
     properties (Constant) % Hidden
         validCommonAxis = {'XAxis','YAxis'};
@@ -163,20 +171,29 @@ classdef axesGroup < handle
         function SubplotIndices = get.SubplotIndices(obj)
             SubplotIndices = reshape(1:obj.NAxes,obj.XAxesN,obj.YAxesN)';
         end
-        function CommonAxesDataLimits = get.CommonAxesDataLimits(obj)
-            CommonAxesDataLimits = [nanmin(obj.CommonAxesData(:,2)),nanmax(obj.CommonAxesData(:,2))];
-            if obj.CommonAxesIsDatetime
-                CommonAxesDataLimits = datetime(CommonAxesDataLimits,'ConvertFrom','datenum');
-            end
+        function CommonAxesDataLimitsDouble = get.CommonAxesDataLimitsDouble(obj)
+%          	CommonAxesDataLimitsDouble = [nanmin(obj.CommonAxesData(:,2)),nanmax(obj.CommonAxesData(:,2))];
+            
+            CommonAxesDataLimitsDouble = cat(2,...
+                accumarray(obj.CommonAxesData(:,1),obj.CommonAxesData(:,2),[],@nanmin,NaN),...
+                accumarray(obj.CommonAxesData(:,1),obj.CommonAxesData(:,2),[],@nanmax,NaN));
         end
-        function IndividualAxesDataLimits = get.IndividualAxesDataLimits(obj)
-            IndividualAxesDataLimits = cat(2,...
+        function CommonAxesDataLimits = get.CommonAxesDataLimits(obj)
+         	CommonAxesDataLimits = num2cell(obj.CommonAxesDataLimitsDouble,2);
+            
+            isDatetimeRuler = obj.CommonAxesRulerType == 'DatetimeRuler';
+            CommonAxesDataLimits(isDatetimeRuler) = cellfun(@(c) datetime(c,'ConvertFrom','datenum'),CommonAxesDataLimits(isDatetimeRuler),'un',0);
+        end
+        function IndividualAxesDataLimitsDouble = get.IndividualAxesDataLimitsDouble(obj)
+            IndividualAxesDataLimitsDouble = cat(2,...
                 accumarray(obj.IndividualAxesData(:,1),obj.IndividualAxesData(:,2),[],@nanmin,NaN),...
                 accumarray(obj.IndividualAxesData(:,1),obj.IndividualAxesData(:,2),[],@nanmax,NaN));
-
-            if obj.IndividualAxesIsDatetime
-                IndividualAxesDataLimits = datetime(IndividualAxesDataLimits,'ConvertFrom','datenum');
-            end
+        end
+        function IndividualAxesDataLimits = get.IndividualAxesDataLimits(obj)
+            IndividualAxesDataLimits = num2cell(obj.IndividualAxesDataLimitsDouble,2);
+            
+            isDatetimeRuler = obj.IndividualAxesRulerType == 'DatetimeRuler';
+            IndividualAxesDataLimits(isDatetimeRuler) = cellfun(@(c) datetime(c,'ConvertFrom','datenum'),IndividualAxesDataLimits(isDatetimeRuler),'un',0);
         end
         function IndividualAxesEnvelope = get.IndividualAxesEnvelope(obj)
             IndividualAxesEnvelope = calculateAxesEnvelope(obj);
@@ -294,6 +311,19 @@ classdef axesGroup < handle
         function IndividualAxesDirection = get.IndividualAxesDirection(obj)
             IndividualAxesDirection = get(obj.Children,{[obj.IndividualAxis(1),'Dir']});
         end
+        function CommonAxesRulerType = get.CommonAxesRulerType(obj)
+            rulerObjects        = get(obj.Children,obj.CommonAxis);
+            CommonAxesRulerType = categorical(regexprep(cellfun(@class,rulerObjects,'un',0),'matlab.graphics.axis.decorator.',''));
+%             CommonAxesRulerType = CommonAxesRulerType(1);
+        end
+        function IndividualAxesRulerType = get.IndividualAxesRulerType(obj)
+            rulerObjects            = get(obj.Children,obj.IndividualAxis);
+            IndividualAxesRulerType = categorical(regexprep(cellfun(@class,rulerObjects,'un',0),'matlab.graphics.axis.decorator.',''));
+        end
+        function AxesNoData = get.AxesNoData(obj)
+            AxesNoData = cellfun(@isempty,get(obj.Children,'Children'));
+        end
+        
 
 
         % functions in other files

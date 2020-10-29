@@ -21,9 +21,9 @@ function obj = initializeAxesAppearance(obj)
 
     % set limits
     set(obj.Children,...
-        {[obj.CommonAxis(1),'Lim']},        {obj.CommonAxesDataLimits})
+        {[obj.CommonAxis(1),'Lim']},        obj.CommonAxesDataLimits)
     set(obj.Children,...
-        {[obj.IndividualAxis(1),'Lim']},	num2cell(obj.IndividualAxesDataLimits,2))
+        {[obj.IndividualAxis(1),'Lim']},	obj.IndividualAxesDataLimits)
     
     switch obj.CommonAxis
         case 'XAxis'

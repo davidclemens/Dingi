@@ -1,6 +1,6 @@
 function envelope = calculateAxesEnvelope(obj)
     
-        
+
     binIndex = discretize(obj.CommonAxesData(:,2),obj.CommonAxesEnvelopeBinCount);
     
     % exclude NaNs
@@ -14,10 +14,10 @@ function envelope = calculateAxesEnvelope(obj)
     
     switch obj.CommonAxis
         case 'XAxis'
-            envelope        = dataUnits2Centimeters(envelopeDu,obj.IndividualAxesDataLimits',obj.AxesPositionCurrent(:,4)');
+            envelope        = dataUnits2Centimeters(envelopeDu,obj.IndividualAxesDataLimitsDouble',obj.AxesPositionCurrent(:,4)');
             envelope(:,:,2)	= obj.AxesPositionCurrent(:,4)' - envelope(:,:,2);
         case 'YAxis'
-            envelope        = dataUnits2Centimeters(envelopeDu,obj.IndividualAxesDataLimits',obj.AxesPositionCurrent(:,3)');
+            envelope        = dataUnits2Centimeters(envelopeDu,obj.IndividualAxesDataLimitsDouble',obj.AxesPositionCurrent(:,3)');
             envelope(:,:,2)	= obj.AxesPositionCurrent(:,3)' - envelope(:,:,2);
     end
 
