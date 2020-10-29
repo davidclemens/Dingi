@@ -1,4 +1,18 @@
 classdef bigoDeployment < GearKit.gearDeployment
+% BIGODEPLOYMENT Represents a Geomar BIGO deployment
+%	The BIGODEPLOYMENT class reads all data related to a single Geomar BIGO
+%	deployment. The resulting object has plot, analysis and export methods.
+%
+% BIGODEPLOYMENT Properties:
+%	chamber - 
+%	protocol - 
+%
+% BIGODEPLOYMENT Methods:
+%	bigoDeployment - 
+%
+%
+% Copyright 2020 David Clemens (dclemens@geomar.de)
+
 	properties
         chamber struct
         protocol table
