@@ -1,4 +1,4 @@
-function varargout = plot(obj,parameter,varargin)
+function varargout = plot(obj,variables,varargin)
 % PLOT plots sensor data from gearDeployment object(s)
 % Plot the timeseries of selected/all parameters of a gearDeployment
 % object.
@@ -68,10 +68,7 @@ function varargout = plot(obj,parameter,varargin)
 % Copyright 2020 David Clemens (dclemens@geomar.de)
         
     import GraphKit.getMaxFigureSize
-    import GraphKit.getDataLimits
-    
-    nvarargin   = numel(varargin);
-    
+    import GraphKit.getDataLimits   
     
     % Figure settings
 	Menubar                     = 'figure';
@@ -114,34 +111,32 @@ function varargout = plot(obj,parameter,varargin)
     ]	= internal.stats.parseArgs(optionName,optionDefaultValue,varargin{:}); % parse function arguments   
     
     % parse parameter input
-    plotParametersAvailableInfo     = cat(1,obj.parameters);
-    [~,uInd]                        = unique(plotParametersAvailableInfo{:,'ParameterId'});
-    plotParametersAvailableInfo     = plotParametersAvailableInfo(uInd,:);
-    
-    plotParametersAvailableInfo     = outerjoin(plotParametersAvailableInfo,DataKit.importTableFile([getToolboxRessources('DataKit'),'/validParameters.xlsx']),...
-                                        'Keys',         {'ParameterId','Parameter'},...
-                                        'MergeKeys',    true,...
-                                        'Type',         'left');
-    plotParametersAvailable         = plotParametersAvailableInfo{:,'Parameter'};
-    if nargin - nvarargin == 1
-        plotParameterY      = plotParametersAvailable;
-        error('TODO: implement a selection of all available parameters. All is too much.')
-    elseif nargin - nvarargin == 2
-        if ischar(parameter)
-            parameter	= cellstr(parameter);
-        elseif ~iscellstr(parameter)
-            error('GearKit:gearDeployment:plot:invalidParameterType',...
-                  'The requested parameter has to be specified as a char or cellstr.')
+    plotVariablesAvailableInfo	= cat(1,obj.variables);
+    if exist('variables','var') ~= 1
+        [variableIsValid,variableInfo]    = DataKit.Metadata.variable.validateId(plotVariablesAvailableInfo{:,'Id'});
+%         error('TODO: implement a selection of all available variables. All is too many.')
+    else
+        if ischar(variables) || iscellstr(variables)
+            if ischar(variables)
+                variables   = cellstr(variables);
+            end
+            variables	= variables(:);
+            [variableIsValid,variableInfo]    = DataKit.Metadata.variable.validateStr(variables);
+        elseif isnumeric(variables)
+            variables	= variables(:);
+            [variableIsValid,variableInfo]    = DataKit.Metadata.variable.validateId(variables);
+        else
+            error('GearKit:gearDeployment:plot:invalidVariableType',...
+                  'The requested parameter has to be specified as a char, cellstr or numeric vector.')
         end
-        plotParameterY      = parameter;
-        im                  = ismember(plotParameterY,plotParametersAvailable);
-        if ~all(im)
-            error('GearKit:GearDeployment:plot:invalidParameter',...
-                  'One or more specified parameters are invalid:\n\t%s\nValid parameters are:\n\t%s\n',strjoin(plotParameterY(~im),', '),strjoin(plotParametersAvailable,', '))
-        end
+    end    
+    variables   = variableInfo{variableIsValid,'Variable'};
+    im          = ismember(variable2str(variables),plotVariablesAvailableInfo{:,'Name'});
+    if ~all(im)
+        error('GearKit:GearDeployment:plot:invalidVariables',...
+              'One or more specified variables are invalid:\n\t%s\nValid variables are:\n\t%s\n',strjoin(variable2str(variables(~im)),', '),strjoin(cellstr(plotVariablesAvailableInfo{:,'Name'}),', '))
     end
- 	nParameter      	= numel(plotParameterY);
-    [~,parameterInfo]  = DataKit.validateParameter(plotParameterY);
+ 	nVariables          = numel(variables);
     
     % initialize figure
     hfig        = figure(99);
@@ -156,7 +151,7 @@ function varargout = plot(obj,parameter,varargin)
     hlgnd                       = gobjects();
     hp                          = gobjects();
     spnx                        = numel(obj);
-    spny                        = nParameter;
+    spny                        = nVariables;
     spi                         = reshape(1:spnx*spny,spnx,spny)';
         
     parameterNotInDeployment    = false(spny,spnx);
@@ -165,12 +160,11 @@ function varargout = plot(obj,parameter,varargin)
     for col = 1:spnx
         gear	= col;
         for row = 1:spny
-            par     = row;
+            v     = row;
             hsp(spi(row,col))   = subplot(spny,spnx,spi(row,col),AxesNameValue{:});
                 try
-                    [time,data,info]    = obj(gear).getData(plotParameterY{par},...
-                                            'timeOfInterestDataOnly', 	true,...
-                                            'RelativeTime',             RelativeTime);
+                    data    = obj(gear).getData(variables(v),...
+                                'TimeOfInterestDataOnly',   false);
                 catch ME
                     switch ME.identifier
                         case 'GearKit:gearDeployment:gd:invalidParameter'
@@ -179,35 +173,41 @@ function varargout = plot(obj,parameter,varargin)
                             rethrow(ME)
                     end
                 end
+
                 
                 if ~isempty(DataDomain)
-                    maskDataDomain  = any(DataDomain == cat(1,info.dataSourceDomain),2);
-                    time    = time(maskDataDomain,:);
-                    data    = data(maskDataDomain,:);
-                    info    = info(maskDataDomain);
+                    maskDataDomain  = cat(1,data.DependantInfo.MeasuringDevice.WorldDomain) == DataDomain;
+                    data.IndependantVariables               = data.IndependantVariables(maskDataDomain,:);
+                    data.DependantVariables                 = data.DependantVariables(maskDataDomain,:);
+                    data.IndependantInfo.MeasuringDevice    = data.IndependantInfo.MeasuringDevice(maskDataDomain);
+                    data.DependantInfo.MeasuringDevice      = data.DependantInfo.MeasuringDevice(maskDataDomain);
                 end
                 
                 iihp    = 1;
-                if isempty(time)
+                if isempty(data.IndependantVariables)
                     hp(1,spi(row,col)) = plot(NaT,NaN);
-                elseif parameterNotInDeployment(row,col)
-                    hp(1,spi(row,col)) = plot(NaT,NaN);
+%                 elseif parameterNotInDeployment(row,col)
+%                     hp(1,spi(row,col)) = plot(NaT,NaN);
                 else
-                    for sens = 1:numel(time)
-                        XData  	= time{sens};
-                        YData	= movmean(data{sens},10/60,...
+                    legendStr   = cell.empty;
+                    for dp = 1:numel(data.IndependantVariables)
+                        XData  	= data.IndependantVariables{dp};
+                        YData	= movmean(data.DependantVariables{dp},minutes(10),...
                                           'SamplePoints',     XData);
                         hptmp   = plot(XData,YData,...
                                     'LineWidth',    1.5);
+                        legendStr   = cat(1,legendStr,{[char(data.DependantInfo.MeasuringDevice(dp).Type),' ',...
+                                                        char(data.DependantInfo.MeasuringDevice(dp).WorldDomain)]});
+                                
                         nhp     = numel(hptmp);
                         hp(iihp:iihp + nhp - 1,spi(row,col))	= hptmp;
                         iihp    = iihp + nhp;
                     end
-                    hlgnd(spi(row,col))	= legend(regexprep([info.name],[' ',parameterInfo{par,'Symbol'}{:}],''),...
+                    hlgnd(spi(row,col))	= legend(legendStr,...
                                                  'Location',        'best',...
                                                  'Interpreter',     'none');
                     legend(LegendVisible)
-                    yLabelString{row,col}	= [char(parameterInfo{par,'Abbreviation'}),'\color[rgb]{0.6 0.6 0.6} (',char(parameterInfo{par,'Unit'}),')'];
+                    yLabelString{row,col}	= [char(variableInfo{v,'Abbreviation'}),'\color[rgb]{0.6 0.6 0.6} (',char(variableInfo{v,'Unit'}),')'];
                     titleString{row,col} 	= strjoin([cellstr(obj(gear).cruise),cellstr(obj(gear).gear)],' ');
                 end
         end
@@ -221,7 +221,7 @@ function varargout = plot(obj,parameter,varargin)
     for col = 1:spnx
         gear	= col;
         for row = 1:spny
-            par     = row;      
+            v     = row;      
             if col == 1
                 ylabel(hsp(spi(row,col)),yLabelString{row});
                 set(hsp(spi(row,col)).YAxis,...

@@ -11,12 +11,9 @@ function obj = readInternalSensors(obj)
     vecFileNames    = strcat({dirList.folder},{'/'},{dirList.name});
     
     for ff = 1:numel(vecFileNames)
-        newSensor       = sensor('NortekVector',vecFileNames{ff});
-        
-        obj.sensors  	= [obj.sensors; newSensor];
+        obj.data    = obj.data.addPool;
+        obj.data    = obj.data.importData('NortekVector',vecFileNames{ff});
     end
-    
-    [obj.sensors.group]	= deal('internal');
     
 	if obj.debugger.debugLevel >= 'Info'
         fprintf('INFO: reading internal sensor(s)... done\n');

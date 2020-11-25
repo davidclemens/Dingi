@@ -171,6 +171,7 @@ function t = readProtocolFile(filename,version,controlUnit)
     % POSTPROCESS BIGOtime TABLE
     % assign several values from match table to BIGOtime    % get ControlUnit ID
     t.Subgear             	= cell(size(t,1),1);                     % initialize Subgear column
+    t{:,'MeasuringDeviceType'} 	= GearKit.measuringDeviceType.undefined;                     % initialize MeasuringDevice column
     t.SampleId             	= cell(size(t,1),1);                     % initialize SampleId column
 
     t.StartTime           	= MatchTable.Time(t.RowStart);       % get event StartTime
@@ -202,14 +203,22 @@ function t = readProtocolFile(filename,version,controlUnit)
     
     maskSyr     = t.Event == 'Syr';
     maskSyrExt  = t.Event == 'SyrExt';
+    maskSyrRes  = t.Event == 'SyrRes';
     maskCap     = t.Event == 'Cap';
     maskInj     = t.Event == 'Inj';
     indNis      = find(t.Event == 'Nis');
     nSyr        = sum(maskSyr);
     nSyrExt     = sum(maskSyrExt);
+    nSyrRes     = sum(maskSyrRes);
     nCap        = sum(maskCap);
     nInj        = sum(maskInj);
     nNis        = numel(indNis);
+    
+    % define measuringDevice
+    t{maskSyr | maskSyrExt | maskSyrRes,'MeasuringDeviceType'}  = GearKit.measuringDeviceType.BigoSyringeSampler;
+    t{maskCap,'MeasuringDeviceType'}                            = GearKit.measuringDeviceType.BigoCapillarySampler;
+    t{maskInj,'MeasuringDeviceType'}                            = GearKit.measuringDeviceType.BigoInjector;
+    t{indNis,'MeasuringDeviceType'}                             = GearKit.measuringDeviceType.BigoNiskinBottle;
     
     % switch on the version of regular expression table
     switch version
