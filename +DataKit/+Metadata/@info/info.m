@@ -2,77 +2,104 @@ classdef info
     
     
     properties
+        Variable(1,:) DataKit.Metadata.variable
+        VariableRaw(1,:) DataKit.Metadata.variable
+        VariableType(1,:) DataKit.Metadata.validators.validInfoVariableType
         VariableDescription(1,:) cell
         VariableFactor(1,:) double
         VariableOffset(1,:) double
+        VariableOrigin(1,:) cell
+        VariableCalibrationFunction(1,:) cell
         VariableMeasuringDevice(1,:) GearKit.measuringDevice
     end
-    properties (SetAccess = private)
-% TODO: use the validParameter enumeration class
-%         VariableId(1,:) DataKit.Metadata.validators.validParameter
-        VariableId(1,:) {mustBeAValidParameterId, mustBeInteger, mustBeNonnegative, mustBeLessThan(VariableId, 65535)}
-        VariableType(1,:) DataKit.Metadata.validators.validInfoVariableType
-    end
     properties (Dependent)
-        VariableName(1,:) categorical
+        VariableId(1,:) {mustBeInteger, mustBeNonnegative, mustBeLessThan(VariableId, 65535)}
         VariableUnit(1,:) categorical
+        VariableRawUnit(1,:) categorical
         VariableCount(1,1) double
+        VariableIsCalibrated(1,:) logical
+    end
+    properties (Dependent, Hidden)
+        NoIndependantVariable
+        VariableReturnDataType
     end
     
     methods
-        function obj = info(id,varargin)
+        function obj = info(variable,varargin)
             
-
-            variableCount   = numel(id);
+            if nargin == 0
+                variable        = '';
+            end
+          	variableCount   = numel(variable);
             
             % parse Name-Value pairs
-            optionName          = {'VariableType','VariableFactor','VariableOffset','variableDescription','variableMeasuringDevice'}; % valid options (Name)
-            optionDefaultValue  = {repmat({'Dependant'},1,variableCount),ones(1,variableCount),zeros(1,variableCount),repmat({''},1,variableCount),repmat(GearKit.measuringDevice(),1,variableCount)}; % default value (Value)
+            optionName          = {'VariableType','VariableFactor','VariableOffset','VariableCalibrationFunction','VariableOrigin','variableDescription','variableMeasuringDevice'}; % valid options (Name)
+            optionDefaultValue  = {repmat({'Dependant'},1,variableCount),ones(1,variableCount),zeros(1,variableCount),repmat({@(x) x},1,variableCount),zeros(1,variableCount),repmat({''},1,variableCount),repmat(GearKit.measuringDevice(),1,variableCount)}; % default value (Value)
             [variableType,...
              variableFactor,...
              variableOffset,...
+             variableCalibrationFunction,...
+             variableOrigin,...
              variableDescription,...
              variableMeasuringDevice...
                 ]               = internal.stats.parseArgs(optionName,optionDefaultValue,varargin{:}); % parse function arguments
 
-         	obj	= obj.addVariable(id,...
-                    'VariableType',             variableType,...
-                    'VariableFactor',           variableFactor,...
-                    'VariableOffset',           variableOffset,...
-                    'VariableDescription',      variableDescription,...
-                    'VariableMeasuringDevice',	variableMeasuringDevice);
+         	obj	= obj.addVariable(variable,...
+                    'VariableType',                 variableType,...
+                    'VariableFactor',               variableFactor,...
+                    'VariableOffset',               variableOffset,...
+                    'VariableCalibrationFunction',	variableCalibrationFunction,...
+                    'VariableOrigin',               variableOrigin,...
+                    'VariableDescription',          variableDescription,...
+                    'VariableMeasuringDevice',      variableMeasuringDevice);
         end
     end
     methods
-        obj = addVariable(obj,id,varargin)
+        obj = addVariable(obj,variable,varargin)
         obj = removeVariable(obj,ind)
+        tbl = info2table(obj)
+        obj = selectVariable(obj,variableIdx)
     end
     methods (Access = private)
         obj = validateProperties(obj)
+        obj = validateInfoObj(obj)
+        obj = updateVariableRaw(obj)
     end
     
-    % get methods
+    % set methods
     methods
-        function VariableName = get.VariableName(obj)
-            [~,info]        = DataKit.validateParameterId(obj.VariableId);
-            VariableName    = info{:,'Abbreviation'}';
-        end
-        function VariableUnit = get.VariableUnit(obj)
-            [~,info]        = DataKit.validateParameterId(obj.VariableId);
-            VariableUnit    = info{:,'Unit'}';
-        end
-        function VariableCount = get.VariableCount(obj)
-            VariableCount = numel(obj.VariableId);
+        function obj = set.Variable(obj,value)
+            
+            obj = updateVariableRaw(obj);
+            obj.Variable = value;
         end
     end
-end
-
-function mustBeAValidParameterId(id)
-% Throws an error if any id in id is not a valid parameterId
-    isValid  = DataKit.validateParameterId(id);
-    if ~all(isValid)
-        eidType = 'DataKit:Metadata:info:ivalidParameterId';
-        msgType = 'Value assigned to the VariabeleId property is not a valid ParameterId.';
-        throwAsCaller(MException(eidType,msgType))
+    % get methods
+    methods
+        function VariableId = get.VariableId(obj)
+            VariableId	= cat(2,obj.Variable.Id);
+        end
+        function VariableUnit = get.VariableUnit(obj)
+            VariableUnit	= cat(2,{obj.Variable.Unit});
+        end
+        function VariableRawUnit = get.VariableRawUnit(obj)
+            VariableRawUnit	= cat(2,{obj.VariableRaw.Unit});
+        end
+        function VariableCount = get.VariableCount(obj)
+            VariableCount = numel(obj.Variable);
+        end
+        function VariableIsCalibrated = get.VariableIsCalibrated(obj)
+            VariableIsCalibrated = ~cellfun(@(f) strcmp(func2str(f),'@(t,x)x'),obj.VariableCalibrationFunction);
+        end
+        function NoIndependantVariable = get.NoIndependantVariable(obj)
+            NoIndependantVariable = ~any(obj.VariableType == 'Independant');
+        end
+        function VariableReturnDataType = get.VariableReturnDataType(obj)
+            VariableReturnDataType = categorical(cellfun(@class,obj.VariableOrigin,'un',0));
+        end
+%         function VariableRaw = get.VariableRaw(obj)
+%             obj = updateVariableRaw(obj);
+%             VariableRaw = obj.VariableRaw;
+%         end
     end
 end

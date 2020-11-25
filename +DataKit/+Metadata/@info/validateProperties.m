@@ -1,9 +1,12 @@
 function obj = validateProperties(obj)
     
 
+    obj = validateProperty(obj,'VariableRaw',DataKit.Metadata.variable.empty);
     obj = validateProperty(obj,'VariableType','Dependant');
     obj = validateProperty(obj,'VariableFactor',1);
     obj = validateProperty(obj,'VariableOffset',0);
+    obj = validateProperty(obj,'VariableCalibrationFunction',{@(t,x) x});
+    obj = validateProperty(obj,'VariableOrigin',{0});
     obj = validateProperty(obj,'VariableDescription',{''});
     obj = validateProperty(obj,'VariableMeasuringDevice',GearKit.measuringDevice());
 end
