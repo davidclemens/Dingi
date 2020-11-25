@@ -1,5 +1,6 @@
-classdef validParameter
+classdef variable
     enumeration
+        undefined                   (0,     '',             '',         '',                                 '',                 '',         '',                             NaN,    '')
         ParticulateOrganicNitrogen  (1,     'PON',          'PON',      'Nitrogen, organic, particulate',	'Concentration',	'mass %',	'mass %',                       26498,	'')
         TotalCarbon                 (2,     'TC',           'TC',       'Carbon, total',                    'Concentration',	'mass %',	'mass %',                       735,	'')
         Sulfur                      (3,     'S',            'S',        'Sulfur',                           'Concentration',	'mass %',	'mass %',                       186962,	'')
@@ -30,24 +31,31 @@ classdef validParameter
         Chloride                    (29,	'Cl⁻',          'Cl⁻',      'Chloride',                         'Concentration',	'mM',       'mmol(\sL(⁻¹|-1)|/L)',          54,     '')
         Bromide                     (30,	'Br⁻',          'Br⁻',      'Bromide',                          'Concentration',	'µM',       'mmol(\sL(⁻¹|-1)|/L)',          161330,	'')
         Sulfate                     (31,	'SO₄²⁻',        'SO₄²⁻',	'Sulfate',                          'Concentration',	'mM',       'mmol(\sL(⁻¹|-1)|/L)',          50,     '')
+        Time                        (32,    't',            't',        'Time',                             '',                 's',        's(ec|ek)?(onds|unden)?',      	NaN,    '')
+        Depth                       (33,    'z',            'z',        'Depth',                            '',                 'm',        'm',                            NaN,    '')
+        PotentialTemperature        (34,    'pot. temp.',   'θ',        'Temperature, potential',          	'',                 '°C',      	'(°|deg\s?)C',               	NaN,    '')
     end
     properties
         Id uint16
         Abbreviation char
         Symbol char
-        Parameter char
+        Name char
         Type char
         Unit char
         UnitRegexp char
         PangaeaId uint16
         Description char
     end
+    properties (Hidden)
+        PangaeaParameterListFilename = '/PANGAEAParameterComplete.tab.tsv'
+    end
+    
     methods
-        function obj = validParameter(id, abbreviation, symbol, parameter, type, unit, unitRegexp, pangaeaId, description)
+        function obj = variable(id, abbreviation, symbol, name, type, unit, unitRegexp, pangaeaId, description,varargin)
             obj.Id = id;
             obj.Abbreviation = abbreviation;
             obj.Symbol = symbol;
-            obj.Parameter = parameter;
+            obj.Name = name;
             obj.Type = type;
             obj.Unit = unit;
             obj.UnitRegexp = unitRegexp;
@@ -56,32 +64,24 @@ classdef validParameter
         end
     end
     
-    methods
-        function units = getUnits(obj)
-            units = {obj.Unit};
-        end
-        function list = listAllParameters(obj)
-            [~,list] = enumeration(obj);
-        end
-        function tbl = listAllParameterInfo(obj)
-            list = enumeration(obj);
-            props = properties(obj);
-            
-            propClass   = cellfun(@class,cellfun(@(p) list(1).(p),props,'un',0),'un',0);
-            tblStruct   = struct();
-            for prop = 1:numel(props)
-                switch propClass{prop}
-                    case 'char'
-                        column  = {list(:).(props{prop})}';
-                    case {'single','double','int8','int16','int32','uint8','uint16','uint32','uint64'}
-                        column  = cat(1,list(:).(props{prop}));
-                    otherwise
-                        error('%s is not implemented yet.',propClass{prop})
-                end
-                
-                tblStruct.(props{prop})     = column;
-            end
-            tbl     = struct2table(tblStruct);
-        end
+    methods (Access = public)
+        unit = variable2unit(obj)
+        id = variable2id(obj)
+        str = variable2str(obj)
+        id = variable2pangaeaid(obj)
+    end
+    
+    % overloaded methods
+    methods (Access = public)
+        disp(obj)
+    end
+    
+    methods (Static)
+        tbl = listAllVariableInfo()
+        list = listAllVariables()
+        obj = id2variable(id)
+        obj = str2variable(str)
+        [bool,info] = validateId(id)
+        [bool,info] = validateStr(str)
     end
 end
