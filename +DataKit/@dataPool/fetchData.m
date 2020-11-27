@@ -115,58 +115,113 @@ function data = fetchData(obj,varargin)
 %               - IndepInfo
 %               - DepInfo
 %
-%           The structure of the 2 data fields is as follows. If the
-%           request results in the return of variables Var1 to VarN and
-%           Var1 is found in data pool dp2 and dp3 while VarN is found in
-%           dp5 and dp6.
+%           The structure of the 2 data fields is as follows, if the
+%           request results in the return of N variables Var1 to VarN grouped
+%           into M groups Group1 to GroupM and Var1 is found in data pools 
+%           dp2 and dp3 while VarN is found in dp5, dp6 and dp7.
 %           If, for example, dp3 doesn't contain independant variable
 %           indepI, it is filled with the appropriate empty value type.
 %
 %           data.DepData:
 %
-%           1xN cell
-%             Var1  ,..., VarN
-%           ┌                   ┐
-%           │┌─────┐     ┌─────┐│
-%           ││dp2  │     │dp5  ││
-%           ││var1 │     │varN ││
-%           ││data │     │data ││
-%           ││  :  │     │  :  ││
-%           ││  :  │     │  :  ││
-%           ││  :  │     ├─────┤│
-%           ││  :  │ ... │dp6  ││
-%           │├─────┤     │varN ││
-%           ││dp3  │     │data ││
-%           ││var1 │     │  :  ││
-%           ││data │     │  :  ││
-%           ││  :  │     └─────┘│
-%           ││  :  │            │
-%           │└─────┘,   ,       │
-%           └                   ┘
+%                  MxN cell
+%                    Var1  ,..., VarN
+%                  ┌                   ┐
+%                  │┌─────┐     ┌─────┐│
+%           Group1 ││slot1│     │slot1││
+%                  ││dp2  │     │dp5  ││
+%                  ││var1 │     │varN ││
+%                  ││data │     │data ││
+%                  ││  ⁝  │     │  ⁝  ││
+%                  ││     │     │     ││
+%                  ││     │     ├─────┤│
+%                  ││     │  …  │slot2││
+%                  │├─────┤     │dp6  ││
+%                  ││slot2│     │varN ││
+%                  ││dp3  │     │data ││
+%                  ││var1 │     │  ⁝  ││
+%                  ││data │     │     ││
+%                  ││  ⁝  │     └─────┘│
+%                  ││     │            │
+%                  │└─────┘            │
+%                  │   ⋮     ⋱     ⋮   │
+%                  │┌─────┐     ┌─────┐│
+%           GroupM ││slot1│     │slot1││
+%                  ││dp2  │     │dp5  ││
+%                  ││var1 │     │varN ││
+%                  ││data │     │data ││
+%                  ││  ⁝  │     │  ⁝  ││
+%                  ││     │     │     ││
+%                  ││     │     ├─────┤│
+%                  ││     │  …  │slot2││
+%                  │└─────┘     │dp6  ││
+%                  │            │varN ││
+%                  │            │data ││
+%                  │            │  ⁝  ││
+%                  │            │     ││
+%                  │            │     ││
+%                  │            ├─────┤│
+%                  │            │slot3││
+%                  │            │dp7  ││
+%                  │            │varN ││
+%                  │            │data ││
+%                  │            │  ⁝  ││
+%                  │            │     ││
+%                  │            │     ││
+%                  │            │     ││
+%                  │            │     ││
+%                  │            │     ││
+%                  │            └─────┘│
+%                  └                   ┘
 %
 %
 %           data.IndepData:
 %
-%           1xN cell
-%             Var1                ,..., VarN
-%           ┌                                               ┐
-%           │1xI cell                  1xI cell             │
-%           │┌───────┬ ─ ┬───────┐     ┌───────┬ ─ ┬───────┐│
-%           ││dp2    │   │dp2    │     │dp5    │   │dp5    ││
-%           ││var1   │   │var1   │     │varN   │   │varN   ││
-%           ││indep1 │   │indepI │     │indep1 │   │indepI ││
-%           ││data   │   │data   │     │data   │   │data   ││
-%           ││   :   │   │   :   │     │   :   │   │   :   ││
-%           ││   :   │   │   :   │     ├───────┤...├───────┤│
-%           ││   :   │...│   :   │ ... │dp6    │   │dp6    ││
-%           │├───────┤   ├───────┤     │varN   │   │varN   ││
-%           ││dp3    │   │dp3    │     │indep1 │   │indepI ││
-%           ││var1   │   │var1   │     │data   │   │data   ││
-%           ││indep1 │   │indepI │     │   :   │   │   :   ││
-%           ││data   │   │data   │     └───────┴ ─ ┴───────┘│
-%           ││   :   │   │   :   │                          │
-%           │└───────┴ ─ ┴───────┘,   ,                     │
-%           └                                               ┘
+%                  MxN cell
+%                    Var1                ,..., VarN
+%                  ┌                                               ┐
+%                  │1xI cell                  1xI cell             │
+%                  │┌───────┬ ─ ┬───────┐     ┌───────┬ ─ ┬───────┐│
+%           Group1 ││dp2    │   │dp2    │     │dp5    │   │dp5    ││
+%                  ││var1   │   │var1   │     │varN   │   │varN   ││
+%                  ││indep1 │   │indepI │     │indep1 │   │indepI ││
+%                  ││data   │   │data   │     │data   │   │data   ││
+%                  ││   ⁝   │   │   ⁝   │     │   ⁝   │   │   ⁝   ││
+%                  ││       │   │       │     ├───────┤ … ├───────┤│
+%                  ││       │ … │       │  …  │dp6    │   │dp6    ││
+%                  │├───────┤   ├───────┤     │varN   │   │varN   ││
+%                  ││dp3    │   │dp3    │     │indep1 │   │indepI ││
+%                  ││var1   │   │var1   │     │data   │   │data   ││
+%                  ││indep1 │   │indepI │     │   ⁝   │   │   ⁝   ││
+%                  ││data   │   │data   │     └───────┴ ─ ┴───────┘│
+%                  ││   ⁝   │   │   ⁝   │                          │
+%                  │└───────┴ ─ ┴───────┘                          │
+%                  │          ⋮            ⋱            ⋮          │
+%                  │┌───────┬ ─ ┬───────┐     ┌───────┬ ─ ┬───────┐│
+%           GroupM ││dp2    │   │dp2    │     │dp5    │   │dp5    ││
+%                  ││var1   │   │var1   │     │varN   │   │varN   ││
+%                  ││indep1 │   │indepI │     │indep1 │   │indepI ││
+%                  ││data   │ … │data   │     │data   │   │data   ││
+%                  ││   ⁝   │   │   ⁝   │     │   ⁝   │   │   ⁝   ││
+%                  ││       │   │       │     ├───────┤ … ├───────┤│
+%                  ││       │   │       │     │dp6    │   │dp6    ││
+%                  │└───────┴ ─ ┴───────┘     │varN   │   │varN   ││
+%                  │                          │indep1 │   │indepI ││
+%                  │                          │data   │   │data   ││
+%                  │                       …  │   ⁝   │   │   ⁝   ││
+%                  │                          │       │   │       ││
+%                  │                          ├───────┤ … ├───────┤│
+%                  │                          │dp7    │   │dp7    ││
+%                  │                          │varN   │   │varN   ││
+%                  │                          │indep1 │   │indepI ││
+%                  │                          │data   │   │data   ││
+%                  │                          │   ⁝   │   │   ⁝   ││
+%                  │                          │       │   │       ││
+%                  │                          │       │   │       ││
+%                  │                          │       │   │       ││
+%                  │                          │       │   │       ││
+%                  │                          └───────┴ ─ ┴───────┘│
+%                  └                                               ┘
 %
 %
 % Name-Value Pair Arguments
@@ -205,7 +260,8 @@ function data = fetchData(obj,varargin)
     ] = parseInputs(obj,varargin{:});
 
 
-
+    % test all criteria against the data pool index. They are combined by
+    % the logical AND operation.
     maskIndex   = true(size(obj.Index,1),1);
     if ~isempty(variable)
         if isa(variable,'DataKit.Metadata.variable')
@@ -244,8 +300,7 @@ function data = fetchData(obj,varargin)
     end
     maskIndex       = maskIndex & ...
                         obj.Index{:,'VariableType'} == 'Dependant';
-    idxIndex        = find(maskIndex);
-    nIndexMatches   = numel(idxIndex);
+    nIndexMatches   = sum(maskIndex);
 
     
  	data            = struct();
@@ -276,88 +331,89 @@ function data = fetchData(obj,varargin)
     end
 
     nVariable   = numel(variable);
-    [~,uVariableIdx]    = ismember(variable2str(obj.Index{idxIndex,'Variable'}),variable2str(variable));
+    [~,uVariableIdx]    = ismember(variable2str(obj.Index{maskIndex,'Variable'}),variable2str(variable));
 
-    [uMeasuringDevices,~,uMeasuringDevicesIdx]	= unique(obj.Index{idxIndex,'MeasuringDevice'});
+    [uMeasuringDevices,~,uMeasuringDevicesIdx]	= unique(obj.Index{maskIndex,'MeasuringDevice'});
     nMeasuringDevices   = numel(uMeasuringDevices);
 
-    dp      = obj.Index{idxIndex,'DataPool'};
-    dv      = obj.Index{idxIndex,'VariableIndex'};
-    iv      = obj.Index{idxIndex,'IndependantVariableIndex'};
+    % indices of index matches into the data pool
+    dp      = obj.Index{maskIndex,'DataPool'}; % data pool index
+    dv      = obj.Index{maskIndex,'VariableIndex'}; % dependant variable index
+    iv      = obj.Index{maskIndex,'IndependantVariableIndex'}; % independant variable(s) index
+    
+    % fetch data
 	ddata 	= obj.fetchVariableData(dp,dv,...
                 'ReturnRawData',    returnRawData);
     idata 	= cellfun(@(dp,iv) obj.fetchVariableData(dp,iv,'ReturnRawData',returnRawData),num2cell(dp),iv,'un',0);
     
-    
-    uIVar               = cellfun(@(dp,v) obj.Info(dp).Variable(v),num2cell(dp),iv,'un',0);
-    uIVarDp             = cellfun(@(dp,v) repmat(dp,1,numel(v)),num2cell(dp),iv,'un',0);
-    uIVarDp             = reshape(cat(2,uIVarDp{:}),[],1);
-    [uIVar,uIdx1IVar,uIdx2IVar]  = unique(variable2str(cat(2,uIVar{:})),'stable');
-    uIVarDataType       = cellfun(@(dp,v) obj.Info(dp).VariableReturnDataType(v),num2cell(dp),iv,'un',0);
-    uIVarDataType       = cat(2,uIVarDataType{:});
-    uIVarDataType       = uIVarDataType(uIdx1IVar);
-    
-    nData               = cellfun(@numel,ddata);
-    
+    % setup grouping parameters
 	switch groupBy
-         case {'','Variable'}
+        case {'','Variable'}
             groupIdx    = ones(nIndexMatches,1);
             nGroups     = 1;
         case 'MeasuringDevice'
             groupIdx    = uMeasuringDevicesIdx;
             nGroups     = nMeasuringDevices;
-    end
-    nData2      = accumarray([groupIdx,uVariableIdx],nData,[nGroups,nVariable]);
+	end
     
-    idxData2    = accumarray([groupIdx,uVariableIdx],nData,[nGroups,nVariable],@(x) {cumsum(x)});
+    % Handle multiple unique independant variables:
+    % 1. Find the unique independant variables in all the data that has
+    %    been fetched (idata).
+    uIndepVariables           	= cellfun(@(dp,v) obj.Info(dp).Variable(v),num2cell(dp),iv,'un',0); % all independant variables found in idata (with repetition)
+    [uIndepVariables,uIdx1uIndepVariables,uIdx2uIndepVariables]  = unique(variable2str(cat(2,uIndepVariables{:})),'stable'); % all independant variables found in idata (without repetition)
+ 
+    % 2. Find the return datatype for the uIndepVariables. This allows the
+    %    initialization of the output cell iData.
+    uIndepVariablesDataType   	= cellfun(@(dp,v) obj.Info(dp).VariableReturnDataType(v),num2cell(dp),iv,'un',0);
+    uIndepVariablesDataType    	= cat(2,uIndepVariablesDataType{:});
+    uIndepVariablesDataType   	= uIndepVariablesDataType(uIdx1uIndepVariables);
+
+    % 3. Construct an index back into idata but of the shape of all
+    %    independant variables in idata vertically concatenated.
+    uIndepVariablesMatchIndex	= arrayfun(@(n) repmat(n,1,numel(iv{n})),(1:nIndexMatches)','un',0);
+    uIndepVariablesMatchIndex	= reshape(cat(2,uIndepVariablesMatchIndex{:}),[],1);
+    
+    % Determine slot sizes and locations
+    nData    	= cellfun(@numel,ddata); % length of each variable in ddata
+    nDataOut    = accumarray([groupIdx,uVariableIdx],nData,[nGroups,nVariable]); % total length of the output cell for each (var,gr) pair.
+    idxDataOut  = accumarray([groupIdx,uVariableIdx],nData,[nGroups,nVariable],@(x) {cumsum(x)}); % end indices of the all slots in those cells
+    
     % initialize data outputs
-    iData   = arrayfun(@(n) DataKit.getNotANumberValueForClass(cellstr(uIVarDataType),[n,1]),nData2,'un',0);
-    dData   = arrayfun(@(n) NaN(n,1),nData2,'un',0);
+    iData   = arrayfun(@(n) DataKit.getNotANumberValueForClass(cellstr(uIndepVariablesDataType),[n,1]),nDataOut,'un',0);
+    dData   = arrayfun(@(n) NaN(n,1),nDataOut,'un',0);
     
-    for gr = 1:nGroups
-        for var = 1:nVariable
-            maskVar     = uVariableIdx == var;
-            startIdx    = [0;idxData2{gr,var}(1:end - 1)] + 1;
-            endIdx      = idxData2{gr,var};
-            tmpDVar2    = ddata(maskVar);
-            for ii = 1:numel(tmpDVar2)
-                dData{gr,var}(startIdx(ii):endIdx(ii),1)    = tmpDVar2{ii};
-            end
-            for ivar = 1:numel(uIVar)
-                tmpIVar2   	= cat(1,idata{maskVar});
-                
-                maskIVar    = find(uIdx2IVar == ivar);
-                
-                for ii = 1:numel(maskIVar)
-                    try
-                    if uIdx2IVar(maskIVar(ii)) == ii
-                        iData{gr,var}{ivar}(startIdx(ii):endIdx(ii))   = tmpIVar2{uIdx2IVar(maskIVar(ii))};
-                    end
-                    catch
-                        
-                    end
-                end
+    % populate data outputs
+  	for var = 1:nVariable
+        % loop over requested variables
+        maskVar     = uVariableIdx == var;
+
+        for gr = 1:nGroups
+            % loop over groups resulting from the 'GroupBy' request
+            idxData         = find(maskVar & groupIdx == gr); % index into ddata/idata for the current (var,gr) pair.
+            idxIVar         = uIdx2uIndepVariables(any(uIndepVariablesMatchIndex == idxData',2));
+
+            [~,~,uIdx2uSlots] = unique(uIndepVariablesMatchIndex(any(uIndepVariablesMatchIndex == idxData',2)),'stable');
+            dData{gr,var}   = cat(1,ddata{idxData}); % the dependant data that belongs to variable 'var' and group 'gr' only
+            tmpIData        = cat(1,idata{idxData}); % the independant data that belongs to variable 'var' and group 'gr' only
+            slotStart       = [0;idxDataOut{gr,var}(1:end - 1)] + 1; % start indices for that data in the output slot
+            slotEnd         = idxDataOut{gr,var}; % end indices for that data in the output slot
+
+            for ivar = 1:numel(tmpIData)
+                % loop over all input independant variables
+                slotRange   = (slotStart(uIdx2uSlots(ivar)):slotEnd(uIdx2uSlots(ivar)))';
+                iData{gr,var}{idxIVar(ivar)}(slotRange) = tmpIData{ivar}; % write data to appropriate slot
             end
         end
     end
-
     
-    dinfo   = arrayfun(@(dp,iv) obj.Info(dp).selectVariable(iv),dp,dv);
+    dinfo   = arrayfun(@(dp,dv) obj.Info(dp).selectVariable(dv),dp,dv);
     iinfo   = cellfun(@(dp,iv) obj.Info(dp).selectVariable(iv),num2cell(dp),iv);
 
     dinfo2      = DataKit.Metadata.info;
     iinfo2      = DataKit.Metadata.info;
+    
 	switch groupBy
         case {'','Variable'}
-%             ind         = sub2ind([1,nVariable],uVariableIdx);
-%             ddata2      = DataKit.accumcell(uVariableIdx,ddata,[1,nVariable],@(x) cat(1,x{:}));
-%             try
-%             idata2      = DataKit.accumcell(uVariableIdx,idata,[1,nVariable],@(x) cat(2,x{:}));
-%             catch
-%                 
-%             end
-%             idata2(ind) = cellfun(@(c) arrayfun(@(dim) cat(1,c{dim,:}),(1:size(c,1))','un',0)',idata2(ind),'un',0);
-            
             dinfo2(uVariableIdx)   = dinfo(uVariableIdx);
             iinfo2(uVariableIdx)   = iinfo(uVariableIdx);
             data.IndepInfo  = struct(...
@@ -367,11 +423,6 @@ function data = fetchData(obj,varargin)
                                 'Variable',             cat(2,dinfo2.Variable),...
                                 'MeasurementDevice',    []);
         case 'MeasuringDevice'
-%             ind         = sub2ind([nMeasuringDevices,nVariable],uMeasuringDevicesIdx,uVariableIdx);
-%             ddata2      = DataKit.accumcell([uMeasuringDevicesIdx,uVariableIdx],ddata,[nMeasuringDevices,nVariable],@(x) cat(1,x{:}));
-%             idata2      = DataKit.accumcell([uMeasuringDevicesIdx,uVariableIdx],idata,[nMeasuringDevices,nVariable],@(x) cat(2,x{:}));
-%             idata2(ind) = cellfun(@(c) arrayfun(@(dim) cat(1,c{dim,:}),(1:size(c,1))','un',0)',idata2(ind),'un',0);
-
             dinfo2(uVariableIdx)   = dinfo(uVariableIdx);
             iinfo2(uVariableIdx)   = iinfo(uVariableIdx);
             dinfo2          = repmat(dinfo2,nMeasuringDevices,1);

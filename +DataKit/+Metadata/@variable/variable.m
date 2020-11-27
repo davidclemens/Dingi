@@ -1,5 +1,6 @@
 classdef variable
     enumeration
+        % variable                  (Id,    Abbreviation,   Symbol,      Name,                              Type,               Unit,       UnitRegexp,                     PangaeaId, Description
         undefined                   (0,     '',             '',         '',                                 '',                 '',         '',                             NaN,    '')
         ParticulateOrganicNitrogen  (1,     'PON',          'PON',      'Nitrogen, organic, particulate',	'Concentration',	'mass %',	'mass %',                       26498,	'')
         TotalCarbon                 (2,     'TC',           'TC',       'Carbon, total',                    'Concentration',	'mass %',	'mass %',                       735,	'')
@@ -32,8 +33,13 @@ classdef variable
         Bromide                     (30,	'Br⁻',          'Br⁻',      'Bromide',                          'Concentration',	'µM',       'mmol(\sL(⁻¹|-1)|/L)',          161330,	'')
         Sulfate                     (31,	'SO₄²⁻',        'SO₄²⁻',	'Sulfate',                          'Concentration',	'mM',       'mmol(\sL(⁻¹|-1)|/L)',          50,     '')
         Time                        (32,    't',            't',        'Time',                             '',                 's',        's(ec|ek)?(onds|unden)?',      	NaN,    '')
-        Depth                       (33,    'z',            'z',        'Depth',                            '',                 'm',        'm',                            NaN,    '')
+        Depth                       (33,    'z',            'z',        'Depth',                            'Length',         	'm',        'm',                            NaN,    '')
         PotentialTemperature        (34,    'pot. temp.',   'θ',        'Temperature, potential',          	'',                 '°C',      	'(°|deg\s?)C',               	NaN,    '')
+        X                           (35,    'x',            'x',        'Euclidean dimension 1, X',       	'Length',       	'm',        'm',                            NaN,    '')
+        Y                           (36,    'y',            'y',        'Euclidean dimension 2, Y',        	'Length',       	'm',        'm',                            NaN,    '')
+        Z                           (37,    'z',            'z',        'Euclidean dimension 3, Z',        	'Length',       	'm',        'm',                            NaN,    '')
+        Longitude                 	(38,    'lon.',         'λ',        'Longitude',                        'Angle',            '°E',       '°',                            NaN,    '')
+        Latitude                   	(39,    'lat.',         'φ',        'Latitude',                         'Angle',            '°N',       '°',                            NaN,    '')
     end
     properties
         Id uint16
