@@ -1,8 +1,8 @@
-classdef testDataPoolFetchData < matlab.unittest.TestCase
+classdef fetchData_test < matlab.unittest.TestCase
     
     % run:
-    % suite = matlab.unittest.TestSuite.fromClass(?UnitTests.testDataPoolFetchData);
-    % run(suite)
+    % tests = matlab.unittest.TestSuite.fromClass(?Tests.DataKit.dataPool.fetchData_test);
+    % run(tests)
     
     properties
         DataPoolInstance
