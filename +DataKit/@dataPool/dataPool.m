@@ -1,20 +1,39 @@
 classdef dataPool
-    
-    
-    % Test: GearKit.bigoDeployment('/Users/David/Dropbox/David/university/PostDoc/data/cruises/EMB238_BIGO_data_v5/BIGO-I-01')
+    % dataPool  Store & manage self-descriptive measurement data
+    % A data pool instance can contain a variety of data from multiple
+    % sources. The data is self describing, which means that metadata such
+    % as units are consistant.
+    %
+    % dataPool Properties:
+    %   DataRaw - Data without calibration functions applied
+    %   Data - Data with calibration functions applied
+    %   Info - Data pool metadata
+    %   Uncertainty - Uncertainty of DataRaw
+    %   Flag - Flags of DataRaw
+    %   Index - An overview table of all variables in the data pool
+    %   PoolCount - The number of data pools
+    %
+    % dataPool Methods:
+    %   addPool - add a data pool to a dataPol instance
+    %   addVariable - add a variable to a data pool
+    %   fetchData - gathers data from a datapool object in various ways
+    %   disp - displays metadata of a datapool instance
+    %
+    % Copyright 2020 David Clemens (dclemens@geomar.de)
+    %
     
     properties
-        DataRaw(1,:) cell = cell(1,0)
-        Info(1,:) DataKit.Metadata.info
-        Uncertainty(1,:) cell = cell(1,0)
-        Flag(1,:) cell = cell(1,0)
+        DataRaw(1,:) cell = cell(1,0) % Data without calibration functions applied
+        Info(1,:) DataKit.Metadata.info % Data pool metadata
+        Uncertainty(1,:) cell = cell(1,0) % Uncertainty of DataRaw
+        Flag(1,:) cell = cell(1,0) % Flags of DataRaw
     end
     properties (Dependent)
-        PoolCount
-        Index
+        PoolCount % The number of data pools
+        Index % An overview table of all variables in the data pool
     end
     properties (SetAccess = private)
-        Data
+        Data % Data with calibration functions applied
     end
     
     methods
@@ -24,14 +43,13 @@ classdef dataPool
     end
     
     methods (Access = public)
-        obj = addVariable(obj,pool,variable,data,uncertainty,varargin)
         obj = addPool(obj)
+        obj = addVariable(obj,pool,variable,data,uncertainty,varargin)
         obj = removePool(obj,pool)
         obj = importData(obj,importType,path)
         obj = setMeasuringDeviceProperty(obj,pool,idx,property,value)
         obj = setInfoProperty(obj,pool,idx,property,value)
         tbl = info(obj)
-        data = getData(obj,variable,varargin)
         data = fetchData(obj,varargin)
         data = fetchVariableData(obj,poolIdx,variableIdx,varargin)
         obj = update(obj)
@@ -47,7 +65,6 @@ classdef dataPool
         obj = readNortekVector(obj,path)
         obj = readO2Logger(obj,path)
         obj = readSeabirdCTDLegacy(obj,path)
-        [data,info] = gd(obj,type,variable,varargin)
         obj = applyCalibrationFunctions(obj)
     end
     

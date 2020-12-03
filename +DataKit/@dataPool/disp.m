@@ -1,4 +1,34 @@
 function disp(obj)
+% disp  Displays metadata of a datapool instance
+%   DISP displays metadata of a datapool instance. It overloads the builtin
+%   disp(x) function.
+%
+%   Syntax
+%     data = DISP(dp)
+%
+%   Description
+%     data = DISP(dp) displays metadata of a datapool instance.
+%
+%   Example(s)
+%     data = DISP(dp)
+%
+%
+%   Input Arguments
+%     dp - data pool
+%       DataKit.dataPool
+%         An instance of the DataKit.dataPool class.
+%
+%
+%   Output Arguments
+%
+%
+%   Name-Value Pair Arguments
+%
+%
+%   See also DATAPOOL
+%
+%   Copyright 2020 David Clemens (dclemens@geomar.de)
+%
     
     info = obj.info;
     

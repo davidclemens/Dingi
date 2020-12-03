@@ -1,5 +1,66 @@
 function data = fetchVariableData(obj,poolIdx,variableIdx,varargin)
-
+% fetchVariableData  Gathers data from a datapool object by index
+%   FETCHVARIABLEDATA returns the data within a datapool object by allowing
+%   to specify pairs of pool index and variable index.
+%
+%   Syntax
+%     data = FETCHVARIABLEDATA(dp,poolIdx,variableIdx)
+%     data = FETCHVARIABLEDATA(__,Name,Value)
+%
+%   Description
+%     data = FETCHVARIABLEDATA(dp,poolIdx,variableIdx) gathers data of all
+%       poolIdx-variableIdx pairs.
+%
+%     data = FETCHVARIABLEDATA(__,Name,Value) specifies additional
+%       properties using one or more Name,Value pair arguments.
+%
+%   Example(s)
+%     data = FETCHVARIABLEDATA(dp,2,1)
+%     data = FETCHVARIABLEDATA(dp,[5;3;6],[1;1;1])
+%
+%
+%   Input Arguments
+%     dp - data pool
+%       DataKit.dataPool
+%         An instance of the DataKit.dataPool class.
+%
+%     poolIdx - data pool index
+%       numeric vector
+%         A list of data pool indices corresponding to the variableIdx. Has
+%         to have the same size as variableIdx.
+%
+%     variableIdx - variable index
+%       numeric vector
+%         A list of variable indices corresponding to the poolIdx. Has to
+%         have the same size as poolIdx.
+%
+%
+%   Output Arguments
+%
+%     data - returned data
+%       2D matrix | cell
+%         If poolIdx and variableIdx are scalar, the data is returned in
+%         its original data type as matrix. If they are not scalar or
+%         ForceCellOutput is set to true, each one is returned within a
+%         cell.
+%
+%
+%   Name-Value Pair Arguments
+%     ReturnRawData - return raw data
+%       false (default) | true
+%         Determines if data is returned without calibration functions
+%         being applied.
+%
+%     ForceCellOutput - force cell output
+%       true (default) | false
+%         Determine if data should be kept in cells even if the returned
+%         data is uniform.
+%
+%
+%   See also DATAPOOL
+%
+%   Copyright 2020 David Clemens (dclemens@geomar.de)
+%
     
     % parse Name-Value pairs
     optionName          = {'ReturnRawData','ForceCellOutput'}; % valid options (Name)

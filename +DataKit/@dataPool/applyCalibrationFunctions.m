@@ -1,8 +1,41 @@
 function obj = applyCalibrationFunctions(obj)
+% applyCalibrationFunctions  Applies calibrations
+%   APPLYCALIBRATIONFUNCTIONS applies the calibration functions to the
+%   DataRaw and writes the output to Data.
+%
+%   Syntax
+%     obj = APPLYCALIBRATIONFUNCTIONS(obj)
+%
+%   Description
+%     obj = APPLYCALIBRATIONFUNCTIONS(obj) applies calibrations
+%
+%   Example(s)
+%     obj = APPLYCALIBRATIONFUNCTIONS(obj)
+%
+%
+%   Input Arguments
+%     obj - data pool instance
+%       DataKit.dataPool
+%         An instance of the DataKit.dataPool class.
+%
+%
+%   Output Arguments
+%
+%     obj - returned data pool instance
+%       DataKit.dataPool
+%         The new instance of the DataKit.dataPool class.
+%
+%
+%   Name-Value Pair Arguments
+%
+%
+%   See also DATAPOOL
+%
+%   Copyright 2020 David Clemens (dclemens@geomar.de)
+%
 
     Data    = cell(size(obj.DataRaw));
     for dp = 1:obj.PoolCount
-%         error('TODO')
         if obj.Info(dp).VariableCount == 0
         % skip this data pool if there is no variable
             continue

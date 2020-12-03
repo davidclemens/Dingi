@@ -1,246 +1,251 @@
 function data = fetchData(obj,varargin)
-% FETCHDATA gathers data from a datapool object in various ways.
+% fetchData  Gathers data from a datapool object in various ways.
+%   FETCHDATA returns the data within a datapool object by allowing to 
+%   specify what data is wanted and in what order and structure it should
+%   be returned.
 %
-% Syntax
-%   data = FETCHDATA(dp)
-%   data = FETCHDATA(dp,var)
-%   data = FETCHDATA(dp,var,varType)
-%   data = FETCHDATA(dp,var,varType,md)
-%   data = FETCHDATA(dp,var,varType,md,mdType)
-%   data = FETCHDATA(dp,var,varType,md,mdType,poolIdx)
-%   data = FETCHDATA(dp,var,varType,md,mdType,poolIdx,varIdx)
-%   data = FETCHDATA(__,Name,Value)
+%   Syntax
+%     data = FETCHDATA(dp)
+%     data = FETCHDATA(dp,var)
+%     data = FETCHDATA(dp,var,varType)
+%     data = FETCHDATA(dp,var,varType,md)
+%     data = FETCHDATA(dp,var,varType,md,mdType)
+%     data = FETCHDATA(dp,var,varType,md,mdType,poolIdx)
+%     data = FETCHDATA(dp,var,varType,md,mdType,poolIdx,varIdx)
+%     data = FETCHDATA(__,Name,Value)
 %
-% Description
-%   data = FETCHDATA(dp) gathers data of all variables available in the
+%   Description
+%     data = FETCHDATA(dp) gathers data of all variables available in the
 %       datapool instance dp and returns them in the data structure.
 %
-%   data = FETCHDATA(dp,var) gathers data of the specified variables var
+%     data = FETCHDATA(dp,var) gathers data of the specified variables var
 %       available in the datapool instance dp and returns them in the data
 %       structure.
 %
-%   data = FETCHDATA(dp,var,varType) as above, and additionally allows for
-%       the variable type to be specified.
+%     data = FETCHDATA(dp,var,varType) as above, and additionally allows 
+%       for the variable type to be specified.
 %
-%   data = FETCHDATA(dp,var,varType,md) as above, and additionally allows
+%     data = FETCHDATA(dp,var,varType,md) as above, and additionally allows
 %       for the measuring device to be specified.
 %
-%   data = FETCHDATA(dp,var,varType,md,mdType) as above, and additionally
+%     data = FETCHDATA(dp,var,varType,md,mdType) as above, and additionally
 %       allows for the measuring device type to be specified.
 %
-%   data = FETCHDATA(dp,var,varType,md,mdType,poolIdx) as above, and
+%     data = FETCHDATA(dp,var,varType,md,mdType,poolIdx) as above, and
 %       additionally allows for the data pool index to be specified.
 %
-%   data = FETCHDATA(dp,var,varType,md,mdType,poolIdx,varIdx) as above,
+%     data = FETCHDATA(dp,var,varType,md,mdType,poolIdx,varIdx) as above,
 %       and additionally allows for the variable index to be specified.
 %
-%   Any optional argument can be ommited by setting it to [].
-%   All optional arguments are combined by the logical and operation.
+%     Any optional argument can be ommited by setting it to [].
+%     All optional arguments are combined by the logical and operation.
 %
-%   data = FETCHDATA(__,Name,Value) specifies additional properties using
+%     data = FETCHDATA(__,Name,Value) specifies additional properties using
 %       one or more Name,Value pair arguments.
 %
-% Example(s)
-%   data = FETCHDATA(dp,'Oxygen')
-%   data = FETCHDATA(dp,{'Oxygen','Temperature'})
-%   data = FETCHDATA(dp,[2,15])
-%   data = FETCHDATA(dp,DataKit.Metadata.variable)
-%   data = FETCHDATA(dp,[],'Independant')
-%   data = FETCHDATA(dp,[],[],GearKit.measuringDevice)
-%   data = FETCHDATA(dp,[],[],[],'BigoOptode')
-%   data = FETCHDATA(dp,[],[],[],[],[2,3])
-%   data = FETCHDATA(dp,[],[],[],[],[2,3],[2,2])
-%   data = FETCHDATA(dp,[],[],[],[],[],[3,4])
+%   Example(s)
+%     data = FETCHDATA(dp,'Oxygen')
+%     data = FETCHDATA(dp,{'Oxygen','Temperature'})
+%     data = FETCHDATA(dp,[2,15])
+%     data = FETCHDATA(dp,DataKit.Metadata.variable)
+%     data = FETCHDATA(dp,[],'Independant')
+%     data = FETCHDATA(dp,[],[],GearKit.measuringDevice)
+%     data = FETCHDATA(dp,[],[],[],'BigoOptode')
+%     data = FETCHDATA(dp,[],[],[],[],[2,3])
+%     data = FETCHDATA(dp,[],[],[],[],[2,3],[2,2])
+%     data = FETCHDATA(dp,[],[],[],[],[],[3,4])
 %
 %
-% Input Arguments
-%   dp - data pool
+%   Input Arguments
+%     dp - data pool
 %       DataKit.dataPool
-%           An instance of the DataKit.dataPool class.
+%         An instance of the DataKit.dataPool class.
 %
-%   var - requested variable(s)
+%     var - requested variable(s)
 %       [] (default) | char vector | cellstr | numeric vector |
 %       DataKit.Metadata.variable
-%           A list of requested variables. It can be specified by variable
-%           name (char, cellstr), variable id (numeric) or as an instance
-%           of the DataKit.Metadata.variable class.
-%           If left empty (default), data of all variables available in the
-%           data pool are returned.
+%         A list of requested variables. It can be specified by variable
+%         name (char, cellstr), variable id (numeric) or as an instance of
+%         the DataKit.Metadata.variable class.
+%         If left empty (default), data of all variables available in the
+%         data pool are returned.
 %
-%   varType - variable type
+%     varType - variable type
 %       [] (default) | DataKit.Metadata.validators.validInfoVariableType
-%           The variable type ('Dependant' or 'Independant').
-%           If left empty (default), data of all variable types available
-%           in the data pool are returned.
+%         The variable type ('Dependant' or 'Independant').
+%         If left empty (default), data of all variable types available in
+%         the data pool are returned.
 %
-%   md - measuring device
+%     md - measuring device
 %       [] (default) | GearKit.measuringDevice
-%           If specified, only data captured by the measuring device md is
-%           returned.
-%           If left empty (default), data of all measuring devices
-%           available in the data pool are returned.
+%         If specified, only data captured by the measuring device md is
+%         returned.
+%         If left empty (default), data of all measuring devices available
+%         in the data pool are returned.
 %
-%   mdType - measuring device type
+%     mdType - measuring device type
 %       [] (default) | GearKit.measuringDeviceType
-%           If specified, only data captured by a measuring device of type
-%           mdType is returned. Type
-%           'GearKit.measuringDeviceType.listAllMeasuringDeviceType' for a
-%           list of all measuring device types.
-%           If left empty (default), data of all measuring device types
-%           available in the data pool are returned.
+%         If specified, only data captured by a measuring device of type
+%         mdType is returned. Type
+%         'GearKit.measuringDeviceType.listAllMeasuringDeviceType' for a
+%         list of all measuring device types.
+%         If left empty (default), data of all measuring device types
+%         available in the data pool are returned.
 %
-%   poolIdx - data pool index
+%     poolIdx - data pool index
 %       [] (default) | numeric vector
-%           If specified, only data from data pools at index poolIdx are
-%           returned.
-%           If left empty (default), data from all data pools available in
-%           the data pool are returned.
+%         If specified, only data from data pools at index poolIdx are
+%         returned.
+%         If left empty (default), data from all data pools available in
+%         the data pool are returned.
 %
-%   varIdx - variable index
+%     varIdx - variable index
 %       [] (default) | numeric vector
-%           If specified, only data from variables at index varIdx are
-%           returned.
-%           If left empty (default), data from all variable indices
-%           available in the data pool are returned.
+%         If specified, only data from variables at index varIdx are
+%         returned.
+%         If left empty (default), data from all variable indices available
+%         in the data pool are returned.
 %
 %
-% Output Arguments
+%   Output Arguments
 %
-%   data - returned data
+%     data - returned data
 %       scalar struct
-%           Scalar struct holding the data matching the requests. It has
-%           the following fields:
-%               - IndepData
-%               - DepData
-%               - IndepInfo
-%               - DepInfo
+%         Scalar struct holding the data matching the requests. It has the
+%         following fields:
+%           - IndepData
+%           - DepData
+%           - IndepInfo
+%           - DepInfo
 %
-%           The structure of the 2 data fields is as follows, if the
-%           request results in the return of N variables Var1 to VarN grouped
-%           into M groups Group1 to GroupM and Var1 is found in data pools 
-%           dp2 and dp3 while VarN is found in dp5, dp6 and dp7.
-%           If, for example, dp3 doesn't contain independant variable
-%           indepI, it is filled with the appropriate empty value type.
+%         The structure of the 2 data fields is as follows, if the request
+%         results in the return of N variables Var1 to VarN grouped into M
+%         groups Group1 to GroupM and Var1 is found in data pools dp2 and
+%         dp3 while VarN is found in dp5, dp6 and dp7.
+%         If, for example, dp3 doesn't contain independant variable indepI,
+%         it is filled with the appropriate empty value type.
 %
-%           data.DepData:
+%         data.DepData:
 %
-%                  MxN cell
-%                    Var1  ,..., VarN
-%                  ┌                   ┐
-%                  │┌─────┐     ┌─────┐│
-%           Group1 ││slot1│     │slot1││
-%                  ││dp2  │     │dp5  ││
-%                  ││var1 │     │varN ││
-%                  ││data │     │data ││
-%                  ││  ⁝  │     │  ⁝  ││
-%                  ││     │     │     ││
-%                  ││     │     ├─────┤│
-%                  ││     │  …  │slot2││
-%                  │├─────┤     │dp6  ││
-%                  ││slot2│     │varN ││
-%                  ││dp3  │     │data ││
-%                  ││var1 │     │  ⁝  ││
-%                  ││data │     │     ││
-%                  ││  ⁝  │     └─────┘│
-%                  ││     │            │
-%                  │└─────┘            │
-%                  │   ⋮     ⋱     ⋮   │
-%                  │┌─────┐     ┌─────┐│
-%           GroupM ││slot1│     │slot1││
-%                  ││dp2  │     │dp5  ││
-%                  ││var1 │     │varN ││
-%                  ││data │     │data ││
-%                  ││  ⁝  │     │  ⁝  ││
-%                  ││     │     │     ││
-%                  ││     │     ├─────┤│
-%                  ││     │  …  │slot2││
-%                  │└─────┘     │dp6  ││
-%                  │            │varN ││
-%                  │            │data ││
-%                  │            │  ⁝  ││
-%                  │            │     ││
-%                  │            │     ││
-%                  │            ├─────┤│
-%                  │            │slot3││
-%                  │            │dp7  ││
-%                  │            │varN ││
-%                  │            │data ││
-%                  │            │  ⁝  ││
-%                  │            │     ││
-%                  │            │     ││
-%                  │            │     ││
-%                  │            │     ││
-%                  │            │     ││
-%                  │            └─────┘│
-%                  └                   ┘
-%
-%
-%           data.IndepData:
-%
-%                  MxN cell
-%                    Var1                ,..., VarN
-%                  ┌                                               ┐
-%                  │1xI cell                  1xI cell             │
-%                  │┌───────┬ ─ ┬───────┐     ┌───────┬ ─ ┬───────┐│
-%           Group1 ││dp2    │   │dp2    │     │dp5    │   │dp5    ││
-%                  ││var1   │   │var1   │     │varN   │   │varN   ││
-%                  ││indep1 │   │indepI │     │indep1 │   │indepI ││
-%                  ││data   │   │data   │     │data   │   │data   ││
-%                  ││   ⁝   │   │   ⁝   │     │   ⁝   │   │   ⁝   ││
-%                  ││       │   │       │     ├───────┤ … ├───────┤│
-%                  ││       │ … │       │  …  │dp6    │   │dp6    ││
-%                  │├───────┤   ├───────┤     │varN   │   │varN   ││
-%                  ││dp3    │   │dp3    │     │indep1 │   │indepI ││
-%                  ││var1   │   │var1   │     │data   │   │data   ││
-%                  ││indep1 │   │indepI │     │   ⁝   │   │   ⁝   ││
-%                  ││data   │   │data   │     └───────┴ ─ ┴───────┘│
-%                  ││   ⁝   │   │   ⁝   │                          │
-%                  │└───────┴ ─ ┴───────┘                          │
-%                  │          ⋮            ⋱            ⋮          │
-%                  │┌───────┬ ─ ┬───────┐     ┌───────┬ ─ ┬───────┐│
-%           GroupM ││dp2    │   │dp2    │     │dp5    │   │dp5    ││
-%                  ││var1   │   │var1   │     │varN   │   │varN   ││
-%                  ││indep1 │   │indepI │     │indep1 │   │indepI ││
-%                  ││data   │ … │data   │     │data   │   │data   ││
-%                  ││   ⁝   │   │   ⁝   │     │   ⁝   │   │   ⁝   ││
-%                  ││       │   │       │     ├───────┤ … ├───────┤│
-%                  ││       │   │       │     │dp6    │   │dp6    ││
-%                  │└───────┴ ─ ┴───────┘     │varN   │   │varN   ││
-%                  │                          │indep1 │   │indepI ││
-%                  │                          │data   │   │data   ││
-%                  │                       …  │   ⁝   │   │   ⁝   ││
-%                  │                          │       │   │       ││
-%                  │                          ├───────┤ … ├───────┤│
-%                  │                          │dp7    │   │dp7    ││
-%                  │                          │varN   │   │varN   ││
-%                  │                          │indep1 │   │indepI ││
-%                  │                          │data   │   │data   ││
-%                  │                          │   ⁝   │   │   ⁝   ││
-%                  │                          │       │   │       ││
-%                  │                          │       │   │       ││
-%                  │                          │       │   │       ││
-%                  │                          │       │   │       ││
-%                  │                          └───────┴ ─ ┴───────┘│
-%                  └                                               ┘
+%                MxN cell
+%                  Var1  ,..., VarN
+%                ┌                   ┐
+%                │┌─────┐     ┌─────┐│
+%         Group1 ││slot1│     │slot1││
+%                ││dp2  │     │dp5  ││
+%                ││var1 │     │varN ││
+%                ││data │     │data ││
+%                ││  ⁝  │     │  ⁝  ││
+%                ││     │     │     ││
+%                ││     │     ├─────┤│
+%                ││     │  …  │slot2││
+%                │├─────┤     │dp6  ││
+%                ││slot2│     │varN ││
+%                ││dp3  │     │data ││
+%                ││var1 │     │  ⁝  ││
+%                ││data │     │     ││
+%                ││  ⁝  │     └─────┘│
+%                ││     │            │
+%                │└─────┘            │
+%                │   ⋮     ⋱     ⋮   │
+%                │┌─────┐     ┌─────┐│
+%         GroupM ││slot1│     │slot1││
+%                ││dp2  │     │dp5  ││
+%                ││var1 │     │varN ││
+%                ││data │     │data ││
+%                ││  ⁝  │     │  ⁝  ││
+%                ││     │     │     ││
+%                ││     │     ├─────┤│
+%                ││     │  …  │slot2││
+%                │└─────┘     │dp6  ││
+%                │            │varN ││
+%                │            │data ││
+%                │            │  ⁝  ││
+%                │            │     ││
+%                │            │     ││
+%                │            ├─────┤│
+%                │            │slot3││
+%                │            │dp7  ││
+%                │            │varN ││
+%                │            │data ││
+%                │            │  ⁝  ││
+%                │            │     ││
+%                │            │     ││
+%                │            │     ││
+%                │            │     ││
+%                │            │     ││
+%                │            └─────┘│
+%                └                   ┘
 %
 %
-% Name-Value Pair Arguments
-%   ReturnRawData - return raw data
+%         data.IndepData:
+%
+%                MxN cell
+%                  Var1                ,..., VarN
+%                ┌                                               ┐
+%                │1xI cell                  1xI cell             │
+%                │┌───────┬ ─ ┬───────┐     ┌───────┬ ─ ┬───────┐│
+%         Group1 ││dp2    │   │dp2    │     │dp5    │   │dp5    ││
+%                ││var1   │   │var1   │     │varN   │   │varN   ││
+%                ││indep1 │   │indepI │     │indep1 │   │indepI ││
+%                ││data   │   │data   │     │data   │   │data   ││
+%                ││   ⁝   │   │   ⁝   │     │   ⁝   │   │   ⁝   ││
+%                ││       │   │       │     ├───────┤ … ├───────┤│
+%                ││       │ … │       │  …  │dp6    │   │dp6    ││
+%                │├───────┤   ├───────┤     │varN   │   │varN   ││
+%                ││dp3    │   │dp3    │     │indep1 │   │indepI ││
+%                ││var1   │   │var1   │     │data   │   │data   ││
+%                ││indep1 │   │indepI │     │   ⁝   │   │   ⁝   ││
+%                ││data   │   │data   │     └───────┴ ─ ┴───────┘│
+%                ││   ⁝   │   │   ⁝   │                          │
+%                │└───────┴ ─ ┴───────┘                          │
+%                │          ⋮            ⋱            ⋮          │
+%                │┌───────┬ ─ ┬───────┐     ┌───────┬ ─ ┬───────┐│
+%         GroupM ││dp2    │   │dp2    │     │dp5    │   │dp5    ││
+%                ││var1   │   │var1   │     │varN   │   │varN   ││
+%                ││indep1 │   │indepI │     │indep1 │   │indepI ││
+%                ││data   │ … │data   │     │data   │   │data   ││
+%                ││   ⁝   │   │   ⁝   │     │   ⁝   │   │   ⁝   ││
+%                ││       │   │       │     ├───────┤ … ├───────┤│
+%                ││       │   │       │     │dp6    │   │dp6    ││
+%                │└───────┴ ─ ┴───────┘     │varN   │   │varN   ││
+%                │                          │indep1 │   │indepI ││
+%                │                          │data   │   │data   ││
+%                │                       …  │   ⁝   │   │   ⁝   ││
+%                │                          │       │   │       ││
+%                │                          ├───────┤ … ├───────┤│
+%                │                          │dp7    │   │dp7    ││
+%                │                          │varN   │   │varN   ││
+%                │                          │indep1 │   │indepI ││
+%                │                          │data   │   │data   ││
+%                │                          │   ⁝   │   │   ⁝   ││
+%                │                          │       │   │       ││
+%                │                          │       │   │       ││
+%                │                          │       │   │       ││
+%                │                          │       │   │       ││
+%                │                          └───────┴ ─ ┴───────┘│
+%                └                                               ┘
+%
+%
+%   Name-Value Pair Arguments
+%     ReturnRawData - return raw data
 %       false (default) | true
-%           Determines if data is returned without calibration functions
-%           being applied.
-%   GroupBy - set grouping type
+%         Determines if data is returned without calibration functions
+%         being applied.
+%
+%     GroupBy - set grouping type
 %       '' (default) | 'Variable' | 'MeasuringDevice' | ...
-%           Sets how the returned data is grouped.
-%   ForceCellOutput - force cell output
+%         Sets how the returned data is grouped.
+%
+%     ForceCellOutput - force cell output
 %       false (default) | true
-%           Determine if data should be kept in cells even if the returned
-%           data is uniform.
+%         Determine if data should be kept in cells even if the returned
+%         data is uniform.
 %
 %
-% See also
+%   See also DATAPOOL
 %
-% Copyright 2020 David Clemens (dclemens@geomar.de)
+%   Copyright 2020 David Clemens (dclemens@geomar.de)
 %
 
     [...
@@ -260,12 +265,12 @@ function data = fetchData(obj,varargin)
     ] = parseInputs(obj,varargin{:});
 
 
-    % test all criteria against the data pool index. They are combined by
-    % the logical AND operation.
+    %   test all criteria against the data pool index. They are combined by
+    %   the logical AND operation.
     maskIndex   = true(size(obj.Index,1),1);
     if ~isempty(variable)
         if isa(variable,'DataKit.Metadata.variable')
-            % ok
+            %   ok
         elseif isnumeric(variable)
             variable    = DataKit.Metadata.variable.id2variable(variable);
         else
@@ -336,17 +341,17 @@ function data = fetchData(obj,varargin)
     [uMeasuringDevices,~,uMeasuringDevicesIdx]	= unique(obj.Index{maskIndex,'MeasuringDevice'});
     nMeasuringDevices   = numel(uMeasuringDevices);
 
-    % indices of index matches into the data pool
-    dp      = obj.Index{maskIndex,'DataPool'}; % data pool index
-    dv      = obj.Index{maskIndex,'VariableIndex'}; % dependant variable index
-    iv      = obj.Index{maskIndex,'IndependantVariableIndex'}; % independant variable(s) index
+    %   indices of index matches into the data pool
+    dp      = obj.Index{maskIndex,'DataPool'}; %   data pool index
+    dv      = obj.Index{maskIndex,'VariableIndex'}; %   dependant variable index
+    iv      = obj.Index{maskIndex,'IndependantVariableIndex'}; %   independant variable(s) index
     
-    % fetch data
+    %   fetch data
 	ddata 	= obj.fetchVariableData(dp,dv,...
                 'ReturnRawData',    returnRawData);
     idata 	= cellfun(@(dp,iv) obj.fetchVariableData(dp,iv,'ReturnRawData',returnRawData),num2cell(dp),iv,'un',0);
     
-    % setup grouping parameters
+    %   setup grouping parameters
 	switch groupBy
         case {'','Variable'}
             groupIdx    = ones(nIndexMatches,1);
@@ -356,52 +361,52 @@ function data = fetchData(obj,varargin)
             nGroups     = nMeasuringDevices;
 	end
     
-    % Handle multiple unique independant variables:
-    % 1. Find the unique independant variables in all the data that has
-    %    been fetched (idata).
-    uIndepVariables           	= cellfun(@(dp,v) obj.Info(dp).Variable(v),num2cell(dp),iv,'un',0); % all independant variables found in idata (with repetition)
-    [uIndepVariables,uIdx1uIndepVariables,uIdx2uIndepVariables]  = unique(variable2str(cat(2,uIndepVariables{:})),'stable'); % all independant variables found in idata (without repetition)
+    %   Handle multiple unique independant variables:
+    %   1. Find the unique independant variables in all the data that has
+    %      been fetched (idata).
+    uIndepVariables           	= cellfun(@(dp,v) obj.Info(dp).Variable(v),num2cell(dp),iv,'un',0); %   all independant variables found in idata (with repetition)
+    [uIndepVariables,uIdx1uIndepVariables,uIdx2uIndepVariables]  = unique(variable2str(cat(2,uIndepVariables{:})),'stable'); %   all independant variables found in idata (without repetition)
  
-    % 2. Find the return datatype for the uIndepVariables. This allows the
-    %    initialization of the output cell iData.
+    %   2. Find the return datatype for the uIndepVariables. This allows the
+    %      initialization of the output cell iData.
     uIndepVariablesDataType   	= cellfun(@(dp,v) obj.Info(dp).VariableReturnDataType(v),num2cell(dp),iv,'un',0);
     uIndepVariablesDataType    	= cat(2,uIndepVariablesDataType{:});
     uIndepVariablesDataType   	= uIndepVariablesDataType(uIdx1uIndepVariables);
 
-    % 3. Construct an index back into idata but of the shape of all
-    %    independant variables in idata vertically concatenated.
+    %   3. Construct an index back into idata but of the shape of all
+    %      independant variables in idata vertically concatenated.
     uIndepVariablesMatchIndex	= arrayfun(@(n) repmat(n,1,numel(iv{n})),(1:nIndexMatches)','un',0);
     uIndepVariablesMatchIndex	= reshape(cat(2,uIndepVariablesMatchIndex{:}),[],1);
     
-    % Determine slot sizes and locations
-    nData    	= cellfun(@numel,ddata); % length of each variable in ddata
-    nDataOut    = accumarray([groupIdx,uVariableIdx],nData,[nGroups,nVariable]); % total length of the output cell for each (var,gr) pair.
-    idxDataOut  = accumarray([groupIdx,uVariableIdx],nData,[nGroups,nVariable],@(x) {cumsum(x)}); % end indices of the all slots in those cells
+    %   Determine slot sizes and locations
+    nData    	= cellfun(@numel,ddata); %   length of each variable in ddata
+    nDataOut    = accumarray([groupIdx,uVariableIdx],nData,[nGroups,nVariable]); %   total length of the output cell for each (var,gr) pair.
+    idxDataOut  = accumarray([groupIdx,uVariableIdx],nData,[nGroups,nVariable],@(x) {cumsum(x)}); %   end indices of the all slots in those cells
     
-    % initialize data outputs
+    %   initialize data outputs
     iData   = arrayfun(@(n) DataKit.getNotANumberValueForClass(cellstr(uIndepVariablesDataType),[n,1]),nDataOut,'un',0);
     dData   = arrayfun(@(n) NaN(n,1),nDataOut,'un',0);
     
-    % populate data outputs
+    %   populate data outputs
   	for var = 1:nVariable
-        % loop over requested variables
+        %   loop over requested variables
         maskVar     = uVariableIdx == var;
 
         for gr = 1:nGroups
-            % loop over groups resulting from the 'GroupBy' request
-            idxData         = find(maskVar & groupIdx == gr); % index into ddata/idata for the current (var,gr) pair.
+            %   loop over groups resulting from the 'GroupBy' request
+            idxData         = find(maskVar & groupIdx == gr); %   index into ddata/idata for the current (var,gr) pair.
             idxIVar         = uIdx2uIndepVariables(any(uIndepVariablesMatchIndex == idxData',2));
 
             [~,~,uIdx2uSlots] = unique(uIndepVariablesMatchIndex(any(uIndepVariablesMatchIndex == idxData',2)),'stable');
-            dData{gr,var}   = cat(1,ddata{idxData}); % the dependant data that belongs to variable 'var' and group 'gr' only
-            tmpIData        = cat(1,idata{idxData}); % the independant data that belongs to variable 'var' and group 'gr' only
-            slotStart       = [0;idxDataOut{gr,var}(1:end - 1)] + 1; % start indices for that data in the output slot
-            slotEnd         = idxDataOut{gr,var}; % end indices for that data in the output slot
+            dData{gr,var}   = cat(1,ddata{idxData}); %   the dependant data that belongs to variable 'var' and group 'gr' only
+            tmpIData        = cat(1,idata{idxData}); %   the independant data that belongs to variable 'var' and group 'gr' only
+            slotStart       = [0;idxDataOut{gr,var}(1:end - 1)] + 1; %   start indices for that data in the output slot
+            slotEnd         = idxDataOut{gr,var}; %   end indices for that data in the output slot
 
             for ivar = 1:numel(tmpIData)
-                % loop over all input independant variables
+                %   loop over all input independant variables
                 slotRange   = (slotStart(uIdx2uSlots(ivar)):slotEnd(uIdx2uSlots(ivar)))';
-                iData{gr,var}{idxIVar(ivar)}(slotRange) = tmpIData{ivar}; % write data to appropriate slot
+                iData{gr,var}{idxIVar(ivar)}(slotRange) = tmpIData{ivar}; %   write data to appropriate slot
             end
         end
     end
@@ -462,7 +467,7 @@ function varargout = parseInputs(obj,varargin)
     defaultForceCellOutput                  = false;
 
     validRelativeTime   = {'milliseconds','seconds','minutes','hours','days','years'};
-    validGropuBy        = {'Variable','MeasuringDevice'}; % 'MeasuringDeviceType','DataPool','VariableType'
+    validGropuBy        = {'Variable','MeasuringDevice'}; %   'MeasuringDeviceType','DataPool','VariableType'
 
     checkVariableType         	= @(x) (isempty(x) && isa(x,'double')) || ((ischar(x) || iscellstr(x)) && ismember(x,DataKit.Metadata.validators.validInfoVariableType.listAllValidInfoVariableType));
     checkMeasuringDevice        = @(x) (isempty(x) && isa(x,'double')) || isa(x,'GearKit.measuringDevice');
@@ -526,7 +531,7 @@ function varargout = parseInputs(obj,varargin)
                     groupBy,...
                     forceCellOutput...
                   };
-    % sanity check
+    %   sanity check
 	if numel(fieldnames(p.Results)) ~= numel(varargout)
         error('Parsed variable number mismatches the output.')
 	end

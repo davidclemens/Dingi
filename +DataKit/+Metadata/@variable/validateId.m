@@ -2,7 +2,7 @@ function [bool,info] = validateId(id)
 
     if isa(id,'uint16')
         % ok
-    elseif ~isa(id,'uint16')
+    elseif ~isa(id,'uint16') && isnumeric(id)
         try
             id = cast(id,'uint16');
         catch ME
