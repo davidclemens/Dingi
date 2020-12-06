@@ -4,7 +4,7 @@ function obj = assignMeasuringDeviceMountingData(obj)
     import DataKit.importTableFile
     
 	if obj.debugger.debugLevel >= 'Info'
-        fprintf('INFO: assigning %s measuring device mounting locations... \n',obj.gearType);
+        fprintf('INFO: assigning %s measuring device(s) mounting locations... \n',obj.gearType);
 	end
     
     measuringDeviceDataFile  = [obj.dataFolderInfo.rootFolder,'/',char(obj.cruise),'_',obj.gearType,'_measuringDevices.xlsx'];
@@ -37,6 +37,6 @@ function obj = assignMeasuringDeviceMountingData(obj)
     
     
 	if obj.debugger.debugLevel >= 'Info'
-        fprintf('INFO: assigning %s measuring devices mounting locations... done\n',obj.gearType);
+        fprintf('INFO: assigning %s measuring device(s) mounting locations... done\n',obj.gearType);
 	end
 end

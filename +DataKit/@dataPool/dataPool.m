@@ -14,10 +14,10 @@ classdef dataPool
     %   PoolCount - The number of data pools
     %
     % dataPool Methods:
-    %   addPool - add a data pool to a dataPol instance
-    %   addVariable - add a variable to a data pool
-    %   fetchData - gathers data from a datapool object in various ways
-    %   disp - displays metadata of a datapool instance
+    %   addPool - Add a data pool to a dataPol instance
+    %   addVariable - Add a variable to a data pool
+    %   fetchData - Gathers data from a datapool object in various ways
+    %   disp - Displays metadata of a datapool instance
     %
     % Copyright 2020 David Clemens (dclemens@geomar.de)
     %

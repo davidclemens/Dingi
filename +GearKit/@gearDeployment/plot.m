@@ -1,87 +1,88 @@
 function varargout = plot(obj,variables,varargin)
-% PLOT plots sensor data from gearDeployment object(s)
-% Plot the timeseries of selected/all parameters of a gearDeployment
-% object.
+% plot  plots sensor data from gearDeployment object(s)
+%   PLOT the timeseries of selected/all parameters of a gearDeployment
+%   object. Overloads the builtin plot function.
 %
-% Syntax
-%   PLOT(obj)
+%   Syntax
+%     PLOT(obj)
+%     PLOT(obj,parameter)
+%     PLOT(__,Name,Value)
+%     [hfig] = PLOT(__)
+%     [hfig,hsp] = PLOT(__)
 %
-%   PLOT(obj,parameter)
-%
-%   PLOT(__,Name,Value)
-%
-%   [hfig] = PLOT(__)
-%
-%   [hfig,hsp] = PLOT(__)
-%
-% Description
-%   PLOT(obj) plots the timeseries of all available parameters of all the
+%   Description
+%     PLOT(obj) plots the timeseries of all available parameters of all the
 %       gearDeployment instances obj.
 %
-%   PLOT(obj,parameter) plots the timeseries of all provided parameters
+%     PLOT(obj,parameter) plots the timeseries of all provided parameters
 %       parameter of all the gearDeployment instances obj.
 %
-%   PLOT(__,Name,Value) specifies additional properties using one or more
+%     PLOT(__,Name,Value) specifies additional properties using one or more
 %       Name,Value pair arguments.
 %
-%   [hfig] = PLOT(__) additionally returns the figure handle.
+%     [hfig] = PLOT(__) additionally returns the figure handle.
 %
-%   [hfig,hsp] = PLOT(__) additionally returns the figure handle and the
+%     [hfig,hsp] = PLOT(__) additionally returns the figure handle and the
 %       subplot handle(s).
 %
 %
-% Example(s) 
+%   Example(s) 
 %
 %
-% Input Arguments
-%   obj - gearDeployment instance
+%   Input Arguments
+%     obj - gearDeployment instance
 %       gearDeployment
-%           An instance of the gearDeployment (super)class
-%   parameter - list of parameters to plot
+%         An instance of the gearDeployment (super)class
+%
+%     parameter - list of parameters to plot
 %       cellstr
-%           List of parameters to plot.
+%         List of parameters to plot.
 %
 %
-% Output Arguments
-%   hfig - figure handle
+%   Output Arguments
+%     hfig - figure handle
 %       figure handle
-%           Handle to the figure.
-%   hsp - subplot handle(s)
+%         Handle to the figure.
+%
+%     hsp - subplot handle(s)
 %       axes handle
-%           Array of axes handles to all subplots
+%         Array of axes handles to all subplots
 %
 %
-% Name-Value Pair Arguments
-%   FontSize - font size
+%   Name-Value Pair Arguments
+%     FontSize - font size
 %       10 (default) | numeric
-%           Font size for the figure.
-%   TitleFontSizeMultiplier - title font size multiplier
-%       1 (default) | numeric
-%           The font size for the titles are multiplied by this factor.
-%   LabelFontSizeMultiplier - label font size multiplier
-%       1 (default) | numeric
-%           The font size for the labels are multiplied by this factor.
+%         Font size for the figure.
 %
-% 
-% See also
+%     TitleFontSizeMultiplier - title font size multiplier
+%       1 (default) | numeric
+%         The font size for the titles are multiplied by this factor.
 %
-% Copyright 2020 David Clemens (dclemens@geomar.de)
+%     LabelFontSizeMultiplier - label font size multiplier
+%       1 (default) | numeric
+%         The font size for the labels are multiplied by this factor.
+%
+%   
+%   See also
+%
+%   Copyright 2020 David Clemens (dclemens@geomar.de)
+%
         
     import GraphKit.getMaxFigureSize
     import GraphKit.getDataLimits   
     
-    % Figure settings
+    %   Figure settings
 	Menubar                     = 'figure';
     maxFigureSize               = getMaxFigureSize('Menubar',Menubar);
     PaperWidth                  = maxFigureSize(1);
     PaperHeight                 = maxFigureSize(2);
     PaperPos                    = [PaperWidth PaperHeight];
     
-    % Axis settings
+    %   Axis settings
     cmap                        = cbrewer('qual','Set1',7);
     
-    % parse Name-Value pairs
-    optionName          = {'FigureNameValue','AxisNameValue','DataDomain','LegendVisible','MarginOuter','MarginInner','RelativeTime'}; % valid options (Name)
+    %   parse Name-Value pairs
+    optionName          = {'FigureNameValue','AxisNameValue','DataDomain','LegendVisible','MarginOuter','MarginInner','RelativeTime'}; %   valid options (Name)
     optionDefaultValue  = {{'Name',                 'gear deployments',...
                             'Menubar',              Menubar,...
                             'Toolbar',              'auto',...
@@ -100,7 +101,7 @@ function varargout = plot(obj,variables,varargin)
                             'show',...
                             0.5,...
                             0.2,...
-                            'h'}; % default value (Value)
+                            'h'}; %   default value (Value)
     [FigureNameValue,...
      AxesNameValue,...
      DataDomain,...
@@ -108,9 +109,9 @@ function varargout = plot(obj,variables,varargin)
      MarginOuter,...
      MarginInner,...
      RelativeTime,...
-    ]	= internal.stats.parseArgs(optionName,optionDefaultValue,varargin{:}); % parse function arguments   
+    ]	= internal.stats.parseArgs(optionName,optionDefaultValue,varargin{:}); %   parse function arguments   
     
-    % parse parameter input
+    %   parse parameter input
     plotVariablesAvailableInfo	= cat(1,obj.variables);
     if exist('variables','var') ~= 1
         [variableIsValid,variableInfo]    = DataKit.Metadata.variable.validateId(plotVariablesAvailableInfo{:,'Id'});
@@ -138,7 +139,7 @@ function varargout = plot(obj,variables,varargin)
     end
  	nVariables          = numel(variables);
     
-    % initialize figure
+    %   initialize figure
     hfig        = figure(99);
     set(hfig,...
        	'Visible',      'on');
@@ -163,8 +164,10 @@ function varargout = plot(obj,variables,varargin)
             v     = row;
             hsp(spi(row,col))   = subplot(spny,spnx,spi(row,col),AxesNameValue{:});
                 try
-                    data    = obj(gear).getData(variables(v),...
-                                'TimeOfInterestDataOnly',   false);
+                    data    = obj(gear).fetchData(variables(v),...
+                                'TimeOfInterestDataOnly',   true,...
+                                'RelativeTime',             'h',...
+                                'GroupBy',                  'MeasuringDevice');
                 catch ME
                     switch ME.identifier
                         case 'GearKit:gearDeployment:gd:invalidParameter'
@@ -184,20 +187,19 @@ function varargout = plot(obj,variables,varargin)
                 end
                 
                 iihp    = 1;
-                if isempty(data.IndependantVariables)
+                if isempty(data.IndepData)
                     hp(1,spi(row,col)) = plot(NaT,NaN);
-%                 elseif parameterNotInDeployment(row,col)
-%                     hp(1,spi(row,col)) = plot(NaT,NaN);
+%               elseif parameterNotInDeployment(row,col)
+%                   hp(1,spi(row,col)) = plot(NaT,NaN);
                 else
                     legendStr   = cell.empty;
-                    for dp = 1:numel(data.IndependantVariables)
-                        XData  	= data.IndependantVariables{dp};
-                        YData	= movmean(data.DependantVariables{dp},minutes(10),...
-                                          'SamplePoints',     XData);
+                    for gr = 1:size(data.IndepData,1)
+                        XData  	= data.IndepData{gr}{:};
+                        YData	= data.DepData{gr};
                         hptmp   = plot(XData,YData,...
                                     'LineWidth',    1.5);
-                        legendStr   = cat(1,legendStr,{[char(data.DependantInfo.MeasuringDevice(dp).Type),' ',...
-                                                        char(data.DependantInfo.MeasuringDevice(dp).WorldDomain)]});
+                        legendStr   = cat(1,legendStr,{[char(data.DepInfo(gr).MeasuringDevice.Type),' ',...
+                                                        char(data.DepInfo(gr).MeasuringDevice.WorldDomain)]});
                                 
                         nhp     = numel(hptmp);
                         hp(iihp:iihp + nhp - 1,spi(row,col))	= hptmp;
@@ -213,11 +215,11 @@ function varargout = plot(obj,variables,varargin)
         end
     end
     
-    % only keep the first occurance of the labels that is non-empty
+    %   only keep the first occurance of the labels that is non-empty
     yLabelString    = yLabelString(cumsum(~cellfun(@isempty,yLabelString),2) == 1);
     titleString     = titleString(cumsum(~cellfun(@isempty,titleString),1) == 1);
     
-    % set appearance and labels
+    %   set appearance and labels
     for col = 1:spnx
         gear	= col;
         for row = 1:spny
@@ -246,7 +248,7 @@ function varargout = plot(obj,variables,varargin)
                     'Visible',          'off');
             end
             if row == 1
-%                 title(hsp(spi(row,col)),titleString{col})
+%               title(hsp(spi(row,col)),titleString{col})
             end
             if parameterNotInDeployment(row,col)
                 text(hsp(spi(row,col)),0.5,0.5,'no data',...

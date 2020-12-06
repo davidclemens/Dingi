@@ -4,7 +4,7 @@ function obj = readAnalyticalSamples(obj)
     import DataKit.importTableFile
     
  	if obj.debugger.debugLevel >= 'Info'
-        fprintf('INFO: reading %s analytical samples data... \n',obj.gearType);
+        fprintf('INFO: reading %s analytical sample(s) data... \n',obj.gearType);
 	end
     
     try
@@ -64,7 +64,7 @@ function obj = readAnalyticalSamples(obj)
                     worldDomain         = GearKit.worldDomain.BenthicWaterColumn;
                 otherwise
                     error('GearKit:gearDeployment:readAnalyticalSamples:measuringDeviceTypeNotImplemented',...
-                        'Reading analytical samples for measuring device type ''%s'' is not implemented.',char(uMeasuringDevices{mdt,'MeasuringDeviceType'}))
+                        'Reading analytical sample(s) for measuring device type ''%s'' is not implemented.',char(uMeasuringDevices{mdt,'MeasuringDeviceType'}))
             end
             data            = cat(2,data,accumarray(subs,tbl{maskTbl,{'Value'}},[numel(uRows),numel(uCols)],@nanmean,NaN));
             variables       = cat(2,variables,cellstr(DataKit.Metadata.variable.id2variable(uCols)'));
@@ -99,6 +99,6 @@ function obj = readAnalyticalSamples(obj)
     end
     
 	if obj.debugger.debugLevel >= 'Info'
-        fprintf('INFO: reading %s analytical samples data... done\n',obj.gearType);
+        fprintf('INFO: reading %s analytical sample(s) data... done\n',obj.gearType);
 	end
 end

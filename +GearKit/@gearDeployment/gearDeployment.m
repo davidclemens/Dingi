@@ -1,47 +1,40 @@
 classdef gearDeployment
-% GEARDEPLOYMENT The superclass to all gear deployments
-%	The GEARDEPLOYMENT class defines basic metadata on a gear deployment
-%	and reads it upon construction.
-%
-% GEARDEPLOYMENT Properties:
-%	sensors - 
-%	analyticalSamples - 
-%	gearType - 
-%	cruise - 
-%	gear - 
-%	station - 
-%	areaId - 
-%	longitude - 
-%	latitude - 
-%	depth - 
-%	timeDeployment - 
-%	timeRecovery - 
-%	timeOfInterestStart - 
-%	timeOfInterestEnd - 
-%	calibration - 
-%	analysis - 
-%	dataFolderInfo - 
-%	parameters - 
-%	hasSensorData - 
-%	hasAnalyticalData - 
-%	validGearTypes - 
-%	debugger - 
-%	dataVersion - 
-%
-% GEARDEPLOYMENT Methods:
-%	gearDeployment - Constructs an gearDeployment instance
-%	exportData - 
-%	plot - 
-%	runAnalysis - 
-%
-% Copyright 2020 David Clemens (dclemens@geomar.de)
+    % gearDeployment  The superclass to all gear deployments
+    % The GEARDEPLOYMENT class defines basic metadata on a gear deployment
+    % and reads it upon construction.
+    %
+    % gearDeployment Properties:
+    %	gearType - Type of gear
+    %	cruise - Cruise id of the deployment
+    %	gear - Gear id of the deployment
+    %	station - Station id of the deployment
+    %	areaId - Area or transect id of the deployment
+    %	longitude - Longitude of the deployment
+    %	latitude - Latitude of the deployment
+    %	depth - Depth of the deployment
+    %	timeDeployment - Time of the deployment
+    %	timeRecovery - Time of the recovery
+    %	timeOfInterestStart - Time of interest start
+    %	timeOfInterestEnd - Time of interest end
+    %	calibration - Calibration data
+    %	analysis - Data analysis object
+    %	dataFolderInfo - Structure that holds metadata on the gear deployment folder
+    %	variables - List of variables available for this deployment
+    %
+    % gearDeployment Methods:
+    %	exportData - 
+    %	plot - 
+    %	runAnalysis - 
+    %
+    % Copyright 2020 David Clemens (dclemens@geomar.de)
+    %
 
 	properties
         data DataKit.dataPool = DataKit.dataPool()
         gearType = char.empty % Type of gear
         cruise = categorical.empty % Cruise id of the deployment
         gear = categorical.empty % Gear id of the deployment
-        station = categorical.empty % Station of the deployment
+        station = categorical.empty % Station id of the deployment
         areaId = categorical.empty % Area or transect id of the deployment
         longitude = [] % Longitude of the deployment
         latitude = [] % Latitude of the deployment
@@ -50,7 +43,7 @@ classdef gearDeployment
         timeRecovery = datetime.empty % Time of the recovery
         timeOfInterestStart = datetime.empty % Time of interest start
         timeOfInterestEnd = datetime.empty % Time of interest end
-        calibration table = table.empty % calibration data
+        calibration table = table.empty % Calibration data
         analysis % Data analysis object
         dataFolderInfo	= struct('gearName',   	char.empty,...
                                  'rootFolder',	char.empty,...
@@ -58,9 +51,7 @@ classdef gearDeployment
                                  'saveFile',    char.empty);    % Structure that holds metadata on the gear deployment folder
     end
     properties (Dependent)
-        variables
-%         hasSensorData logical
-%         hasAnalyticalData logical
+        variables % List of variables available for this deployment
     end
     properties (Hidden, Access = private, Constant)
         validGearTypes = {'BIGO','EC'} % List of valid gear types
@@ -107,7 +98,7 @@ classdef gearDeployment
     
 	% methods in seperate files
     methods (Access = public)
-        data = getData(obj,variable,varargin)
+        data = fetchData(obj,variable,varargin)
         varargout = exportData(obj,parameter,filename,varargin)
         varargout = plot(obj,varargin)
         varargout = plotCalibrations(obj)
@@ -119,16 +110,13 @@ classdef gearDeployment
     methods (Access = protected)
         obj	= getGearDeploymentMetadata(obj,pathName)
         obj	= assignMeasuringDeviceMountingData(obj)
-        obj	= readAuxillarySensors(obj)
+        obj	= readAuxillaryMeasuringDevices(obj)
         obj = readCalibrationData(obj)
         obj = calibrateMeasuringDevices(obj)
         obj = readAnalyticalSamples(obj)
     end
-    methods (Access = protected, Static)
-        [time,data,meta,outlier] = initializeGetDataOutputs()
-    end
     methods (Access = protected, Abstract)
-        internalSensors = readInternalSensors(obj)
+        obj = readInternalMeasuringDevices(obj)
     end
     methods (Abstract) 
         obj = runAnalysis(obj)
