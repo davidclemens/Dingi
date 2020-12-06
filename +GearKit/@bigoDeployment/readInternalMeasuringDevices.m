@@ -1,6 +1,8 @@
-function obj = readInternalSensors(obj)
-
-    import GearKit.*
+function obj = readInternalMeasuringDevices(obj)
+    
+	if obj.debugger.debugLevel >= 'Info'
+        fprintf('INFO: reading internal measuring device(s)... \n');
+    end
     
     controlUnits            = {'CHMB1','CHMB2'};
     controlUnitsPretty      = {'Ch1','Ch2'};
@@ -12,10 +14,9 @@ function obj = readInternalSensors(obj)
             obj.data    = obj.data.addPool;
             obj.data    = obj.data.importData(measuringUnitType{mu},[obj.dataFolderInfo.dataFolder,'/',controlUnits{cu},measuringUnitPath{mu}]);
         end
-        
-%         [newSensors.mountingLocation]	= deal(controlUnitsOutput{cu});
-%        	[newSensors.group]              = deal('internal');
-%         
-%         obj.sensors                     = [obj.sensors; newSensors];
     end
+    
+	if obj.debugger.debugLevel >= 'Info'
+        fprintf('INFO: reading internal measuring device(s)... done\n');
+	end
 end

@@ -1,11 +1,9 @@
-function obj = readInternalSensors(obj)
+function obj = readInternalMeasuringDevices(obj)
 % READINTERNALSENSORS
-
-    import GearKit.sensor
     
 	if obj.debugger.debugLevel >= 'Info'
-        fprintf('INFO: reading internal sensor(s)... \n');
-    end
+        fprintf('INFO: reading internal measuring device(s)... \n');
+	end
     
     dirList         = dir([obj.dataFolderInfo.dataFolder,'/*.vec']);
     vecFileNames    = strcat({dirList.folder},{'/'},{dirList.name});
@@ -16,6 +14,6 @@ function obj = readInternalSensors(obj)
     end
     
 	if obj.debugger.debugLevel >= 'Info'
-        fprintf('INFO: reading internal sensor(s)... done\n');
+        fprintf('INFO: reading internal measuring device(s)... done\n');
 	end
 end

@@ -36,12 +36,12 @@ classdef bigoDeployment < GearKit.gearDeployment
             
             obj     = determineChamberMetadata(obj);
             obj     = readProtocol(obj);
-            obj     = readInternalSensors(obj);
+            obj     = readInternalMeasuringDevices(obj);
             
             obj.timeOfInterestStart	= mean(obj.protocol{obj.protocol{:,'Event'} == 'Experiment Start','Time'},'omitnan');
             obj.timeOfInterestEnd   = mean(obj.protocol{obj.protocol{:,'Event'} == 'Slide Down','StartTime'},'omitnan');
             
-            obj     = readAuxillarySensors(obj);
+            obj     = readAuxillaryMeasuringDevices(obj);
             obj     = assignMeasuringDeviceMountingData(obj);
             obj     = calibrateMeasuringDevices(obj);
             obj     = readAnalyticalSamples(obj);
@@ -56,7 +56,7 @@ classdef bigoDeployment < GearKit.gearDeployment
     end
     
     methods (Access = protected)
-        obj = readInternalSensors(obj)
+        obj = readInternalMeasuringDevices(obj)
         obj = determineChamberMetadata(obj)
         obj	= readProtocol(obj)        
     end 

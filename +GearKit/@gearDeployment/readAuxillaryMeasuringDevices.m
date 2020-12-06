@@ -1,10 +1,10 @@
-function obj = readAuxillarySensors(obj)
+function obj = readAuxillaryMeasuringDevices(obj)
 % READAUXILLARYSENSORS
 
     import GearKit.*
     
 	if obj.debugger.debugLevel >= 'Info'
-        fprintf('INFO: reading auxillary sensor(s)... \n');
+        fprintf('INFO: reading auxillary measuring device(s)... \n');
 	end
     
     dirList           	= dir([obj.dataFolderInfo.dataFolder,'/AuxSensor_*']);
@@ -24,6 +24,6 @@ function obj = readAuxillarySensors(obj)
         end
     end
 	if obj.debugger.debugLevel >= 'Info'
-        fprintf('INFO: reading auxillary sensor(s)... done\n');
+        fprintf('INFO: reading auxillary measuring device(s)... done\n');
 	end
 end
