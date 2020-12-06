@@ -1,16 +1,21 @@
-function data = getData(obj,variable,varargin)
-% GETDATA
+function data = fetchData(obj,variable,varargin)
+% fetchData  Retrieve deployment data
+%   
+%
+%   Copyright 2020 David Clemens (dclemens@geomar.de)
+%
         
     import DataKit.importTableFile
     
     % parse Name-Value pairs
-    optionName          = {'Raw','DeploymentDataOnly','TimeOfInterestDataOnly','RelativeTime'}; % valid options (Name)
-    optionDefaultValue  = {false,false,false,''}; % default value (Value)
+    optionName          = {'Raw','DeploymentDataOnly','TimeOfInterestDataOnly','RelativeTime','GroupBy'}; % valid options (Name)
+    optionDefaultValue  = {false,false,false,'',''}; % default value (Value)
     [...
      raw,...                        % return uncalibrated data
      deploymentDataOnly,...         % only keep time series data that's within the deployment & recovery times
      timeOfInterestDataOnly,...     % only keep time series data that's within the time of interest times
      relativeTime,...               % return time as relative time (y, d, h, m, s, ms) or datetime (dt)
+     groupBy...
      ]	= internal.stats.parseArgs(optionName,optionDefaultValue,varargin{:}); % parse function arguments
  
     % input check: obj
@@ -27,9 +32,10 @@ function data = getData(obj,variable,varargin)
     
 	data	= fetchData(obj.data,variable,...
                 'ReturnRawData',	raw,...
-                'ForceCellOutput',  true);
+                'ForceCellOutput',  true,...
+                'GroupBy',          groupBy);
     
-	nVariables = numel(data.DepInfo.Variable);
+	nVariables = numel(data.DepData);
             
     if deploymentDataOnly || timeOfInterestDataOnly
         if isempty(obj.timeOfInterestStart) || isempty(obj.timeOfInterestEnd) || ...
@@ -37,7 +43,12 @@ function data = getData(obj,variable,varargin)
             error('GearKit:gearDeployment:getData:timeOfInterestMissing',...
                 'There is no information on the time of interest for %s.',[char(obj.gear),' (',char(obj.cruise),')'])
         end
-        maskIndependantVariable    = data.IndepInfo.Variable == 'Time';
+        maskIndependantVariable    = data.IndepInfo(1).Variable == 'Time';
+        
+        if sum(maskIndependantVariable) == 0
+            error('GearKit:gearDeployment:getData:noIndependantVariableTimeFound',...
+                'If ''DeploymentDataOnly'' or ''TimeOfInterestDataOnly'' are set to true, the requested variable is required to have an independant variable ''Time''.')
+        end
         
         for v = 1:nVariables
             % loop over all dependant variables
@@ -50,20 +61,21 @@ function data = getData(obj,variable,varargin)
                                            t < obj.timeOfInterestEnd,data.IndepData{v}(:,maskIndependantVariable),'un',0);
             end
             
-            data.IndepData{v}	= cellfun(@(v,m) v(m,:),data.IndepData{v},maskTime,'un',0);
+            data.IndepData{v}	= cellfun(@(v,m) v(m,:),data.IndepData{v},repmat(maskTime,1,numel(maskIndependantVariable)),'un',0);
             data.DepData(v)   	= cellfun(@(v,m) v(m,:),data.DepData(v),maskTime,'un',0);
         end
     end
 
     % make sure the masking didn't result in empty data
-    maskDataPoolIsNotEmtpy     	= any(~cellfun(@isempty,data.IndependantVariables),2);
-    data.IndependantVariables   = data.IndependantVariables(maskDataPoolIsNotEmtpy,:);
-    data.DependantVariables     = data.DependantVariables(maskDataPoolIsNotEmtpy,:);
-    data.IndependantInfo.MeasuringDevice	= data.IndependantInfo.MeasuringDevice(maskDataPoolIsNotEmtpy);
-    data.DependantInfo.MeasuringDevice      = data.DependantInfo.MeasuringDevice(maskDataPoolIsNotEmtpy);
+    maskDataPoolIsNotEmtpy 	= ~cellfun(@isempty,data.DepData);
+    data.IndepData        	= data.IndepData(maskDataPoolIsNotEmtpy);
+    data.DepData           	= data.DepData(maskDataPoolIsNotEmtpy);
+    data.IndepInfo          = data.IndepInfo(maskDataPoolIsNotEmtpy);
+    data.DepInfo            = data.DepInfo(maskDataPoolIsNotEmtpy);
 
+    
     if ~isempty(relativeTime)
-        timeAsDatetime  = cellfun(@(t) datetime(t,'ConvertFrom','datenum'),time,'un',0);
+        timeAsDatetime  = cellfun(@(t) t{maskIndependantVariable},data.IndepData,'un',0);
         timeRelative  	= cellfun(@(t) t - obj.timeOfInterestStart,timeAsDatetime,'un',0);
         switch relativeTime
             case 'ms'
@@ -87,6 +99,9 @@ function data = getData(obj,variable,varargin)
             otherwise
                 error('GearKit:sensor:gd:unknownRelativeTimeIdentifier',...
                     '''%s'' is an unknown relative time identifier.',relativeTime)
+        end
+        for ii = 1:numel(data.IndepData)
+            data.IndepData{ii}(maskIndependantVariable) = time(ii);
         end
     end
 end
