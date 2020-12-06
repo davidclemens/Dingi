@@ -38,6 +38,4 @@ function obj = addPool(obj)
     obj.Flag(pool)          = {zeros(0,0,'uint32')};
     obj.Uncertainty(pool)	= {sparse(zeros(0,0))};
     obj.Info(pool)          = DataKit.Metadata.info;
-    
-    obj	= update(obj);
 end
