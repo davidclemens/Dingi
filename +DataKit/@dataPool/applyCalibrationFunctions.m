@@ -45,19 +45,19 @@ function obj = applyCalibrationFunctions(obj)
                       obj.Index{:,'Variable'} == 'Time';
         timeIdx     = obj.Index{maskTimeIdx,'VariableIndex'};
         
-        if isempty(timeIdx)
-            % skip this data pool if there is not independant time variable
-            continue
-        end
-        
-        time        = datenum(obj.fetchVariableData(dp,timeIdx,...
-                      	'ReturnRawData',    true,...
-                        'ForceCellOutput',  false));
-        
         maskDataIdx	= obj.Index{:,'DataPool'} == dp;
         dataIdx     = obj.Index{maskDataIdx,'VariableIndex'};
         
         funcs       = obj.Info(dp).VariableCalibrationFunction(dataIdx);
+        
+        if isempty(timeIdx)
+            % skip this data pool if there is not independant time variable
+            time    = NaN(size(obj.DataRaw{dp},1),1);
+        else
+            time	= datenum(obj.fetchVariableData(dp,timeIdx,...
+                        'ReturnRawData',    true,...
+                        'ForceCellOutput',  false));
+        end
 
         newData     = cellfun(@(v,f) f(time,obj.DataRaw{dp}(:,v)),num2cell(dataIdx)',funcs,'un',0);
         Data{dp}    = cat(2,newData{:});
