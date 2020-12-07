@@ -1,6 +1,6 @@
 *.m~
+*.trial.m
 
 +DataKit/+DespikeKit/
-+DataKit/+Metadata/@parameter/
 
 gitignore/

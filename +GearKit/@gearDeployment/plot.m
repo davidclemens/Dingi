@@ -26,7 +26,7 @@ function varargout = plot(obj,variables,varargin)
 %       subplot handle(s).
 %
 %
-%   Example(s) 
+%   Example(s)
 %
 %
 %   Input Arguments
@@ -62,25 +62,26 @@ function varargout = plot(obj,variables,varargin)
 %       1 (default) | numeric
 %         The font size for the labels are multiplied by this factor.
 %
-%   
+%
 %   See also
 %
 %   Copyright 2020 David Clemens (dclemens@geomar.de)
 %
-        
+
     import GraphKit.getMaxFigureSize
-    import GraphKit.getDataLimits   
-    
+    import GraphKit.getDataLimits
+    import GraphKit.Colormaps.cbrewer.cbrewer
+
     %   Figure settings
 	Menubar                     = 'figure';
     maxFigureSize               = getMaxFigureSize('Menubar',Menubar);
     PaperWidth                  = maxFigureSize(1);
     PaperHeight                 = maxFigureSize(2);
     PaperPos                    = [PaperWidth PaperHeight];
-    
+
     %   Axis settings
     cmap                        = cbrewer('qual','Set1',7);
-    
+
     %   parse Name-Value pairs
     optionName          = {'FigureNameValue','AxisNameValue','DataDomain','LegendVisible','MarginOuter','MarginInner','RelativeTime'}; %   valid options (Name)
     optionDefaultValue  = {{'Name',                 'gear deployments',...
@@ -109,8 +110,8 @@ function varargout = plot(obj,variables,varargin)
      MarginOuter,...
      MarginInner,...
      RelativeTime,...
-    ]	= internal.stats.parseArgs(optionName,optionDefaultValue,varargin{:}); %   parse function arguments   
-    
+    ]	= internal.stats.parseArgs(optionName,optionDefaultValue,varargin{:}); %   parse function arguments
+
     %   parse parameter input
     plotVariablesAvailableInfo	= cat(1,obj.variables);
     if exist('variables','var') ~= 1
@@ -130,7 +131,7 @@ function varargout = plot(obj,variables,varargin)
             error('GearKit:gearDeployment:plot:invalidVariableType',...
                   'The requested parameter has to be specified as a char, cellstr or numeric vector.')
         end
-    end    
+    end
     variables   = variableInfo{variableIsValid,'Variable'};
     im          = ismember(variable2str(variables),plotVariablesAvailableInfo{:,'Name'});
     if ~all(im)
@@ -138,23 +139,23 @@ function varargout = plot(obj,variables,varargin)
               'One or more specified variables are invalid:\n\t%s\nValid variables are:\n\t%s\n',strjoin(variable2str(variables(~im)),', '),strjoin(cellstr(plotVariablesAvailableInfo{:,'Name'}),', '))
     end
  	nVariables          = numel(variables);
-    
+
     %   initialize figure
     hfig        = figure(99);
     set(hfig,...
        	'Visible',      'on');
     clf
     set(hfig,FigureNameValue{:})
-    
-    
-    
+
+
+
     hsp                         = gobjects();
     hlgnd                       = gobjects();
     hp                          = gobjects();
     spnx                        = numel(obj);
     spny                        = nVariables;
     spi                         = reshape(1:spnx*spny,spnx,spny)';
-        
+
     parameterNotInDeployment    = false(spny,spnx);
     yLabelString                = repmat({''},spny,spnx);
     titleString                 = repmat({''},spny,spnx);
@@ -177,7 +178,7 @@ function varargout = plot(obj,variables,varargin)
                     end
                 end
 
-                
+
                 if ~isempty(DataDomain)
                     maskDataDomain  = cat(1,data.DependantInfo.MeasuringDevice.WorldDomain) == DataDomain;
                     data.IndependantVariables               = data.IndependantVariables(maskDataDomain,:);
@@ -185,7 +186,7 @@ function varargout = plot(obj,variables,varargin)
                     data.IndependantInfo.MeasuringDevice    = data.IndependantInfo.MeasuringDevice(maskDataDomain);
                     data.DependantInfo.MeasuringDevice      = data.DependantInfo.MeasuringDevice(maskDataDomain);
                 end
-                
+
                 iihp    = 1;
                 if isempty(data.IndepData)
                     hp(1,spi(row,col)) = plot(NaT,NaN);
@@ -200,7 +201,7 @@ function varargout = plot(obj,variables,varargin)
                                     'LineWidth',    1.5);
                         legendStr   = cat(1,legendStr,{[char(data.DepInfo(gr).MeasuringDevice.Type),' ',...
                                                         char(data.DepInfo(gr).MeasuringDevice.WorldDomain)]});
-                                
+
                         nhp     = numel(hptmp);
                         hp(iihp:iihp + nhp - 1,spi(row,col))	= hptmp;
                         iihp    = iihp + nhp;
@@ -214,16 +215,16 @@ function varargout = plot(obj,variables,varargin)
                 end
         end
     end
-    
+
     %   only keep the first occurance of the labels that is non-empty
     yLabelString    = yLabelString(cumsum(~cellfun(@isempty,yLabelString),2) == 1);
     titleString     = titleString(cumsum(~cellfun(@isempty,titleString),1) == 1);
-    
+
     %   set appearance and labels
     for col = 1:spnx
         gear	= col;
         for row = 1:spny
-            v     = row;      
+            v     = row;
             if col == 1
                 ylabel(hsp(spi(row,col)),yLabelString{row});
                 set(hsp(spi(row,col)).YAxis,...
@@ -261,14 +262,14 @@ function varargout = plot(obj,variables,varargin)
             end
         end
     end
-    
-    
+
+
     iilnk   = 1;
     for row = 1:spny
         YLim            = getDataLimits(hp(:,spi(row,:)),'Y');
         set(hsp(spi(row,:)),...
             {'YLim'},   repmat(YLim,size(hsp(spi(row,:))))')
-        
+
         hlnk(iilnk)     = linkprop(hsp(spi(row,:)),'YLim');
         iilnk           = iilnk + 1;
     end
@@ -276,15 +277,15 @@ function varargout = plot(obj,variables,varargin)
         XLim            = getDataLimits(hp(:,spi(:,col)),'X');
         set(hsp(spi(:,col)),...
             {'XLim'},   repmat(XLim,size(hsp(spi(:,col))))')
-        
+
         hlnk(iilnk)     = linkprop(hsp(spi(:,col)),'XLim');
         iilnk           = iilnk + 1;
     end
     hfig.UserData   = hlnk;
     varargout{1}    = hfig;
     varargout{2}    = hsp;
-    
+
     TightFig(hfig,hsp(1:spnx*spny),spi,FigureNameValue{find(strcmp('PaperSize',FigureNameValue)) + 1},MarginOuter,MarginInner);
-    
+
     hfig.Visible    = 'on';
 end

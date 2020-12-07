@@ -1,17 +1,20 @@
 function obj = markQualityFlags(obj)
 % MARKQUALITYFLAGS
 
+    import GraphKit.waitForKeyPress
+    import GraphKit.Colormaps.cbrewer.cbrewer
+
     nObj    = numel(obj);
-    
+
     availableParameters = table();
     for oo = 1:nObj
         newTable            = obj(oo).parameters;
         newTable{:,'ObjId'}	= oo;
         availableParameters	= cat(1,availableParameters,newTable);
     end
-    
+
     [itemList,uInd1,uInd]	= unique(availableParameters{:,'Parameter'});
-    
+
     debugMode   = false;
     if debugMode
         selection       = [1,13,14];
@@ -27,11 +30,11 @@ function obj = markQualityFlags(obj)
     end
     uniqueParameterList	= availableParameters(uInd1(selection),:);
     nParameter          = size(uniqueParameterList,1);
-    
+
     % mask selection
     availableParameters	= availableParameters(any(uInd == selection,2),:);
     oo = 1;
-    while oo <= nObj 
+    while oo <= nObj
         % initialize figure
         hfig = initializeGearDeploymentBrushFigureWindow(uniqueParameterList);
 
@@ -41,35 +44,35 @@ function obj = markQualityFlags(obj)
         hsp             = hfig.UserData.SubplotHandles;
         spi             = hfig.UserData.SubplotIndices;
         [spny,spnx]     = size(spi);
-        
+
         xLimits         = NaN(1,2);
         yLimits         = repmat(NaN(1,2),spnx*spny,1);
         col = 1;
         for par = 1:nParameter
             row = par + 1;
-            
+
             hax = hsp(spi(row,col));
-            
+
             maskAvailableParamters = availableParameters{:,'ObjId'} == oo & ...
                                      availableParameters{:,'ParameterId'} == uniqueParameterList{par,'ParameterId'};
-            
+
             [time,data,info] = obj(oo).getData(availableParameters{maskAvailableParamters,'ParameterId'},...
                                 'RelativeTime',         'h');
             nSources        = size(data,1);
 
-            
+
             legendEntries   = cell.empty;
             for src = 1:nSources
-                XData = time{src}; 
+                XData = time{src};
                 YData = data{src};
-                
+
                 meta    = info(src);
                 meta.inSensorData           = availableParameters{maskAvailableParamters,'InSensorData'};
                 meta.inAnalyticalSampleData	= availableParameters{maskAvailableParamters,'InAnalyticalSampleData'};
                 meta.sensorIndex            = availableParameters{maskAvailableParamters,'SensorIndex'};
                 meta.parameterIndex       	= availableParameters{maskAvailableParamters,'ParameterIndex'};
-                
-                
+
+
                 switch info(src).dataSourceType
                     case 'analyticalSample'
                         marker  = 'o';
@@ -77,7 +80,7 @@ function obj = markQualityFlags(obj)
                         meta.analyticalSampleMask   = obj(oo).analyticalSamples{:,'ParameterId'} == uniqueParameterList{par,'ParameterId'} & ...
                                                       obj(oo).analyticalSamples{:,'Subgear'} == meta.dataSourceDomain & ...
                                                       sourceId == meta.dataSourceId;
-                                                      
+
                     case 'sensor'
                         marker  = '.';
                         meta.analyticalSampleMask   = logical.empty;
@@ -85,15 +88,15 @@ function obj = markQualityFlags(obj)
                         error('GearKit:gearDeployment:markQualtiyFlags:unknownDataSourceType',...
                             '''%s'' is an unknown data source type.',info(src).dataSourceType);
                 end
-                
-                
-                
+
+
+
                 plot(hax,XData,YData,...
                     'Tag',              char(info(src).name),...
                     'UserData',         meta,...
                     'Marker',           marker)
-                
-                
+
+
                 legendEntries   = cat(1,legendEntries,info(src).name);
                 xLimits                 = [nanmin([xLimits(1);XData(:)]),nanmax([xLimits(2);XData(:)])];
                 yLimits(spi(row,col),:)	= [nanmin([yLimits(spi(row,col),1);YData(:)]),nanmax([yLimits(spi(row,col),2);YData(:)])];
@@ -106,9 +109,9 @@ function obj = markQualityFlags(obj)
         maskNoData = any(isnan(yLimits),2);
         set(hsp(~maskNoData),...
             {'YLim'},    	num2cell(yLimits(~maskNoData,:) + [-1 1].*0.01.*range(yLimits(~maskNoData,:),2),2))
-        
+
         TightFig(hfig,hsp(1:spnx*spny),spi,hfig.UserData.PaperPosition,hfig.UserData.MarginOuter,hfig.UserData.MarginInner);
-        
+
 
         % TODO: extract and save brushed data from
         % hfig.UserData.BrushWindow object
@@ -118,17 +121,17 @@ function obj = markQualityFlags(obj)
             switch keyName
                 case 'space'
                     waitForValidKeyPress = false;
-                    
-                    
-                    
+
+
+
                 otherwise
                     waitForValidKeyPress = true;
             end
         end
-        
+
         hbw     = hfig.UserData.BrushWindow;
         hbw.EnableBrushing = 'off';
-        
+
         % retrieve brush data and write it to the gearDeployment instance
         for src = 1:size(hbw.Charts,1)
             switch char(hbw.Charts{src,'userData'}{:}.dataSourceType)
@@ -137,7 +140,7 @@ function obj = markQualityFlags(obj)
                     parameterIndices    = hbw.Charts{src,'userData'}{:}.parameterIndex{:};
                   	sensorIndex         = sensorIndices(hbw.Charts{src,'indChild'});
                     parameterIndex      = parameterIndices(hbw.Charts{src,'indChild'});
-                	obj(oo).sensors(sensorIndex).isOutlier(:,parameterIndex) = hbw.Charts{src,'brushData'}{:}';                    
+                	obj(oo).sensors(sensorIndex).isOutlier(:,parameterIndex) = hbw.Charts{src,'brushData'}{:}';
                 case 'analyticalSample'
                     rowMask     = hbw.Charts{src,'userData'}{:}.analyticalSampleMask;
                     if ~ismember('isOutlier',obj(oo).analyticalSamples.Properties.VariableNames)
@@ -148,13 +151,13 @@ function obj = markQualityFlags(obj)
                     error('not implemented yet.')
             end
         end
-        
+
 %         mf = matfile(obj(oo).dataFolderInfo.saveFile,'Writable',true);
 %         mf.BIGOs(oo)
-        
+
         oo = oo + 1;
     end
-    
+
 end
 
 function h = initializeGearDeploymentBrushFigureWindow(Parameter)
@@ -209,7 +212,7 @@ function h = initializeGearDeploymentBrushFigureWindow(Parameter)
 
     yLabels     = {''};
     yLabels     = cat(1,yLabels,strcat(parameterInfo{:,'Abbreviation'},{' ('},cellstr(parameterInfo{:,'Unit'}),{')'}));
-    
+
     for col = 1:spnx
         for row = 1:spny
             par = row;
@@ -232,7 +235,7 @@ function h = initializeGearDeploymentBrushFigureWindow(Parameter)
     set([hsp(spi(1:spny - 1,:)).XAxis],...
         'Visible',  	'off')
     hlnk    = linkprop(hsp(2:spnx*spny),{'XLim'});
-    
+
     hfig.UserData   = struct(...
                         'SubplotHandles',   hsp,...
                         'SubplotIndices',   spi,...
@@ -240,6 +243,6 @@ function h = initializeGearDeploymentBrushFigureWindow(Parameter)
                         'MarginOuter',      MarginOuter,...
                         'MarginInner',      MarginInner,...
                         'PropertyLinks',    hlnk);
-    
+
     h = hfig;
 end

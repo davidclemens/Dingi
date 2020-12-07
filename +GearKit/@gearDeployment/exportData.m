@@ -1,7 +1,8 @@
 function varargout = exportData(obj,parameter,filename,varargin)
 % EXPORTDATA
-	
-    
+
+    import DataKit.writeTableAndHeader
+
     error('TODO: not fully written yet.')
 
     % parse Name-Value pairs
@@ -13,16 +14,16 @@ function varargout = exportData(obj,parameter,filename,varargin)
      deploymentDataOnly,... % only keep time series data that's within the deployment & recovery times
      relativeTime,... % return time as relative time (y, d, h, m, s, ms)
      ]	= internal.stats.parseArgs(optionName,optionDefaultValue,varargin{:}); % parse function arguments
- 
- 
- 
+
+
+
     if ~ischar(filename)
         error('GearKit:gearDeployment:exportData:wrongDatatype',...
             'The export filename has to be char.')
     end
-    
+
     obj.getData
-    
+
     if ~isempty(filename)
         [~,~,ext] = fileparts(filename);
         switch ext

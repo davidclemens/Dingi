@@ -1,15 +1,16 @@
 function varargout = plot(obj,type,varargin)
-% PLOT 
+% PLOT
 
 
     import GraphKit.getMaxFigureSize
-    
+    import GraphKit.Colormaps.cbrewer.cbrewer
+
     nvarargin   = numel(varargin);
-    
+
     if nargin - nvarargin < 2
         type = 'tilt correction';
     end
-    
+
     % parse Name-Value pairs
     optionName          = {'FontSize','TitleFontSizeMultiplier','LabelFontSizeMultiplier'}; % valid options (Name)
     optionDefaultValue  = {10,1,1}; % default value (Value)
@@ -22,13 +23,13 @@ function varargout = plot(obj,type,varargin)
     hsp                         = gobjects();
     hlgnd                       = gobjects();
     hp                          = gobjects();
-    
+
     cmap                        = cbrewer('qual','Set1',7);
     fOutFigName                 = [type];
     Menubar                     = 'figure';
     Toolbar                     = 'auto';
     maxFigureSize               = getMaxFigureSize('Menubar',Menubar);
-    
+
     figNums     = 30 + (0:1);
     switch type
         case 'tilt correction'
@@ -37,7 +38,7 @@ function varargout = plot(obj,type,varargin)
             set(hfig,...
                 'Visible',      'off');
             clf
-            
+
             PaperHeight                 = maxFigureSize(2);
             PaperWidth                  = PaperHeight/2;
             PaperPos                    = [PaperWidth PaperHeight];
@@ -50,22 +51,22 @@ function varargout = plot(obj,type,varargin)
                 'Toolbar',              Toolbar,...
                 'PaperSize',            PaperPos,...
                 'PaperOrientation',     'Portrait')
-            
+
             spnx                        = 2;
             spny                        = 4;
             spi                         = reshape(1:spnx*spny,spnx,spny)';
-            
+
             MarkerColor 	= [0.5 0.5]'.*ones(1,3);
             data            = {obj.velocity,obj.velocityRaw};
             titleString     = {'tilt corrected','raw'};
             viewXYZ         = [diag(ones(1,3));ones(1,3)];
             viewXYZ(2,2)    = -1;
             skipPoints      = 100;
-            
+
             limits          = cellfun(@(d) cat(2,nanmin(d(1:skipPoints:end,:),[],1)',nanmax(d(1:skipPoints:end,:),[],1)'),data,'un',0);
             limits          = cat(3,limits{:});
             limits          = 1.02.*[-1 1].*max(abs(limits(:)));
-            
+
           	for col = 1:spnx
                 ver = col;
                 for row = 1:spny
@@ -89,7 +90,7 @@ function varargout = plot(obj,type,varargin)
                         scatter3(XData,YData,ZData,...
                             'Marker',               '.',...
                             'MarkerEdgeColor',      MarkerColor(ver,:))
-                        
+
                         % plot coordinate system axes
                         s = limits(2);
                         % TODO: i & j change with each timeseries window. Plot all.
@@ -106,17 +107,17 @@ function varargout = plot(obj,type,varargin)
                         plot3([0,1].*s,[0,0].*s,[0,0].*s,'r','LineWidth',0.5)
                         plot3([0,0].*s,[0,1].*s,[0,0].*s,'g','LineWidth',0.5)
                         plot3([0,0].*s,[0,0].*s,[0,1].*s,'b','LineWidth',0.5)
-                        
+
                         xlim(limits)
                         ylim(limits)
                         zlim(limits)
                         xlabel('u')
                         ylabel('v')
-                        zlabel('w') 
-                       
+                        zlabel('w')
+
                         view(viewXYZ(v,:))
-                        
-                        
+
+
                         if row == 1
                             title(titleString{ver})
                         end
@@ -138,7 +139,7 @@ function varargout = plot(obj,type,varargin)
             set(hfig,...
                 'Visible',      'off');
             clf
-            
+
             PaperWidth                  = maxFigureSize(1);
             PaperHeight                 = PaperWidth/2;
             PaperPos                    = [PaperWidth PaperHeight];
@@ -151,11 +152,11 @@ function varargout = plot(obj,type,varargin)
                 'Toolbar',              Toolbar,...
                 'PaperSize',            PaperPos,...
                 'PaperOrientation',     'Portrait')
-            
+
             spnx                        = 1;
             spny                        = 2;
             spi                         = reshape(1:spnx*spny,spnx,spny)';
-                                   
+
             data    = {obj.w_.*obj.fluxParameter_(:,1),obj.w_.*obj.fluxParameter_(:,2)};
           	for col = 1:spnx
                 for row = 1:spny
@@ -174,11 +175,11 @@ function varargout = plot(obj,type,varargin)
                         % plot tilt corrected velocity
                         XData   = obj.time(1:obj.sampleWindowedN,:);
                         YData   = data{dat};
-                        
+
                         plot(XData,YData,...
                             'Color',        'k')
-                        
-                        
+
+
                         xlabel('time')
                         ylabel('w''C'' (m/s)')
                 end
