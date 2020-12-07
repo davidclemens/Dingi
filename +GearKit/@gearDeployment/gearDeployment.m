@@ -1,48 +1,40 @@
 classdef gearDeployment
-% GEARDEPLOYMENT The superclass to all gear deployments
-%	The GEARDEPLOYMENT class defines basic metadata on a gear deployment
-%	and reads it upon construction.
-%
-% GEARDEPLOYMENT Properties:
-%	sensors - 
-%	analyticalSamples - 
-%	gearType - 
-%	cruise - 
-%	gear - 
-%	station - 
-%	areaId - 
-%	longitude - 
-%	latitude - 
-%	depth - 
-%	timeDeployment - 
-%	timeRecovery - 
-%	timeOfInterestStart - 
-%	timeOfInterestEnd - 
-%	calibration - 
-%	analysis - 
-%	dataFolderInfo - 
-%	parameters - 
-%	hasSensorData - 
-%	hasAnalyticalData - 
-%	validGearTypes - 
-%	debugger - 
-%	dataVersion - 
-%
-% GEARDEPLOYMENT Methods:
-%	gearDeployment - Constructs an gearDeployment instance
-%	exportData - 
-%	plot - 
-%	runAnalysis - 
-%
-% Copyright 2020 David Clemens (dclemens@geomar.de)
+    % gearDeployment  The superclass to all gear deployments
+    % The GEARDEPLOYMENT class defines basic metadata on a gear deployment
+    % and reads it upon construction.
+    %
+    % gearDeployment Properties:
+    %	gearType - Type of gear
+    %	cruise - Cruise id of the deployment
+    %	gear - Gear id of the deployment
+    %	station - Station id of the deployment
+    %	areaId - Area or transect id of the deployment
+    %	longitude - Longitude of the deployment
+    %	latitude - Latitude of the deployment
+    %	depth - Depth of the deployment
+    %	timeDeployment - Time of the deployment
+    %	timeRecovery - Time of the recovery
+    %	timeOfInterestStart - Time of interest start
+    %	timeOfInterestEnd - Time of interest end
+    %	calibration - Calibration data
+    %	analysis - Data analysis object
+    %	dataFolderInfo - Structure that holds metadata on the gear deployment folder
+    %	variables - List of variables available for this deployment
+    %
+    % gearDeployment Methods:
+    %	exportData - 
+    %	plot - 
+    %	runAnalysis - 
+    %
+    % Copyright 2020 David Clemens (dclemens@geomar.de)
+    %
 
 	properties
-        sensors GearKit.sensor = GearKit.sensor.empty % Sensors
-        analyticalSamples % Analytical sample results
+        data DataKit.dataPool = DataKit.dataPool()
         gearType = char.empty % Type of gear
         cruise = categorical.empty % Cruise id of the deployment
         gear = categorical.empty % Gear id of the deployment
-        station = categorical.empty % Station of the deployment
+        station = categorical.empty % Station id of the deployment
         areaId = categorical.empty % Area or transect id of the deployment
         longitude = [] % Longitude of the deployment
         latitude = [] % Latitude of the deployment
@@ -51,7 +43,7 @@ classdef gearDeployment
         timeRecovery = datetime.empty % Time of the recovery
         timeOfInterestStart = datetime.empty % Time of interest start
         timeOfInterestEnd = datetime.empty % Time of interest end
-        calibration table = table.empty % calibration data
+        calibration table = table.empty % Calibration data
         analysis % Data analysis object
         dataFolderInfo	= struct('gearName',   	char.empty,...
                                  'rootFolder',	char.empty,...
@@ -59,9 +51,7 @@ classdef gearDeployment
                                  'saveFile',    char.empty);    % Structure that holds metadata on the gear deployment folder
     end
     properties (Dependent)
-        parameters
-        hasSensorData logical
-        hasAnalyticalData logical
+        variables % List of variables available for this deployment
     end
     properties (Hidden, Access = private, Constant)
         validGearTypes = {'BIGO','EC'} % List of valid gear types
@@ -83,7 +73,7 @@ classdef gearDeployment
             obj.debugger        = DebuggerKit.Debugger(...
                                     'DebugLevel',       debugLevel);
             
-            obj.gearType    = gearType;
+            obj.gearType        = gearType;
             
             % extract file metadata
             obj	= getGearDeploymentMetadata(obj,path);
@@ -91,62 +81,42 @@ classdef gearDeployment
         end
         
         % get methods
-      	function parameters = get.parameters(obj)
-            [uS,~,uSInd]   	= unique(cat(2,obj.sensors.dataParameters)','stable');
-            uA              = unique(obj.analyticalSamples{:,'ParameterId'},'stable');
-            parameters     	= table(uS,true(size(uS)),false(size(uS)),'VariableNames',{'ParameterId','InSensorData','InAnalyticalSampleData'});
-         	parameters     	= [parameters;table(uA,false(size(uA)),true(size(uA)),'VariableNames',{'ParameterId','InSensorData','InAnalyticalSampleData'})];
-
-            [~,info]                = DataKit.validateParameterId(parameters{:,'ParameterId'});
-            parameters.Parameter	= info.Parameter;
-            
-            cs          = cumsum(arrayfun(@(di) di.nParameters,[obj.sensors.dataInfo]));
-            s           = arrayfun(@(di) 1:di.nParameters,[obj.sensors.dataInfo],'un',0);
-      
-            index       = [sum((1:numel(uSInd))' > cs,2) + 1, ...
-                            uSInd,...
-                            [s{:}]'];
-            
-            index                       = sortrows(index,2);
-            parameters.SensorIndex(1:size(uS,1))	= accumarray(index(:,2),index(:,1),[],@(x) {x});
-            parameters.ParameterIndex(1:size(uS,1))	= accumarray(index(:,2),index(:,3),[],@(x) {x});
-            parameters.nParameter                   = cellfun(@numel,parameters{:,'ParameterIndex'});
-            
-            im = uA == uS';
-            if any(im(:))
-                error('TODO')
-            end
-        end
-        function hasSensorData = get.hasSensorData(obj)
-            hasSensorData       = ~isempty(obj.sensors);
-        end
-        function hasAnalyticalData = get.hasAnalyticalData(obj)
-            hasAnalyticalData   = ~isempty(obj.analyticalSamples);
+      	function variables = get.variables(obj)
+            dataPoolInfo	= obj.data.info;
+            mask            = dataPoolInfo{:,'Type'} == 'Dependant';
+            dataPoolInfo   	= dataPoolInfo(mask,:);
+            [~,uIdxa,uIdxb] = unique(dataPoolInfo(:,{'Id'}),'rows');
+            variables       = dataPoolInfo(uIdxa,:);
+            subs            = [[uIdxb,ones(size(uIdxb))];[uIdxb,2.*ones(size(uIdxb))]];
+            val             = cat(1,dataPoolInfo{:,'DataPoolIndex'},dataPoolInfo{:,'VariableIndex'});
+            tmp             = accumarray(subs,val,[size(variables,1),2],@(x) {x},{[]});
+            variables.Index = arrayfun(@(r) cat(2,tmp{r,1},tmp{r,2}),1:size(tmp,1),'un',0)';
+            variables.Name  = categorical(cellstr(variables.Variable));
+            variables       = variables(:,{'Name','Id','Type','Unit','Index'});
         end
     end
     
 	% methods in seperate files
     methods (Access = public)
-        [time,data,varargout]   = getSensorData(obj,parameter,varargin)
-        varargout               = exportData(obj,parameter,filename,varargin)
-        varargout               = plot(obj,varargin)
-        obj                     = markQualityFlags(obj)
+        data = fetchData(obj,variable,varargin)
+        varargout = exportData(obj,parameter,filename,varargin)
+        varargout = plot(obj,varargin)
+        varargout = plotCalibrations(obj)
+        obj = markQualityFlags(obj)
         obj = loadobj(obj)
         obj = saveobj(obj)
+        obj = update(obj)
     end
     methods (Access = protected)
         obj	= getGearDeploymentMetadata(obj,pathName)
-        obj	= assignSensorMountingData(obj)
-        obj	= readAuxillarySensors(obj)
+        obj	= assignMeasuringDeviceMountingData(obj)
+        obj	= readAuxillaryMeasuringDevices(obj)
         obj = readCalibrationData(obj)
-        obj = calibrateSensors(obj)
+        obj = calibrateMeasuringDevices(obj)
         obj = readAnalyticalSamples(obj)
     end
-    methods (Access = protected, Static)
-        [time,data,meta,outlier] = initializeGetDataOutputs()
-    end
     methods (Access = protected, Abstract)
-        internalSensors = readInternalSensors(obj)
+        obj = readInternalMeasuringDevices(obj)
     end
     methods (Abstract) 
         obj = runAnalysis(obj)

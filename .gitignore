@@ -1,5 +1,6 @@
 *.m~
 
 +DataKit/+DespikeKit/
-+DataKit/+Metadata/
++DataKit/+Metadata/@parameter/
 
+gitignore/

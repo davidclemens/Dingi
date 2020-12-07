@@ -36,14 +36,14 @@ classdef bigoDeployment < GearKit.gearDeployment
             
             obj     = determineChamberMetadata(obj);
             obj     = readProtocol(obj);
-            obj     = readInternalSensors(obj);
+            obj     = readInternalMeasuringDevices(obj);
             
             obj.timeOfInterestStart	= mean(obj.protocol{obj.protocol{:,'Event'} == 'Experiment Start','Time'},'omitnan');
             obj.timeOfInterestEnd   = mean(obj.protocol{obj.protocol{:,'Event'} == 'Slide Down','StartTime'},'omitnan');
             
-            obj     = readAuxillarySensors(obj);
-            obj     = assignSensorMountingData(obj);
-            obj     = calibrateSensors(obj);
+            obj     = readAuxillaryMeasuringDevices(obj);
+            obj     = assignMeasuringDeviceMountingData(obj);
+            obj     = calibrateMeasuringDevices(obj);
             obj     = readAnalyticalSamples(obj);
         end
     end
@@ -56,47 +56,7 @@ classdef bigoDeployment < GearKit.gearDeployment
     end
     
     methods (Access = protected)
-        %custom subasign/subrefs
-        %{
-        function n = numArgumentsFromSubscript(obj,~,~)
-        % overloading numArgumentsFromSubscript for the use in subsref and
-        % subasign
-            n = numel(obj);
-        end
-        function varargout = subsref(obj,s)
-        % overloading subsref
-            switch s(1).type
-                case '{}'
-                    nObj        = numel(obj);
-                    varargout   = cell(1,nObj);
-                    for ii = 1:nObj
-                        [im,imInd]	= ismember(s.subs,obj(ii).dataInfo.name);
-                        if any(~im)
-                            error('sensor:subsref',...
-                                  'The sensor ''%s'' holds no data called ''%s''\nAvailable data names are: %s.',obj.name,s.subs{find(~im,1)},strjoin(obj.dataInfo.name,', '))
-                        else
-                            varargout{ii}    = obj(ii).data(:,imInd);
-                        end
-                    end
-                otherwise
-                 	varargout	= {builtin('subsref',obj,s)};
-            end
-        end        
-        function obj = subsasgn(obj,s,varargin)
-        % overloading subasign
-            switch s(1).type
-                case '.'
-                    obj = builtin('subsasgn',obj,s,varargin{:});
-                case '()'
-                    obj = builtin('subsasgn',obj,s,varargin{:});
-                otherwise
-                    error('sensor:subasign',...
-                          'subasign not possible.')
-            end
-        end
-        %}
-        
-        obj = readInternalSensors(obj)
+        obj = readInternalMeasuringDevices(obj)
         obj = determineChamberMetadata(obj)
         obj	= readProtocol(obj)        
     end 
