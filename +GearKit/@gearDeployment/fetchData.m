@@ -9,7 +9,7 @@ function data = fetchData(obj,variable,varargin)
     
     % parse Name-Value pairs
     optionName          = {'Raw','DeploymentDataOnly','TimeOfInterestDataOnly','RelativeTime','GroupBy'}; % valid options (Name)
-    optionDefaultValue  = {false,false,false,'',''}; % default value (Value)
+    optionDefaultValue  = {false,false,false,'','Variable'}; % default value (Value)
     [...
      raw,...                        % return uncalibrated data
      deploymentDataOnly,...         % only keep time series data that's within the deployment & recovery times
@@ -36,6 +36,8 @@ function data = fetchData(obj,variable,varargin)
                 'GroupBy',          groupBy);
     
 	nVariables = numel(data.DepData);
+    
+    maskIndependantVariable    = data.IndepInfo(1).Variable == 'Time';
             
     if deploymentDataOnly || timeOfInterestDataOnly
         if isempty(obj.timeOfInterestStart) || isempty(obj.timeOfInterestEnd) || ...
@@ -43,7 +45,6 @@ function data = fetchData(obj,variable,varargin)
             error('GearKit:gearDeployment:getData:timeOfInterestMissing',...
                 'There is no information on the time of interest for %s.',[char(obj.gear),' (',char(obj.cruise),')'])
         end
-        maskIndependantVariable    = data.IndepInfo(1).Variable == 'Time';
         
         if sum(maskIndependantVariable) == 0
             error('GearKit:gearDeployment:getData:noIndependantVariableTimeFound',...
