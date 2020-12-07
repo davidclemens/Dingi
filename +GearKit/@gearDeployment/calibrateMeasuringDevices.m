@@ -76,13 +76,13 @@ function obj = calibrateMeasuringDevices(obj)
         for v = 1:numel(pool)
             % set calibration function
             obj.data	= obj.data.setInfoProperty(pool(v),var(v),'VariableCalibrationFunction',{calibrationFunction});
+            obj.data    = obj.data.applyCalibrationFunction(pool(v),var(v));
             
             % update variable to the calibrated variable
             obj.data	= obj.data.setInfoProperty(pool(v),var(v),'VariableRaw',obj.data.Info(pool(v)).Variable(var(v)));
             obj.data	= obj.data.setInfoProperty(pool(v),var(v),'Variable',valueVariableInfo{:,'Variable'});
         end
     end
-    obj.data    = update(obj.data);
     
 	if obj.debugger.debugLevel >= 'Info'
         fprintf('INFO: calibrating %s measuring device(s)... done\n',obj.gearType);

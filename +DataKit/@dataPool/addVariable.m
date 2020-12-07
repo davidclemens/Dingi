@@ -120,7 +120,8 @@ function obj = addVariable(obj,pool,variable,data,uncertainty,varargin)
     
     if nVariables == 0
         %   there is no data in the data pool yet
-     	obj.DataRaw{pool}      = data;
+     	obj.DataRaw{pool}  	= data;
+     	obj.Data{pool}      = data;
         if newDataHasErrorInfo
             obj.Uncertainty{pool}   = sparse(uncertainty);
         elseif ~newDataHasErrorInfo
@@ -131,7 +132,8 @@ function obj = addVariable(obj,pool,variable,data,uncertainty,varargin)
             error('DataKit:dataPool:addVariable:invalidNumberOfSamples',...
                 'New data needs to have the same number of samples (%u) as the existing data in the data pool. It has %u instead.',nSamples,nSamplesNew)
         end
-        obj.DataRaw{pool}      = cat(2,obj.DataRaw{pool},data);
+        obj.DataRaw{pool} 	= cat(2,obj.DataRaw{pool},data);
+     	obj.Data{pool}      = cat(2,obj.Data{pool},data);
         if newDataHasErrorInfo
             obj.Uncertainty{pool}	= cat(2,obj.Uncertainty{pool},sparse(uncertainty));
         elseif ~newDataHasErrorInfo
@@ -147,4 +149,8 @@ function obj = addVariable(obj,pool,variable,data,uncertainty,varargin)
                         'VariableOrigin',               variableOrigin,...
                         'VariableDescription',          variableDescription,...
                         'VariableMeasuringDevice',      variableMeasuringDevice);
+                    
+	for vv = 1:nVariablesNew
+        obj = obj.applyCalibrationFunction(pool,nVariables + vv);
+	end
 end

@@ -33,7 +33,7 @@ classdef dataPool
         Index % An overview table of all variables in the data pool
     end
     properties (SetAccess = private)
-        Data % Data with calibration functions applied
+        Data(1,:) cell = cell(1,0) % Data with calibration functions applied
     end
     
     methods
@@ -52,8 +52,7 @@ classdef dataPool
         tbl = info(obj)
         data = fetchData(obj,varargin)
         data = fetchVariableData(obj,poolIdx,variableIdx,varargin)
-        obj = update(obj)
-        varargout = plotCalibrations(obj)
+        obj = applyCalibrationFunction(obj,poolIdx,variableIdx)
     end
     
     methods (Access = private)
@@ -65,7 +64,6 @@ classdef dataPool
         obj = readNortekVector(obj,path)
         obj = readO2Logger(obj,path)
         obj = readSeabirdCTDLegacy(obj,path)
-        obj = applyCalibrationFunctions(obj)
     end
     
   	% overloaded methods

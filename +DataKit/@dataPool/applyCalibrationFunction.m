@@ -1,4 +1,4 @@
-function obj = applyCalibrationFunctions(obj)
+function obj = applyCalibrationFunction(obj,poolIdx,variableIdx)
 % applyCalibrationFunctions  Applies calibrations
 %   APPLYCALIBRATIONFUNCTIONS applies the calibration functions to the
 %   DataRaw and writes the output to Data.
@@ -33,34 +33,37 @@ function obj = applyCalibrationFunctions(obj)
 %
 %   Copyright 2020 David Clemens (dclemens@geomar.de)
 %
-
-    Data    = cell(size(obj.DataRaw));
-    for dp = 1:obj.PoolCount
-        if obj.Info(dp).VariableCount == 0
-        % skip this data pool if there is no variable
-            continue
+        
+        if ~isscalar(poolIdx) || ~isscalar(variableIdx)
+            error('DataKit:dataPool:applyCalibrationFunction',...
+                'Only works in a scalar context.')
         end
-        maskTimeIdx	= obj.Index{:,'DataPool'} == dp & ...
+        fh       = obj.Info(poolIdx).VariableCalibrationFunction{variableIdx};
+        
+        if strcmp(func2str(fh),'@(t,x)x')
+            % return if the identity calibration function is set
+            return
+        end
+        
+        
+        if obj.Info(poolIdx).VariableCount == 0
+        % skip this data pool if there is no variable
+            return
+        end
+        maskTimeIdx	= obj.Index{:,'DataPool'} == poolIdx & ...
                       obj.Index{:,'VariableType'} == 'Independant' & ...
                       obj.Index{:,'Variable'} == 'Time';
         timeIdx     = obj.Index{maskTimeIdx,'VariableIndex'};
         
-        maskDataIdx	= obj.Index{:,'DataPool'} == dp;
-        dataIdx     = obj.Index{maskDataIdx,'VariableIndex'};
-        
-        funcs       = obj.Info(dp).VariableCalibrationFunction(dataIdx);
         
         if isempty(timeIdx)
             % skip this data pool if there is not independant time variable
-            time    = NaN(size(obj.DataRaw{dp},1),1);
+            time    = NaN(size(obj.DataRaw{poolIdx},1),1);
         else
-            time	= datenum(obj.fetchVariableData(dp,timeIdx,...
+            time	= datenum(obj.fetchVariableData(poolIdx,timeIdx,...
                         'ReturnRawData',    true,...
                         'ForceCellOutput',  false));
         end
 
-        newData     = cellfun(@(v,f) f(time,obj.DataRaw{dp}(:,v)),num2cell(dataIdx)',funcs,'un',0);
-        Data{dp}    = cat(2,newData{:});
-    end
-    obj.Data    = Data;
+        obj.Data{poolIdx}(:,variableIdx)	= fh(time,obj.DataRaw{poolIdx}(:,variableIdx));
 end
