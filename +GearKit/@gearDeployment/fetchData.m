@@ -39,7 +39,7 @@ function data = fetchData(obj,variable,varargin)
     
     maskIndependantVariable    = data.IndepInfo(1).Variable == 'Time';
             
-    if deploymentDataOnly || timeOfInterestDataOnly
+    if maskIndependantVariable && (deploymentDataOnly || timeOfInterestDataOnly)
         if isempty(obj.timeOfInterestStart) || isempty(obj.timeOfInterestEnd) || ...
            isnat(obj.timeOfInterestStart) || isnat(obj.timeOfInterestEnd)
             error('GearKit:gearDeployment:getData:timeOfInterestMissing',...
@@ -75,7 +75,7 @@ function data = fetchData(obj,variable,varargin)
     data.DepInfo            = data.DepInfo(maskDataPoolIsNotEmtpy);
 
     
-    if ~isempty(relativeTime)
+    if maskIndependantVariable && ~isempty(relativeTime)
         timeAsDatetime  = cellfun(@(t) t{maskIndependantVariable},data.IndepData,'un',0);
         timeRelative  	= cellfun(@(t) t - obj.timeOfInterestStart,timeAsDatetime,'un',0);
         switch relativeTime

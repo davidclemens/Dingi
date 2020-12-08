@@ -468,7 +468,7 @@ function varargout = parseInputs(obj,varargin)
     defaultGroupBy                          = '';
     defaultForceCellOutput                  = false;
 
-    validRelativeTime   = {'milliseconds','seconds','minutes','hours','days','years'};
+    validRelativeTime   = {'','milliseconds','seconds','minutes','hours','days','years'};
     validGropuBy        = {'Variable','MeasuringDevice'}; % 'MeasuringDeviceType','DataPool','VariableType'
 
     checkVariableType         	= @(x) (isempty(x) && isa(x,'double')) || ((ischar(x) || iscellstr(x)) && ismember(x,DataKit.Metadata.validators.validInfoVariableType.listAllValidInfoVariableType));
@@ -507,8 +507,8 @@ function varargout = parseInputs(obj,varargin)
     sort                            = p.Results.Sort;
     returnRawData                   = p.Results.ReturnRawData;
     forceReturnIndependantVariable  = p.Results.ForceReturnIndependantVariable;
-    relativeTime                    = p.Results.RelativeTime;
-    groupBy                         = p.Results.GroupBy;
+    relativeTime                    = validatestring(p.Results.RelativeTime,validRelativeTime);
+    groupBy                         = validatestring(p.Results.GroupBy,validGropuBy);
     forceCellOutput               	= p.Results.ForceCellOutput;
 
     if isnumeric(variable)
