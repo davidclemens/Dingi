@@ -6,37 +6,40 @@ function obj = markQualityFlags(obj)
 
     nObj    = numel(obj);
 
-    availableParameters = table();
+    availableVariables = table();
     for oo = 1:nObj
-        newTable            = obj(oo).parameters;
+        newTable            = obj(oo).variables;
         newTable{:,'ObjId'}	= oo;
-        availableParameters	= cat(1,availableParameters,newTable);
+        availableVariables	= cat(1,availableVariables,newTable);
     end
 
-    [itemList,uInd1,uInd]	= unique(availableParameters{:,'Parameter'});
-
-    debugMode   = false;
+    [uVariableId,uInd1,uInd]	= unique(availableVariables{:,'Id'});
+    [~,variableInfo]   = DataKit.Metadata.variable.validateId(uVariableId);
+    
+    debugMode   = true;
     if debugMode
         selection       = [1,13,14];
     else
         [selection,ok] = listdlg(...
-                            'Name',         'Select parameters...',...
-                            'PromptString', 'Select parameters...',...
-                            'ListString',   itemList,...
+                            'Name',         'Select variables...',...
+                            'PromptString', 'Select variables...',...
+                            'ListString',   variableInfo{:,'Abbreviation'},...
                             'InitialValue', 1);
         if ~logical(ok)
             return
         end
     end
-    uniqueParameterList	= availableParameters(uInd1(selection),:);
-    nParameter          = size(uniqueParameterList,1);
+    uniqueVariableList	= availableVariables(uInd1(selection),:);
+    
+    
+    nVariable           = size(uniqueVariableList,1);
 
     % mask selection
-    availableParameters	= availableParameters(any(uInd == selection,2),:);
+    availableVariables	= availableVariables(any(uInd == selection,2),:);
     oo = 1;
     while oo <= nObj
         % initialize figure
-        hfig = initializeGearDeploymentBrushFigureWindow(uniqueParameterList);
+        hfig = initializeGearDeploymentBrushFigureWindow(uniqueVariableList);
 
         % create dataBrushWindow object
         hfig.UserData.BrushWindow    = GraphKit.dataBrushWindow(hfig);
@@ -48,56 +51,53 @@ function obj = markQualityFlags(obj)
         xLimits         = NaN(1,2);
         yLimits         = repmat(NaN(1,2),spnx*spny,1);
         col = 1;
-        for par = 1:nParameter
+        for par = 1:nVariable
             row = par + 1;
 
             hax = hsp(spi(row,col));
 
-            maskAvailableParamters = availableParameters{:,'ObjId'} == oo & ...
-                                     availableParameters{:,'ParameterId'} == uniqueParameterList{par,'ParameterId'};
+            maskAvailableVariables = availableVariables{:,'ObjId'} == oo & ...
+                                     availableVariables{:,'Id'} == uniqueVariableList{par,'Id'};
 
-            [time,data,info] = obj(oo).getData(availableParameters{maskAvailableParamters,'ParameterId'},...
-                                'RelativeTime',         'h');
-            nSources        = size(data,1);
-
+            data        = obj(oo).fetchData(availableVariables{maskAvailableVariables,'Id'},...
+                            'RelativeTime',         '',...
+                            'GroupBy',              'Meas');
+                        
+            nSources        = size(data.DepData,1);
 
             legendEntries   = cell.empty;
             for src = 1:nSources
-                XData = time{src};
-                YData = data{src};
-
-                meta    = info(src);
-                meta.inSensorData           = availableParameters{maskAvailableParamters,'InSensorData'};
-                meta.inAnalyticalSampleData	= availableParameters{maskAvailableParamters,'InAnalyticalSampleData'};
-                meta.sensorIndex            = availableParameters{maskAvailableParamters,'SensorIndex'};
-                meta.parameterIndex       	= availableParameters{maskAvailableParamters,'ParameterIndex'};
-
-
-                switch info(src).dataSourceType
-                    case 'analyticalSample'
-                        marker  = 'o';
-                        sourceId    = regexprep(cellstr(obj(oo).analyticalSamples{:,'SampleId'}),'\d+$','');
-                        meta.analyticalSampleMask   = obj(oo).analyticalSamples{:,'ParameterId'} == uniqueParameterList{par,'ParameterId'} & ...
-                                                      obj(oo).analyticalSamples{:,'Subgear'} == meta.dataSourceDomain & ...
-                                                      sourceId == meta.dataSourceId;
-
-                    case 'sensor'
-                        marker  = '.';
-                        meta.analyticalSampleMask   = logical.empty;
-                    otherwise
-                        error('GearKit:gearDeployment:markQualtiyFlags:unknownDataSourceType',...
-                            '''%s'' is an unknown data source type.',info(src).dataSourceType);
+                nIndepVariables     = numel(data.IndepData{src});
+                
+                if nIndepVariables > 1
+                    error('Not implemented yet.')
                 end
+                
+                meta    = data.DepInfo(src);
 
-
-
+                % decide on which axis to plot the independant data based
+                % on measuring device type
+                switch meta.MeasuringDevice.Type
+                    case 'BigoPushCore'
+                        XData = data.DepData{src};
+                        YData = data.IndepData{src}{1};
+                    otherwise
+                        XData = data.IndepData{src}{1};
+                        YData = data.DepData{src};
+                end
+                
+                if numel(XData(:)) < 50
+                    marker  = 'o';
+                else
+                    marker  = '.';
+                end
+                
                 plot(hax,XData,YData,...
-                    'Tag',              char(info(src).name),...
+                    'Tag',              meta.Variable.Abbreviation,...
                     'UserData',         meta,...
                     'Marker',           marker)
 
-
-                legendEntries   = cat(1,legendEntries,info(src).name);
+                legendEntries           = cat(1,legendEntries,{meta.Variable.Abbreviation});
                 xLimits                 = [nanmin([xLimits(1);XData(:)]),nanmax([xLimits(2);XData(:)])];
                 yLimits(spi(row,col),:)	= [nanmin([yLimits(spi(row,col),1);YData(:)]),nanmax([yLimits(spi(row,col),2);YData(:)])];
             end
@@ -137,10 +137,10 @@ function obj = markQualityFlags(obj)
             switch char(hbw.Charts{src,'userData'}{:}.dataSourceType)
                 case 'sensor'
                     sensorIndices    	= hbw.Charts{src,'userData'}{:}.sensorIndex{:};
-                    parameterIndices    = hbw.Charts{src,'userData'}{:}.parameterIndex{:};
+                    variableIndices    = hbw.Charts{src,'userData'}{:}.variableIndex{:};
                   	sensorIndex         = sensorIndices(hbw.Charts{src,'indChild'});
-                    parameterIndex      = parameterIndices(hbw.Charts{src,'indChild'});
-                	obj(oo).sensors(sensorIndex).isOutlier(:,parameterIndex) = hbw.Charts{src,'brushData'}{:}';
+                    variableIndex      = variableIndices(hbw.Charts{src,'indChild'});
+                	obj(oo).sensors(sensorIndex).isOutlier(:,variableIndex) = hbw.Charts{src,'brushData'}{:}';
                 case 'analyticalSample'
                     rowMask     = hbw.Charts{src,'userData'}{:}.analyticalSampleMask;
                     if ~ismember('isOutlier',obj(oo).analyticalSamples.Properties.VariableNames)
@@ -160,10 +160,10 @@ function obj = markQualityFlags(obj)
 
 end
 
-function h = initializeGearDeploymentBrushFigureWindow(Parameter)
+function h = initializeGearDeploymentBrushFigureWindow(Variable)
 
-    nParameter          = size(Parameter,1);
-    [~,parameterInfo]   = DataKit.validateParameterId(Parameter{:,'ParameterId'});
+    nVariable          = size(Variable,1);
+    [~,variableInfo]   = DataKit.Metadata.variable.validateId(Variable{:,'Id'});
 
     hsp                         = gobjects();
     hlgnd                       = gobjects();
@@ -207,11 +207,11 @@ function h = initializeGearDeploymentBrushFigureWindow(Parameter)
 
 
     spnx     	= 1;
-    spny     	= 1 + nParameter;
+    spny     	= 1 + nVariable;
     spi     	= reshape(1:spnx*spny,spnx,spny)';
 
     yLabels     = {''};
-    yLabels     = cat(1,yLabels,strcat(parameterInfo{:,'Abbreviation'},{' ('},cellstr(parameterInfo{:,'Unit'}),{')'}));
+    yLabels     = cat(1,yLabels,strcat(variableInfo{:,'Abbreviation'},{' ('},cellstr(variableInfo{:,'Unit'}),{')'}));
 
     for col = 1:spnx
         for row = 1:spny
