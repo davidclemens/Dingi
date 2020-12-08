@@ -1,7 +1,6 @@
 function tbl = info2table(obj)
 
     if numel(obj) == 1
-        try
         tbl     = table(...
                     (1:obj.VariableCount)',...
                     obj.Variable',...
@@ -14,9 +13,6 @@ function tbl = info2table(obj)
                     obj.VariableOffset',...
                     obj.VariableMeasuringDevice',...
                     'VariableNames',{'VariableIndex','Variable','Id','Type','Unit','Description','Origin','Factor','Offset','MeasuringDevice'});
-        catch
-            
-        end
     else
         error('Only works in a scalar context')
     end

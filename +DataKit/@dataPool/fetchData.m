@@ -465,7 +465,7 @@ function varargout = parseInputs(obj,varargin)
     defaultReturnRawData                    = false;
     defaultForceReturnIndependantVariable	= true;
     defaultRelativeTime                     = '';
-    defaultGroupBy                          = '';
+    defaultGroupBy                          = 'Variable';
     defaultForceCellOutput                  = false;
 
     validRelativeTime   = {'','milliseconds','seconds','minutes','hours','days','years'};
