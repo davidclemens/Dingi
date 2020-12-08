@@ -102,8 +102,6 @@ function obj = addVariable(obj,pool,variable,data,uncertainty,varargin)
     
     if pool > obj.PoolCount
         obj     = obj.addPool;
-        warning('DataKit:dataPool:addVariable:poolIndexExceedsPoolCount',...
-            'The requested data pool index %u exceeds the data pool count of %u. A new data pool was appended.',pool,obj.PoolCount);
         pool    = obj.PoolCount;
     end
     

@@ -4,5 +4,5 @@ import matlab.unittest.TestSuite
 
 tests   = TestSuite.fromPackage('Tests',...
           	'IncludingSubpackages', true);
-result  = run(tests)
-
+result  = run(tests);
+display(result);
