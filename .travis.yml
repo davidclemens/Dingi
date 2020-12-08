@@ -1,5 +1,4 @@
 language: matlab
 matlab:
   - latest  # Default MATLAB release on Travis CI
-  - R2017b
-script: matlab -batch -nodisplay -nojvm -r 'Tests.runTestsRemotely'
+script: matlab -batch 'Tests.runTestsRemotely'
