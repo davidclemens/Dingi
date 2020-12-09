@@ -29,6 +29,7 @@ function obj = assignMeasuringDeviceMountingData(obj)
         if sum(maskMatches(md,:)) == 1
             obj.data = setMeasuringDeviceProperty(obj.data,dp,mdi,'MountingLocation',measuringDeviceData{maskMatches(md,:),'MountingLocation'}{:});
             obj.data = setMeasuringDeviceProperty(obj.data,dp,mdi,'WorldDomain',char(measuringDeviceData{maskMatches(md,:),'WorldDomain'}));
+            obj.data = setMeasuringDeviceProperty(obj.data,dp,mdi,'DeviceDomain',char(measuringDeviceData{maskMatches(md,:),'DeviceDomain'}));
         else
             warning('GearKit:gearDeployment:assignMeasuringDeviceMountingData:noMountingLocationFound',...
                 'There is no mounting data defined in\n\t%s\nfor\n\t%s\n',measuringDeviceDataFile,strjoin({obj.sensors(md).id,obj.sensors(md).serialNumber},' '))

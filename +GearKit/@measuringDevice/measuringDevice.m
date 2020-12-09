@@ -5,6 +5,7 @@ classdef measuringDevice
         SerialNumber(1,:) char = ''
         MountingLocation(1,:) char = ''
         WorldDomain(1,1) GearKit.worldDomain = GearKit.worldDomain.undefined
+        DeviceDomain(1,1) GearKit.deviceDomain = GearKit.deviceDomain.undefined
     end
     
     methods
