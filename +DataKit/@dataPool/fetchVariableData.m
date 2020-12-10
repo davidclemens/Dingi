@@ -57,7 +57,7 @@ function data = fetchVariableData(obj,poolIdx,variableIdx,varargin)
 %         data is uniform.
 %
 %
-%   See also DATAPOOL
+%   See also DATAPOOL, FINDVARIABLE
 %
 %   Copyright 2020 David Clemens (dclemens@geomar.de)
 %

@@ -35,6 +35,9 @@ classdef dataPool
     properties (SetAccess = private)
         Data(1,:) cell = cell(1,0) % Data with calibration functions applied
     end
+    properties (Dependent, Hidden)
+        PropertyList
+    end
     
     methods
         function obj = dataPool()
@@ -53,6 +56,7 @@ classdef dataPool
         data = fetchData(obj,varargin)
         data = fetchVariableData(obj,poolIdx,variableIdx,varargin)
         obj = applyCalibrationFunction(obj,poolIdx,variableIdx)
+        [poolIdx,variableIdx] = findVariable(obj,varargin)
     end
     
     methods (Access = private)
@@ -95,6 +99,38 @@ classdef dataPool
                                             arrayfun(@(v) obj.Info(pool).selectVariable(v),(1:nVariables)'),...
                                             'VariableNames',{'DataPool','VariableIndex','IndependantVariableIndex','Variable','VariableRaw','VariableType','DataType','Calibration','MeasuringDevice','Info'}));
 
+            end
+        end
+        function PropertyList = get.PropertyList(obj)
+            for pool = 1:obj.PoolCount
+                nVariables	= obj.Info(pool).VariableCount;
+                propertyNames = properties(obj.Info(pool));
+                
+                % only look at properties that hold as many elements as
+                % there are variables
+               	indProperties = find(cellfun(@(prop) numel(obj.Info(pool).(prop)),propertyNames) == nVariables);
+                nProperties = numel(indProperties);
+                
+                independantVariableIdx  = repmat({find(obj.Info(pool).VariableType' == 'Independant')},nVariables,1);
+                independantVariableIdx(obj.Info(pool).VariableType' == 'Independant') = {[]};
+                
+             	value = cell(nProperties,nVariables);
+                for prop = 1:nProperties
+                    value(prop,:) = mat2cell(obj.Info(pool).(propertyNames{indProperties(prop)})(:),ones(1,nVariables),1);
+                end
+                propertyListNew = cell2struct(value,propertyNames(indProperties));
+                
+                for vv = 1:nVariables
+                    propertyListNew(vv).poolIdx         = pool;
+                    propertyListNew(vv).variableIdx     = vv;
+                end
+                
+                % append to list
+                if pool == 1
+                    PropertyList       = propertyListNew;
+                else
+                    PropertyList       = cat(1,PropertyList,propertyListNew);
+                end
             end
         end
     end
