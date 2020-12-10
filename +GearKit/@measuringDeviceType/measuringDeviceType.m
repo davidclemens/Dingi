@@ -13,6 +13,7 @@ classdef measuringDeviceType
         SeabirdCTD
         NortekVector
         O2Logger
+        PyrosciencePico
     end
     methods (Static)
         list = listAllMeasuringDeviceType()

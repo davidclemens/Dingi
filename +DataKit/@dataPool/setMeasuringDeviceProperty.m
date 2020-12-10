@@ -1,5 +1,14 @@
 function obj = setMeasuringDeviceProperty(obj,pool,idx,property,value)
 
+    if ~isscalar(pool) || ~isscalar(idx) || ...
+       (iscellstr(property) && ~isscalar(property))
+        error('DataKit:dataPool:setMeasuringDeviceProperty:onlyScalar',...
+            'Only works in a scalar context.')
+    end
+    if iscellstr(property) && ~isscalar(property)
+        
+    end
+    
     validProperties = properties(obj.Info(pool).VariableMeasuringDevice(idx));
     if ~ismember(property,validProperties)
         error('DataKit:dataPool:setMeasuringDeviceProperty:invalidProperty',...

@@ -114,6 +114,7 @@ classdef gearDeployment
         obj = readCalibrationData(obj)
         obj = calibrateMeasuringDevices(obj)
         obj = readAnalyticalSamples(obj)
+        obj = applyMeasuringDeviceConfiguration(obj)
     end
     methods (Access = protected, Abstract)
         obj = readInternalMeasuringDevices(obj)

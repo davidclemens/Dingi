@@ -42,6 +42,7 @@ classdef bigoDeployment < GearKit.gearDeployment
             obj.timeOfInterestEnd   = mean(obj.protocol{obj.protocol{:,'Event'} == 'Slide Down','StartTime'},'omitnan');
             
             obj     = readAuxillaryMeasuringDevices(obj);
+            obj     = applyMeasuringDeviceConfiguration(obj);
             obj     = assignMeasuringDeviceMountingData(obj);
             obj     = calibrateMeasuringDevices(obj);
             obj     = readAnalyticalSamples(obj);

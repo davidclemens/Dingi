@@ -35,6 +35,7 @@ classdef ecDeployment < GearKit.gearDeployment
            
             obj     = readInternalMeasuringDevices(obj);
             obj     = readAuxillaryMeasuringDevices(obj);
+            obj     = applyMeasuringDeviceConfiguration(obj);
             obj     = assignMeasuringDeviceMountingData(obj);
             obj     = calibrateMeasuringDevices(obj);
             
