@@ -40,6 +40,12 @@ classdef variable
         Z                           (37,    'z',            'z',        'Euclidean dimension 3, Z',        	'Length',       	'm',        'm',                            NaN,    '')
         Longitude                 	(38,    'lon.',         'λ',        'Longitude',                        'Angle',            '°E',       '°',                            NaN,    '')
         Latitude                   	(39,    'lat.',         'φ',        'Latitude',                         'Angle',            '°N',       '°',                            NaN,    '')
+        DurationMs                 	(40,    'dur.',         'Δt',       'Duration',                         'Duration',         'ms',       'm(illi)?s(econd)?s?',          NaN,    '')
+        DurationS                 	(41,    'dur.',         'Δt',       'Duration',                         'Duration',         's',        's(econd)?s?',                  NaN,    '')
+        DurationMin                	(42,    'dur.',         'Δt',       'Duration',                         'Duration',         'min',      'min(ute)?s?',                  NaN,    '')
+        DurationH                	(43,    'dur.',         'Δt',       'Duration',                         'Duration',         'h',        'h(our)?s?',                    NaN,    '')
+        DurationD                	(44,    'dur.',         'Δt',       'Duration',                         'Duration',         'd',        'd(ay)?s?',                     NaN,    '')
+        DurationY                	(45,    'dur.',         'Δt',       'Duration',                         'Duration',         'y',        'y(ear)?s?',                    NaN,    '')
     end
     properties
         Id uint16
