@@ -8,32 +8,51 @@ function obj = markQualityFlags(obj)
 
     availableVariables = table();
     for oo = 1:nObj
-        newTable            = obj(oo).variables;
+%         newTable            = obj(oo).variables;
+%         obj(oo).data.Info(newTable{1,'Index'}{:}(:,1)).VariableType
+        newTable            = obj(oo).data.info;
         newTable{:,'ObjId'}	= oo;
         availableVariables	= cat(1,availableVariables,newTable);
     end
-
-    [uVariableId,uInd1,uInd]	= unique(availableVariables{:,'Id'});
-    [~,variableInfo]   = DataKit.Metadata.variable.validateId(uVariableId);
+    availableVariables  = availableVariables(availableVariables{:,'Type'} == 'Dependant',:);
+    availableVariables{:,'NIndependantVariables'} = cellfun(@numel,availableVariables{:,'IndependantVariableIndex'});
     
-    debugMode   = true;
+    if any(availableVariables{:,'NIndependantVariables'} > 1)
+        error('Not implemented yet')
+    end
+    
+    % get unique dependant-independant variable combinations
+    [uVariableId,uInd1,uInd]	= unique(cat(2,availableVariables(:,'Id'),table(cellfun(@num2str,availableVariables{:,'IndependantVariableId'},'un',0))),'rows');
+    uVariableId                 = cat(2,uVariableId(:,1),availableVariables(uInd1,{'IndependantVariableId','IndependantVariable'}));
+    
+    % list information about those combinations
+    [~,variableInfo]            = DataKit.Metadata.variable.validateId(uVariableId{:,'Id'});
+    variableInfo{:,'IndependantVariable'}   = cellfun(@(iv) strjoin({iv(:).Abbreviation},', '),uVariableId{:,'IndependantVariable'},'un',0);
+    
+    % let the user select which of those combinations to pick
+    debugMode   = false;
     if debugMode
         selection       = [1,13,14];
     else
         [selection,ok] = listdlg(...
                             'Name',         'Select variables...',...
                             'PromptString', 'Select variables...',...
-                            'ListString',   variableInfo{:,'Abbreviation'},...
+                            'ListString',   strcat(variableInfo{:,'Abbreviation'},{' ('},variableInfo{:,'IndependantVariable'},{')'}),...
                             'InitialValue', 1);
         if ~logical(ok)
             return
         end
     end
+    % resulting list
     uniqueVariableList	= availableVariables(uInd1(selection),:);
     
+    [~,uIndepVariableInd1,uIndepVariableInd2] = unique(cellfun(@num2str,uniqueVariableList{:,'IndependantVariableId'},'un',0));
+    uniqueIndependantVariableList = uniqueVariableList{uIndepVariableInd1,'IndependantVariable'};
+    nIndependantVariable    = size(uniqueIndependantVariableList,1);
     
-    nVariable           = size(uniqueVariableList,1);
-
+    nVariable          = accumarray(uIndepVariableInd2,ones(size(uIndepVariableInd2)));
+    nVariableMax       = max(nVariable);
+    
     % mask selection
     availableVariables	= availableVariables(any(uInd == selection,2),:);
     oo = 1;
@@ -48,82 +67,95 @@ function obj = markQualityFlags(obj)
         spi             = hfig.UserData.SubplotIndices;
         [spny,spnx]     = size(spi);
 
-        xLimits         = NaN(1,2);
+        xLimits         = cell(spnx,1);
         yLimits         = repmat(NaN(1,2),spnx*spny,1);
-        col = 1;
-        for par = 1:nVariable
-            row = par + 1;
+        for iv = 1:nIndependantVariable
+            col = iv;
+            indUniqueVariableList = find(uIndepVariableInd2 == iv);
+            for dv = 1:nVariableMax
+                row = dv + 1;
 
-            hax = hsp(spi(row,col));
-
-            maskAvailableVariables = availableVariables{:,'ObjId'} == oo & ...
-                                     availableVariables{:,'Id'} == uniqueVariableList{par,'Id'};
-
-            data        = obj(oo).fetchData(availableVariables{maskAvailableVariables,'Id'},...
-                            'RelativeTime',         '',...
-                            'GroupBy',              'Meas');
-                        
-            nSources        = size(data.DepData,1);
-
-            legendEntries   = cell.empty;
-            for src = 1:nSources
-                nIndepVariables     = numel(data.IndepData{src});
-                
-                if nIndepVariables > 1
-                    error('Not implemented yet.')
+                if dv > nVariable(col)
+                    continue
                 end
                 
-                meta    = data.DepInfo(src);
-
-                % decide on which axis to plot the independant data based
-                % on measuring device type
-                switch meta.MeasuringDevice.Type
-                    case 'BigoPushCore'
-                        XData = data.DepData{src};
-                        YData = data.IndepData{src}{1};
-                    otherwise
-                        XData = data.IndepData{src}{1};
-                        YData = data.DepData{src};
-                end
+                hax = hsp(spi(row,col));
                 
-                if numel(XData(:)) < 50
-                    marker  = 'o';
-                else
-                    marker  = '.';
-                end
+                maskAvailableVariables  = availableVariables{:,'ObjId'} == oo & ...
+                                          availableVariables{:,'Id'} == uniqueVariableList{indUniqueVariableList(dv),'Id'};
                 
-                plot(hax,XData,YData,...
-                    'Tag',              meta.Variable.Abbreviation,...
-                    'UserData',         meta,...
-                    'Marker',           marker)
+%                 [poolIdx,variableIdx]	= obj(oo).data.findVariable('Variable.Id',  uniqueVariableList{indUniqueVariableList(dv),'Id'},...
+%                                                                     'VariableType', 'Dependant');
+% 
+%                 data = obj(oo).data.fetchVariableData(poolIdx,variableIdx);
+                try
+                    data        = obj(oo).fetchData(uniqueVariableList{indUniqueVariableList(dv),'Id'},...
+                                    'RelativeTime',         '',...
+                                    'GroupBy',              'Variable');
+                catch ME
+                    switch ME.identifier
+                        case 'DataKit:dataPool:fetchData:noRequestedVariableIsAvailable'
+                            text(0.5,0.5,'no data',...
+                                'Units',        'normalized')
+                            continue
+                        otherwise
+                            rethrow(ME)
+                    end
+                end
 
-                legendEntries           = cat(1,legendEntries,{meta.Variable.Abbreviation});
-                xLimits                 = [nanmin([xLimits(1);XData(:)]),nanmax([xLimits(2);XData(:)])];
-                yLimits(spi(row,col),:)	= [nanmin([yLimits(spi(row,col),1);YData(:)]),nanmax([yLimits(spi(row,col),2);YData(:)])];
+                nSources        = size(data.DepData,1);
+
+                legendEntries   = cell.empty;
+                for src = 1:nSources
+                    nIndepVariables     = numel(data.IndepData{src});
+
+                    if nIndepVariables > 1
+                        error('Not implemented yet.')
+                    end
+
+                    meta    = obj(oo).data.Info.VariableMeasuringDevice;
+
+                    XData = data.IndepData{src}{1};
+                    YData = data.DepData{src};
+
+                    if numel(XData(:)) < 50
+                        marker  = 'o';
+                    else
+                        marker  = '.';
+                    end
+                    
+                    displayName     = [uniqueVariableList{indUniqueVariableList(dv),'Variable'}.Abbreviation,' (',data.DepInfo.MeasuringDevice(src).DeviceDomain.Abbreviation,')'];
+                    plot(hax,XData,YData,...
+                        'Tag',              displayName,...
+                        'UserData',         cat(2,data.DepInfo.PoolIdx(src),data.DepInfo.VariableIdx(src)),...
+                        'Marker',           marker)
+
+                    legendEntries           = cat(1,legendEntries,{displayName});
+                    if isempty(xLimits{col})
+                        xLimits{col}      	= [nanmin(XData(:)),nanmax(XData(:))];
+                    else
+                        xLimits{col}      	= [nanmin([xLimits{col}(1);XData(:)]),nanmax([xLimits{col}(2);XData(:)])];
+                    end
+                    yLimits(spi(row,col),:)	= [nanmin([yLimits(spi(row,col),1);YData(:)]),nanmax([yLimits(spi(row,col),2);YData(:)])];
+                end
+                legend(hax,legendEntries,...
+                    'Location',         'best');
             end
-            legend(hax,legendEntries,...
-                'Location',         'best');
+            set(hsp(spi(2:nVariable(col) + 1,col)),...
+                'XLim',         xLimits{col} + [-1 1].*0.01.*range(xLimits{col}))
         end
-        set(hsp(spi(2:end,1)),...
-            'XLim',         xLimits + [-1 1].*0.01.*range(xLimits))
         maskNoData = any(isnan(yLimits),2);
         set(hsp(~maskNoData),...
             {'YLim'},    	num2cell(yLimits(~maskNoData,:) + [-1 1].*0.01.*range(yLimits(~maskNoData,:),2),2))
 
         TightFig(hfig,hsp(1:spnx*spny),spi,hfig.UserData.PaperPosition,hfig.UserData.MarginOuter,hfig.UserData.MarginInner);
 
-
-        % TODO: extract and save brushed data from
-        % hfig.UserData.BrushWindow object
         waitForValidKeyPress = true;
         while waitForValidKeyPress
             keyName = waitForKeyPress;
             switch keyName
                 case 'space'
                     waitForValidKeyPress = false;
-
-
-
                 otherwise
                     waitForValidKeyPress = true;
             end
@@ -134,27 +166,10 @@ function obj = markQualityFlags(obj)
 
         % retrieve brush data and write it to the gearDeployment instance
         for src = 1:size(hbw.Charts,1)
-            switch char(hbw.Charts{src,'userData'}{:}.dataSourceType)
-                case 'sensor'
-                    sensorIndices    	= hbw.Charts{src,'userData'}{:}.sensorIndex{:};
-                    variableIndices    = hbw.Charts{src,'userData'}{:}.variableIndex{:};
-                  	sensorIndex         = sensorIndices(hbw.Charts{src,'indChild'});
-                    variableIndex      = variableIndices(hbw.Charts{src,'indChild'});
-                	obj(oo).sensors(sensorIndex).isOutlier(:,variableIndex) = hbw.Charts{src,'brushData'}{:}';
-                case 'analyticalSample'
-                    rowMask     = hbw.Charts{src,'userData'}{:}.analyticalSampleMask;
-                    if ~ismember('isOutlier',obj(oo).analyticalSamples.Properties.VariableNames)
-                        obj(oo).analyticalSamples{:,'isOutlier'} = false;
-                    end
-                    obj(oo).analyticalSamples{rowMask,'isOutlier'} = hbw.Charts{src,'brushData'}{:}';
-                otherwise
-                    error('not implemented yet.')
-            end
+            poolIdx     =  hbw.Charts{src,'userData'}{:}(1);
+            variableIdx =  hbw.Charts{src,'userData'}{:}(2);
+            obj(oo).data.Flag{poolIdx}(:,variableIdx) = hbw.Charts{src,'brushData'}{:}';
         end
-
-%         mf = matfile(obj(oo).dataFolderInfo.saveFile,'Writable',true);
-%         mf.BIGOs(oo)
-
         oo = oo + 1;
     end
 
@@ -162,7 +177,12 @@ end
 
 function h = initializeGearDeploymentBrushFigureWindow(Variable)
 
-    nVariable          = size(Variable,1);
+    [~,uInd1,uInd2]         = unique(cellfun(@num2str,Variable{:,'IndependantVariableId'},'un',0));
+    IndependantVariable     = Variable{uInd1,'IndependantVariable'};
+    nIndependantVariable    = size(IndependantVariable,1);
+    
+    nVariable          = accumarray(uInd2,ones(size(uInd2)));
+    nVariableMax       = max(nVariable);
     [~,variableInfo]   = DataKit.Metadata.variable.validateId(Variable{:,'Id'});
 
     hsp                         = gobjects();
@@ -185,7 +205,7 @@ function h = initializeGearDeploymentBrushFigureWindow(Variable)
     hfig        = figure(fig);
     set(hfig,...
         'Visible',      'on');
-    clf
+    clf(hfig,'reset')
 
 
     maxFigureSize   = GraphKit.getMaxFigureSize(...
@@ -206,16 +226,17 @@ function h = initializeGearDeploymentBrushFigureWindow(Variable)
         'PaperOrientation',     'Portrait')
 
 
-    spnx     	= 1;
-    spny     	= 1 + nVariable;
+    spnx     	= nIndependantVariable;
+    spny     	= 1 + nVariableMax;
     spi     	= reshape(1:spnx*spny,spnx,spny)';
 
     yLabels     = {''};
     yLabels     = cat(1,yLabels,strcat(variableInfo{:,'Abbreviation'},{' ('},cellstr(variableInfo{:,'Unit'}),{')'}));
 
     for col = 1:spnx
+        iv = col;
         for row = 1:spny
-            par = row;
+            dv = row;
             hsp(spi(row,col))   = subplot(spny,spnx,spi(row,col),...
                                     'NextPlot',                 'add',...
                                     'Layer',                    'top',...
@@ -227,13 +248,17 @@ function h = initializeGearDeploymentBrushFigureWindow(Variable)
                                     'TickDir',                  'out',...
                                     'XMinorTick',               'on',...
                                     'YMinorTick',               'on');
-            ylabel(yLabels{par})
+            if dv > nVariable(iv) + 1
+                set(hsp(spi(row,col)),...
+                    'Visible',  'off')
+            end
+%             ylabel(yLabels{dv})
         end
+        set(hsp(spi(1:nVariable(col),col)),...
+            'XColor',       'none')
+        set([hsp(spi(1:nVariable(col),col)).XAxis],...
+            'Visible',  	'off')
     end
-    set(hsp(spi(1:spny - 1,:)),...
-        'XColor',       'none')
-    set([hsp(spi(1:spny - 1,:)).XAxis],...
-        'Visible',  	'off')
     hlnk    = linkprop(hsp(2:spnx*spny),{'XLim'});
 
     hfig.UserData   = struct(...
