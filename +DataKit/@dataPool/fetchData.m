@@ -324,9 +324,8 @@ function data = fetchData(obj,varargin)
             'TODO: no data to return scenario')
     end
     if any(~variableIsInDataPool)
-        warning('DataKit:dataPool:fetchData:requestedVariableIsUnavailable',...
-            '\nTODO: The requested variable ''%s'' is not a member of the data pool.\nAvailable variables are:\n\t%s\n',char(variable(find(~variableIsInDataPool,1))),strjoin(unique(variable2str(obj.Index{:,'Variable'})),', '))
-        return
+        error('DataKit:dataPool:fetchData:requestedVariableIsUnavailable',...
+            '\nTODO: The requested variable ''%s'' is not a member of the data pool.\nAvailable variables are:\n\t%s\n',char(variable(find(~variableIsInDataPool,1))),strjoin(unique(variable2str(objIndex{:,'Variable'})),', '))
     end
 
     if isempty(variable)

@@ -2,7 +2,7 @@ function tbl = listAllVariableInfo()
 
     
     variableList    = enumeration('DataKit.Metadata.variable');
-    variableProps           = properties('DataKit.Metadata.variable');
+    variableProps	= properties('DataKit.Metadata.variable');
 
     propClass   = cellfun(@class,cellfun(@(p) variableList(1).(p),variableProps,'un',0),'un',0);
     tblStruct   = struct();

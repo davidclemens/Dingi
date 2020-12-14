@@ -19,20 +19,27 @@ classdef bigoDeployment < GearKit.gearDeployment
     end
     
 	methods
-        function obj = bigoDeployment(path)
+        function obj = bigoDeployment(path,varargin)
             
             if nargin == 0
-                path        = char.empty;
-                gearType    = char.empty;
-            elseif nargin == 1
-                gearType    = 'BIGO';
-            else
-                error('gearDeployment:bigoDeployment:wrongNumberOfInputs',...
-                    'Wrong number of inputs.\n')
+                path = char.empty;
             end
             
+            % parse Name-Value pairs
+            optionName          = {'DebugLevel'}; % valid options (Name)
+            optionDefaultValue  = {'Info'}; % default value (Value)
+            [debugLevel]     	= internal.stats.parseArgs(optionName,optionDefaultValue,varargin{:}); % parse function arguments
+            
+         	gearType    = 'BIGO';
+            
             % call superclass constructor
-            obj     = obj@GearKit.gearDeployment(path,gearType);
+            obj     = obj@GearKit.gearDeployment(path,gearType,...
+                        'DebugLevel',       debugLevel);
+            
+            % support empty initializeation of gearDeployment subclasses
+            if isempty(path)
+                return
+            end
             
             obj     = determineChamberMetadata(obj);
             obj     = readProtocol(obj);
