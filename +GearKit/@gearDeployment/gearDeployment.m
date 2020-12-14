@@ -87,12 +87,22 @@ classdef gearDeployment
             dataPoolInfo   	= dataPoolInfo(mask,:);
             [~,uIdxa,uIdxb] = unique(dataPoolInfo(:,{'Id'}),'rows');
             variables       = dataPoolInfo(uIdxa,:);
+            
+            % create dependant variable index touples (dpIdx,dvIdx)
             subs            = [[uIdxb,ones(size(uIdxb))];[uIdxb,2.*ones(size(uIdxb))]];
             val             = cat(1,dataPoolInfo{:,'DataPoolIndex'},dataPoolInfo{:,'VariableIndex'});
             tmp             = accumarray(subs,val,[size(variables,1),2],@(x) {x},{[]});
             variables.Index = arrayfun(@(r) cat(2,tmp{r,1},tmp{r,2}),1:size(tmp,1),'un',0)';
+            
+            % create independant variableindex touples (dpIdx,ivIdx)
+            variables{:,'IndependantVariable'}     = {{}};
+            for vv = 1:size(variables,1)
+                maskDataPoolInfo    = uIdxb == vv;
+                variables{vv,'IndependantVariable'} = {dataPoolInfo{maskDataPoolInfo,'IndependantVariable'}}; 
+            end
+            
             variables.Name  = categorical(cellstr(variables.Variable));
-            variables       = variables(:,{'Name','Id','Type','Unit','Index'});
+            variables       = variables(:,{'Name','Id','Type','Unit','Index','IndependantVariable'});
         end
     end
     
