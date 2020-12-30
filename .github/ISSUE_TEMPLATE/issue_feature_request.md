@@ -1,5 +1,5 @@
 ---
-name: 'Issue: 🎁 Feature Request'
+name: '🎁 Feature Request'
 about: 'You have an idea for a new feature'
 title: ''
 labels: new feature

@@ -1,8 +1,8 @@
 ---
-name: 'Issue: 💬 Anything else?'
+name: '💬 Anything else?'
 about: 'You have some other issue to raise'
 title: ''
-labels: 
+labels:
 assignees: ''
 
 ---

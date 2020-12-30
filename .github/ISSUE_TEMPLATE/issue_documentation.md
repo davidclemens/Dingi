@@ -1,5 +1,5 @@
 ---
-name: 'Issue: 📚 Documentation'
+name: '📚 Documentation'
 about: 'You came across parts of the documentation that should be fixed'
 title: ''
 labels: documentation

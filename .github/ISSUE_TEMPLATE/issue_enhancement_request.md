@@ -1,5 +1,5 @@
 ---
-name: 'Issue: 🛠 Enhancement Request'
+name: '🛠 Enhancement Request'
 about: 'You have an idea for an enhancement'
 title: ''
 labels: enhancement
