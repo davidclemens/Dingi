@@ -137,6 +137,10 @@ classdef sparseBitmask
     
     methods % overloaded
         varargout = subsref(obj,s)
+        obj = cat(dim,varargin)
+        obj = horzcat(varargin)
+        obj = vertcat(varargin)
+        varargout = size(obj,varargin)
     end
     
     methods % Get methods
