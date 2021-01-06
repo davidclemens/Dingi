@@ -7,6 +7,11 @@ function obj = setBit(obj,i,j,bit,highlow)
             'A bit position exceeds the limit. Only bits 1 to 52 can be set.')
     end
     
+    if isempty(i) || isempty(j) || isempty(bit) || isempty(highlow)
+        % if any of the relevant inputs is empty return the original object
+        return
+    end
+    
     Sz  = obj.Sz;
     if any(i(:) > Sz(1)) || any(j(:) > Sz(2))
         warning('DataKit:Metadata:sparseBitmask:setBit:subscriptsExceedBitmaskSize',...

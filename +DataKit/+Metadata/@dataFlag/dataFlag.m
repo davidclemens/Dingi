@@ -10,13 +10,15 @@ classdef dataFlag < DataKit.Metadata.sparseBitmask
                 case 0
                     return
                 case 1
-                    n       = numel(varargin{1}(:));
-                    flagId  = zeros(n*52,1);
+                    bitmasks	= varargin{1}(:);
+                    isNotZero  	= bitmasks ~= 0;
+                    bitmasks    = bitmasks(isNotZero);
+                    n           = sum(isNotZero);
+                    bitmask   	= zeros(n,52);
                     for ii = 1:n
-                        s = (ii - 1)*52 + 1;
-                        e = ii*52;
-                        flagId(s:e) = bitget(varargin{1}(ii),1:52);
+                        bitmask(ii,:) = bitget(bitmasks(ii),1:52);
                     end
+                    [~,flagId]  = find(bitmask);
                 case 2
                     flagId  = 0;
                 case 3

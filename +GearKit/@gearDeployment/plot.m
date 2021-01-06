@@ -199,8 +199,8 @@ function varargout = plot(obj,variables,varargin)
                         YData	= data.DepData{gr};
                         hptmp   = plot(XData,YData,...
                                     'LineWidth',    1.5);
-                        legendStr   = cat(1,legendStr,{[char(data.DepInfo(gr).MeasuringDevice.Type),' ',...
-                                                        char(data.DepInfo(gr).MeasuringDevice.WorldDomain)]});
+                        legendStr   = cat(1,legendStr,{[char(data.DepInfo.MeasuringDevice(gr).Type),' ',...
+                                                        char(data.DepInfo.MeasuringDevice(gr).WorldDomain)]});
 
                         nhp     = numel(hptmp);
                         hp(iihp:iihp + nhp - 1,spi(row,col))	= hptmp;

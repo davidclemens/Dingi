@@ -62,5 +62,7 @@ function disp(obj)
             fprintf('\n')
             fprintf('%sShowing %u of %u elements.\n\n',repmat(' ',1,tabLength),n,N)
         end
+    else
+        fprintf('%sNo flag is set.\n\n',repmat(' ',1,tabLength))
     end
 end

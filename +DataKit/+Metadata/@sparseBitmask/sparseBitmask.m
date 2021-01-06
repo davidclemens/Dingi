@@ -145,7 +145,7 @@ classdef sparseBitmask
     
     methods % Get methods
         function Sz = get.Sz(obj)
-            Sz = size(obj.Bitmask);
+            Sz = size(obj);
         end
     end
     
