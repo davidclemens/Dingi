@@ -168,7 +168,11 @@ function obj = markQualityFlags(obj)
         for src = 1:size(hbw.Charts,1)
             poolIdx     =  hbw.Charts{src,'userData'}{:}(1);
             variableIdx =  hbw.Charts{src,'userData'}{:}(2);
-            obj(oo).data.Flag{poolIdx}(:,variableIdx) = hbw.Charts{src,'brushData'}{:}';
+            
+            newFlags	= 3;
+            i           = find(hbw.Charts{src,'brushData'}{:}');
+            
+            obj(oo).data.Flag{poolIdx} = setBit(obj(oo).data.Flag{poolIdx},i,variableIdx,newFlags,1);
         end
         oo = oo + 1;
     end
