@@ -62,6 +62,8 @@ function data = fetchVariableData(obj,poolIdx,variableIdx,varargin)
 %   Copyright 2020 David Clemens (dclemens@geomar.de)
 %
     
+    import DataKit.arrayhom
+
     % parse Name-Value pairs
     optionName          = {'ReturnRawData','ForceCellOutput'}; % valid options (Name)
     optionDefaultValue  = {false,true}; % default value (Value)
@@ -94,19 +96,8 @@ function data = fetchVariableData(obj,poolIdx,variableIdx,varargin)
     sPoolIdx        = size(poolIdx);
     sVariableIdx    = size(variableIdx);
     
-    % grow vectors to match if necessary 
-    if sPoolIdx(1) == 1 && sVariableIdx(1) > 1
-        poolIdx = repmat(poolIdx,sVariableIdx(1),1);
-    elseif sPoolIdx(1) > 1 && sVariableIdx(1) == 1
-        variableIdx = repmat(variableIdx,sPoolIdx(1),1);
-    elseif sPoolIdx(1) == 1 && sVariableIdx(1) == 1
-        % ok
-    elseif sPoolIdx(1) > 1 && sVariableIdx(1) == sPoolIdx(1)
-        % ok
-    else
-        error('DataKit:dataPool:fetchVariableData:mismatchingIdxShape',...
-            'The shape of the index vectors mismatch.')
-    end
+    % grow vectors to match if necessary
+    [poolIdx,variableIdx] = arrayhom(poolIdx,variableIdx);
     nVariables  = numel(variableIdx);
     
     if returnRawData
