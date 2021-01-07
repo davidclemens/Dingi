@@ -117,6 +117,7 @@ function data = fetchData(obj,varargin)
 %           - DepData
 %           - IndepInfo
 %           - DepInfo
+%           - Flags
 %
 %         The structure of the 2 data fields is as follows, if the request
 %         results in the return of N variables Var1 to VarN grouped into M
@@ -124,6 +125,8 @@ function data = fetchData(obj,varargin)
 %         dp3 while VarN is found in dp5, dp6 and dp7.
 %         If, for example, dp3 doesn't contain independant variable indepI,
 %         it is filled with the appropriate empty value type.
+%         Flags has the same structure as DepData and holds dataFlag
+%         instances with the flags that applied to the dependant data.
 %
 %         data.DepData:
 %
@@ -313,6 +316,7 @@ function data = fetchData(obj,varargin)
  	data            = struct();
     data.IndepData	= {};
    	data.DepData    = {};
+   	data.Flags      = {};
     data.IndepInfo  = struct(...
                         'Variable',             {DataKit.Metadata.variable.empty},...
                         'PoolIdx',              [],...
@@ -350,8 +354,8 @@ function data = fetchData(obj,varargin)
     iv      = objIndex{maskIndex,'IndependantVariableIndex'}; % independant variable(s) index
     
     % fetch data
-	ddata 	= obj.fetchVariableData(dp,dv,...
-                'ReturnRawData',    returnRawData);
+	[ddata,flags]	= obj.fetchVariableData(dp,dv,...
+                        'ReturnRawData',    returnRawData);
     idata 	= cellfun(@(dp,iv) obj.fetchVariableData(dp,iv,'ReturnRawData',returnRawData),num2cell(dp),iv,'un',0);
     % fetch metadata
     dinfo   = arrayfun(@(dp,dv) obj.Info(dp).selectVariable(dv),dp,dv);
@@ -402,7 +406,8 @@ function data = fetchData(obj,varargin)
     
     % initialize data outputs
     iData   = arrayfun(@(n) DataKit.getNotANumberValueForClass(cellstr(uIndepVariablesDataType),[n,1]),nDataOut,'un',0);
-    dData   = arrayfun(@(n) NaN(n,1),nDataOut,'un',0);    
+    dData   = arrayfun(@(n) NaN(n,1),nDataOut,'un',0);
+    Flags   = arrayfun(@(n) DataKit.Metadata.dataFlag(n,1),nDataOut,'un',0);
     
     % populate data outputs
   	for var = 1:nVariable
@@ -416,6 +421,7 @@ function data = fetchData(obj,varargin)
 
             [~,~,uIdx2uSlots] = unique(uIndepVariablesMatchIndex(any(uIndepVariablesMatchIndex == idxData',2)),'stable');
             dData{gr,var}   = cat(1,ddata{idxData}); % the dependant data that belongs to variable 'var' and group 'gr' only
+            Flags{gr,var}   = cat(1,flags{idxData}); % the dependant data that belongs to variable 'var' and group 'gr' only
             tmpIData        = cat(1,idata{idxData}); % the independant data that belongs to variable 'var' and group 'gr' only
             slotStart       = [0;idxDataOut{gr,var}(1:end - 1)] + 1; % start indices for that data in the output slot
             slotEnd         = idxDataOut{gr,var}; % end indices for that data in the output slot
@@ -456,9 +462,11 @@ function data = fetchData(obj,varargin)
     if nVariable <= 1 && ~forceCellOutput
         data.IndepData	= iData{1};
         data.DepData    = dData{1};
+        data.Flags      = Flags{1};
     else
         data.IndepData	= iData;
         data.DepData    = dData;
+        data.Flags      = Flags;
     end
 end
 

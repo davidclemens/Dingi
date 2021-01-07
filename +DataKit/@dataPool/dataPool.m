@@ -54,7 +54,7 @@ classdef dataPool
         obj = setInfoProperty(obj,pool,idx,property,value)
         tbl = info(obj)
         data = fetchData(obj,varargin)
-        data = fetchVariableData(obj,poolIdx,variableIdx,varargin)
+        [data,flags] = fetchVariableData(obj,poolIdx,variableIdx,varargin)
         obj = applyCalibrationFunction(obj,poolIdx,variableIdx)
         [poolIdx,variableIdx] = findVariable(obj,varargin)
     end
@@ -70,11 +70,12 @@ classdef dataPool
         obj = readSeabirdCTDLegacy(obj,path)
     end
     
-  	% overloaded methods
+  	% Overloaded methods
     methods (Access = public)
         disp(obj)        
     end
     
+    % Get methods
     methods
         function PoolCount = get.PoolCount(obj)
             PoolCount = numel(obj.DataRaw);

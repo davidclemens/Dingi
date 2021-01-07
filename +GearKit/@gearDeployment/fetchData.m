@@ -68,6 +68,7 @@ function data = fetchData(obj,variable,varargin)
             
             data.IndepData{indHasTime(ii)}(:,timeIdx(indHasTime(ii)))	= cellfun(@(v,m) v(m),data.IndepData{indHasTime(ii)}(:,timeIdx(indHasTime(ii))),maskTime,'un',0);
             data.DepData(indHasTime(ii))                                = cellfun(@(v,m) v(m,:),data.DepData(indHasTime(ii)),maskTime,'un',0);
+            data.Flags(indHasTime(ii))                                  = cellfun(@(v,m) v(m,:),data.Flags(indHasTime(ii)),maskTime,'un',0);
         end
     end
 
@@ -75,6 +76,7 @@ function data = fetchData(obj,variable,varargin)
     maskGroupIsNotEmtpy 	= ~all(cellfun(@isempty,data.DepData),2);
     data.IndepData        	= data.IndepData(maskGroupIsNotEmtpy,:);
     data.DepData           	= data.DepData(maskGroupIsNotEmtpy,:);
+    data.Flags           	= data.Flags(maskGroupIsNotEmtpy,:);
     data.IndepInfo          = maskStruct(data.IndepInfo,maskGroupIsNotEmtpy,1);
     data.DepInfo            = maskStruct(data.DepInfo,maskGroupIsNotEmtpy,1);
     
@@ -82,6 +84,7 @@ function data = fetchData(obj,variable,varargin)
     maskVariableIsNotEmtpy 	= ~all(cellfun(@isempty,data.DepData),1);
     data.IndepData        	= data.IndepData(:,maskVariableIsNotEmtpy);
     data.DepData           	= data.DepData(:,maskVariableIsNotEmtpy);
+    data.Flags           	= data.Flags(:,maskVariableIsNotEmtpy);
     data.IndepInfo          = maskStruct(data.IndepInfo,maskVariableIsNotEmtpy,2);
     data.DepInfo            = maskStruct(data.DepInfo,maskVariableIsNotEmtpy,2);
 

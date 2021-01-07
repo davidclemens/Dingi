@@ -1,4 +1,4 @@
-function data = fetchVariableData(obj,poolIdx,variableIdx,varargin)
+function [data,flags] = fetchVariableData(obj,poolIdx,variableIdx,varargin)
 % fetchVariableData  Gathers data from a datapool object by index
 %   FETCHVARIABLEDATA returns the data within a datapool object by allowing
 %   to specify pairs of pool index and variable index.
@@ -6,6 +6,7 @@ function data = fetchVariableData(obj,poolIdx,variableIdx,varargin)
 %   Syntax
 %     data = FETCHVARIABLEDATA(dp,poolIdx,variableIdx)
 %     data = FETCHVARIABLEDATA(__,Name,Value)
+%     [data,flags] = FETCHVARIABLEDATA(__)
 %
 %   Description
 %     data = FETCHVARIABLEDATA(dp,poolIdx,variableIdx) gathers data of all
@@ -13,6 +14,9 @@ function data = fetchVariableData(obj,poolIdx,variableIdx,varargin)
 %
 %     data = FETCHVARIABLEDATA(__,Name,Value) specifies additional
 %       properties using one or more Name,Value pair arguments.
+%
+%     [data,flags] = FETCHVARIABLEDATA(__) additionally returns the data
+%       flags associated with the data.
 %
 %   Example(s)
 %     data = FETCHVARIABLEDATA(dp,2,1)
@@ -43,6 +47,12 @@ function data = fetchVariableData(obj,poolIdx,variableIdx,varargin)
 %         its original data type as matrix. If they are not scalar or
 %         ForceCellOutput is set to true, each one is returned within a
 %         cell.
+%
+%     flags - returned data flags
+%       2D matrix | cell
+%         If poolIdx and variableIdx are scalar, the data is returned as a
+%         dataFlag matrix. If they are not scalar or ForceCellOutput is set
+%         to true, each one is returned within a cell.
 %
 %
 %   Name-Value Pair Arguments
@@ -107,6 +117,8 @@ function data = fetchVariableData(obj,poolIdx,variableIdx,varargin)
     end
     origin  = arrayfun(@(p,v) obj.Info(p).VariableOrigin{v},poolIdx,variableIdx,'un',0);
     
+    flags   = arrayfun(@(p,v) obj.Flag{p}(:,v),poolIdx,variableIdx,'un',0);
+    
     for ii = 1:numel(poolIdx)
         switch obj.Info(poolIdx(ii)).VariableReturnDataType(variableIdx(ii))
             case 'datetime'
@@ -121,5 +133,6 @@ function data = fetchVariableData(obj,poolIdx,variableIdx,varargin)
     
     if nVariables == 1 && ~forceCellOutput
         data    = data{:};
+        flags   = flags{:};
     end
 end
