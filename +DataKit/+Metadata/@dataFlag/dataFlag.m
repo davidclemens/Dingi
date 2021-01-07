@@ -12,7 +12,7 @@ classdef dataFlag < DataKit.Metadata.sparseBitmask
                 case 1
                     bitmasks	= varargin{1}(:);
                     isNotZero  	= bitmasks ~= 0;
-                    bitmasks    = bitmasks(isNotZero);
+                    bitmasks    = full(bitmasks(isNotZero));
                     n           = sum(isNotZero);
                     bitmask   	= zeros(n,52);
                     for ii = 1:n
@@ -40,5 +40,13 @@ classdef dataFlag < DataKit.Metadata.sparseBitmask
     methods (Static)
     	[bool,info] = validateId(id)
         obj = id2validflag(id)
+    end
+    
+    % Overloaded methods
+    methods
+        varargout = subsref(obj,s)
+        obj = cat(dim,varargin)
+        obj = horzcat(varargin)
+        obj = vertcat(varargin)
     end
 end

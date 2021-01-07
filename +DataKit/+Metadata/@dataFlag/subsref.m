@@ -15,7 +15,7 @@ function varargout = subsref(obj,s)
         case '()'
             if length(s) == 1
                 % Implement obj(indices)
-                varargout = {DataKit.Metadata.sparseBitmask(obj.Bitmask(s.subs{:}))};
+                varargout = {DataKit.Metadata.dataFlag(obj.Bitmask(s.subs{:}))};
 %             elseif length(s) == 2 && strcmp(s(2).type,'.')
 %                 % Implement obj(ind).PropertyName
 %                 ...
