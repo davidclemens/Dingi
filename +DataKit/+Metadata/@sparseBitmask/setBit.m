@@ -34,9 +34,46 @@ function obj = setBit(obj,i,j,bit,highlow)
     
     [i,j,bit,highlow] = arrayhom(i,j,bit,highlow);
     
-    n = numel(bit);
-    for ii = 1:n
-        A   = full(obj.Bitmask(i(ii),j(ii)));
-        obj.Bitmask(i(ii),j(ii)) = bitset(A,bit(ii),highlow(ii));
+    if nnz(obj.Bitmask) == 0
+        % no non-zero elements
+        bitmaskNew 	= bitset(zeros(size(bit)),bit,highlow);
+        obj.Bitmask	= sparse(i,j,bitmaskNew,Sz(1),Sz(2));
+    else
+        % non-zero elements already exist
+        [iBm,jBm]           = find(obj.Bitmask);
+        indBm               = sub2ind(obj.Sz,iBm,jBm);
+        ind                 = sub2ind(obj.Sz,i,j);
+        
+        [indShared,iindShared]	= intersect(ind,indBm); % index 
+        [indNew,iindNew]        = setdiff(ind,indBm);
+        indOld                  = setdiff(indBm,ind);
+        
+        % make sure these are column vectors
+        iindShared              = iindShared(:);
+        indShared               = indShared(:);
+        iindNew                 = iindNew(:);
+        indNew                  = indNew(:);
+        indOld                  = indOld(:);
+        
+        
+        nShared             = numel(indShared);
+        nNew                = numel(indNew);
+        nOld                = numel(indOld);
+        
+        bitmaskShared       = bitset(full(obj.Bitmask(indShared)),bit(iindShared),highlow(iindShared));
+        bitmaskNew          = bitset(zeros(nNew,1),bit(iindNew),highlow(iindNew));
+        bitmaskOld          = full(obj.Bitmask(indOld));
+        
+        bitmask             = spalloc(Sz(1),Sz(2),nShared + nNew + nOld);
+        bitmask(indShared)  = bitmaskShared;
+        bitmask(indNew)     = bitmaskNew;
+        bitmask(indOld)     = bitmaskOld;
+        
+        obj.Bitmask         = bitmask;
     end
+    
+%     for ii = 1:n
+%         A   = full(obj.Bitmask(i(ii),j(ii)));
+%         obj.Bitmask(i(ii),j(ii)) = bitset(A,bit(ii),highlow(ii));
+%     end
 end
