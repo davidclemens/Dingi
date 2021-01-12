@@ -57,6 +57,7 @@ classdef dataPool
         [data,flags] = fetchVariableData(obj,poolIdx,variableIdx,varargin)
         obj = applyCalibrationFunction(obj,poolIdx,variableIdx)
         [poolIdx,variableIdx] = findVariable(obj,varargin)
+        obj = setFlag(obj,poolIdx,i,j,flag,highlow)
     end
     
     methods (Access = private)
