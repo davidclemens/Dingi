@@ -37,6 +37,10 @@ classdef dataFlag < DataKit.Metadata.sparseBitmask
         end
     end
     
+    methods
+        tf = isFlag(obj,flag)
+    end
+    
     methods (Static)
     	[bool,info] = validateId(id)
         obj = id2validflag(id)
