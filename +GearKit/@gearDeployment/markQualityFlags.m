@@ -4,8 +4,9 @@ function obj = markQualityFlags(obj)
     import GraphKit.waitForKeyPress
     import GraphKit.Colormaps.cbrewer.cbrewer
 
-    nObj    = numel(obj);
-
+    nObj            = numel(obj);
+    RelativeTime    = '';
+    
     availableVariables = table();
     for oo = 1:nObj
 %         newTable            = obj(oo).variables;
@@ -53,8 +54,6 @@ function obj = markQualityFlags(obj)
     nVariable          = accumarray(uIndepVariableInd2,ones(size(uIndepVariableInd2)));
     nVariableMax       = max(nVariable);
     
-    % mask selection
-    availableVariables	= availableVariables(any(uInd == selection,2),:);
     oo = 1;
     while oo <= nObj
         % initialize figure
@@ -68,7 +67,7 @@ function obj = markQualityFlags(obj)
         [spny,spnx]     = size(spi);
 
         xLimits         = cell(spnx,1);
-        yLimits         = repmat(NaN(1,2),spnx*spny,1);
+        yLimits         = NaN(spnx*spny,2);
         for iv = 1:nIndependantVariable
             col = iv;
             indUniqueVariableList = find(uIndepVariableInd2 == iv);
@@ -79,24 +78,29 @@ function obj = markQualityFlags(obj)
                     continue
                 end
                 
+                % initialize
+                legendEntries   = cell.empty;
+                
+                % select current axes handle
                 hax = hsp(spi(row,col));
                 
-                maskAvailableVariables  = availableVariables{:,'ObjId'} == oo & ...
-                                          availableVariables{:,'Id'} == uniqueVariableList{indUniqueVariableList(dv),'Id'};
-                
-%                 [poolIdx,variableIdx]	= obj(oo).data.findVariable('Variable.Id',  uniqueVariableList{indUniqueVariableList(dv),'Id'},...
-%                                                                     'VariableType', 'Dependant');
-% 
-%                 data = obj(oo).data.fetchVariableData(poolIdx,variableIdx);
+                % fetch data
                 try
                     data        = obj(oo).fetchData(uniqueVariableList{indUniqueVariableList(dv),'Id'},...
-                                    'RelativeTime',         '',...
+                                    'RelativeTime',         RelativeTime,...
                                     'GroupBy',              'Variable');
                 catch ME
                     switch ME.identifier
                         case 'DataKit:dataPool:fetchData:noRequestedVariableIsAvailable'
-                            text(0.5,0.5,'no data',...
+                            % print no data label on axis
+                            text(hax,0.5,0.5,'no data',...
                                 'Units',        'normalized')
+                            
+                            if isempty(xLimits{col})
+                                xLimits{col}	= hax.XLim;
+                            else
+                                xLimits{col}	= [nanmin([xLimits{col}(1);hax.XLim(1)]),nanmax([xLimits{col}(2);hax.XLim(2)])];
+                            end
                             continue
                         otherwise
                             rethrow(ME)
@@ -105,7 +109,6 @@ function obj = markQualityFlags(obj)
 
                 nSources        = size(data.DepData,1);
 
-                legendEntries   = cell.empty;
                 for src = 1:nSources
                     nIndepVariables     = numel(data.IndepData{src});
 
@@ -113,10 +116,9 @@ function obj = markQualityFlags(obj)
                         error('Not implemented yet.')
                     end
 
-                    meta    = obj(oo).data.Info.VariableMeasuringDevice;
-
-                    XData = data.IndepData{src}{1};
-                    YData = data.DepData{src};
+                    XData           = data.IndepData{src}{1};
+                    YData           = data.DepData{src};
+                    FData           = data.Flags{src};
 
                     if numel(XData(:)) < 50
                         marker  = 'o';
@@ -141,8 +143,12 @@ function obj = markQualityFlags(obj)
                 legend(hax,legendEntries,...
                     'Location',         'best');
             end
+            try
             set(hsp(spi(2:nVariable(col) + 1,col)),...
                 'XLim',         xLimits{col} + [-1 1].*0.01.*range(xLimits{col}))
+            catch
+                
+            end
         end
         maskNoData = any(isnan(yLimits),2);
         set(hsp(~maskNoData),...
@@ -164,16 +170,25 @@ function obj = markQualityFlags(obj)
         hbw     = hfig.UserData.BrushWindow;
         hbw.EnableBrushing = 'off';
 
-        % retrieve brush data and write it to the gearDeployment instance
-        for src = 1:size(hbw.Charts,1)
-            poolIdx     =  hbw.Charts{src,'userData'}{:}(1);
-            variableIdx =  hbw.Charts{src,'userData'}{:}(2);
-            
-            newFlags	= 3;
-            i           = find(hbw.Charts{src,'brushData'}{:}');
-            
-            obj(oo).data.Flag{poolIdx} = setBit(obj(oo).data.Flag{poolIdx},i,variableIdx,newFlags,1);
-        end
+        % retrieve indices and brush data
+        poolIdx         = cat(1,hbw.Charts{:,'userData'}{:});
+        variableIdx     = poolIdx(:,2);
+        poolIdx         = poolIdx(:,1);
+        brushData       = cellfun(@find,hbw.Charts{:,'brushData'},'un',0);
+        nBrushData      = cellfun(@numel,brushData);
+        
+        % grow vectors to match brush data
+        poolIdxAll      = arrayfun(@(n,p) p.*ones(n,1),nBrushData,poolIdx,'un',0);
+        poolIdxAll      = cat(1,poolIdxAll{:});
+        variableIdxAll	= arrayfun(@(n,v) v.*ones(n,1),nBrushData,variableIdx,'un',0);
+        variableIdxAll	= cat(1,variableIdxAll{:});
+        sampleIdx       = reshape(cat(2,brushData{:}),[],1);
+        
+       	newFlags        = 3; % flag id to be set ('manually rejected')
+        
+        % write flags to the gearDeployment instance
+        obj(oo).data    = setFlag(obj(oo).data,poolIdxAll,sampleIdx,variableIdxAll,newFlags,1);
+        
         oo = oo + 1;
     end
 
@@ -236,9 +251,11 @@ function h = initializeGearDeploymentBrushFigureWindow(Variable)
 
     yLabels     = {''};
     yLabels     = cat(1,yLabels,strcat(variableInfo{:,'Abbreviation'},{' ('},cellstr(variableInfo{:,'Unit'}),{')'}));
-
+    
+%     hlnk	= repmat(linkprop(gobjects(),''),1,nIndependantVariable);
     for col = 1:spnx
         iv = col;
+        indDv = [0;find(uInd2 == iv)];
         for row = 1:spny
             dv = row;
             hsp(spi(row,col))   = subplot(spny,spnx,spi(row,col),...
@@ -252,18 +269,31 @@ function h = initializeGearDeploymentBrushFigureWindow(Variable)
                                     'TickDir',                  'out',...
                                     'XMinorTick',               'on',...
                                     'YMinorTick',               'on');
-            if dv > nVariable(iv) + 1
+            if row > 1
+                switch char(IndependantVariable{iv})
+                    case 'Time'
+                        hsp(spi(row,col)).XAxis = matlab.graphics.axis.decorator.DatetimeRuler;
+                    otherwise
+                end 
+            end
+            if dv > nVariable(col) + 1
                 set(hsp(spi(row,col)),...
                     'Visible',  'off')
             end
-%             ylabel(yLabels{dv})
+            if dv == nVariable(col) + 1
+                xlabel(char(IndependantVariable{iv}))
+            end
+            if row > 1 && row <= nVariable(col) + 1 
+                ylabel(yLabels{indDv(dv) + 1}) 
+            end
         end
         set(hsp(spi(1:nVariable(col),col)),...
             'XColor',       'none')
         set([hsp(spi(1:nVariable(col),col)).XAxis],...
             'Visible',  	'off')
+        
+        hlnk(col)    = linkprop(hsp(spi(2:nVariable(col) + 1,col)),{'XLim'});
     end
-    hlnk    = linkprop(hsp(2:spnx*spny),{'XLim'});
 
     hfig.UserData   = struct(...
                         'SubplotHandles',   hsp,...
