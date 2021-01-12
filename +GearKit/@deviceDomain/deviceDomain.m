@@ -17,4 +17,7 @@ classdef deviceDomain
             obj.Abbreviation = abbreviation;
         end
     end
+    methods (Static)
+        obj = abbreviation2devicedomain(abbr)
+    end
 end
