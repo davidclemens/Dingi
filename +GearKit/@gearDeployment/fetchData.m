@@ -72,22 +72,6 @@ function data = fetchData(obj,variable,varargin)
         end
     end
 
-    % make sure the masking didn't result in empty groups
-    maskGroupIsNotEmtpy 	= ~all(cellfun(@isempty,data.DepData),2);
-    data.IndepData        	= data.IndepData(maskGroupIsNotEmtpy,:);
-    data.DepData           	= data.DepData(maskGroupIsNotEmtpy,:);
-    data.Flags           	= data.Flags(maskGroupIsNotEmtpy,:);
-    data.IndepInfo          = maskStruct(data.IndepInfo,maskGroupIsNotEmtpy,1);
-    data.DepInfo            = maskStruct(data.DepInfo,maskGroupIsNotEmtpy,1);
-    
-    % make sure the masking didn't result in empty variables
-    maskVariableIsNotEmtpy 	= ~all(cellfun(@isempty,data.DepData),1);
-    data.IndepData        	= data.IndepData(:,maskVariableIsNotEmtpy);
-    data.DepData           	= data.DepData(:,maskVariableIsNotEmtpy);
-    data.Flags           	= data.Flags(:,maskVariableIsNotEmtpy);
-    data.IndepInfo          = maskStruct(data.IndepInfo,maskVariableIsNotEmtpy,2);
-    data.DepInfo            = maskStruct(data.DepInfo,maskVariableIsNotEmtpy,2);
-
     
   	nHasTime = sum(hasTime(hasData));
     if ~isempty(relativeTime) && nHasTime >= 1
@@ -128,6 +112,24 @@ function data = fetchData(obj,variable,varargin)
             data.IndepInfo.Variable{indHasTime(tt)}(timeIdx(indHasTime(tt)))    = newVariable;
         end
     end
+    
+
+    % make sure the masking didn't result in empty groups
+    maskGroupIsNotEmtpy 	= ~all(cellfun(@isempty,data.DepData),2);
+    data.IndepData        	= data.IndepData(maskGroupIsNotEmtpy,:);
+    data.DepData           	= data.DepData(maskGroupIsNotEmtpy,:);
+    data.Flags           	= data.Flags(maskGroupIsNotEmtpy,:);
+    data.IndepInfo          = maskStruct(data.IndepInfo,maskGroupIsNotEmtpy,1);
+    data.DepInfo            = maskStruct(data.DepInfo,maskGroupIsNotEmtpy,1);
+    
+    
+    % make sure the masking didn't result in empty variables
+    maskVariableIsNotEmtpy 	= ~all(cellfun(@isempty,data.DepData),1);
+    data.IndepData        	= data.IndepData(:,maskVariableIsNotEmtpy);
+    data.DepData           	= data.DepData(:,maskVariableIsNotEmtpy);
+    data.Flags           	= data.Flags(:,maskVariableIsNotEmtpy);
+    data.IndepInfo          = maskStruct(data.IndepInfo,maskVariableIsNotEmtpy,2);
+    data.DepInfo            = maskStruct(data.DepInfo,maskVariableIsNotEmtpy,2);
 end
 
 function s = maskStruct(s,mask,varargin)
