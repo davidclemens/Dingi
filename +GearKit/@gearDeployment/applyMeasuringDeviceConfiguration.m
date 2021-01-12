@@ -7,6 +7,7 @@ function obj = applyMeasuringDeviceConfiguration(obj)
         switch ME.identifier
             case 'MATLAB:xlsread:FileNotFound'
                 % do nothing
+                return
             otherwise
                 rethrow(ME)
         end
