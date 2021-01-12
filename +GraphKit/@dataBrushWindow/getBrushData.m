@@ -16,6 +16,10 @@ function charts = getBrushData(obj)
     charts.indChild = chartIndexChild;
     charts.chart    = cat(1,obj.Axes.Children);
     
+    % dismiss non data holding children
+    isChart         = strncmp('matlab.graphics.chart.',arrayfun(@(o) class(o),charts.chart,'un',0),numel('matlab.graphics.chart.'));
+    charts          = charts(isChart,:);
+    
     charts.tags         = get(charts.chart,{'Tag'});
     charts.userData     = get(charts.chart,{'UserData'});
     charts.brushData    = cellfun(@logical,get(charts.chart,{'BrushData'}),'un',0);
