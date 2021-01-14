@@ -1,4 +1,6 @@
-classdef addVariable_test < matlab.unittest.TestCase
+classdef (SharedTestFixtures = { ...
+            matlab.unittest.fixtures.PathFixture(subsref(strsplit(mfilename('fullpath'),'/+'),substruct('{}',{':'})))
+        }) addVariable_test < matlab.unittest.TestCase
     
     % run:
     % tests = matlab.unittest.TestSuite.fromClass(?Tests.DataKit.dataPool.addVariable_test);
@@ -106,11 +108,7 @@ classdef addVariable_test < matlab.unittest.TestCase
     end
     
     methods (TestClassSetup)
-        function addDataPoolClassToPath(testCase)
-            pathOld = path;
-            testCase.addTeardown(@path,pathOld)
-            addpath('/Users/David/Dropbox/David/Syncing/MATLAB/toolboxes/')
-        end
+        
     end
     methods (TestMethodSetup)
         function createDataPool(testCase,SetupData)

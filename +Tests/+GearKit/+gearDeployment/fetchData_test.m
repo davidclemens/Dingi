@@ -1,4 +1,6 @@
-classdef fetchData_test < matlab.unittest.TestCase
+classdef (SharedTestFixtures = { ...
+            matlab.unittest.fixtures.PathFixture(subsref(strsplit(mfilename('fullpath'),'/+'),substruct('{}',{':'})))
+        }) fetchData_test < matlab.unittest.TestCase
     
     % run:
     % tests = matlab.unittest.TestSuite.fromClass(?Tests.GearKit.gearDeployment.fetchData_test);
@@ -78,6 +80,7 @@ classdef fetchData_test < matlab.unittest.TestCase
     end
     
     methods (TestClassSetup)
+        
     end
     methods (TestMethodSetup)
         function setExpectedOutputs(testCase,Data1,Data2)
