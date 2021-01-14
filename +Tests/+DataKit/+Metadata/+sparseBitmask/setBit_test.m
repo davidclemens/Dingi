@@ -108,50 +108,6 @@ classdef (SharedTestFixtures = { ...
     end
     
     methods (Test)
-        function testSetBit(testCase,i,j,bit,hl)
-            import matlab.unittest.fixtures.SuppressedWarningsFixture
-            import DataKit.Metadata.sparseBitmask
-            import DataKit.arrayhom
-            
-            % get actual value
-            BitmaskA	= testCase.Bitmask;
-            try
-                act    	= setBit(BitmaskA,i,j,bit,hl);
-            catch ME
-                switch ME.identifier
-                    case 'DataKit:arrayhom:invalidNumberOfSingletonDimensions'
-                        return
-                    otherwise
-                        rethrow(ME)
-                end
-            end
-            % only consider actual bitmask
-            act                 = act.Bitmask;
-            
-            % determine expected bitmask
-            [i2,j2,bit2,hl2]	= arrayhom(i,j,bit,hl);
-            exp                 = BitmaskA.Bitmask; % start with existing bitmask
-            szOld               = testCase.Sz;
-            szNew               = max([testCase.Sz;max(i2),max(j2)]);
-            dsz                 = diff(cat(1,szOld,szNew));
-            if any(dsz > 0)
-                testCase.applyFixture(...
-                    SuppressedWarningsFixture('DataKit:Metadata:sparseBitmask:setBit:subscriptsExceedBitmaskSize'));
-            end
-            exp                 = cat(1,exp,zeros(dsz(1),szOld(2)));
-            exp                 = cat(2,exp,zeros(szNew(1),dsz(2)));
-            
-            ind                 = sub2ind(szNew,i2,j2); % indices to the bitmasks that will change
-            
-            [uBits,~,uBitsInd]  = unique(cat(2,ind,bit2),'rows'); % get unique index-bit touples
-            for ii = 1:size(uBits,1)
-                mask                = uBitsInd == ii;
-                highlow             = max(hl2(mask));   % if the same bit is addressed multiple times set it to the max of the corresponding highlow values.
-                exp(uBits(ii,1))	= bitset(full(exp(uBits(ii,1))),uBits(ii,2),highlow);
-            end
-            
-            testCase.verifyEqual(act,exp)
-        end
         function testInvalidBit(testCase)
             testCase.verifyError(@() ...
                 setBit(testCase.Bitmask,1,1,53,1),...
@@ -164,6 +120,50 @@ classdef (SharedTestFixtures = { ...
             testCase.verifyWarning(@() ...
                 setBit(testCase.Bitmask,testCase.Sz(1) + 1,1,1,1),...
                 'DataKit:Metadata:sparseBitmask:setBit:subscriptsExceedBitmaskSize')
+        end
+        function testSetBit(testCase,i,j,bit,hl)
+            import matlab.unittest.fixtures.SuppressedWarningsFixture
+            import DataKit.Metadata.sparseBitmask
+            import DataKit.arrayhom
+            
+            try
+                [i2,j2,bit2,hl2]	= arrayhom(i,j,bit,hl);
+            catch ME
+                switch ME.identifier
+                    case 'DataKit:arrayhom:invalidNumberOfSingletonDimensions'
+                        return
+                    otherwise
+                        rethrow(ME)
+                end
+            end
+            
+            szOld               = testCase.Sz;
+            szNew               = max([testCase.Sz;max(i2),max(j2)]);
+            dsz                 = diff(cat(1,szOld,szNew));
+            if any(dsz > 0)
+                testCase.applyFixture(...
+                    SuppressedWarningsFixture('DataKit:Metadata:sparseBitmask:setBit:subscriptsExceedBitmaskSize'));
+            end
+            
+            % get actual value
+            BitmaskA	= testCase.Bitmask;
+            act         = setBit(BitmaskA,i,j,bit,hl);
+            act       	= act.Bitmask;
+            
+            % determine expected bitmask
+            exp        	= BitmaskA.Bitmask; % start with existing bitmask
+            exp       	= cat(1,exp,zeros(dsz(1),szOld(2)));
+            exp       	= cat(2,exp,zeros(szNew(1),dsz(2)));
+            
+            ind                 = sub2ind(szNew,i2,j2); % indices to the bitmasks that will change
+            [uBits,~,uBitsInd]  = unique(cat(2,ind,bit2),'rows'); % get unique index-bit touples
+            for ii = 1:size(uBits,1)
+                mask                = uBitsInd == ii;
+                highlow             = max(hl2(mask));   % if the same bit is addressed multiple times set it to the max of the corresponding highlow values.
+                exp(uBits(ii,1))	= bitset(full(exp(uBits(ii,1))),uBits(ii,2),highlow);
+            end
+            
+            testCase.verifyEqual(act,exp)
         end
 	end
 end
