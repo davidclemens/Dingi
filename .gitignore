@@ -1,6 +1,5 @@
 *.m~
 *.trial.m
-CoverageResults*.xml
 
 +DataKit/+DespikeKit/
 
