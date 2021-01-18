@@ -7,6 +7,7 @@
 ![GitHub repo size](https://img.shields.io/github/repo-size/davidclemens/MATLAB-toolboxes)
 ![Travis (.com) branch](https://img.shields.io/travis/com/davidclemens/MATLAB-toolboxes/master?label=master)
 ![Travis (.com) branch](https://img.shields.io/travis/com/davidclemens/MATLAB-toolboxes/development?label=development)
+![Code Climate coverage](https://img.shields.io/codeclimate/coverage/davidclemens/MATLAB-toolboxes)
 
 MATLAB toolbox collection for data processing of marine research gear deployed by GEOMAR Helmholtz Centre for Ocean Research Kiel, Germany.
 
