@@ -73,7 +73,7 @@ function obj = addVariable(obj,pool,variable,data,uncertainty,varargin)
 %         Sets the variable description. Has to have the same size as
 %         variable.
 %
-%     variableMeasuringDevice - variable measuring device
+%     VariableMeasuringDevice - variable measuring device
 %       GearKit.measuringDevice
 %         Sets the variable measuring device. Has to have the same size as
 %         variable.

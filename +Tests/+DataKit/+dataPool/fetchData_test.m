@@ -1,9 +1,9 @@
 classdef fetchData_test < matlab.unittest.TestCase
-    
+
     % run:
     % tests = matlab.unittest.TestSuite.fromClass(?Tests.DataKit.dataPool.fetchData_test);
     % run(tests)
-    
+
     properties
         DataPoolInstance
         IndependantVariables
@@ -56,7 +56,7 @@ classdef fetchData_test < matlab.unittest.TestCase
                                      'Dm',      {{'Nitrate','Oxygen'}},...
                                      'invalid', {{'Temperature'}})
     end
-    
+
     methods (TestClassSetup)
         function addDataPoolClassToPath(testCase)
             pathOld = path;
@@ -69,10 +69,10 @@ classdef fetchData_test < matlab.unittest.TestCase
             tmpVars         = cat(2,Data1.Variable,Data2.Variable);
             tmpVarType      = cat(2,Data1.VariableType,Data2.VariableType);
             testCase.NData	= cat(2,size(Data1.Data,1),size(Data2.Data,1));
-            
+
             testCase.IndependantVariables	= unique(tmpVars(ismember(tmpVarType,'Independant')));
             testCase.DependantVariables     = unique(tmpVars(ismember(tmpVarType,'Dependant')));
-            
+
             testCase.NIndependantVariables	= numel(testCase.IndependantVariables);
             testCase.NDependantVariables    = numel(testCase.DependantVariables);
         end
@@ -84,47 +84,47 @@ classdef fetchData_test < matlab.unittest.TestCase
             dp      = dp.addVariable(pool,Data1.Variable,Data1.Data,[],...
                         'VariableType',     Data1.VariableType,...
                         'VariableOrigin',   Data1.VariableOrigin);
-                    
+
             % Add second pool
             dp      = dp.addPool();
             pool    = dp.PoolCount;
             dp      = dp.addVariable(pool,Data2.Variable,Data2.Data,[],...
                         'VariableType',     Data2.VariableType,...
                         'VariableOrigin',   Data2.VariableOrigin);
-                
+
             testCase.DataPoolInstance = dp;
         end
     end
     methods (TestMethodTeardown)
-        
+
     end
-    
+
     methods (Test, ParameterCombination = 'sequential')
         function testDataErrorsAndWarnings(testCase,RequestedVariables)
             nRequestedVariables = numel(RequestedVariables);
             if ~any(nRequestedVariables <= testCase.NDependantVariables)
                 % Case: >= 1 requested variable is not a member of the data
                 % pool. Handled in 'testFetchDataError'.
-                
+
                 AvailableVariables  = variable2str(cat(2,testCase.DataPoolInstance.Info.Variable));
                 if iscellstr(RequestedVariables) && any(~ismember(RequestedVariables,AvailableVariables))
                     testCase.verifyWarning(@() ...
                         fetchData(testCase.DataPoolInstance,RequestedVariables,...
                                 'ForceCellOutput',      true),...
                         'DataKit:dataPool:fetchData:requestedVariableIsUnavailable')
-                end    
+                end
             end
             if iscellstr(RequestedVariables) && all(strcmp(testCase.RequestedVariables.invalid,RequestedVariables))
                 % Case: requested variable is not a member of the data
                 % pool. Handled in 'testFetchDataError'.
-                
-                testCase.verifyError(@() ...
-                fetchData(testCase.DataPoolInstance,RequestedVariables,...
-                        'ForceCellOutput',      true),...
-                'DataKit:dataPool:fetchData:noRequestedVariableIsAvailable')
-            end        
+
+                testCase.verifyWarning(@() ...
+                    fetchData(testCase.DataPoolInstance,RequestedVariables,...
+                            'ForceCellOutput',      true),...
+                    'DataKit:dataPool:fetchData:noDataForRequestedInputsAvailable')
+            end
         end
-        
+
         function testNVariables(testCase,RequestedVariables)
             nRequestedVariables = numel(RequestedVariables);
             if ~any(nRequestedVariables <= testCase.NDependantVariables)
@@ -137,23 +137,23 @@ classdef fetchData_test < matlab.unittest.TestCase
                 % pool. Handled in 'testDataErrorsAndWarnings'.
                 return
             end
-            
+
             data	= fetchData(testCase.DataPoolInstance,RequestedVariables,...
                         'ForceCellOutput',      true);
-                    
+
             % Subtest 01: number of independant variables returned
             act  	= cellfun(@(x) size(x,2),data.IndepData,'un',1);
             exp   	= repmat(testCase.NIndependantVariables,1,testCase.NDependantVariables);
-            testCase.verifyTrue(all(act == exp))
-                    
+            testCase.verifyTrue(all(all(act == exp,1)))
+
             % Subtest 02: number of dependant variables returned
-            act 	= numel(data.DepData);
+            act 	= size(data.DepData,2);
             if nRequestedVariables == 0
                 % if no variable is supplied, all available are
                 % returned
                 exp = testCase.NDependantVariables;
             else
-                exp  	= nRequestedVariables;
+                exp	= nRequestedVariables;
             end
             testCase.verifyEqual(act,exp)
         end

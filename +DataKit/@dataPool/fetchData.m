@@ -319,9 +319,10 @@ function data = fetchData(obj,varargin)
                         'MeasurmentDevice',     GearKit.measuringDevice.empty);
     
     
-    if nIndexMatches== 0
-        error('DataKit:dataPool:fetchData:noRequestedVariableIsAvailable',...
-            'TODO: no data to return scenario')
+    if nIndexMatches == 0
+        warning('DataKit:dataPool:fetchData:noDataForRequestedInputsAvailable',...
+            'No data matches the requested combination of inputs.')
+        return
     end
     if any(~variableIsInDataPool)
         warning('DataKit:dataPool:fetchData:requestedVariableIsUnavailable',...
