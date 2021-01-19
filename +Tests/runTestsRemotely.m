@@ -26,8 +26,6 @@ try
     result  = runner.run(tests);
     
     display(result);
-    pwd
-    ls
     fixCoberturaFile(coberturaFilename)
 catch ME
     disp(getReport(ME,'extended'));
