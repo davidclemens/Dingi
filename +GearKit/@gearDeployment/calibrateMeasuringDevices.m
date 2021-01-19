@@ -1,4 +1,4 @@
-function obj = calibrateMeasuringDevices(obj)
+function calibrateMeasuringDevices(obj)
     
     import GearKit.*
     

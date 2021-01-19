@@ -1,4 +1,4 @@
-function obj = readInternalMeasuringDevices(obj)
+function readInternalMeasuringDevices(obj)
     
 	if obj.debugger.debugLevel >= 'Info'
         fprintf('INFO: reading internal measuring device(s)... \n');

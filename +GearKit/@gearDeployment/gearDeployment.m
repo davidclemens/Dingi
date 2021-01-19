@@ -1,4 +1,4 @@
-classdef gearDeployment
+classdef gearDeployment < handle
     % gearDeployment  The superclass to all gear deployments
     % The GEARDEPLOYMENT class defines basic metadata on a gear deployment
     % and reads it upon construction.
@@ -76,8 +76,8 @@ classdef gearDeployment
             obj.gearType        = gearType;
             
             % extract file metadata
-            obj	= getGearDeploymentMetadata(obj,path);
-            obj = readCalibrationData(obj);
+            getGearDeploymentMetadata(obj,path);
+            readCalibrationData(obj);
         end
         
         % get methods
@@ -102,23 +102,23 @@ classdef gearDeployment
         varargout = exportData(obj,parameter,filename,varargin)
         varargout = plot(obj,varargin)
         varargout = plotCalibrations(obj)
-        obj = markQualityFlags(obj)
+        markQualityFlags(obj)
         obj = loadobj(obj)
         obj = saveobj(obj)
-        obj = update(obj)
+        update(obj)
     end
     methods (Access = protected)
-        obj	= getGearDeploymentMetadata(obj,pathName)
-        obj	= assignMeasuringDeviceMountingData(obj)
-        obj	= readAuxillaryMeasuringDevices(obj)
-        obj = readCalibrationData(obj)
-        obj = calibrateMeasuringDevices(obj)
-        obj = readAnalyticalSamples(obj)
+        getGearDeploymentMetadata(obj,pathName)
+        assignMeasuringDeviceMountingData(obj)
+        readAuxillaryMeasuringDevices(obj)
+        readCalibrationData(obj)
+        calibrateMeasuringDevices(obj)
+        readAnalyticalSamples(obj)
     end
     methods (Access = protected, Abstract)
-        obj = readInternalMeasuringDevices(obj)
+        readInternalMeasuringDevices(obj)
     end
     methods (Abstract) 
-        obj = runAnalysis(obj)
+        runAnalysis(obj)
     end
 end
