@@ -34,30 +34,30 @@ classdef bigoDeployment < GearKit.gearDeployment
             % call superclass constructor
             obj     = obj@GearKit.gearDeployment(path,gearType);
             
-            obj     = determineChamberMetadata(obj);
-            obj     = readProtocol(obj);
-            obj     = readInternalMeasuringDevices(obj);
+            determineChamberMetadata(obj);
+            readProtocol(obj);
+            readInternalMeasuringDevices(obj);
             
             obj.timeOfInterestStart	= mean(obj.protocol{obj.protocol{:,'Event'} == 'Experiment Start','Time'},'omitnan');
             obj.timeOfInterestEnd   = mean(obj.protocol{obj.protocol{:,'Event'} == 'Slide Down','StartTime'},'omitnan');
             
-            obj     = readAuxillaryMeasuringDevices(obj);
-            obj     = assignMeasuringDeviceMountingData(obj);
-            obj     = calibrateMeasuringDevices(obj);
-            obj     = readAnalyticalSamples(obj);
+            readAuxillaryMeasuringDevices(obj);
+            assignMeasuringDeviceMountingData(obj);
+            calibrateMeasuringDevices(obj);
+            readAnalyticalSamples(obj);
         end
     end
     
    	% methods in seperate files
     methods (Access = public)
-       	obj	= runAnalysis(obj)
+       	runAnalysis(obj)
         varargout = exportProtocol(obj,varargin)
         tbl = getFlux(obj,parameter)
     end
     
     methods (Access = protected)
-        obj = readInternalMeasuringDevices(obj)
-        obj = determineChamberMetadata(obj)
-        obj	= readProtocol(obj)        
+        readInternalMeasuringDevices(obj)
+        determineChamberMetadata(obj)
+        readProtocol(obj)        
     end 
 end

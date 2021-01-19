@@ -1,4 +1,4 @@
-function obj = determineChamberMetadata(obj)
+function determineChamberMetadata(obj)
 % DETERMINECHAMBERVOLUME
     
     import DataKit.importTableFile

@@ -33,22 +33,22 @@ classdef ecDeployment < GearKit.gearDeployment
             obj.timeOfInterestStart     = obj.timeOfInterestStart + duration(0,30,0);
             obj.timeOfInterestEnd       = obj.timeOfInterestEnd - duration(0,30,0);
            
-            obj     = readInternalMeasuringDevices(obj);
-            obj     = readAuxillaryMeasuringDevices(obj);
-            obj     = assignMeasuringDeviceMountingData(obj);
-            obj     = calibrateMeasuringDevices(obj);
+            readInternalMeasuringDevices(obj);
+            readAuxillaryMeasuringDevices(obj);
+            assignMeasuringDeviceMountingData(obj);
+            calibrateMeasuringDevices(obj);
             
-            obj     = readAnalyticalSamples(obj);
+            readAnalyticalSamples(obj);
         end
     end
     
 	% methods in seperate files
     methods (Access = public)
-       	obj	= runAnalysis(obj)
+       	runAnalysis(obj)
     end
     
     methods (Access = protected)
-        obj = readInternalMeasuringDevices(obj)
-        obj = planarFitCoordinateSystem(obj)
+        readInternalMeasuringDevices(obj)
+        planarFitCoordinateSystem(obj)
     end 
 end

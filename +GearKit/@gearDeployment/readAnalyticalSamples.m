@@ -1,4 +1,4 @@
-function obj = readAnalyticalSamples(obj)
+function readAnalyticalSamples(obj)
 % READANALYTICALSAMPLES
 
     import DataKit.importTableFile
