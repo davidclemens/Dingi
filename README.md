@@ -11,16 +11,28 @@
 
 MATLAB toolbox collection for data processing of marine research gear deployed by GEOMAR Helmholtz Centre for Ocean Research Kiel, Germany.
 
-This repository, especially the documentation is work in progress.
+This repository, especially the documentation is work in progress and testing and therefore reliability is in its infancy.
 
 Maintained by David Clemens (dclemens@geomar.de)
 
-## AnalysisKit
+## toolboxes
 
-## DataKit
+### AnalysisKit
+In AnalysisKit implements common types of analysis for `GearKit.gearDeployment` instances.
 
-## DebuggerKit
+### DataKit
+DataKit encompasses general data handling classes and definitions.
 
-## GearKit
+### DebuggerKit
+DebuggerKit has debugging tools that are used by the other toolboxes.
 
-## GraphKit
+### GearKit
+GearKit implements the representation of scientific gear that is used during measurement campaigns (field studies, cruises, lab work) in code. It has methods to import data from disk into a coherent and self describing format (`DataKit.dataPool`'s) that can be plotted, analysed and quality checked.
+
+Each type of gear is implemented as its own class that is a subclass to `GearKit.gearDeployment`.
+
+### GraphKit
+GraphKit holds functionality linked to plotting data.
+
+## Contributing
+If you want to contribute to this repository please [get in touch](mailto:dclemens@geomar.de) first to avoid duplicate work.
