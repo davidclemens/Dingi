@@ -80,6 +80,7 @@ classdef variable
     % overloaded methods
     methods (Access = public)
         disp(obj)
+        varargout = unique(obj,varargin)
     end
     
     methods (Static)
