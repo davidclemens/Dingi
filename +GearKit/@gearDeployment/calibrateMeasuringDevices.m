@@ -26,7 +26,7 @@ function obj = calibrateMeasuringDevices(obj)
         
         if isempty(maskMeasuringDevicesInd)
             warning('GearKit:gearDeployment:calibrateMeasuringDevices:measuringDeviceNotFound',...
-                'While trying to apply the following calibration data\n\t%s,\nthe measuring device was not found. Calibration is skipped.',strjoin(cellstr(uSignals{sig,:}),' '))
+                'While trying to apply the following calibration data\n\t%s,\nthe measuring device was not found. Calibration is skipped.',strjoin(cellstr(uSignals{sig,{'Cruise','Gear','Type','SerialNumber'}}),' '))
             continue
         elseif numel(maskMeasuringDevicesInd) > 1
 %             error('Test this scenario')
