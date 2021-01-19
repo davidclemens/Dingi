@@ -1,4 +1,4 @@
-classdef gearDeployment
+classdef gearDeployment < handle
     % gearDeployment  The superclass to all gear deployments
     % The GEARDEPLOYMENT class defines basic metadata on a gear deployment
     % and reads it upon construction.
@@ -22,9 +22,9 @@ classdef gearDeployment
     %	variables - List of variables available for this deployment
     %
     % gearDeployment Methods:
-    %	exportData - 
-    %	plot - 
-    %	runAnalysis - 
+    %	exportData -
+    %	plot -
+    %	runAnalysis -
     %
     % Copyright 2020 David Clemens (dclemens@geomar.de)
     %
@@ -60,26 +60,26 @@ classdef gearDeployment
         debugger DebuggerKit.Debugger % Debugging object
         dataVersion % version of data structure to be used
     end
-    
+
 	methods
         % CONSTRUCTOR METHOD
         function obj = gearDeployment(path,gearType,varargin)
-            
+
             % parse Name-Value pairs
             optionName          = {'DebugLevel'}; % valid options (Name)
             optionDefaultValue  = {'Info'}; % default value (Value)
             [debugLevel]     	= internal.stats.parseArgs(optionName,optionDefaultValue,varargin{:}); % parse function arguments
-            
+
             obj.debugger        = DebuggerKit.Debugger(...
                                     'DebugLevel',       debugLevel);
-            
+
             obj.gearType        = gearType;
-            
+
             % extract file metadata
-            obj	= getGearDeploymentMetadata(obj,path);
-            obj = readCalibrationData(obj);
+            getGearDeploymentMetadata(obj,path);
+            readCalibrationData(obj);
         end
-        
+
         % get methods
       	function variables = get.variables(obj)
             dataPoolInfo	= obj.data.info;
@@ -87,49 +87,48 @@ classdef gearDeployment
             dataPoolInfo   	= dataPoolInfo(mask,:);
             [~,uIdxa,uIdxb] = unique(dataPoolInfo(:,{'Id'}),'rows');
             variables       = dataPoolInfo(uIdxa,:);
-            
+
             % create dependant variable index touples (dpIdx,dvIdx)
             subs            = [[uIdxb,ones(size(uIdxb))];[uIdxb,2.*ones(size(uIdxb))]];
             val             = cat(1,dataPoolInfo{:,'DataPoolIndex'},dataPoolInfo{:,'VariableIndex'});
             tmp             = accumarray(subs,val,[size(variables,1),2],@(x) {x},{[]});
             variables.Index = arrayfun(@(r) cat(2,tmp{r,1},tmp{r,2}),1:size(tmp,1),'un',0)';
-            
+
             % create independant variableindex touples (dpIdx,ivIdx)
             variables{:,'IndependantVariable'}     = {{}};
             for vv = 1:size(variables,1)
                 maskDataPoolInfo    = uIdxb == vv;
-                variables{vv,'IndependantVariable'} = {dataPoolInfo{maskDataPoolInfo,'IndependantVariable'}}; 
+                variables{vv,'IndependantVariable'} = {dataPoolInfo{maskDataPoolInfo,'IndependantVariable'}};
             end
-            
+
             variables.Name  = categorical(cellstr(variables.Variable));
             variables       = variables(:,{'Name','Id','Type','Unit','Index','IndependantVariable'});
         end
     end
-    
+
 	% methods in seperate files
     methods (Access = public)
         data = fetchData(obj,variable,varargin)
         varargout = exportData(obj,parameter,filename,varargin)
         varargout = plot(obj,varargin)
         varargout = plotCalibrations(obj)
-        obj = markQualityFlags(obj)
+        markQualityFlags(obj)
         obj = loadobj(obj)
         obj = saveobj(obj)
-        obj = update(obj)
+        update(obj)
     end
     methods (Access = protected)
-        obj	= getGearDeploymentMetadata(obj,pathName)
-        obj	= assignMeasuringDeviceMountingData(obj)
-        obj	= readAuxillaryMeasuringDevices(obj)
-        obj = readCalibrationData(obj)
-        obj = calibrateMeasuringDevices(obj)
-        obj = readAnalyticalSamples(obj)
-        obj = applyMeasuringDeviceConfiguration(obj)
+        getGearDeploymentMetadata(obj,pathName)
+        assignMeasuringDeviceMountingData(obj)
+        readAuxillaryMeasuringDevices(obj)
+        readCalibrationData(obj)
+        calibrateMeasuringDevices(obj)
+        readAnalyticalSamples(obj)
     end
     methods (Access = protected, Abstract)
-        obj = readInternalMeasuringDevices(obj)
+        readInternalMeasuringDevices(obj)
     end
-    methods (Abstract) 
-        obj = runAnalysis(obj)
+    methods (Abstract)
+        runAnalysis(obj)
     end
 end

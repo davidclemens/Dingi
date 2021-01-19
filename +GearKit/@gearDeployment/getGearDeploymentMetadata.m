@@ -1,4 +1,4 @@
-function obj = getGearDeploymentMetadata(obj,pathName)
+function getGearDeploymentMetadata(obj,pathName)
 % GETGEARDEPLOYMENTMETADATA
 
     import DataKit.importTableFile

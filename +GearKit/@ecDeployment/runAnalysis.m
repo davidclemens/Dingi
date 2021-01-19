@@ -1,4 +1,4 @@
-function obj = runAnalysis(obj)
+function runAnalysis(obj)
 % RUNANALYSIS
 
     import AnalysisKit.eddyFluxAnalysis

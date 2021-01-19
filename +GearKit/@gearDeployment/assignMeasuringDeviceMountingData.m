@@ -1,4 +1,4 @@
-function obj = assignMeasuringDeviceMountingData(obj)
+function assignMeasuringDeviceMountingData(obj)
 % ASSIGNMEASURINGDEVICEMOUNTINGDATA
 
     import DataKit.importTableFile

@@ -1,4 +1,4 @@
-function obj = readCalibrationData(obj)
+function readCalibrationData(obj)
 % READCALIBRATIONDATA
     
     import DataKit.importTableFile

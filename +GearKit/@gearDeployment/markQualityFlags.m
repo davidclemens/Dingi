@@ -1,4 +1,4 @@
-function obj = markQualityFlags(obj)
+function markQualityFlags(obj)
 % MARKQUALITYFLAGS
 
     import GraphKit.waitForKeyPress
