@@ -9,6 +9,7 @@ classdef gearDeployment < handle
     %	gear - Gear id of the deployment
     %	station - Station id of the deployment
     %	areaId - Area or transect id of the deployment
+    %   gearId - Id string that uniquely identifies a gearDeploment
     %	longitude - Longitude of the deployment
     %	latitude - Latitude of the deployment
     %	depth - Depth of the deployment
@@ -52,9 +53,11 @@ classdef gearDeployment < handle
     end
     properties (Dependent)
         variables % List of variables available for this deployment
+        gearId % Id string that uniquely identifies a gearDeploment
     end
     properties (Hidden, Access = private, Constant)
         validGearTypes = {'BIGO','EC'} % List of valid gear types
+        validFileExtensions = {'.bigo','.ec'}
     end
     properties (Hidden)
         debugger DebuggerKit.Debugger % Debugging object
@@ -74,13 +77,19 @@ classdef gearDeployment < handle
                                     'DebugLevel',       debugLevel);
 
             obj.gearType        = gearType;
+            
+            if isempty(path)
+                return
+            end
 
             % extract file metadata
             getGearDeploymentMetadata(obj,path);
             readCalibrationData(obj);
         end
+    end
 
-        % get methods
+ 	% get methods
+ 	methods
       	function variables = get.variables(obj)
             dataPoolInfo	= obj.data.info;
             mask            = dataPoolInfo{:,'Type'} == 'Dependant';
@@ -104,6 +113,12 @@ classdef gearDeployment < handle
             variables.Name  = categorical(cellstr(variables.Variable));
             variables       = variables(:,{'Name','Id','Type','Unit','Index','IndependantVariable'});
         end
+        function gearId = get.gearId(obj)
+            gearId = strjoin(cat(1,cellstr(obj.cruise),cellstr(obj.gear)),'_');
+            if isempty(gearId)
+                gearId = 'generic_gearDeployment';
+            end
+        end
     end
 
 	% methods in seperate files
@@ -113,9 +128,12 @@ classdef gearDeployment < handle
         varargout = plot(obj,varargin)
         varargout = plotCalibrations(obj)
         markQualityFlags(obj)
-        obj = loadobj(obj)
-        obj = saveobj(obj)
+        filenames = save(obj,filename,varargin)
+        s = saveobj(obj)
         update(obj)
+    end
+    methods (Abstract, Static)
+        obj = loadobj(s)
     end
     methods (Access = protected)
         getGearDeploymentMetadata(obj,pathName)

@@ -67,4 +67,7 @@ classdef bigoDeployment < GearKit.gearDeployment
         determineChamberMetadata(obj)
         readProtocol(obj)
     end
+    methods (Static)
+        obj = loadobj(s)        
+    end
 end
