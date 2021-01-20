@@ -35,7 +35,6 @@ function data = fetchData(obj,variable,varargin)
                 'ForceCellOutput',  true,...
                 'GroupBy',          groupBy);
     
-    
     hasData         	= ~cellfun(@isempty,data.IndepInfo.Variable);
     hasTime             = false(size(data.IndepInfo.Variable));
     timeIdx            	= NaN(size(data.IndepInfo.Variable));
@@ -51,8 +50,8 @@ function data = fetchData(obj,variable,varargin)
         end
         
         if sum(hasTime) == 0
-            error('GearKit:gearDeployment:fetchData:noIndependantVariableTimeFound',...
-                'If ''DeploymentDataOnly'' or ''TimeOfInterestDataOnly'' are set to true, the requested variable is required to have an independant variable ''Time''.')
+%             warning('GearKit:gearDeployment:fetchData:noIndependantVariableTimeFound',...
+%                 'If ''DeploymentDataOnly'' or ''TimeOfInterestDataOnly'' are set to true, the requested variable(s) should have an independant variable ''Time''.')
         end
         
         for ii = 1:nOutputCells
