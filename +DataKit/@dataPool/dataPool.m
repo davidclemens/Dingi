@@ -58,6 +58,7 @@ classdef dataPool
         obj = applyCalibrationFunction(obj,poolIdx,variableIdx)
         [poolIdx,variableIdx] = findVariable(obj,varargin)
         obj = setFlag(obj,poolIdx,i,j,flag,highlow)
+        tf = isequal(objA,objB)
     end
     
     methods (Access = private)
