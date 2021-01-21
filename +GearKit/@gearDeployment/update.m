@@ -1,4 +1,4 @@
-function obj = update(obj)
+function update(obj)
     
-    obj.data = obj.data.update;
+    obj.data.update;
 end

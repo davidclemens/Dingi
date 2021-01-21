@@ -1,4 +1,4 @@
-function obj = readInternalMeasuringDevices(obj)
+function readInternalMeasuringDevices(obj)
 % READINTERNALSENSORS
     
 	if obj.debugger.debugLevel >= 'Info'

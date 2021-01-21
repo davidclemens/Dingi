@@ -117,6 +117,7 @@ function data = fetchData(obj,varargin)
 %           - DepData
 %           - IndepInfo
 %           - DepInfo
+%           - Flags
 %
 %         The structure of the 2 data fields is as follows, if the request
 %         results in the return of N variables Var1 to VarN grouped into M
@@ -124,6 +125,8 @@ function data = fetchData(obj,varargin)
 %         dp3 while VarN is found in dp5, dp6 and dp7.
 %         If, for example, dp3 doesn't contain independant variable indepI,
 %         it is filled with the appropriate empty value type.
+%         Flags has the same structure as DepData and holds dataFlag
+%         instances with the flags that applied to the dependant data.
 %
 %         data.DepData:
 %
@@ -265,9 +268,11 @@ function data = fetchData(obj,varargin)
     ] = parseInputs(obj,varargin{:});
 
 
+    objIndex    = obj.Index;
+    
     % test all criteria against the data pool index. They are combined by
     % the logical AND operation.
-    maskIndex   = true(size(obj.Index,1),1);
+    maskIndex   = true(size(objIndex,1),1);
     if ~isempty(variable)
         if isa(variable,'DataKit.Metadata.variable')
             % ok
@@ -276,8 +281,8 @@ function data = fetchData(obj,varargin)
         else
             variable    = DataKit.Metadata.variable.str2variable(variable);
         end
-        variableIsRequested     = ismember(obj.Index{:,'Variable'},variable2str(variable));
-        variableIsInDataPool    = ismember(variable2str(variable),obj.Index{:,'Variable'});
+        variableIsRequested     = ismember(objIndex{:,'Variable'},variable2str(variable));
+        variableIsInDataPool    = ismember(variable2str(variable),objIndex{:,'Variable'});
         maskIndex   = maskIndex & ...
                         variableIsRequested;
     else
@@ -285,70 +290,73 @@ function data = fetchData(obj,varargin)
     end
     if ~isempty(variableType)
         maskIndex   = maskIndex & ...
-                        any(obj.Index{:,'VariableType'} == variableType,2);
+                        any(objIndex{:,'VariableType'} == variableType,2);
     end
     if ~isempty(measuringDevice)
         maskIndex   = maskIndex & ...
-                        any(obj.Index{:,'MeasuringDevice'} == measuringDevice,2);
+                        any(objIndex{:,'MeasuringDevice'} == measuringDevice,2);
     end
     if ~isempty(measuringDeviceType)
         maskIndex   = maskIndex & ...
-                        any(cat(1,obj.Index{:,'MeasuringDevice'}.Type) == measuringDeviceType,2);
+                        any(cat(1,objIndex{:,'MeasuringDevice'}.Type) == measuringDeviceType,2);
     end
     if ~isempty(poolIdx)
         maskIndex   = maskIndex & ...
-                        any(obj.Index{:,'DataPool'} == poolIdx',2);
+                        any(objIndex{:,'DataPool'} == poolIdx',2);
     end
     if ~isempty(varIdx)
         maskIndex   = maskIndex & ...
-                        any(obj.Index{:,'VariableIndex'} == varIdx',2);
+                        any(objIndex{:,'VariableIndex'} == varIdx',2);
     end
     maskIndex       = maskIndex & ...
-                        obj.Index{:,'VariableType'} == 'Dependant';
+                        objIndex{:,'VariableType'} == 'Dependant';
     nIndexMatches   = sum(maskIndex);
 
     
  	data            = struct();
     data.IndepData	= {};
    	data.DepData    = {};
+   	data.Flags      = {};
     data.IndepInfo  = struct(...
-                        'Variable',             DataKit.Metadata.variable.empty,...
-                        'MeasurmentDevice',     GearKit.measuringDevice.empty);
+                        'Variable',             {{DataKit.Metadata.variable.empty}},...
+                        'PoolIdx',              [],...
+                        'VariableIdx',          []);
     data.DepInfo    = struct(...
                         'Variable',             DataKit.Metadata.variable.empty,...
-                        'MeasurmentDevice',     GearKit.measuringDevice.empty);
+                        'MeasuringDevice',      GearKit.measuringDevice.empty,...
+                        'PoolIdx',              [],...
+                        'VariableIdx',          []);    
     
-    
-    if nIndexMatches== 0
-        error('DataKit:dataPool:fetchData:noRequestedVariableIsAvailable',...
-            'TODO: no data to return scenario')
+    if nIndexMatches == 0
+        warning('DataKit:dataPool:fetchData:noDataForRequestedInputsAvailable',...
+            'No data matches the requested combination of inputs.')
+        return
     end
     if any(~variableIsInDataPool)
-        warning('DataKit:dataPool:fetchData:requestedVariableIsUnavailable',...
-            '\nTODO: The requested variable ''%s'' is not a member of the data pool.\nAvailable variables are:\n\t%s\n',char(variable(find(~variableIsInDataPool,1))),strjoin(unique(variable2str(obj.Index{:,'Variable'})),', '))
-        return
+        error('DataKit:dataPool:fetchData:requestedVariableIsUnavailable',...
+            '\nTODO: The requested variable ''%s'' is not a member of the data pool.\nAvailable variables are:\n\t%s\n',char(variable(find(~variableIsInDataPool,1))),strjoin(unique(variable2str(objIndex{:,'Variable'})),', '))
     end
 
     if isempty(variable)
-        [~,uIdx,~]  = unique(variable2str(obj.Index{maskIndex,'Variable'}));
-        variable    = obj.Index{maskIndex,'Variable'};
+        [~,uIdx,~]  = unique(variable2str(objIndex{maskIndex,'Variable'}));
+        variable    = objIndex{maskIndex,'Variable'};
         variable    = variable(uIdx);
     end
 
     nVariable   = numel(variable);
-    [~,uVariableIdx]    = ismember(variable2str(obj.Index{maskIndex,'Variable'}),variable2str(variable));
+    [~,uVariableIdx]    = ismember(variable2str(objIndex{maskIndex,'Variable'}),variable2str(variable));
 
-    [uMeasuringDevices,~,uMeasuringDevicesIdx]	= unique(obj.Index{maskIndex,'MeasuringDevice'});
+    [uMeasuringDevices,~,uMeasuringDevicesIdx]	= unique(objIndex{maskIndex,'MeasuringDevice'});
     nMeasuringDevices   = numel(uMeasuringDevices);
 
     % indices of index matches into the data pool
-    dp      = obj.Index{maskIndex,'DataPool'}; % data pool index
-    dv      = obj.Index{maskIndex,'VariableIndex'}; % dependant variable index
-    iv      = obj.Index{maskIndex,'IndependantVariableIndex'}; % independant variable(s) index
+    dp      = objIndex{maskIndex,'DataPool'}; % data pool index
+    dv      = objIndex{maskIndex,'VariableIndex'}; % dependant variable index
+    iv      = objIndex{maskIndex,'IndependantVariableIndex'}; % independant variable(s) index
     
     % fetch data
-	ddata 	= obj.fetchVariableData(dp,dv,...
-                'ReturnRawData',    returnRawData);
+	[ddata,flags]	= obj.fetchVariableData(dp,dv,...
+                        'ReturnRawData',    returnRawData);
     idata 	= cellfun(@(dp,iv) obj.fetchVariableData(dp,iv,'ReturnRawData',returnRawData),num2cell(dp),iv,'un',0);
     % fetch metadata
     dinfo   = arrayfun(@(dp,dv) obj.Info(dp).selectVariable(dv),dp,dv);
@@ -357,12 +365,15 @@ function data = fetchData(obj,varargin)
     
     % setup grouping parameters
 	switch groupBy
-        case {'','Variable'}
+        case ''
             groupIdx    = ones(nIndexMatches,1);
             nGroups     = 1;
         case 'MeasuringDevice'
             groupIdx    = uMeasuringDevicesIdx;
             nGroups     = nMeasuringDevices;
+        case 'Variable'
+            groupIdx    = (1:nIndexMatches)';
+            nGroups     = nIndexMatches;
 	end
     
     % Handle multiple unique independant variables:
@@ -392,11 +403,12 @@ function data = fetchData(obj,varargin)
     % following way.
     % idxDataOut  = accumarray([groupIdx,uVariableIdx],nData,[nGroups,nVariable],@(x) {cumsum(x)});
     idxDataOutIdx   = sub2ind([nGroups,nVariable],groupIdx,uVariableIdx);
-    idxDataOut      = reshape(arrayfun(@(i) cumsum(nData(idxDataOutIdx == i)),1:max(idxDataOutIdx),'un',0),[nGroups,nVariable]); % end indices of the all slots in those cells
+    idxDataOut      = reshape(arrayfun(@(i) cumsum(nData(idxDataOutIdx == i)),1:nGroups*nVariable,'un',0),[nGroups,nVariable]); % end indices of the all slots in those cells
     
     % initialize data outputs
     iData   = arrayfun(@(n) DataKit.getNotANumberValueForClass(cellstr(uIndepVariablesDataType),[n,1]),nDataOut,'un',0);
-    dData   = arrayfun(@(n) NaN(n,1),nDataOut,'un',0);    
+    dData   = arrayfun(@(n) NaN(n,1),nDataOut,'un',0);
+    Flags   = arrayfun(@(n) DataKit.Metadata.dataFlag(n,1),nDataOut,'un',0);
     
     % populate data outputs
   	for var = 1:nVariable
@@ -410,6 +422,7 @@ function data = fetchData(obj,varargin)
 
             [~,~,uIdx2uSlots] = unique(uIndepVariablesMatchIndex(any(uIndepVariablesMatchIndex == idxData',2)),'stable');
             dData{gr,var}   = cat(1,ddata{idxData}); % the dependant data that belongs to variable 'var' and group 'gr' only
+            Flags{gr,var}   = cat(1,flags{idxData}); % the dependant data that belongs to variable 'var' and group 'gr' only
             tmpIData        = cat(1,idata{idxData}); % the independant data that belongs to variable 'var' and group 'gr' only
             slotStart       = [0;idxDataOut{gr,var}(1:end - 1)] + 1; % start indices for that data in the output slot
             slotEnd         = idxDataOut{gr,var}; % end indices for that data in the output slot
@@ -419,34 +432,42 @@ function data = fetchData(obj,varargin)
                 slotRange   = (slotStart(uIdx2uSlots(ivar)):slotEnd(uIdx2uSlots(ivar)))';
                 iData{gr,var}{idxIVar(ivar)}(slotRange) = tmpIData{ivar}; % write data to appropriate slot
             end
-           
-            
         end
     end
    
     % assign metadata
-  	data.IndepInfo  = struct(...
-                        'Variable',             repmat({uIndepVariables},nGroups,nVariable),...
-                        'MeasuringDevice',      repmat({repmat(GearKit.measuringDevice(),1,nUIndepVariables)},nGroups,nVariable));
-    data.DepInfo    = struct(...
-                        'Variable',             repmat(num2cell(variable'),nGroups,1),...
-                        'MeasuringDevice',      repmat({GearKit.measuringDevice()},nGroups,nVariable));
+    data.IndepInfo.Variable         = cell(nGroups,nVariable);
+    data.IndepInfo.PoolIdx          = cell(nGroups,nVariable);
+    data.IndepInfo.VariableIdx      = cell(nGroups,nVariable);
+    data.DepInfo.Variable           = repmat(DataKit.Metadata.variable.undefined,nGroups,nVariable);
+    tmpInfoDepVar                   = repmat(variable',nGroups,1);
+    data.DepInfo.PoolIdx            = NaN(nGroups,nVariable);
+    data.DepInfo.VariableIdx        = NaN(nGroups,nVariable);
+    data.DepInfo.MeasuringDevice	= repmat(GearKit.measuringDevice(),nGroups,nVariable);
+    
+    data.IndepInfo.Variable(idxDataOutIdx)          = repmat({uIndepVariables},numel(idxDataOutIdx),1);
+    data.DepInfo.Variable(idxDataOutIdx)            = tmpInfoDepVar(idxDataOutIdx);
     
 	switch groupBy
-        case {'','Variable'}
+        case ''
         case 'MeasuringDevice'
-            tmp     = reshape(repmat(uMeasuringDevices,1,nVariable),[],1);
-            for ii = 1:nGroups*nVariable
-                data.DepInfo(ii).MeasuringDevice    = tmp(ii);
-            end
+            data.DepInfo.MeasuringDevice(idxDataOutIdx)	= cat(1,dinfo.VariableMeasuringDevice);
+        case 'Variable'
+            data.DepInfo.PoolIdx(idxDataOutIdx)         = dp;
+            data.DepInfo.VariableIdx(idxDataOutIdx)     = dv;
+            data.DepInfo.MeasuringDevice(idxDataOutIdx)	= cat(1,dinfo.VariableMeasuringDevice);
+            data.IndepInfo.PoolIdx(idxDataOutIdx)    	= cellfun(@(dp,iv) repmat(dp,1,numel(iv)),num2cell(dp),iv,'un',0);
+            data.IndepInfo.VariableIdx(idxDataOutIdx)	= iv;            
 	end
 
     if nVariable <= 1 && ~forceCellOutput
         data.IndepData	= iData{1};
         data.DepData    = dData{1};
+        data.Flags      = Flags{1};
     else
         data.IndepData	= iData;
         data.DepData    = dData;
+        data.Flags      = Flags;
     end
 end
 
@@ -465,11 +486,11 @@ function varargout = parseInputs(obj,varargin)
     defaultReturnRawData                    = false;
     defaultForceReturnIndependantVariable	= true;
     defaultRelativeTime                     = '';
-    defaultGroupBy                          = '';
+    defaultGroupBy                          = 'Variable';
     defaultForceCellOutput                  = false;
 
-    validRelativeTime   = {'milliseconds','seconds','minutes','hours','days','years'};
-    validGropuBy        = {'Variable','MeasuringDevice'}; % 'MeasuringDeviceType','DataPool','VariableType'
+    validRelativeTime   = {'','milliseconds','seconds','minutes','hours','days','years'};
+    validGropuBy        = {'','Variable','MeasuringDevice'}; % 'MeasuringDeviceType','DataPool','VariableType'
 
     checkVariableType         	= @(x) (isempty(x) && isa(x,'double')) || ((ischar(x) || iscellstr(x)) && ismember(x,DataKit.Metadata.validators.validInfoVariableType.listAllValidInfoVariableType));
     checkMeasuringDevice        = @(x) (isempty(x) && isa(x,'double')) || isa(x,'GearKit.measuringDevice');
@@ -478,8 +499,8 @@ function varargout = parseInputs(obj,varargin)
     checkVarIdx                 = @(x) (isempty(x) && isa(x,'double')) || (isvector(x) && isnumeric(x) && all(x <= max(obj.Index{:,'VariableIndex'})));
 
     isScalarLogical    	= @(x) isscalar(x) && islogical(x);
-    checkRelativeTime   = @(x) any(validatestring(x,validRelativeTime));
-    checkGroupBy        = @(x) any(validatestring(x,validGropuBy));
+    checkRelativeTime   = @(x) ischar(validatestring(x,validRelativeTime));
+    checkGroupBy        = @(x) ischar(validatestring(x,validGropuBy));
 
     addRequired(p,'obj')
     addOptional(p,'variable',defaultVariable,@checkVariable)
@@ -507,8 +528,8 @@ function varargout = parseInputs(obj,varargin)
     sort                            = p.Results.Sort;
     returnRawData                   = p.Results.ReturnRawData;
     forceReturnIndependantVariable  = p.Results.ForceReturnIndependantVariable;
-    relativeTime                    = p.Results.RelativeTime;
-    groupBy                         = p.Results.GroupBy;
+    relativeTime                    = validatestring(p.Results.RelativeTime,validRelativeTime);
+    groupBy                         = validatestring(p.Results.GroupBy,validGropuBy);
     forceCellOutput               	= p.Results.ForceCellOutput;
 
     if isnumeric(variable)

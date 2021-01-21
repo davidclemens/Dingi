@@ -1,4 +1,4 @@
-function obj = readProtocol(obj)
+function readProtocol(obj)
 % READPROTOCOL
 
     uChambers   = fields(obj.chamber);

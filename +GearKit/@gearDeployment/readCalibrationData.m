@@ -1,7 +1,12 @@
-function obj = readCalibrationData(obj)
+function readCalibrationData(obj)
 % READCALIBRATIONDATA
     
     import DataKit.importTableFile
+    
+    % support empty initializeation of gearDeployment subclasses
+    if isempty(obj.dataFolderInfo.rootFolder)
+        return
+    end
     
     path            = [obj.dataFolderInfo.rootFolder,'/',char(obj.cruise),'_',obj.gearType,'_measuringDevicesCalibration.xlsx'];
     tmp             = importTableFile(path);

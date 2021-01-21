@@ -1,4 +1,4 @@
-function obj = calibrateMeasuringDevices(obj)
+function calibrateMeasuringDevices(obj)
     
     import GearKit.*
     
@@ -26,7 +26,7 @@ function obj = calibrateMeasuringDevices(obj)
         
         if isempty(maskMeasuringDevicesInd)
             warning('GearKit:gearDeployment:calibrateMeasuringDevices:measuringDeviceNotFound',...
-                'While trying to apply the following calibration data\n\t%s,\nthe measuring device was not found. Calibration is skipped.',strjoin(cellstr(uSignals{sig,:}),' '))
+                'While trying to apply the following calibration data\n\t%s,\nthe measuring device was not found. Calibration is skipped.',strjoin(cellstr(uSignals{sig,{'Cruise','Gear','Type','SerialNumber'}}),' '))
             continue
         elseif numel(maskMeasuringDevicesInd) > 1
 %             error('Test this scenario')
@@ -40,7 +40,7 @@ function obj = calibrateMeasuringDevices(obj)
                                 'ReturnRawData',        true,...
                                 'GroupBy',              'MeasuringDevice');
                             
-            maskIndependantData     = data.IndepInfo.Variable == 'Time';
+            maskIndependantData     = data.IndepInfo.Variable{:} == 'Time';
             iData       = datenum(cat(1,data.IndepData{:,maskIndependantData}));
             dData       = cat(1,data.DepData);
             % write the mean signal over the calibration period to the calibration table
@@ -59,14 +59,47 @@ function obj = calibrateMeasuringDevices(obj)
         end
         
         % extract relevant calibration data from calibration table
+        calId           = obj.calibration{maskCalibration,'CalibrationTimeId'};
         timeCal         = obj.calibration{maskCalibration,'CalibrationTime'};
         timeOrigin      = datenum(min(timeCal));
         time          	= datenum(timeCal) - timeOrigin;
         signal          = obj.calibration{maskCalibration,'Signal'};
         value           = obj.calibration{maskCalibration,'Value'};
         
-        [~,linearCoefficients]	= fitLinear([time,signal],value);
-        calibrationFunction    	= @(Time,Signal) cat(2,ones(size(Time,1),1),Time - timeOrigin,Signal)*linearCoefficients;
+        calMethod   = 'curvedSurface';
+        switch calMethod
+            case 'flatSurface'
+                [~,linearCoefficients]	= fitLinear([time,signal],value);
+                calibrationFunction    	= @(Time,Signal) cat(2,ones(size(Time,1),1),Time - timeOrigin,Signal)*linearCoefficients;
+            case 'curvedSurface'
+                uCal    = unique(calId);
+                nCal    = numel(uCal);
+                m       = NaN(nCal,1);
+                b       = NaN(nCal,1);
+                t       = NaN(nCal,1);
+
+                for cal = 1:nCal
+                    maskInd = find(calId == cal);
+
+                    m(cal) = diff(value(maskInd))./diff(signal(maskInd));
+                    b(cal) = (value(maskInd(2)).*signal(maskInd(1)) - value(maskInd(1)).*signal(maskInd(2)))/(signal(maskInd(1)) - signal(maskInd(2)));
+                    t(cal) = mean(time(maskInd));
+                end
+                if nCal == 1
+                    calibrationFunction	= @(Time,Signal) m.*Signal + b;
+                elseif nCal == 2
+                    mSl     = diff(m)./diff(t);
+                    mInt    = (m(2)*t(1) - m(1)*t(2))/(t(1) - t(2));
+                    bSl     = diff(b)./diff(t);
+                    bInt    = (b(2)*t(1) - b(1)*t(2))/(t(1) - t(2));
+
+                    calibrationFunction	= @(Time,Signal) (mSl.*(Time - timeOrigin) + mInt).*Signal + (bSl.*(Time - timeOrigin) + bInt);
+                elseif nCal > 2
+                    error('not supported yet')                    
+                end
+            otherwise
+                error('unknown calibration method.')
+        end
         
         [~,valueVariableInfo] 	= DataKit.Metadata.variable.validateId(obj.calibration{find(maskCalibration,1),'ValueVariableId'});
         

@@ -1,4 +1,4 @@
-function obj = getGearDeploymentMetadata(obj,pathName)
+function getGearDeploymentMetadata(obj,pathName)
 % GETGEARDEPLOYMENTMETADATA
 
     import DataKit.importTableFile
@@ -6,6 +6,11 @@ function obj = getGearDeploymentMetadata(obj,pathName)
 	if obj.debugger.debugLevel >= 'Info'
         fprintf('INFO: extracting %s deployment metadata... \n',obj.gearType);
 	end
+    
+    % support empty initializeation of gearDeployment subclasses
+    if isempty(pathName)
+        return
+    end
     
     [~,obj.dataFolderInfo.gearName,~]  	= fileparts(pathName);
     obj.dataFolderInfo.dataFolder       = pathName;
