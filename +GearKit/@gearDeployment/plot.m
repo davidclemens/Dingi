@@ -81,6 +81,7 @@ function varargout = plot(obj,variables,varargin)
 
     %   Axis settings
     cmap                        = cbrewer('qual','Set1',7);
+    cmap                        = cmap(2:end,:); % remove red
 
     %   parse Name-Value pairs
     optionName          = {'FigureNameValue','AxisNameValue','DataDomain','LegendVisible','MarginOuter','MarginInner','RelativeTime','DimOutliers','DeploymentDataOnly','TimeOfInterestDataOnly'}; %   valid options (Name)
@@ -153,8 +154,6 @@ function varargout = plot(obj,variables,varargin)
     clf
     set(hfig,FigureNameValue{:})
 
-
-
     hsp                         = gobjects();
     hlgnd                       = gobjects();
     hp                          = gobjects();
@@ -209,14 +208,15 @@ function varargout = plot(obj,variables,varargin)
                         % plot rejected data
                         plot(XData(maskRejected),YData(maskRejected),...
                                     'LineStyle',    'none',...
-                                    'Marker',       '.',...
-                                    'Color',        0.7.*ones(1,3));
+                                    'Marker',       'o',...
+                                    'Color',        0.8.*ones(1,3));
                         % plot data
                         hptmp   = plot(XData(~maskRejected),YData(~maskRejected),...
                                     'LineWidth',    1.5);
                                 
-                        legendStr   = cat(1,legendStr,{[char(data.DepInfo.MeasuringDevice(gr).Type),' ',...
-                                                        char(data.DepInfo.MeasuringDevice(gr).WorldDomain)]});
+                        legendStr   = cat(1,legendStr,{[char(data.DepInfo.MeasuringDevice(gr).Type),', ',...
+                                                        char(data.DepInfo.MeasuringDevice(gr).DeviceDomain.Abbreviation),' (',...
+                                                        char(data.DepInfo.MeasuringDevice(gr).WorldDomain.Abbreviation),')']});
 
                         nhp     = numel(hptmp);
                         hp(iihp:iihp + nhp - 1,spi(row,col))	= hptmp;
@@ -236,8 +236,11 @@ function varargout = plot(obj,variables,varargin)
     %   only keep the first occurance of the labels that is non-empty
     yLabelString    = yLabelString(cumsum(~cellfun(@isempty,yLabelString),2) == 1);
     titleString     = titleString(cumsum(~cellfun(@isempty,titleString),1) == 1);
-
+    
     %   set appearance and labels
+    set([hsp(spi(1,:)).Title],...
+        {'String'},      titleString)
+    
     for col = 1:spnx
         gear	= col;
         for row = 1:spny
@@ -283,7 +286,7 @@ function varargout = plot(obj,variables,varargin)
 
     iilnk   = 1;
     for row = 1:spny
-        YLim            = getDataLimits(hp(:,spi(row,:)),'Y');
+        YLim            = cellfun(@(lim) lim + [-1 1].*0.05.*range(lim),getDataLimits(hp(:,spi(row,:)),'Y'),'un',0);
         set(hsp(spi(row,:)),...
             {'YLim'},   repmat(YLim,size(hsp(spi(row,:))))')
 
@@ -291,7 +294,7 @@ function varargout = plot(obj,variables,varargin)
         iilnk           = iilnk + 1;
     end
     for col = 1:spnx
-        XLim            = getDataLimits(hp(:,spi(:,col)),'X');
+        XLim            = cellfun(@(lim) lim + [-1 1].*0.05.*range(lim),getDataLimits(hp(:,spi(:,col)),'X'),'un',0);
         set(hsp(spi(:,col)),...
             {'XLim'},   repmat(XLim,size(hsp(spi(:,col))))')
 
