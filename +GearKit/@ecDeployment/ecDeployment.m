@@ -58,8 +58,4 @@ classdef ecDeployment < GearKit.gearDeployment
         readInternalMeasuringDevices(obj)
         planarFitCoordinateSystem(obj)
     end
-    
-    methods (Static)
-        obj = loadobj(s)        
-    end
 end

@@ -48,8 +48,7 @@ classdef gearDeployment < handle
         analysis % Data analysis object
         dataFolderInfo	= struct('gearName',   	char.empty,...
                                  'rootFolder',	char.empty,...
-                                 'dataFolder', 	char.empty,...
-                                 'saveFile',    char.empty);    % Structure that holds metadata on the gear deployment folder
+                                 'dataFolder', 	char.empty);    % Structure that holds metadata on the gear deployment folder
     end
     properties (Dependent)
         variables % List of variables available for this deployment
@@ -62,6 +61,9 @@ classdef gearDeployment < handle
     properties (Hidden)
         debugger DebuggerKit.Debugger % Debugging object
         dataVersion % version of data structure to be used
+        MatFile matlab.io.MatFile = ''
+        SaveFile char = char.empty
+        LoadFile char = char.empty
     end
 
 	methods
@@ -132,7 +134,8 @@ classdef gearDeployment < handle
         s = saveobj(obj)
         update(obj)
     end
-    methods (Abstract, Static)
+    methods (Static)
+        obj = load(filename)
         obj = loadobj(s)
     end
     methods (Access = protected)
