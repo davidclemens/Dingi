@@ -1,30 +1,38 @@
-function obj = loadobj(obj)
+function obj = loadobj(s)
     
-%     stack       = dbstack('-completenames');
-%     callerLine  = evalc('dbtype(stack(2).file,num2str(stack(2).line))');
-%    
-%     % isolate save arguments
-%     expression      = 'save(\(?)(\s?)(?<arguments>.+)(?(1)\));?\n$';
-%     saveArgument    = regexp(callerLine,expression,'names');
-%     saveArgument    = struct2cell(saveArgument)';
-%     
-%     % process save arguments
-%     expression          = '(?<operator1>\[?)(?<operator2>\''?)(?<filename>(?(operator1).+?)(?(operator2).+?|.+))(?(operator1)\])(?(operator2)\'')';
-%     filenameExpression 	= regexp(saveArgument,expression,'names','once');
-%     filenameExpression 	= cat(1,filenameExpression{:});
-%     operator            = {filenameExpression.operator1}';
-%     filenameExpression	= {filenameExpression.filename}';
-%     
-%     % build filename expression
-%     filenameIsArray = ismember(operator,'[');
-%     filenameExpression(filenameIsArray) = strcat({'['},filenameExpression(filenameIsArray),{']'});
-%     
-%     % evaluate filename expression in callers workspace
-%    	filename = evalin('caller',filenameExpression{:});
-%     
-%     % add default file extension if not there
-%     filename = regexprep(filename,'(/.+)(?!\.mat)$','$1.mat');
-%     
-%     
-%     obj.dataFolderInfo.saveFile = filename;
+    switch s.gearType
+        case 'BIGO'
+            obj         = GearKit.bigoDeployment();
+            metadata	= eval('?GearKit.bigoDeployment');
+        case 'EC'
+            obj         = GearKit.ecDeployment();
+            metadata	= eval('?GearKit.ecDeployment');
+        otherwise
+            error('GearKit:gearDeployment:loadobj:invalidGearType',...
+                'Invalid or unknown gearType ''%s''.',s.gearType)
+    end
+    
+    propertyNames   = {metadata.PropertyList.Name}';
+    needsLoading    = find(~any(cat(2,cat(1,metadata.PropertyList.Transient),...
+                                cat(1,metadata.PropertyList.Constant),...
+                                cat(1,metadata.PropertyList.Dependent)),2));    
+    
+    for pp = 1:numel(needsLoading)
+        obj.(propertyNames{needsLoading(pp)}) = s.(propertyNames{needsLoading(pp)});
+    end
+    
+    currentVersion  = getToolboxVersion();
+    savedVersion    = s.toolboxVersion;
+    deltaVersion    = compareSemanticVersion(currentVersion,savedVersion);
+    if deltaVersion == 0
+        % versions are equal
+    elseif deltaVersion == 1
+        % currentVersion > savedVersion
+        warning('GearKit:gearDeployment:loadobj:olderSavedVersion',...
+            'The %s deployment was saved with an older toolbox version (%s) than the current one (%s).',obj.gearType,savedVersion,currentVersion)
+    elseif deltaVersion == -1
+        % currentVersion < savedVersion
+        warning('GearKit:gearDeployment:loadobj:newerSavedVersion',...
+            'The %s deployment was saved with a newer toolbox version (%s) than the current one (%s).',obj.gearType,savedVersion,currentVersion)
+    end
 end

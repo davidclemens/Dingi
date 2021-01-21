@@ -1,5 +1,10 @@
 function varargout = plotCalibrations(obj)
     
+    import GraphKit.Colormaps.cmocean.cmocean
+    
+    if numel(obj) > 1
+        error('only works in a scalar context.')
+    end
     
     maskNonIdentityCalibrations = ~cellfun(@(f) strcmp(func2str(f),func2str(@(t,x) x)),obj.data.Index{:,'Calibration'});
     nNonIdentityCalibrations    = sum(maskNonIdentityCalibrations);
@@ -13,8 +18,6 @@ function varargout = plotCalibrations(obj)
     clf
     set(hfig,...
         'name', 'calibrations')
-    
-    
     
     hsp                         = gobjects();
     
@@ -60,9 +63,9 @@ function varargout = plotCalibrations(obj)
                     scatter3(XData1,YData1,ZData1,'.k')
                     hcalpoints = scatter3(XData2,YData2,ZData2,[],datenum(XData2),...
                                     'Marker',           'o',...
-                                    'MarkerFaceColor',  'flat');
-                    view([90 0])
-%                     caxis([min(datenum(XData2)),max(datenum(XData2))])
+                                    'MarkerFaceColor',  'r',...
+                                    'MarkerEdgeColor',  'k');
+                    view([0 0])
                     
                     xlabel([XData1Info.Abbreviation,' (',XData1Info.Unit,')'])
                     ylabel(['raw (',YData1Info.Abbreviation,', ',YData1Info.Unit,')'])
@@ -77,6 +80,8 @@ function varargout = plotCalibrations(obj)
                     ZData2  = reshape(func(datenum(XDataGrid(:)),YDataGrid(:)),n,n);
                     surf(XDataGrid,YDataGrid,ZData2,ZData2)
                     shading interp
+                    caxis([min(datenum(ZData2(:))),max(datenum(ZData2(:)))])
+                    cmocean('thermal');
                 end
         end
     end

@@ -28,7 +28,7 @@ classdef variable
         Density                     (25,	'dens.',        'ρ',        'Density',                          '',                 'kg m⁻³',	'kg(\sm(⁻³|-3)|(/m|/m³)',       NaN,	'')
         VelocityU                   (26,	'velU',         'u',        'Velocity, u',                      '',                 'm s⁻¹',	'm(\ss(⁻¹|-1)|/s)',             NaN,	'')
         VelocityV                   (27,	'velV',         'v',        'Velocity, v',                      '',                 'm s⁻¹',	'm(\ss(⁻¹|-1)|/s)',             NaN,	'')
-        VelocityW                   (28,	'velU',         'w',        'Velocity, w',                      '',                 'm s⁻¹',	'm(\ss(⁻¹|-1)|/s)',             NaN,	'')
+        VelocityW                   (28,	'velW',         'w',        'Velocity, w',                      '',                 'm s⁻¹',	'm(\ss(⁻¹|-1)|/s)',             NaN,	'')
         Chloride                    (29,	'Cl⁻',          'Cl⁻',      'Chloride',                         'Concentration',	'mM',       'mmol(\sL(⁻¹|-1)|/L)',          54,     '')
         Bromide                     (30,	'Br⁻',          'Br⁻',      'Bromide',                          'Concentration',	'µM',       'mmol(\sL(⁻¹|-1)|/L)',          161330,	'')
         Sulfate                     (31,	'SO₄²⁻',        'SO₄²⁻',	'Sulfate',                          'Concentration',	'mM',       'mmol(\sL(⁻¹|-1)|/L)',          50,     '')
@@ -40,6 +40,12 @@ classdef variable
         Z                           (37,    'z',            'z',        'Euclidean dimension 3, Z',        	'Length',       	'm',        'm',                            NaN,    '')
         Longitude                 	(38,    'lon.',         'λ',        'Longitude',                        'Angle',            '°E',       '°',                            NaN,    '')
         Latitude                   	(39,    'lat.',         'φ',        'Latitude',                         'Angle',            '°N',       '°',                            NaN,    '')
+        DurationMs                 	(40,    'dur.',         'Δt',       'Duration',                         'Duration',         'ms',       'm(illi)?s(econd)?s?',          NaN,    '')
+        DurationS                 	(41,    'dur.',         'Δt',       'Duration',                         'Duration',         's',        's(econd)?s?',                  NaN,    '')
+        DurationMin                	(42,    'dur.',         'Δt',       'Duration',                         'Duration',         'min',      'min(ute)?s?',                  NaN,    '')
+        DurationH                	(43,    'dur.',         'Δt',       'Duration',                         'Duration',         'h',        'h(our)?s?',                    NaN,    '')
+        DurationD                	(44,    'dur.',         'Δt',       'Duration',                         'Duration',         'd',        'd(ay)?s?',                     NaN,    '')
+        DurationY                	(45,    'dur.',         'Δt',       'Duration',                         'Duration',         'y',        'y(ear)?s?',                    NaN,    '')
     end
     properties
         Id uint16
