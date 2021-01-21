@@ -12,11 +12,19 @@ classdef dataBrushWindow < handle
         Charts
     end
     methods
-        function obj = dataBrushWindow(hfig)
+        function obj = dataBrushWindow(hfig,varargin)
+            
+            import internal.stats.parseArgs
+            
+            % parse Name-Value pairs
+            optionName          = {'Color'}; % valid options (Name)
+            optionDefaultValue  = {[1 0 0]}; % default value (Value)
+            [Color]     	= parseArgs(optionName,optionDefaultValue,varargin{:}); % parse function arguments
             
             obj.Figure  = hfig;
             obj.Brush   = brush(obj.Figure);
             obj.Brush.Enable = obj.EnableBrushing;
+            obj.Brush.Color = Color;
         end
     end
     
