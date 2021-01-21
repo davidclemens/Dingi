@@ -1,4 +1,20 @@
 language: matlab
+env:
+  global:
+    - CC_TEST_REPORTER_ID=b709f07598662ca3a4688ae6b684b094d599e28dc92358526b47be5756593d33
+    - CC_TEST_REPORTER=$TRAVIS_BUILD_DIR/cc-test-reporter
 matlab:
+  - R2020a  # Earliest supported MATLAB release on Travis CI
   - latest  # Default MATLAB release on Travis CI
+
+before_script:
+  # download code climate test reporter, make it executable & run the before build
+  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-0.6.3-linux-amd64 > $CC_TEST_REPORTER
+  - chmod +x $CC_TEST_REPORTER
+  - $CC_TEST_REPORTER before-build
 script: matlab -batch 'Tests.runTestsRemotely'
+after_script:
+  # run the code climate after build
+  #- $CC_TEST_REPORTER format-coverage $TRAVIS_BUILD_DIR/cobertura.xml --input-type cobertura --output $TRAVIS_BUILD_DIR/codeclimate.json -d
+  #- if [[ "$TRAVIS_TEST_RESULT" == 0 ]]; then $CC_TEST_REPORTER upload-coverage --input $TRAVIS_BUILD_DIR/codeclimate.json --id "$CC_TEST_REPORTER_ID" -d; fi
+  - $CC_TEST_REPORTER after-build --id $CC_TEST_REPORTER_ID --exit-code $TRAVIS_TEST_RESULT -d

@@ -1,4 +1,4 @@
-function data = fetchVariableData(obj,poolIdx,variableIdx,varargin)
+function [data,flags] = fetchVariableData(obj,poolIdx,variableIdx,varargin)
 % fetchVariableData  Gathers data from a datapool object by index
 %   FETCHVARIABLEDATA returns the data within a datapool object by allowing
 %   to specify pairs of pool index and variable index.
@@ -6,6 +6,7 @@ function data = fetchVariableData(obj,poolIdx,variableIdx,varargin)
 %   Syntax
 %     data = FETCHVARIABLEDATA(dp,poolIdx,variableIdx)
 %     data = FETCHVARIABLEDATA(__,Name,Value)
+%     [data,flags] = FETCHVARIABLEDATA(__)
 %
 %   Description
 %     data = FETCHVARIABLEDATA(dp,poolIdx,variableIdx) gathers data of all
@@ -13,6 +14,9 @@ function data = fetchVariableData(obj,poolIdx,variableIdx,varargin)
 %
 %     data = FETCHVARIABLEDATA(__,Name,Value) specifies additional
 %       properties using one or more Name,Value pair arguments.
+%
+%     [data,flags] = FETCHVARIABLEDATA(__) additionally returns the data
+%       flags associated with the data.
 %
 %   Example(s)
 %     data = FETCHVARIABLEDATA(dp,2,1)
@@ -44,6 +48,12 @@ function data = fetchVariableData(obj,poolIdx,variableIdx,varargin)
 %         ForceCellOutput is set to true, each one is returned within a
 %         cell.
 %
+%     flags - returned data flags
+%       2D matrix | cell
+%         If poolIdx and variableIdx are scalar, the data is returned as a
+%         dataFlag matrix. If they are not scalar or ForceCellOutput is set
+%         to true, each one is returned within a cell.
+%
 %
 %   Name-Value Pair Arguments
 %     ReturnRawData - return raw data
@@ -57,11 +67,13 @@ function data = fetchVariableData(obj,poolIdx,variableIdx,varargin)
 %         data is uniform.
 %
 %
-%   See also DATAPOOL
+%   See also DATAPOOL, FINDVARIABLE
 %
 %   Copyright 2020 David Clemens (dclemens@geomar.de)
 %
     
+    import DataKit.arrayhom
+
     % parse Name-Value pairs
     optionName          = {'ReturnRawData','ForceCellOutput'}; % valid options (Name)
     optionDefaultValue  = {false,true}; % default value (Value)
@@ -94,19 +106,8 @@ function data = fetchVariableData(obj,poolIdx,variableIdx,varargin)
     sPoolIdx        = size(poolIdx);
     sVariableIdx    = size(variableIdx);
     
-    % grow vectors to match if necessary 
-    if sPoolIdx(1) == 1 && sVariableIdx(1) > 1
-        poolIdx = repmat(poolIdx,sVariableIdx(1),1);
-    elseif sPoolIdx(1) > 1 && sVariableIdx(1) == 1
-        variableIdx = repmat(variableIdx,sPoolIdx(1),1);
-    elseif sPoolIdx(1) == 1 && sVariableIdx(1) == 1
-        % ok
-    elseif sPoolIdx(1) > 1 && sVariableIdx(1) == sPoolIdx(1)
-        % ok
-    else
-        error('DataKit:dataPool:fetchVariableData:mismatchingIdxShape',...
-            'The shape of the index vectors mismatch.')
-    end
+    % grow vectors to match if necessary
+    [poolIdx,variableIdx] = arrayhom(poolIdx,variableIdx);
     nVariables  = numel(variableIdx);
     
     if returnRawData
@@ -115,6 +116,8 @@ function data = fetchVariableData(obj,poolIdx,variableIdx,varargin)
         data = arrayfun(@(p,v) obj.Data{p}(:,v),poolIdx,variableIdx,'un',0);
     end
     origin  = arrayfun(@(p,v) obj.Info(p).VariableOrigin{v},poolIdx,variableIdx,'un',0);
+    
+    flags   = arrayfun(@(p,v) obj.Flag{p}(:,v),poolIdx,variableIdx,'un',0);
     
     for ii = 1:numel(poolIdx)
         switch obj.Info(poolIdx(ii)).VariableReturnDataType(variableIdx(ii))
@@ -130,5 +133,6 @@ function data = fetchVariableData(obj,poolIdx,variableIdx,varargin)
     
     if nVariables == 1 && ~forceCellOutput
         data    = data{:};
+        flags   = flags{:};
     end
 end

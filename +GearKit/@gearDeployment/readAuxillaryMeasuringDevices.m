@@ -1,4 +1,4 @@
-function obj = readAuxillaryMeasuringDevices(obj)
+function readAuxillaryMeasuringDevices(obj)
 % READAUXILLARYSENSORS
 
     import GearKit.*

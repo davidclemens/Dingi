@@ -59,6 +59,7 @@ classdef info
         obj = removeVariable(obj,ind)
         tbl = info2table(obj)
         obj = selectVariable(obj,variableIdx)
+        tf = isequal(objA,objB)
     end
     methods (Access = private)
         obj = validateProperties(obj)

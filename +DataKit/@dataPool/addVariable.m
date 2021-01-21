@@ -73,7 +73,7 @@ function obj = addVariable(obj,pool,variable,data,uncertainty,varargin)
 %         Sets the variable description. Has to have the same size as
 %         variable.
 %
-%     variableMeasuringDevice - variable measuring device
+%     VariableMeasuringDevice - variable measuring device
 %       GearKit.measuringDevice
 %         Sets the variable measuring device. Has to have the same size as
 %         variable.
@@ -83,6 +83,8 @@ function obj = addVariable(obj,pool,variable,data,uncertainty,varargin)
 %   Copyright 2020 David Clemens (dclemens@geomar.de)
 %
 
+    import DataKit.Metadata.dataFlag
+    
     if ischar(variable)
         variable    = cellstr(variable);
     end
@@ -117,21 +119,24 @@ function obj = addVariable(obj,pool,variable,data,uncertainty,varargin)
     newDataHasErrorInfo	= ~isempty(uncertainty);
     
     if nVariables == 0
-        %   there is no data in the data pool yet
+        % there is no data in the data pool yet
      	obj.DataRaw{pool}  	= data;
      	obj.Data{pool}      = data;
+    	obj.Flag{pool}      = dataFlag(size(data,1),size(data,2));
         if newDataHasErrorInfo
             obj.Uncertainty{pool}   = sparse(uncertainty);
         elseif ~newDataHasErrorInfo
             obj.Uncertainty{pool}   = sparse(zeros(size(data)));
         end
     else
+        % there is already data in the data pool
         if nSamplesNew ~= nSamples
             error('DataKit:dataPool:addVariable:invalidNumberOfSamples',...
                 'New data needs to have the same number of samples (%u) as the existing data in the data pool. It has %u instead.',nSamples,nSamplesNew)
         end
         obj.DataRaw{pool} 	= cat(2,obj.DataRaw{pool},data);
      	obj.Data{pool}      = cat(2,obj.Data{pool},data);
+    	obj.Flag{pool}      = cat(2,obj.Flag{pool},dataFlag(size(data,1),size(data,2)));
         if newDataHasErrorInfo
             obj.Uncertainty{pool}	= cat(2,obj.Uncertainty{pool},sparse(uncertainty));
         elseif ~newDataHasErrorInfo
