@@ -141,6 +141,7 @@ classdef sparseBitmask
         obj = horzcat(varargin)
         obj = vertcat(varargin)
         varargout = size(obj,varargin)
+        tf = eq(obj1,obj2)
     end
     
     methods % Get methods

@@ -52,5 +52,6 @@ classdef dataFlag < DataKit.Metadata.sparseBitmask
         obj = cat(dim,varargin)
         obj = horzcat(varargin)
         obj = vertcat(varargin)
+        tf = eq(obj1,obj2)
     end
 end
