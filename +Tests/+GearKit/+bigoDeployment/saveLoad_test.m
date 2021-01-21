@@ -108,7 +108,7 @@ classdef (SharedTestFixtures = { ...
     methods (Test)
         function testLoadedDeployment(testCase)
             loadStruct = load(testCase.Filenames{1},'-mat');
-            loadedBigoDeployment = loadStruct.varSave;
+            loadedBigoDeployment = loadStruct.obj;
             
             
             metadata        = eval(['?',class(loadedBigoDeployment)]);
