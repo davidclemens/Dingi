@@ -191,7 +191,15 @@ function markQualityFlags(obj)
         
         oo = oo + 1;
     end
-
+    close(hfig);
+    
+    fprintf('Saving to disk ...\n');
+    for oo = 1:nObj
+        obj(oo).MatFile.Properties.Writable = true;
+        obj(oo).MatFile.obj = obj(oo);
+        obj(oo).MatFile.Properties.Writable = false;
+    end
+    fprintf('Saving to disk ... done\n');
 end
 
 function h = initializeGearDeploymentBrushFigureWindow(Variable)
