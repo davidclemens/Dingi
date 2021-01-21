@@ -118,7 +118,7 @@ function markQualityFlags(obj)
 
                     XData           = data.IndepData{src}{1};
                     YData           = data.DepData{src};
-                    FData           = data.Flags{src};
+                    FData           = data.Flags{src} == 'MarkedRejected'; % dataFlag
 
                     if numel(XData(:)) < 50
                         marker  = 'o';
@@ -127,10 +127,14 @@ function markQualityFlags(obj)
                     end
                     
                     displayName     = [uniqueVariableList{indUniqueVariableList(dv),'Variable'}.Abbreviation,' (',data.DepInfo.MeasuringDevice(src).DeviceDomain.Abbreviation,')'];
-                    plot(hax,XData,YData,...
+                    
+                    htmp = plot(hax,XData,YData,...
                         'Tag',              displayName,...
                         'UserData',         cat(2,data.DepInfo.PoolIdx(src),data.DepInfo.VariableIdx(src)),...
-                        'Marker',           marker)
+                        'Marker',           marker,...
+                        'LineWidth',        2);
+                    htmp.MarkerFaceColor    = htmp.MarkerEdgeColor;
+                    htmp.BrushData          = double(FData');
 
                     legendEntries           = cat(1,legendEntries,{displayName});
                     if isempty(xLimits{col})
@@ -143,16 +147,12 @@ function markQualityFlags(obj)
                 legend(hax,legendEntries,...
                     'Location',         'best');
             end
-            try
             set(hsp(spi(2:nVariable(col) + 1,col)),...
                 'XLim',         xLimits{col} + [-1 1].*0.01.*range(xLimits{col}))
-            catch
-                
-            end
         end
         maskNoData = any(isnan(yLimits),2);
         set(hsp(~maskNoData),...
-            {'YLim'},    	num2cell(yLimits(~maskNoData,:) + [-1 1].*0.01.*range(yLimits(~maskNoData,:),2),2))
+            {'YLim'},    	num2cell(yLimits(~maskNoData,:) + [-1 1].*0.05.*range(yLimits(~maskNoData,:),2),2))
 
         TightFig(hfig,hsp(1:spnx*spny),spi,hfig.UserData.PaperPosition,hfig.UserData.MarginOuter,hfig.UserData.MarginInner);
 
@@ -192,7 +192,7 @@ function markQualityFlags(obj)
         oo = oo + 1;
     end
     close(hfig);
-    
+    %%{
     fprintf('Saving to disk ...\n');
     for oo = 1:nObj
         obj(oo).MatFile.Properties.Writable = true;
@@ -200,6 +200,9 @@ function markQualityFlags(obj)
         obj(oo).MatFile.Properties.Writable = false;
     end
     fprintf('Saving to disk ... done\n');
+    %}
+    
+    fprintf('All done\n');
 end
 
 function h = initializeGearDeploymentBrushFigureWindow(Variable)
@@ -218,6 +221,7 @@ function h = initializeGearDeploymentBrushFigureWindow(Variable)
     Menubar                     = 'figure';
     Toolbar                     = 'auto';
     cmap                        = cbrewer('qual','Set1',7);
+    cmap                        = cmap(2:end,:); % remove red as it is similar to the marking color
     cMapAlternating             = [  7 170 188;...
                                    127 127 127]./255;
     FontSize                    = 16;
@@ -241,7 +245,7 @@ function h = initializeGearDeploymentBrushFigureWindow(Variable)
                         'Toolbar',   	Toolbar);
     PaperWidth                  = 22.4;
     PaperHeight                 = 18.05;
-    PaperPos                    = maxFigureSize.*[1/3 1];
+    PaperPos                    = maxFigureSize.*[1/2 1];
     MarginOuter                 = 0.5;
     MarginInner                 = 0;
 
@@ -276,7 +280,8 @@ function h = initializeGearDeploymentBrushFigureWindow(Variable)
                                     'TitleFontWeight',          'normal',...
                                     'TickDir',                  'out',...
                                     'XMinorTick',               'on',...
-                                    'YMinorTick',               'on');
+                                    'YMinorTick',               'on',...
+                                    'ColorOrder',               cmap);
             if row > 1
                 switch char(IndependantVariable{iv})
                     case 'Time'
