@@ -9,7 +9,7 @@ classdef ecDeployment < GearKit.gearDeployment
 %	ecDeployment -
 %
 %
-% Copyright 2020 David Clemens (dclemens@geomar.de)
+% Copyright (c) 2020-2021 David Clemens (dclemens@geomar.de)
 
 	properties
     end

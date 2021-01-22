@@ -3,7 +3,7 @@ classdef VectorProbeCheckData < ECToolbox.NortekDataStructure
 %   The PROBECHECKDATA class interprets and holds the probe check data of
 %   Vector and Vectrino instruments
 %
-% Copyright 2020 David Clemens (dclemens@geomar.de)
+% Copyright (c) 2020-2021 David Clemens (dclemens@geomar.de)
 
     properties
         nSamplesPerBeam % Number of samples per beam

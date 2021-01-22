@@ -2,7 +2,7 @@ classdef Debugger
 % DEBUGGER Class of a debugger object
 %   The DEBUGGER class holds debugging settings.
 %
-% Copyright 2020 David Clemens (dclemens@geomar.de)
+% Copyright (c) 2020-2021 David Clemens (dclemens@geomar.de)
 
     properties
         debugLevel = categorical(2,1:4,{'Error','Warning','Info','Verbose'},'Ordinal',true); % Set debugging level
@@ -43,7 +43,7 @@ classdef Debugger
         % 
         % See also
         %
-        % Copyright 2020 David Clemens (dclemens@geomar.de)
+        % Copyright (c) 2020-2021 David Clemens (dclemens@geomar.de)
         
             % parse Name-Value pairs
             optionName          = {'DebugLevel'}; % valid options (Name)

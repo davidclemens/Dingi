@@ -3,7 +3,7 @@ classdef HardwareConfiguration < ECToolbox.NortekDataStructure
 %   The HARDWARECONFIGURATION class interprets and holds all information
 %   of the hardware configureation data structure.
 %
-% Copyright 2020 David Clemens (dclemens@geomar.de)
+% Copyright (c) 2020-2021 David Clemens (dclemens@geomar.de)
 
     properties
         serialNumber % Serial number of the Nortek instrument
@@ -55,7 +55,7 @@ classdef HardwareConfiguration < ECToolbox.NortekDataStructure
         % 
         % See also
         %
-        % Copyright 2020 David Clemens (dclemens@geomar.de)
+        % Copyright (c) 2020-2021 David Clemens (dclemens@geomar.de)
             
             % call superclass constructor
             obj                         = obj@ECToolbox.NortekDataStructure(NortekInstFileObj);

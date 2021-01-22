@@ -21,7 +21,7 @@ function meta = getNortekFileStructureMetadata()
 % 
 % See also
 %
-% Copyright 2020 David Clemens (dclemens@geomar.de)
+% Copyright (c) 2020-2021 David Clemens (dclemens@geomar.de)
 
     metaTVarN   = {'Id',    'IdHex',	'SizeWords',    'SizeBytes',	'HasSizeInfoInData',	'Type',                     'Name'};
     metaT       = {NaN,     '05',       NaN,            48,             true,                   'generic',                  'Hardware Configuration';...

@@ -94,7 +94,7 @@ classdef sparseBitmask
         %
         %   See also SPARSE, DATAFLAG
         %
-        %   Copyright 2021 David Clemens (dclemens@geomar.de)
+        %   Copyright (c) 2021 David Clemens (dclemens@geomar.de)
         %
 
             switch nargin

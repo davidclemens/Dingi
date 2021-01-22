@@ -2,7 +2,7 @@ classdef NortekDataStructure
 % NORTEKDATASTRUCTURE Superclass to all binary data structures
 %   The NORTEKDATASTRUCTURE class has methods to read the binary data.
 %
-% Copyright 2020 David Clemens (dclemens@geomar.de)
+% Copyright (c) 2020-2021 David Clemens (dclemens@geomar.de)
 
 	properties (Hidden)
         structureStart % Start of data structure (bytes)
@@ -40,7 +40,7 @@ classdef NortekDataStructure
         % 
         % See also
         %
-        % Copyright 2020 David Clemens (dclemens@geomar.de)
+        % Copyright (c) 2020-2021 David Clemens (dclemens@geomar.de)
             maskDataStructure       = NortekFileObj.fileIndex.Id == obj.structureId;
             nDataStructures         = sum(maskDataStructure);
             if nDataStructures > 0            

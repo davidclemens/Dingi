@@ -3,7 +3,7 @@ classdef UserConfiguration < ECToolbox.NortekDataStructure
 %   The USERCONFIGURATION class interprets and holds all information of the
 %   user configureation data structure.
 %
-% Copyright 2020 David Clemens (dclemens@geomar.de)
+% Copyright (c) 2020-2021 David Clemens (dclemens@geomar.de)
 
     properties
         T1 % transmit pulse length
@@ -109,7 +109,7 @@ classdef UserConfiguration < ECToolbox.NortekDataStructure
         % 
         % See also
         %
-        % Copyright 2020 David Clemens (dclemens@geomar.de)
+        % Copyright (c) 2020-2021 David Clemens (dclemens@geomar.de)
             
             % call superclass constructor
             obj                             = obj@ECToolbox.NortekDataStructure(NortekFileObj);

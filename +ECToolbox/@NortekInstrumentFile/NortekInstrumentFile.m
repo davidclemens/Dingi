@@ -4,7 +4,7 @@ classdef (ConstructOnLoad) NortekInstrumentFile
 %   and reads the general data structures Harware, Head and User 
 %   Configuration that are common to all Nortek binary files.
 %
-% Copyright 2020 David Clemens (dclemens@geomar.de)
+% Copyright (c) 2020-2021 David Clemens (dclemens@geomar.de)
     
 	properties
         fileInfo        = struct('name',    '',...
@@ -77,7 +77,7 @@ classdef (ConstructOnLoad) NortekInstrumentFile
         % 
         % See also
         %
-        % Copyright 2020 David Clemens (dclemens@geomar.de)
+        % Copyright (c) 2020-2021 David Clemens (dclemens@geomar.de)
             
             % parse Name-Value pairs
             optionName          = {'DebugLevel','Reindex'}; % valid options (Name)

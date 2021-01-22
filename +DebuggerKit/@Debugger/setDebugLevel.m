@@ -27,7 +27,7 @@ function obj = setDebugLevel(obj,debugLevel)
 % 
 % See also
 %
-% Copyright 2020 David Clemens (dclemens@geomar.de)
+% Copyright (c) 2020-2021 David Clemens (dclemens@geomar.de)
 
     [im,imInd]       = ismember(debugLevel,obj.debugLevels);
     if ~im

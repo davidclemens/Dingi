@@ -37,7 +37,7 @@ function r = compareSemanticVersion(verA,verB)
 %
 %   See also <a href="https://semver.org">Symanitic versioning website</a>
 %
-%   Copyright 2021 David Clemens (dclemens@geomar.de)
+%   Copyright (c) 2021 David Clemens (dclemens@geomar.de)
 %
 
     if ~ischar(verA) || ~ischar(verB)

@@ -2,7 +2,7 @@ classdef NortekVecFile < ECToolbox.NortekInstrumentFile
 % NORTEKVECFILE Class for a Nortek binary .vec file
 %   The NORTEKVECFILE class has methods to read the binary data.
 %
-% Copyright 2020 David Clemens (dclemens@geomar.de)
+% Copyright (c) 2020-2021 David Clemens (dclemens@geomar.de)
 
     properties
         vectorProbeCheckData
@@ -104,7 +104,7 @@ classdef NortekVecFile < ECToolbox.NortekInstrumentFile
         % 
         % See also
         %
-        % Copyright 2020 David Clemens (dclemens@geomar.de)
+        % Copyright (c) 2020-2021 David Clemens (dclemens@geomar.de)
         
             % call superclass constructor
             obj	= obj@ECToolbox.NortekInstrumentFile(fullFilename,varargin{:});
