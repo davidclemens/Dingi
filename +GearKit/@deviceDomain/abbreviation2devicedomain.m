@@ -1,7 +1,7 @@
 function obj = abbreviation2devicedomain(abbr)
 
 	if ~(iscellstr(abbr) || ischar(abbr))
-        error('GearKit:deviceDomain:abbreviation2devicedomain:invalidInputType',...
+        error('Dingi:GearKit:deviceDomain:abbreviation2devicedomain:invalidInputType',...
             'Input must be cellstr or char.')
 	end
     if ischar(abbr)
@@ -15,7 +15,7 @@ function obj = abbreviation2devicedomain(abbr)
     [im,imInd]    = ismember(abbr,allDeviceDomainAbbreviations);
     
     if sum(im) ~= nAbbr
-        error('GearKit:deviceDomain:abbreviation2devicedomain:invalidAbbreviation',...
+        error('Dingi:GearKit:deviceDomain:abbreviation2devicedomain:invalidAbbreviation',...
             '''%s'' is an invalid abbreviation. Valid abbreviations are:\n\t%s\n',abbr{find(~im,1)},strjoin(allDeviceDomainAbbreviations,', '))
     end
     

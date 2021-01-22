@@ -10,7 +10,7 @@ function result = runTestForPackage(package)
         package = cellstr(package);
     elseif iscellstr(package)
     else
-        error('Tests:runTestForPackage:invalidInputType',...
+        error('Dingi:Tests:runTestForPackage:invalidInputType',...
             '''package'' must either be a char or cellstr.')
     end
     

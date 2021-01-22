@@ -9,7 +9,7 @@ function [bool,info] = validateId(id)
             rethrow(ME)
         end
     else
-        error('DataKit:Metadata:variable:validateId:invalidIdDataType',...
+        error('Dingi:DataKit:Metadata:variable:validateId:invalidIdDataType',...
             '''id'' has to be either a uint16 vector or be convertible to uint16.')
     end
     

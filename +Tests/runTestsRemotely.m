@@ -42,7 +42,7 @@ function fixCoberturaFile(filename)
     lengthAfter     = numel(fixedText{1});
     lengthDiff      = lengthAfter - lengthBefore;
     if lengthDiff ~= -1
-        warning('Tests:runTestsRemotely:fixCoberturaFile:invalidFileChange',...
+        warning('Dingi:Tests:runTestsRemotely:fixCoberturaFile:invalidFileChange',...
             'Invalid change of characters detected. Detected %i, expected -1.',lengthDiff)
     end
     frewind(fileId);

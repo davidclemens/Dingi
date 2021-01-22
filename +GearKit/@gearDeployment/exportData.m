@@ -3,7 +3,8 @@ function varargout = exportData(obj,parameter,filename,varargin)
 
     import DataKit.writeTableAndHeader
 
-    error('TODO: not fully written yet.')
+    error('Dingi:GearKit:gearDeployment:exportData:TODO',...
+      'TODO: not fully written yet.')
 
     % parse Name-Value pairs
     optionName          = {'SensorIndex','SensorId','Raw','DeploymentDataOnly','RelativeTime'}; % valid options (Name)
@@ -18,7 +19,7 @@ function varargout = exportData(obj,parameter,filename,varargin)
 
 
     if ~ischar(filename)
-        error('GearKit:gearDeployment:exportData:wrongDatatype',...
+        error('Dingi:GearKit:gearDeployment:exportData:wrongDatatype',...
             'The export filename has to be char.')
     end
 
@@ -34,7 +35,7 @@ function varargout = exportData(obj,parameter,filename,varargin)
                     rethrow(ME);
                 end
             otherwise
-                error('GearKit:gearDeployment:exportData:unknownExportFileExtension',...
+                error('Dingi:GearKit:gearDeployment:exportData:unknownExportFileExtension',...
                     'The filextension ''%s'' for the export is not implemented yet.',ext)
         end
         fprintf('Data was sucessfully exported to:\n\t%s\n',filename)

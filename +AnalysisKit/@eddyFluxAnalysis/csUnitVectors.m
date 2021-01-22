@@ -25,7 +25,7 @@ function [i,j,k] = csUnitVectors(obj)
                 [i(win,:),j(win,:)]   = csPlanarFitUnitVectorIJ(velocityMean(win,:),k(win,:));
             end
         otherwise
-            error('GearKit:eddyFluxAnalysis:csUnitVectors:unknownCoordinateSystemRotationMethod',...
+            error('Dingi:GearKit:eddyFluxAnalysis:csUnitVectors:unknownCoordinateSystemRotationMethod',...
                 'The coordinate system rotation method ''%s'' is not defined.',obj.coordinateSystemRotationMethod)
             %{
             figure(3)

@@ -111,15 +111,15 @@ classdef (SharedTestFixtures = { ...
         function testInvalidBit(testCase)
             testCase.verifyError(@() ...
                 setBit(testCase.Bitmask,1,1,53,1),...
-                'DataKit:Metadata:sparseBitmask:setBit:bitPositionExceedsLimit')
+                'Dingi:DataKit:Metadata:sparseBitmask:setBit:bitPositionExceedsLimit')
             testCase.verifyError(@() ...
                 setBit(testCase.Bitmask,1,1,0,1),...
-                'DataKit:Metadata:sparseBitmask:setBit:bitPositionExceedsLimit')
+                'Dingi:DataKit:Metadata:sparseBitmask:setBit:bitPositionExceedsLimit')
         end
         function testIndexExceedsSize(testCase)
             testCase.verifyWarning(@() ...
                 setBit(testCase.Bitmask,testCase.Sz(1) + 1,1,1,1),...
-                'DataKit:Metadata:sparseBitmask:setBit:subscriptsExceedBitmaskSize')
+                'Dingi:DataKit:Metadata:sparseBitmask:setBit:subscriptsExceedBitmaskSize')
         end
         function testSetBit(testCase,i,j,bit,hl)
             import matlab.unittest.fixtures.SuppressedWarningsFixture
@@ -130,7 +130,7 @@ classdef (SharedTestFixtures = { ...
                 [i2,j2,bit2,hl2]	= arrayhom(i,j,bit,hl);
             catch ME
                 switch ME.identifier
-                    case 'DataKit:arrayhom:invalidNumberOfSingletonDimensions'
+                    case 'Dingi:DataKit:arrayhom:invalidNumberOfSingletonDimensions'
                         return
                     otherwise
                         rethrow(ME)
@@ -142,7 +142,7 @@ classdef (SharedTestFixtures = { ...
             dsz                 = diff(cat(1,szOld,szNew));
             if any(dsz > 0)
                 testCase.applyFixture(...
-                    SuppressedWarningsFixture('DataKit:Metadata:sparseBitmask:setBit:subscriptsExceedBitmaskSize'));
+                    SuppressedWarningsFixture('Dingi:DataKit:Metadata:sparseBitmask:setBit:subscriptsExceedBitmaskSize'));
             end
             
             % get actual value

@@ -152,7 +152,7 @@ classdef (SharedTestFixtures = { ...
                 sb	= sparseBitmask(i,j,bit);
             catch ME
                 switch ME.identifier
-                    case 'DataKit:arrayhom:invalidNumberOfSingletonDimensions'
+                    case 'Dingi:DataKit:arrayhom:invalidNumberOfSingletonDimensions'
                         return
                     otherwise
                         rethrow(ME)

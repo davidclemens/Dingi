@@ -8,7 +8,7 @@ function obj = loadobj(s)
             obj         = GearKit.ecDeployment();
             metadata	= eval('?GearKit.ecDeployment');
         otherwise
-            error('GearKit:gearDeployment:loadobj:invalidGearType',...
+            error('Dingi:GearKit:gearDeployment:loadobj:invalidGearType',...
                 'Invalid or unknown gearType ''%s''.',s.gearType)
     end
     
@@ -28,11 +28,11 @@ function obj = loadobj(s)
         % versions are equal
     elseif deltaVersion == 1
         % currentVersion > savedVersion
-        warning('GearKit:gearDeployment:loadobj:olderSavedVersion',...
+        warning('Dingi:GearKit:gearDeployment:loadobj:olderSavedVersion',...
             'The %s deployment was saved with an older toolbox version (%s) than the current one (%s).',obj.gearType,savedVersion,currentVersion)
     elseif deltaVersion == -1
         % currentVersion < savedVersion
-        warning('GearKit:gearDeployment:loadobj:newerSavedVersion',...
+        warning('Dingi:GearKit:gearDeployment:loadobj:newerSavedVersion',...
             'The %s deployment was saved with a newer toolbox version (%s) than the current one (%s).',obj.gearType,savedVersion,currentVersion)
     end
 end

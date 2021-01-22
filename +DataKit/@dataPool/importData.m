@@ -17,7 +17,7 @@ function obj = importData(obj,importType,path)
             obj = readNortekVector(obj,path);
         otherwise
             [~,validImportTypes]   = enumeration('GearKit.measuringDeviceType');
-            error('DataKit:dataPool:importData:unknownImportType',...
+            error('Dingi:DataKit:dataPool:importData:unknownImportType',...
                     'Unknown import type ''%s''. Skipped.\nValid import types are:\n\t%s\n',importType,strjoin(validImportTypes,'\n\t'))
     end
 end

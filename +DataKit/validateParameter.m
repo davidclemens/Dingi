@@ -7,7 +7,7 @@ function [parameterIsValid,varargout] = validateParameter(parameter,varargin)
     if ischar(parameter)
         parameter	= cellstr(parameter);
     elseif ~iscellstr(parameter)
-        error('DataKit:validateParameter:invalidParameterType',...
+        error('Dingi:DataKit:validateParameter:invalidParameterType',...
               'The parameter(s) to validate has to be specified as a char or cellstr.')
     end
     nRequestedParameters  	= numel(parameter);
@@ -21,11 +21,11 @@ function [parameterIsValid,varargout] = validateParameter(parameter,varargin)
 	if ischar(Unit)
         Unit	= cellstr(Unit);
     elseif ~iscellstr(Unit)
-        error('DataKit:validateParameter:invalidUnitType',...
+        error('Dingi:DataKit:validateParameter:invalidUnitType',...
               'The units of parameter(s) to validate have to be specified as a char or cellstr.')
     end
     if numel(Unit) ~= nRequestedParameters
-        error('DataKit:validateParameter:sameNumberOfUnitsAndParametersRequired',...
+        error('Dingi:DataKit:validateParameter:sameNumberOfUnitsAndParametersRequired',...
             'The same number of units and parameters have to be specified')
     end
     unitsProvided   = ~all(ismember(Unit,'<unspecified>'));

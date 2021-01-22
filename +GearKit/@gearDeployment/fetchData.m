@@ -20,13 +20,13 @@ function data = fetchData(obj,variable,varargin)
  
     % input check: obj
 	if numel(obj) > 1
-        error('GearKit:gearDeployment:fetchData:objSize',...
+        error('Dingi:GearKit:gearDeployment:fetchData:objSize',...
          	'fetchData only works in a scalar context. To fetch data from multiple instances, loop over all.')
 	end
     
     % input check: deploymentDataOnly & timeOfInterestDataOnly
     if deploymentDataOnly + timeOfInterestDataOnly > 1
-        error('GearKit:gearDeployment:fetchData:modalDataOnly',...
+        error('Dingi:GearKit:gearDeployment:fetchData:modalDataOnly',...
             'Only DeploymentDataOnly OR TimeOfInterestDataOnly can be requested. Not both at the same time.')
     end
     
@@ -45,12 +45,12 @@ function data = fetchData(obj,variable,varargin)
     if (deploymentDataOnly || timeOfInterestDataOnly)
         if isempty(obj.timeOfInterestStart) || isempty(obj.timeOfInterestEnd) || ...
            isnat(obj.timeOfInterestStart) || isnat(obj.timeOfInterestEnd)
-            error('GearKit:gearDeployment:fetchData:timeOfInterestMissing',...
+            error('Dingi:GearKit:gearDeployment:fetchData:timeOfInterestMissing',...
                 'There is no information on the time of interest for %s.',[char(obj.gear),' (',char(obj.cruise),')'])
         end
         
         if sum(hasTime) == 0
-%             warning('GearKit:gearDeployment:fetchData:noIndependantVariableTimeFound',...
+%             warning('Dingi:GearKit:gearDeployment:fetchData:noIndependantVariableTimeFound',...
 %                 'If ''DeploymentDataOnly'' or ''TimeOfInterestDataOnly'' are set to true, the requested variable(s) should have an independant variable ''Time''.')
         end
         
@@ -103,7 +103,7 @@ function data = fetchData(obj,variable,varargin)
                 time        = cellfun(@datenum,timeAsDatetime,'un',0);
                 newVariable = DataKit.Metadata.variable.Time;
             otherwise
-                error('GearKit:gearDeployment:fetchData:unknownRelativeTimeIdentifier',...
+                error('Dingi:GearKit:gearDeployment:fetchData:unknownRelativeTimeIdentifier',...
                     '''%s'' is an unknown relative time identifier.',relativeTime)
         end
         for tt = 1:nHasTime

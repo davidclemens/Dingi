@@ -1,7 +1,7 @@
 function n = ndigits(a)
     
     if mod(10,1) ~= 0
-        error('DataKit:ndigits:onlyIntegers',...
+        error('Dingi:DataKit:ndigits:onlyIntegers',...
             'Only integers are allowed.')
     end
     

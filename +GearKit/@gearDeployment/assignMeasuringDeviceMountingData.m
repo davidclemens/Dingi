@@ -15,7 +15,7 @@ function assignMeasuringDeviceMountingData(obj)
     catch ME
         switch ME.identifier
             case 'MATLAB:xlsread:FileNotFound'
-                warning('GearKit:gearDeployment:assignMeasuringDeviceMountingData:missingMeasuringDevicesMetadata',...
+                warning('Dingi:GearKit:gearDeployment:assignMeasuringDeviceMountingData:missingMeasuringDevicesMetadata',...
                     'no measuring devices metadata file found for %s %s',char(obj.cruise),char(obj.gear))
             otherwise
                 rethrow(ME);
@@ -31,7 +31,7 @@ function assignMeasuringDeviceMountingData(obj)
             obj.data = setMeasuringDeviceProperty(obj.data,dp,mdi,'WorldDomain',char(measuringDeviceData{maskMatches(md,:),'WorldDomain'}));
             obj.data = setMeasuringDeviceProperty(obj.data,dp,mdi,'DeviceDomain',char(measuringDeviceData{maskMatches(md,:),'DeviceDomain'}));
         else
-            warning('GearKit:gearDeployment:assignMeasuringDeviceMountingData:noMountingLocationFound',...
+            warning('Dingi:GearKit:gearDeployment:assignMeasuringDeviceMountingData:noMountingLocationFound',...
                 'There is no mounting data defined in\n\t%s\nfor\n\t%s\n',measuringDeviceDataFile,strjoin({obj.sensors(md).id,obj.sensors(md).serialNumber},' '))
         end
     end

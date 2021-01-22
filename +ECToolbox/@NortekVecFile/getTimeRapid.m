@@ -10,7 +10,8 @@ function timeRapid = getTimeRapid(obj)
     if isempty(timeRapidRaw)
         timeRapid       = obj.timeSlow(1) + duration([zeros(obj.nSamplesRapid,2),(0:1/obj.sampleRateRapid:(obj.nSamplesRapid - 1)/obj.sampleRateRapid)']);
     else
-        warning('not implemented yet')
+        warning('ECToolbox:NortekVecFile:getTimeRapid:TODO',...
+          'TODO: not properly implemented yet.')
         timeRapid       = obj.timeSlow(1) + duration([zeros(obj.nSamplesRapid,2),(0:1/obj.sampleRateRapid:(obj.nSamplesRapid - 1)/obj.sampleRateRapid)']);
     end
 end

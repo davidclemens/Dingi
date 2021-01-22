@@ -18,7 +18,7 @@ function obj = readHoboLightLogger(obj,path)
 
     fId             = fopen(tmpFile,'r');
     if fId == -1
-        warning('DataKit:dataPool:readHoboLightLogger:unableToOpenFile',...
+        warning('Dingi:DataKit:dataPool:readHoboLightLogger:unableToOpenFile',...
                 'Unable to read data in:\n\t ''%s''',path)
         return
     end

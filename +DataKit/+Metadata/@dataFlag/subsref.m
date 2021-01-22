@@ -39,6 +39,7 @@ function varargout = subsref(obj,s)
 %             end
             varargout = {builtin('subsref',obj,s)};
         otherwise
-            error('Not a valid indexing expression')
+            error('Dingi:DataKit:Metadata:dataFlag:subsref:invalidIndexingExpression',...
+              'Not a valid indexing expression')
     end
 end

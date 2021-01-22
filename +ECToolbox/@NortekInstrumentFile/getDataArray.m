@@ -13,7 +13,7 @@ function data = getDataArray(obj,structId,offsets,type)
 %       'data'.
 %
 %
-% Example(s) 
+% Example(s)
 %   data = GETDATAARRAY(16,5:6,'uint16')
 %   data = GETDATAARRAY(16,[5,8],'uint16')
 %   data = GETDATAARRAY(16,[5,8:9,20],'int32')
@@ -34,21 +34,22 @@ function data = getDataArray(obj,structId,offsets,type)
 %
 % Name-Value Pair Arguments
 %
-% 
+%
 % See also
 %
 % Copyright (c) 2020-2021 David Clemens (dclemens@geomar.de)
 
 
     % TODO implement input checks
-    
+
     typeLength  = regexpi(type,'u?int(\d{1,2})','tokens');
     typeLength  = str2double(typeLength{:}{:})/8; % bytes
 
     if typeLength ~= numel(offsets)
-        error('The number of offsets given doesn''t match the data type.')
+        error('ECToolbox:NortekInstrumentFile:getDataArray:invalidNumberOfOffsets',...
+          'The number of offsets given doesn''t match the data type.')
     end
-    
+
     getInd      = reshape(obj.fileIndex.OffsetInBytes(obj.fileIndex.Id == structId)' + offsets(:),1,[])';
     badChecksum = ~obj.fileIndex.ChecksumOk(obj.fileIndex.Id == structId);
     data        = ECToolbox.bytecast(obj.rawData(getInd),'L',type);

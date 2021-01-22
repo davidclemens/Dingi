@@ -6,7 +6,7 @@ function markQualityFlags(obj)
 
     nObj            = numel(obj);
     RelativeTime    = '';
-    
+
     availableVariables = table();
     for oo = 1:nObj
 %         newTable            = obj(oo).variables;
@@ -17,19 +17,20 @@ function markQualityFlags(obj)
     end
     availableVariables  = availableVariables(availableVariables{:,'Type'} == 'Dependant',:);
     availableVariables{:,'NIndependantVariables'} = cellfun(@numel,availableVariables{:,'IndependantVariableIndex'});
-    
+
     if any(availableVariables{:,'NIndependantVariables'} > 1)
-        error('Not implemented yet')
+        error('Dingi:GearKit:gearDeployment:markQualityFlags:TODO',...
+          'TODO: not implemented yet.')
     end
-    
+
     % get unique dependant-independant variable combinations
     [uVariableId,uInd1,uInd]	= unique(cat(2,availableVariables(:,'Id'),table(cellfun(@num2str,availableVariables{:,'IndependantVariableId'},'un',0))),'rows');
     uVariableId                 = cat(2,uVariableId(:,1),availableVariables(uInd1,{'IndependantVariableId','IndependantVariable'}));
-    
+
     % list information about those combinations
     [~,variableInfo]            = DataKit.Metadata.variable.validateId(uVariableId{:,'Id'});
     variableInfo{:,'IndependantVariable'}   = cellfun(@(iv) strjoin({iv(:).Abbreviation},', '),uVariableId{:,'IndependantVariable'},'un',0);
-    
+
     % let the user select which of those combinations to pick
     debugMode   = false;
     if debugMode
@@ -46,14 +47,14 @@ function markQualityFlags(obj)
     end
     % resulting list
     uniqueVariableList	= availableVariables(uInd1(selection),:);
-    
+
     [~,uIndepVariableInd1,uIndepVariableInd2] = unique(cellfun(@num2str,uniqueVariableList{:,'IndependantVariableId'},'un',0));
     uniqueIndependantVariableList = uniqueVariableList{uIndepVariableInd1,'IndependantVariable'};
     nIndependantVariable    = size(uniqueIndependantVariableList,1);
-    
+
     nVariable          = accumarray(uIndepVariableInd2,ones(size(uIndepVariableInd2)));
     nVariableMax       = max(nVariable);
-    
+
     oo = 1;
     while oo <= nObj
         % initialize figure
@@ -77,13 +78,13 @@ function markQualityFlags(obj)
                 if dv > nVariable(col)
                     continue
                 end
-                
+
                 % initialize
                 legendEntries   = cell.empty;
-                
+
                 % select current axes handle
                 hax = hsp(spi(row,col));
-                
+
                 % fetch data
                 try
                     data        = obj(oo).fetchData(uniqueVariableList{indUniqueVariableList(dv),'Id'},...
@@ -91,11 +92,11 @@ function markQualityFlags(obj)
                                     'GroupBy',              'Variable');
                 catch ME
                     switch ME.identifier
-                        case 'DataKit:dataPool:fetchData:noRequestedVariableIsAvailable'
+                        case 'Dingi:DataKit:dataPool:fetchData:noRequestedVariableIsAvailable'
                             % print no data label on axis
                             text(hax,0.5,0.5,'no data',...
                                 'Units',        'normalized')
-                            
+
                             if isempty(xLimits{col})
                                 xLimits{col}	= hax.XLim;
                             else
@@ -113,7 +114,8 @@ function markQualityFlags(obj)
                     nIndepVariables     = numel(data.IndepData{src});
 
                     if nIndepVariables > 1
-                        error('Not implemented yet.')
+                        error('Dingi:GearKit:gearDeployment:markQualityFlags:TODO',...
+                          'TODO: not implemented yet.')
                     end
 
                     XData           = data.IndepData{src}{1};
@@ -125,9 +127,9 @@ function markQualityFlags(obj)
                     else
                         marker  = '.';
                     end
-                    
+
                     displayName     = [uniqueVariableList{indUniqueVariableList(dv),'Variable'}.Abbreviation,' (',data.DepInfo.MeasuringDevice(src).DeviceDomain.Abbreviation,')'];
-                    
+
                     htmp = plot(hax,XData,YData,...
                         'Tag',              displayName,...
                         'UserData',         cat(2,data.DepInfo.PoolIdx(src),data.DepInfo.VariableIdx(src)),...
@@ -176,19 +178,19 @@ function markQualityFlags(obj)
         poolIdx         = poolIdx(:,1);
         brushData       = cellfun(@find,hbw.Charts{:,'brushData'},'un',0);
         nBrushData      = cellfun(@numel,brushData);
-        
+
         % grow vectors to match brush data
         poolIdxAll      = arrayfun(@(n,p) p.*ones(n,1),nBrushData,poolIdx,'un',0);
         poolIdxAll      = cat(1,poolIdxAll{:});
         variableIdxAll	= arrayfun(@(n,v) v.*ones(n,1),nBrushData,variableIdx,'un',0);
         variableIdxAll	= cat(1,variableIdxAll{:});
         sampleIdx       = reshape(cat(2,brushData{:}),[],1);
-        
+
        	newFlags        = 3; % flag id to be set ('manually rejected')
-        
+
         % write flags to the gearDeployment instance
         obj(oo).data    = setFlag(obj(oo).data,poolIdxAll,sampleIdx,variableIdxAll,newFlags,1);
-        
+
         oo = oo + 1;
     end
     close(hfig);
@@ -201,7 +203,7 @@ function markQualityFlags(obj)
     end
     fprintf('Saving to disk ... done\n');
     %}
-    
+
     fprintf('All done\n');
 end
 
@@ -210,7 +212,7 @@ function h = initializeGearDeploymentBrushFigureWindow(Variable)
     [~,uInd1,uInd2]         = unique(cellfun(@num2str,Variable{:,'IndependantVariableId'},'un',0));
     IndependantVariable     = Variable{uInd1,'IndependantVariable'};
     nIndependantVariable    = size(IndependantVariable,1);
-    
+
     nVariable          = accumarray(uInd2,ones(size(uInd2)));
     nVariableMax       = max(nVariable);
     [~,variableInfo]   = DataKit.Metadata.variable.validateId(Variable{:,'Id'});
@@ -263,7 +265,7 @@ function h = initializeGearDeploymentBrushFigureWindow(Variable)
 
     yLabels     = {''};
     yLabels     = cat(1,yLabels,strcat(variableInfo{:,'Abbreviation'},{' ('},cellstr(variableInfo{:,'Unit'}),{')'}));
-    
+
 %     hlnk	= repmat(linkprop(gobjects(),''),1,nIndependantVariable);
     for col = 1:spnx
         iv = col;
@@ -287,7 +289,7 @@ function h = initializeGearDeploymentBrushFigureWindow(Variable)
                     case 'Time'
                         hsp(spi(row,col)).XAxis = matlab.graphics.axis.decorator.DatetimeRuler;
                     otherwise
-                end 
+                end
             end
             if dv > nVariable(col) + 1
                 set(hsp(spi(row,col)),...
@@ -296,15 +298,15 @@ function h = initializeGearDeploymentBrushFigureWindow(Variable)
             if dv == nVariable(col) + 1
                 xlabel(char(IndependantVariable{iv}))
             end
-            if row > 1 && row <= nVariable(col) + 1 
-                ylabel(yLabels{indDv(dv) + 1}) 
+            if row > 1 && row <= nVariable(col) + 1
+                ylabel(yLabels{indDv(dv) + 1})
             end
         end
         set(hsp(spi(1:nVariable(col),col)),...
             'XColor',       'none')
         set([hsp(spi(1:nVariable(col),col)).XAxis],...
             'Visible',  	'off')
-        
+
         hlnk(col)    = linkprop(hsp(spi(2:nVariable(col) + 1,col)),{'XLim'});
     end
 
