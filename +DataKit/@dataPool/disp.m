@@ -27,7 +27,7 @@ function disp(obj)
 %
 %   See also DATAPOOL
 %
-%   Copyright 2020 David Clemens (dclemens@geomar.de)
+%   Copyright (c) 2020-2021 David Clemens (dclemens@geomar.de)
 %
     if obj.PoolCount == 0
         fprintf('\tempty dataPool instance\n')

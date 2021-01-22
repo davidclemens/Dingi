@@ -42,7 +42,7 @@ function varargout = arrayhom(varargin)
 %
 %   See also 
 %
-%   Copyright 2021 David Clemens (dclemens@geomar.de)
+%   Copyright (c) 2021 David Clemens (dclemens@geomar.de)
 %
 
 
