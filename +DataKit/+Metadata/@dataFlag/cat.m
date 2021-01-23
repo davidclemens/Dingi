@@ -4,7 +4,7 @@ function obj = cat(dim,varargin)
     
     isaDataFlag = cellfun(@(in) isa(in,'DataKit.Metadata.dataFlag'),varargin);
     if ~all(isaDataFlag)
-        error('DataKit:Metadata:dataFlag:cat:invalidInputType',...
+        error('Dingi:DataKit:Metadata:dataFlag:cat:invalidInputType',...
             'All inputs must be data flags')
     end
     

@@ -4,7 +4,7 @@ function obj = cat(dim,varargin)
     
     isaSparseBitmask = cellfun(@(in) isa(in,'DataKit.Metadata.sparseBitmask'),varargin);
     if ~all(isaSparseBitmask)
-        error('DataKit:Metadata:sparseBitmask:cat:invalidInputType',...
+        error('Dingi:DataKit:Metadata:sparseBitmask:cat:invalidInputType',...
             'All inputs must be sparse bitmasks')
     end
     

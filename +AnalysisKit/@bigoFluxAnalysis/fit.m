@@ -1,6 +1,6 @@
 function obj = fit(obj,varargin)
 % FIT
-    
+
     fitObj      = cell(obj.nFits,1);
     fitGOF      = cell(obj.nFits,1);
     fitOutput   = cell(obj.nFits,1);
@@ -19,7 +19,8 @@ function obj = fit(obj,varargin)
                                 'Normalize',        'off',...
                                 'Exclude',          obj.excluded{obj.indSource(ff),obj.indParameter(ff)});
             case 'sigmoidal'
-                error('not fully implemented yet.')
+                error('Dingi:AnalysisKit:bigoFluxAnalysis:fit:notImplementedYet',...
+                'Not fully implemented yet.')
 
                 fitType  	= fittype('Cmax/(1 + exp(-k*(t - t0))) + Coff',...
                                 'dependent',        'C',...
@@ -31,7 +32,7 @@ function obj = fit(obj,varargin)
 
 
                 fitOptions	= fitoptions(...
-                                'Method',			'NonlinearLeastSquares',... 
+                                'Method',			'NonlinearLeastSquares',...
                                 'Upper',			FitLimits(1,:),...
                                 'StartPoint',		FitLimits(2,:),...
                                 'Lower',			FitLimits(3,:),...
@@ -39,17 +40,17 @@ function obj = fit(obj,varargin)
                                 'Normalize',        'off',...
                                 'Exclude',          ExcludeMask);
             otherwise
-                error('AnalysisKit:bigoFluxAnalysis:fit:unknownFitType',...
+                error('Dingi:AnalysisKit:bigoFluxAnalysis:fit:unknownFitType',...
                     'The fit type ''%s'' is not defined yet.',obj.fitType)
         end
         XData   = obj.timeRaw{obj.indSource(ff)};
         YData   = obj.fluxParameterRaw{obj.indSource(ff),obj.indParameter(ff)};
-        
-        
-        
+
+
+
         [fitObj{ff},fitGOF{ff},fitOutput{ff}] = fit(XData,YData,fitType,fitOptions);
     end
-    
+
     obj.fitObjects  = fitObj;
     obj.fitGOF      = fitGOF;
     obj.fitOutput   = fitOutput;

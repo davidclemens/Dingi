@@ -33,7 +33,7 @@ function varargout = getBit(obj,varargin)
     elseif nargin == 3
         [i,j] = arrayhom(varargin{1},varargin{2});
     else
-        error('DataKit:Metadata:sparseBitmask:getBit:invalidNumberOfArguments',...
+        error('Dingi:DataKit:Metadata:sparseBitmask:getBit:invalidNumberOfArguments',...
             'Invalid number of arguments.')        
     end
     
@@ -54,7 +54,7 @@ function varargout = getBit(obj,varargin)
         varargout{2}    = cat(1,jout{:});
         varargout{3}    = cat(1,out{:});
     else
-        error('DataKit:Metadata:sparseBitmask:getBit:invalidNumberOfOutputVariables',...
+        error('Dingi:DataKit:Metadata:sparseBitmask:getBit:invalidNumberOfOutputVariables',...
             'Invalid number of output variables.')
     end
 end

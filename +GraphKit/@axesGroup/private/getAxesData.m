@@ -18,7 +18,8 @@ function obj = getAxesData(obj)
         tmpData1(maskEmpty & isDatetimeRuler)    = {{datetime([1,1,1;1,1,2])'}};
         maskEmpty   = cellfun(@isempty,tmpData1);
         if sum(maskEmpty) > 0
-            error('not implemented yet')
+            error('Dingi:GraphKit:axesGroup:getAxesData:TODO',...
+              'TODO: not implemented yet.')
         end
 
         tmpIndex1 	= arrayfun(@(c) repmat(c,numel(tmpData1{c}),1) ,1:numel(tmpData1),'un',0)'; % axis index

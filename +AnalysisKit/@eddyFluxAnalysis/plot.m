@@ -185,7 +185,7 @@ function varargout = plot(obj,type,varargin)
                 end
             end
         otherwise
-            error('GearKit:eddyFluxAnalysis:plot:unknownPlotType',...
+            error('Dingi:GearKit:eddyFluxAnalysis:plot:unknownPlotType',...
                 'unknown plot type')
     end
     TightFig(hfig,hsp,spi,PaperPos,MarginOuter,MarginInner);

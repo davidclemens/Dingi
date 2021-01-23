@@ -2,7 +2,7 @@ function obj = planarFitCoordinateSystem(obj)
     
     nObj    = numel(obj);
   	if nObj > 1
-        error('GearKit:eddyFluxAnalysis:planarFitCoordinateSystem:objSize',...
+        error('Dingi:GearKit:eddyFluxAnalysis:planarFitCoordinateSystem:objSize',...
               'planarFitCoordinateSystem only works in a scalar context. To get data from multiple instances, loop over all.')
     end
     

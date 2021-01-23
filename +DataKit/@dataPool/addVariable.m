@@ -108,7 +108,7 @@ function obj = addVariable(obj,pool,variable,data,uncertainty,varargin)
     end
     
     if size(data,3) > 2
-        error('DataKit:dataPool:addVariable:invalidDimensionsOfNewData',...
+        error('Dingi:DataKit:dataPool:addVariable:invalidDimensionsOfNewData',...
             'New data has wrong dimensions.')
     end
     
@@ -131,7 +131,7 @@ function obj = addVariable(obj,pool,variable,data,uncertainty,varargin)
     else
         % there is already data in the data pool
         if nSamplesNew ~= nSamples
-            error('DataKit:dataPool:addVariable:invalidNumberOfSamples',...
+            error('Dingi:DataKit:dataPool:addVariable:invalidNumberOfSamples',...
                 'New data needs to have the same number of samples (%u) as the existing data in the data pool. It has %u instead.',nSamples,nSamplesNew)
         end
         obj.DataRaw{pool} 	= cat(2,obj.DataRaw{pool},data);

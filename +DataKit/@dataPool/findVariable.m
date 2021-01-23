@@ -102,10 +102,12 @@ function [poolIdx,variableIdx] = findVariable(obj,varargin)
     maskIsValue(indIsName + 1) 	= true;
 
     if ~all(maskIsChar(maskIsName))
-        error('All property names must be char.')
+        error('Dingi:DataKit:dataPool:findVariable:invalidPropertyNameType',...
+          'All property names must be char.')
     end
     if ~all(maskIsChar(maskIsOperator))
-        error('All operators must be char.')
+        error('Dingi:DataKit:dataPool:findVariable:invalidOperatorType',...
+          'All operators must be char.')
     end
 
     nNames  = sum(maskIsName);
@@ -130,7 +132,8 @@ function [poolIdx,variableIdx] = findVariable(obj,varargin)
         end
         combinationalOperators{nn} = operators{nn}(ismember(validOperators(maskIsCompinationalOperator),operators{nn}));
         if numel(combinationalOperators{nn}) > 1
-            error('only 1 combinational logical operator is allowed per name-value pair.')
+            error('Dingi:DataKit:dataPool:findVariable:invalidNumberOfCombinationalLogicalOperators',...
+              'Only 1 combinational logical operator is allowed per name-value pair.')
         elseif numel(combinationalOperators{nn}) == 1
             combinationalOperators{nn} = combinationalOperators{nn}{:};
         end

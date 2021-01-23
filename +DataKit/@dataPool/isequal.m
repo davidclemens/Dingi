@@ -2,7 +2,7 @@ function tf = isequal(A,B)
     
 
     if ~isa(A,'DataKit.dataPool') || ~isa(B,'DataKit.dataPool')
-        error('DataKit:dataPool:isequal:invalidInputType',...
+        error('Dingi:DataKit:dataPool:isequal:invalidInputType',...
             'Inputs must be of type ''DataKit.dataPool''.')
     end
     

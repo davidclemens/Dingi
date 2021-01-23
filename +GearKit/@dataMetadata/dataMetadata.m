@@ -47,7 +47,7 @@ classdef dataMetadata
                 obj.description	= parameterInfo{parameterIdIsValid,'Description'}';
             else
                 invalidParameterIndex = find(~parameterIdIsValid,1);
-                error('GearKit:dataMetadata:invalidParameter',...
+                error('Dingi:GearKit:dataMetadata:invalidParameter',...
                       '''%g'' is an invalid parameter id.',value(invalidParameterIndex))
             end
             
@@ -62,7 +62,7 @@ classdef dataMetadata
                 obj.descriptionRaw	= parameterInfo{parameterIdIsValid,'Description'}';
             else
                 invalidParameterIndex = find(~parameterIdIsValid,1);
-                error('GearKit:dataMetadata:invalidParameter',...
+                error('Dingi:GearKit:dataMetadata:invalidParameter',...
                       '''%g'' is an invalid parameter id.',value(invalidParameterIndex))
             end
         end

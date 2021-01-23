@@ -2,7 +2,7 @@ function obj = readBigoVoltage(obj,path)
 
     fId             = fopen(path,'r');
     if fId == -1
-        warning('DataKit:dataPool:readBigoVoltage:unableToOpenFile',...
+        warning('Dingi:DataKit:dataPool:readBigoVoltage:unableToOpenFile',...
                 'Unable to read data in:\n\t ''%s''',path)
         return
     end

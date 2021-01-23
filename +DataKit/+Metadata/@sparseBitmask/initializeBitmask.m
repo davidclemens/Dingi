@@ -4,7 +4,7 @@ function obj = initializeBitmask(obj,i,j,bit,sz)
     import DataKit.arrayhom
     
     if any(bit(:) > 52)
-        error('DataKit:Metadata:sparseBitmask:initializeBitmask:bitPositionExceedsLimit',...
+        error('Dingi:DataKit:Metadata:sparseBitmask:initializeBitmask:bitPositionExceedsLimit',...
             'A bit position exceeds the limit. Only bits 1 to 52 can be set.')
     end
     

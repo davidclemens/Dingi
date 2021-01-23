@@ -27,7 +27,7 @@ function readProtocol(obj)
             elseif sum(maskProtocol) == 0
                 time       = defaultValue{par};
             else
-                error('GearKit:bigoDeployment:readProtocol:invalidNumberOfControlUnits',...
+                error('Dingi:GearKit:bigoDeployment:readProtocol:invalidNumberOfControlUnits',...
                     'error')
             end
             nParameter      = numel(fields(obj.chamber.(controlUnit)));
@@ -47,7 +47,7 @@ function readProtocol(obj)
         if sum(maskProtocol2) == 1
             obj.protocol{maskProtocol1,'TimeRelative'}  = obj.protocol{maskProtocol1,'Time'} - obj.protocol{maskProtocol2,'Time'};
         else
-            error('GearKit:bigoDeployment:readProtocol:invalidNumberOfExperimentStarts',...
+            error('Dingi:GearKit:bigoDeployment:readProtocol:invalidNumberOfExperimentStarts',...
                 'There were %g ''Experiment Start'' events found. Only 1 is valid right now.',sum(maskProtocol2))
         end
   	end

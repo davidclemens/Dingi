@@ -7,7 +7,7 @@ function tf = eq(obj1,obj2)
     elseif ischar(obj1)
         tf = obj2.isFlag(obj1);
     else
-        error('DataKit:Metadata:sparseBitmask:eq:invalidInputCombination',...
+        error('Dingi:DataKit:Metadata:sparseBitmask:eq:invalidInputCombination',...
             'Undefined input combination.')
     end
 end

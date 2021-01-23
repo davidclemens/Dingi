@@ -30,7 +30,7 @@ classdef (SharedTestFixtures = { ...
             
             variableIdUnknown   = 22;
             testCase.verifyError(@() DataKit.Metadata.variable.validateId(variableIdUnknown),...
-                'DataKit:Metadata:variable:variableFromId:invalidVariableId');
+                'Dingi:DataKit:Metadata:variable:variableFromId:invalidVariableId');
         end
         function validVariableId(testCase)
             
@@ -44,7 +44,7 @@ classdef (SharedTestFixtures = { ...
             
             variableId   = '20';
             testCase.verifyError(@() DataKit.Metadata.variable.validateId(variableId),...
-                'DataKit:Metadata:variable:validateId:invalidIdDataType');        
+                'Dingi:DataKit:Metadata:variable:validateId:invalidIdDataType');        
         end
 	end
 end

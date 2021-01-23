@@ -18,7 +18,7 @@ function obj = readSeabirdCTD(obj,path)
     
     fId             = fopen(path,'r');
     if fId == -1
-        warning('DataKit:dataPool:readSeabirdCTD:unableToOpenFile',...
+        warning('Dingi:DataKit:dataPool:readSeabirdCTD:unableToOpenFile',...
                 'Unable to read data in:\n\t ''%s''',path)
         return
     end
@@ -89,13 +89,13 @@ function obj = readSeabirdCTD(obj,path)
     
   	unitMatches                 = ~cellfun(@isempty,regexpi(varNames{:,'VarUnits'},info{:,'UnitRegexp'}));
     if sum(unitMatches(isValid)) ~= sum(isValid)
-        warning('DataKit:dataPool:readSeabirdCTD:invalidUnit',...
+        warning('Dingi:DataKit:dataPool:readSeabirdCTD:invalidUnit',...
             'One or more variable was rejected because its unit was not recognized')
     end
     isValid                     = isValid & unitMatches;
     
   	if ~all(isValid)
-        warning('GearKit:sensor:readSeabirdCTD:unrecognizedParameter',...
+        warning('Dingi:GearKit:sensor:readSeabirdCTD:unrecognizedParameter',...
                 'The parameter(s):\n\t''%s''\nare not recognized in the DataKit toolbox. It is not imported.\n',strjoin(variables(~isValid),'\n\t'))
 	end
     
