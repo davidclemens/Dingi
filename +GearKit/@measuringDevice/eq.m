@@ -16,7 +16,7 @@ function bool = eq(a,b)
         b       = reshape(b,1,[]);
         [a,b]	= ndgrid(a,b);
     else
-        error('GearKit:measuringDevice:eq:matrixDimensionsDisagree',...
+        error('Dingi:GearKit:measuringDevice:eq:matrixDimensionsDisagree',...
             'Matrix dimensions must agree.')
     end
 
@@ -40,7 +40,7 @@ function bool = eq(a,b)
         if isempty(affectedMeasuringDevicesInB)
             affectedMeasuringDevicesInB = '';
         end
-        warning('GearKit:measuringDevice:eq:missingSerialNumber',...
+        warning('Dingi:GearKit:measuringDevice:eq:missingSerialNumber',...
             'Equality can''t be tested for at least 1 pair because a measuring device serial number is not defined. Returning ''false'' for that pair.\n\tA: %s\n\tB: %s',strjoin(cellstr(affectedMeasuringDevicesInA),', '),strjoin(cellstr(affectedMeasuringDevicesInB),', '))
     end
     

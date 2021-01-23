@@ -13,7 +13,7 @@ function value = getNotANumberValueForClass(class,varargin)
     shapeAsCell = num2cell(shape,1);
     
     if ~(ischar(class) || iscellstr(class)) || ~isvector(class) || size(class,1) ~= 1
-        error('DataKit:getNotANumberValueForClass:invalidClassDataType',...
+        error('Dingi:DataKit:getNotANumberValueForClass:invalidClassDataType',...
             'The input class has to be a char vector or cellstr.')
     elseif ischar(class)
         class = cellstr(class);
@@ -30,7 +30,7 @@ function value = getNotANumberValueForClass(class,varargin)
             case {'int8','uint8','int16','uint16','int32','uint32','int64','uint64'}
                 value{c} = zeros(shapeAsCell{:},class{c});
             otherwise
-                error('DataKit:getNotANumberValueForClass:invalidClass',...
+                error('Dingi:DataKit:getNotANumberValueForClass:invalidClass',...
                     '''%s'' is not a valid class.',class{c})
         end
     end

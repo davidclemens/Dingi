@@ -27,7 +27,7 @@ function getGearDeploymentMetadata(obj,pathName)
         case 'EC'
             obj.gear    = categorical({ids.gear});
         otherwise
-            error('GearKit:GearDeployment:getGearDeploymentMetadata:undefinedGearType',...
+            error('Dingi:GearKit:GearDeployment:getGearDeploymentMetadata:undefinedGearType',...
                 'The gear type ''%s'' is not defined yet. Valid gear types are:\n\t%s.',obj.gearType,strjoin(obj.validGearTypes,', '))
     end
     
@@ -37,7 +37,7 @@ function getGearDeploymentMetadata(obj,pathName)
         deploymentMetadata      = deploymentMetadata(deploymentMetadata{:,'Cruise'} == obj.cruise & ...
                                                      deploymentMetadata{:,'Gear'} == obj.gear,:);
         if size(deploymentMetadata,1) ~= 1
-            error('GearKit:gearDeployment:getGearDeploymentMetadata:multipleDeploymentMatches',...
+            error('Dingi:GearKit:gearDeployment:getGearDeploymentMetadata:multipleDeploymentMatches',...
                   'multiple deployment metadata matches for ')
         end
         obj.areaId              = deploymentMetadata{1,'TransectID'};
@@ -52,7 +52,7 @@ function getGearDeploymentMetadata(obj,pathName)
     catch ME
         switch ME.identifier
             case 'MATLAB:xlsread:FileNotFound'
-                warning('GearKit:gearDeployment:getGearDeploymentMetadata:missingDeploymentMetadataFile',...
+                warning('Dingi:GearKit:gearDeployment:getGearDeploymentMetadata:missingDeploymentMetadataFile',...
                         'no deployment metadata file found for %s %s',char(obj.cruise),char(obj.gear))
             otherwise
                 rethrow(ME);

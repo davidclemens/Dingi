@@ -35,7 +35,7 @@ function obj = detrend(obj,varargin)
                 obj.w_ = detrendMovingMean(obj.velocity(:,:,3),window);
             end 
         otherwise
-            error('GearKit:eddyFluxAnalysis:detrend:unknownDetrendingMethod',...
+            error('Dingi:GearKit:eddyFluxAnalysis:detrend:unknownDetrendingMethod',...
                 '''%s'' is not a valid detrending method.',obj.detrendingMethod)
 	end
 end

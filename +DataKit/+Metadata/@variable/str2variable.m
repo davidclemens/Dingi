@@ -1,7 +1,7 @@
 function obj = str2variable(str)
 
 	if ~(iscellstr(str) || ischar(str))
-        error('DataKit:Metadata:variable:str2Variable:invalidDataType',...
+        error('Dingi:DataKit:Metadata:variable:str2Variable:invalidDataType',...
             'The input argument ''str'' has to be a cellstr or character array.')
 	end
 

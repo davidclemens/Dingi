@@ -14,6 +14,7 @@ function tbl = info2table(obj)
                     obj.VariableMeasuringDevice',...
                     'VariableNames',{'VariableIndex','Variable','Id','Type','Unit','Description','Origin','Factor','Offset','MeasuringDevice'});
     else
-        error('Only works in a scalar context')
+        error('Dingi:DataKit:Metadata:info:info2table:invalidShape',...
+          'Only works in a scalar context')
     end
 end

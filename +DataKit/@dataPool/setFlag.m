@@ -3,7 +3,7 @@ function obj = setFlag(obj,poolIdx,i,j,flag,highlow)
     import DataKit.arrayhom
     
     if ~isscalar(obj)
-        error('DataKit:dataPool:setFlag:onlyScalarContextAllowed',...
+        error('Dingi:DataKit:dataPool:setFlag:onlyScalarContextAllowed',...
             'Only works in a scalar context.')
     end
     

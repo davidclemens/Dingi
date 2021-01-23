@@ -118,7 +118,7 @@ classdef sparseBitmask
                     bit     = varargin{3}(:);
                     sz      = cat(2,varargin{4:5});
                 otherwise
-                    error('DataKit:Metadata:sparseBitmask:invalidNumberOfInputs',...
+                    error('Dingi:DataKit:Metadata:sparseBitmask:invalidNumberOfInputs',...
                         'Invalid number of inputs.')
             end
             obj = initializeBitmask(obj,i,j,bit,sz);
@@ -156,7 +156,7 @@ classdef sparseBitmask
             % wide sparse array with mostly 0s consumes tremendously more
             % memory than a tall sparse array with mostly 0s.
             if ~all(size(obj.Bitmask) == size(value)) && size(value,2) > 100
-                warning('DataKit:Metadata:sparseBitmask:widerThanTallShape',...
+                warning('Dingi:DataKit:Metadata:sparseBitmask:widerThanTallShape',...
                     'The bitmask is shaped very wide. Consider shaping it tall to save considerable memory.')
             end
             obj.Bitmask = value;

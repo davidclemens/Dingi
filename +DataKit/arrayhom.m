@@ -67,7 +67,7 @@ function varargout = arrayhom(varargin)
     end
     
     if ~allNonSingletonSizesAreEqual && nNonAllSingletonInputs > dims - 1
-        error('DataKit:arrayhom:invalidNumberOfSingletonDimensions',...
+        error('Dingi:DataKit:arrayhom:invalidNumberOfSingletonDimensions',...
             'Too many unique non-singleton shapes.')
     end
     

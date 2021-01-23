@@ -8,7 +8,7 @@ function filenames = save(objIn,filename,varargin)
     nGearDeployments    = numel(objIn);
     gearDeploymentExt   = objIn(1).validFileExtensions{strcmp(objIn(1).gearType,objIn(1).validGearTypes)};
     if ~strcmp(ext,gearDeploymentExt)
-        warning('GearKit:gearDeployment:save:invalidFileExtension',...
+        warning('Dingi:GearKit:gearDeployment:save:invalidFileExtension',...
             'The provided file extension ''%s'' was changed to ''%s''',ext,gearDeploymentExt);
         ext = gearDeploymentExt;
     end

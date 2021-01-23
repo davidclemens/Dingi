@@ -41,7 +41,7 @@ function runAnalysis(obj)
         % check if any data is left
         nSources        = numel(time);
         if nSources < 1
-            error('GearKit:bigoDeployment:runAnalysis',...
+            error('Dingi:GearKit:bigoDeployment:runAnalysis',...
                 'No requested data found.')
         end
         

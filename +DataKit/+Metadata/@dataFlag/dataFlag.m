@@ -26,12 +26,12 @@ classdef dataFlag < DataKit.Metadata.sparseBitmask
                 case 5
                     flagId	= varargin{3}(:);
                 otherwise
-                    error('DataKit:Metadata:dataFlag:invalidNumberOfInputs',...
+                    error('Dingi:DataKit:Metadata:dataFlag:invalidNumberOfInputs',...
                         'Invalid number of inputs.')
             end
             isValid = DataKit.Metadata.dataFlag.validateId(flagId);
             if any(~isValid)
-                error('DataKit:Metadata:dataFlag:dataFlag:invalidFlagId',...
+                error('Dingi:DataKit:Metadata:dataFlag:dataFlag:invalidFlagId',...
                     '%u is an invalid flag id.',flagId(find(~isValid,1)))
             end
         end

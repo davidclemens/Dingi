@@ -9,11 +9,11 @@ function varargout = exportProtocol(obj,varargin)
     elseif nargin == 2
         filename	= varargin{1};
         if ~ischar(filename)
-            error('GearKit:bigoDeployment:exportProtocol:wrongDatatype',...
+            error('Dingi:GearKit:bigoDeployment:exportProtocol:wrongDatatype',...
                 'The export filename has to be char.')
         end
     else
-        error('GearKit:bigoDeployment:exportProtocol:wrongNumberOfArguments',...
+        error('Dingi:GearKit:bigoDeployment:exportProtocol:wrongNumberOfArguments',...
             'Wrong number of arguments.')
     end
     
@@ -37,7 +37,7 @@ function varargout = exportProtocol(obj,varargin)
                     rethrow(ME);
                 end
             otherwise
-                error('GearKit:bigoDeployment:exportProtocol:unknownExportFileExtension',...
+                error('Dingi:GearKit:bigoDeployment:exportProtocol:unknownExportFileExtension',...
                     'The filextension ''%s'' for the export is not implemented yet.',ext)
         end
         fprintf('Protocol was sucessfully exported to:\n\t%s\n',filename)

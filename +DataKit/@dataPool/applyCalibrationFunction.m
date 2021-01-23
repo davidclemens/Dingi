@@ -35,7 +35,7 @@ function obj = applyCalibrationFunction(obj,poolIdx,variableIdx)
 %
         
         if ~isscalar(poolIdx) || ~isscalar(variableIdx)
-            error('DataKit:dataPool:applyCalibrationFunction',...
+            error('Dingi:DataKit:dataPool:applyCalibrationFunction',...
                 'Only works in a scalar context.')
         end
         fh       = obj.Info(poolIdx).VariableCalibrationFunction{variableIdx};

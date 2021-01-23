@@ -14,7 +14,7 @@ classdef measuringDevice
             
             isChar      = cellfun(@ischar,varargin);
             if any(~isChar)
-                error('GearKit:measuringDevice:measuringDevice:invalidInputType',...
+                error('Dingi:GearKit:measuringDevice:measuringDevice:invalidInputType',...
                     'Invalid input type. Only char allowed.')
             end
             
