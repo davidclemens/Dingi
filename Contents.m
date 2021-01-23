@@ -1,7 +1,7 @@
-% TOOLBOXES
+% DINGI
 % Version 0.1b1 29-Oct-2020
 %
-% Toolboxes
+% Dingi
 %   AnalysisKit - analyse your data
 %   DataKit - manipulate your data
 %   DebuggerKit - tools for debugging
