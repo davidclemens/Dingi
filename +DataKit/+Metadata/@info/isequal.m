@@ -2,7 +2,7 @@ function tf = isequal(A,B)
     
 
     if ~isa(A,'DataKit.Metadata.info') || ~isa(B,'DataKit.Metadata.info')
-        error('DataKit:Metadata:info:isequal:invalidInputType',...
+        error('Dingi:DataKit:Metadata:info:isequal:invalidInputType',...
             'Inputs must be of type ''DataKi.Metadata.info''.')
     end
     
@@ -12,7 +12,7 @@ function tf = isequal(A,B)
     nB  = numel(B);
     
     if nA ~= nB
-        error('DataKit:Metadata:info:isequal:numberOfElementsDisagree',...
+        error('Dingi:DataKit:Metadata:info:isequal:numberOfElementsDisagree',...
             'Inputs must have the same number of elements.')
     end
     

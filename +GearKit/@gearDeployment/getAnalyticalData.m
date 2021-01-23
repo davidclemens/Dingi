@@ -4,12 +4,12 @@ function [time,varargout] = getAnalyticalData(obj,parameter,varargin)
     import DataKit.importTableFile
  
     if numel(obj) > 1
-        error('GearKit:gearDeployment:getAnalyticalData:objSize',...
+        error('Dingi:GearKit:gearDeployment:getAnalyticalData:objSize',...
               'getData only works in a scalar context. To get data from multiple instances, loop over all.')
     end
    
     if ~isa(parameter,'uint16')
-        error('GearKit:gearDeployment:getAnalyticalData:invalidParameterType',...
+        error('Dingi:GearKit:gearDeployment:getAnalyticalData:invalidParameterType',...
               'The requested parameter has to be specified as a uint16.')
     end
    	parameter	= parameter(:);

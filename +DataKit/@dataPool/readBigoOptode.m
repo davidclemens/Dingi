@@ -2,7 +2,7 @@ function obj = readBigoOptode(obj,path)
 
     fId             = fopen(path,'r');
     if fId == -1
-        warning('DataKit:dataPool:readBigoOptode:unableToOpenFile',...
+        warning('Dingi:DataKit:dataPool:readBigoOptode:unableToOpenFile',...
                 'Unable to read data in:\n\t ''%s''',path)
         return
     end

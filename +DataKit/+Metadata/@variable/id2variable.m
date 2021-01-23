@@ -1,7 +1,7 @@
 function obj = id2variable(id)
 
 	if ~isnumeric(id)
-        error('DataKit:Metadata:variable:id2Variable:invalidDataType',...
+        error('Dingi:DataKit:Metadata:variable:id2Variable:invalidDataType',...
             'The input argument ''id'' has to be numeric.')
 	end
     
@@ -9,7 +9,7 @@ function obj = id2variable(id)
     [im,imIdx]          = ismember(id,variableListInfo{:,'Id'});
     
     if ~all(im)
-        error('DataKit:Metadata:variable:variableFromId:invalidVariableId',...
+        error('Dingi:DataKit:Metadata:variable:variableFromId:invalidVariableId',...
             'The variable id %u is invalid.',id(find(~im,1)))
     end
     

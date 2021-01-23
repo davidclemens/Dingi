@@ -1,11 +1,11 @@
 classdef (SharedTestFixtures = { ...
             matlab.unittest.fixtures.PathFixture(subsref(strsplit(mfilename('fullpath'),'/+'),substruct('{}',{':'})))
         }) fetchData_test < matlab.unittest.TestCase
-    
+
     % run:
     % tests = matlab.unittest.TestSuite.fromClass(?Tests.GearKit.gearDeployment.fetchData_test);
     % run(tests)
-    
+
     properties
         GearDeploymentInstance
         IndependantVariables
@@ -78,19 +78,19 @@ classdef (SharedTestFixtures = { ...
                                          'Var',     'Variable',...
                                          'Md',   	'MeasuringDevice')
     end
-    
+
     methods (TestClassSetup)
-        
+
     end
     methods (TestMethodSetup)
         function setExpectedOutputs(testCase,Data1,Data2)
             tmpVars         = cat(2,Data1.Variable,Data2.Variable);
             tmpVarType      = cat(2,Data1.VariableType,Data2.VariableType);
             testCase.NData	= cat(2,size(Data1.Data,1),size(Data2.Data,1));
-            
+
             testCase.IndependantVariables	= unique(tmpVars(ismember(tmpVarType,'Independant')));
             testCase.DependantVariables     = unique(tmpVars(ismember(tmpVarType,'Dependant')));
-            
+
             testCase.NIndependantVariables	= numel(testCase.IndependantVariables);
             testCase.NDependantVariables    = numel(testCase.DependantVariables);
         end
@@ -102,15 +102,15 @@ classdef (SharedTestFixtures = { ...
             dp      = dp.addVariable(pool,Data1.Variable,Data1.Data,[],...
                         'VariableType',     Data1.VariableType,...
                         'VariableOrigin',   Data1.VariableOrigin);
-                    
+
             % Add second pool
             dp      = dp.addPool();
             pool    = dp.PoolCount;
             dp      = dp.addVariable(pool,Data2.Variable,Data2.Data,[],...
                         'VariableType',     Data2.VariableType,...
                         'VariableOrigin',   Data2.VariableOrigin);
-                
-                    
+
+
             bigo        = GearKit.bigoDeployment('',...
                             'DebugLevel',   'Error');
             bigo.data   = dp;
@@ -118,18 +118,18 @@ classdef (SharedTestFixtures = { ...
             bigo.timeOfInterestStart    = datetime(2020,10,2,15,52,50);
             bigo.timeOfInterestEnd      = datetime(2020,10,2,19,32,38);
             bigo.timeRecovery           = datetime(2020,10,2,19,42,38);
-            
+
             testCase.GearDeploymentInstance = bigo;
         end
     end
     methods (TestMethodTeardown)
-        
+
     end
-    
+
     methods (Test)
-        
+
         function testNVariables(testCase,RequestedVariables,xDataOnly,RelativeTime,GroupBy)
-            
+
             dp      = testCase.GearDeploymentInstance.data;
             index   = dp.Index;
 
@@ -150,12 +150,13 @@ classdef (SharedTestFixtures = { ...
                     case 'MeasuringDevice'
                         testCase.NExpectedGroups    = numel(unique(index{maskIndex,'MeasuringDevice'}));
                     otherwise
-                        error('unknown GroupBy')
+                        error('Dingi:Tests:GearKit:gearDeployment:fetchData_test:invalidGroupBy',...
+                          '''%s'' is an invalid ''GroupBy'' value.',GroupBy)
                 end
             else
                 testCase.NExpectedGroups = 1;
             end
-            
+
             variableIsInDataPool = ismember(RequestedVariables,index{:,'Variable'});
 
             % Handle warnings and errors
@@ -167,8 +168,8 @@ classdef (SharedTestFixtures = { ...
                             'TimeOfInterestDataOnly',   xDataOnly(2),...
                             'RelativeTime',             RelativeTime,...
                             'GroupBy',                  GroupBy),...
-                    'DataKit:dataPool:fetchData:noDataForRequestedInputsAvailable')
-                return                
+                    'Dingi:DataKit:dataPool:fetchData:noDataForRequestedInputsAvailable')
+                return
             end
             if any(~variableIsInDataPool)
                 % Case: at least one of the requested variables is
@@ -179,39 +180,39 @@ classdef (SharedTestFixtures = { ...
                             'TimeOfInterestDataOnly',   xDataOnly(2),...
                             'RelativeTime',             RelativeTime,...
                             'GroupBy',                  GroupBy),...
-                    'DataKit:dataPool:fetchData:requestedVariableIsUnavailable')
-                return                
+                    'Dingi:DataKit:dataPool:fetchData:requestedVariableIsUnavailable')
+                return
             end
             if strcmp(RelativeTime,'invalid')
-                % Case: invalid relative time identifier.                
+                % Case: invalid relative time identifier.
                 testCase.verifyError(@() ...
                     fetchData(testCase.GearDeploymentInstance,RequestedVariables,...
                             'DeploymentDataOnly',       xDataOnly(1),...
                             'TimeOfInterestDataOnly',   xDataOnly(2),...
                             'RelativeTime',             RelativeTime,...
                             'GroupBy',                  GroupBy),...
-                    'GearKit:gearDeployment:fetchData:unknownRelativeTimeIdentifier')
+                    'Dingi:GearKit:gearDeployment:fetchData:unknownRelativeTimeIdentifier')
                 return
             end
             if any(xDataOnly)
-                
+
             end
-            
+
             data	= fetchData(testCase.GearDeploymentInstance,RequestedVariables,...
                         'DeploymentDataOnly',       xDataOnly(1),...
                         'TimeOfInterestDataOnly',   xDataOnly(2),...
                         'RelativeTime',             RelativeTime,...
                         'GroupBy',                  GroupBy);
-                    
+
             % Subtest 01: number of variables returned
             act 	= size(data.DepData,2);
             exp     = testCase.NExpectedVariables;
             testCase.verifyEqual(act,exp)
-                    
+
             % Subtest 02: number of groups returned
             act 	= size(data.DepData,1);
             exp     = testCase.NExpectedGroups;
-            testCase.verifyEqual(act,exp)            
+            testCase.verifyEqual(act,exp)
         end
 	end
 end

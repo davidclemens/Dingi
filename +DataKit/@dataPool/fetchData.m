@@ -1,6 +1,6 @@
 function data = fetchData(obj,varargin)
 % fetchData  Gathers data from a datapool object in various ways.
-%   FETCHDATA returns the data within a datapool object by allowing to 
+%   FETCHDATA returns the data within a datapool object by allowing to
 %   specify what data is wanted and in what order and structure it should
 %   be returned.
 %
@@ -22,7 +22,7 @@ function data = fetchData(obj,varargin)
 %       available in the datapool instance dp and returns them in the data
 %       structure.
 %
-%     data = FETCHDATA(dp,var,varType) as above, and additionally allows 
+%     data = FETCHDATA(dp,var,varType) as above, and additionally allows
 %       for the variable type to be specified.
 %
 %     data = FETCHDATA(dp,var,varType,md) as above, and additionally allows
@@ -269,7 +269,7 @@ function data = fetchData(obj,varargin)
 
 
     objIndex    = obj.Index;
-    
+
     % test all criteria against the data pool index. They are combined by
     % the logical AND operation.
     maskIndex   = true(size(objIndex,1),1);
@@ -312,7 +312,7 @@ function data = fetchData(obj,varargin)
                         objIndex{:,'VariableType'} == 'Dependant';
     nIndexMatches   = sum(maskIndex);
 
-    
+
  	data            = struct();
     data.IndepData	= {};
    	data.DepData    = {};
@@ -325,15 +325,15 @@ function data = fetchData(obj,varargin)
                         'Variable',             DataKit.Metadata.variable.empty,...
                         'MeasuringDevice',      GearKit.measuringDevice.empty,...
                         'PoolIdx',              [],...
-                        'VariableIdx',          []);    
-    
+                        'VariableIdx',          []);
+
     if nIndexMatches == 0
-        warning('DataKit:dataPool:fetchData:noDataForRequestedInputsAvailable',...
+        warning('Dingi:DataKit:dataPool:fetchData:noDataForRequestedInputsAvailable',...
             'No data matches the requested combination of inputs.')
         return
     end
     if any(~variableIsInDataPool)
-        error('DataKit:dataPool:fetchData:requestedVariableIsUnavailable',...
+        error('Dingi:DataKit:dataPool:fetchData:requestedVariableIsUnavailable',...
             '\nTODO: The requested variable ''%s'' is not a member of the data pool.\nAvailable variables are:\n\t%s\n',char(variable(find(~variableIsInDataPool,1))),strjoin(unique(variable2str(objIndex{:,'Variable'})),', '))
     end
 
@@ -353,7 +353,7 @@ function data = fetchData(obj,varargin)
     dp      = objIndex{maskIndex,'DataPool'}; % data pool index
     dv      = objIndex{maskIndex,'VariableIndex'}; % dependant variable index
     iv      = objIndex{maskIndex,'IndependantVariableIndex'}; % independant variable(s) index
-    
+
     % fetch data
 	[ddata,flags]	= obj.fetchVariableData(dp,dv,...
                         'ReturnRawData',    returnRawData);
@@ -361,8 +361,8 @@ function data = fetchData(obj,varargin)
     % fetch metadata
     dinfo   = arrayfun(@(dp,dv) obj.Info(dp).selectVariable(dv),dp,dv);
     iinfo   = cellfun(@(dp,iv) obj.Info(dp).selectVariable(iv),num2cell(dp),iv);
-    
-    
+
+
     % setup grouping parameters
 	switch groupBy
         case ''
@@ -375,7 +375,7 @@ function data = fetchData(obj,varargin)
             groupIdx    = (1:nIndexMatches)';
             nGroups     = nIndexMatches;
 	end
-    
+
     % Handle multiple unique independant variables:
     % 1. Find the unique independant variables in all the data that has
     %    been fetched (idata).
@@ -383,7 +383,7 @@ function data = fetchData(obj,varargin)
     [uIndepVariables,uIdx1uIndepVariables,uIdx2uIndepVariables]  = unique(variable2str(cat(2,uIndepVariables{:})),'stable'); % all independant variables found in idata (without repetition)
     uIndepVariables     = DataKit.Metadata.variable.str2variable(uIndepVariables)';
     nUIndepVariables    = numel(uIndepVariables);
- 
+
     % 2. Find the return datatype for the uIndepVariables. This allows the
     %    initialization of the output cell iData.
     uIndepVariablesDataType   	= cellfun(@(dp,v) obj.Info(dp).VariableReturnDataType(v),num2cell(dp),iv,'un',0);
@@ -394,7 +394,7 @@ function data = fetchData(obj,varargin)
     %    independant variables in idata vertically concatenated.
     uIndepVariablesMatchIndex	= arrayfun(@(n) repmat(n,1,numel(iv{n})),(1:nIndexMatches)','un',0);
     uIndepVariablesMatchIndex	= reshape(cat(2,uIndepVariablesMatchIndex{:}),[],1);
-    
+
     % Determine slot sizes and locations
     nData    	= cellfun(@numel,ddata); % length of each variable in ddata
     nDataOut    = accumarray([groupIdx,uVariableIdx],nData,[nGroups,nVariable]); % total length of the output cell for each (var,gr) pair.
@@ -404,12 +404,12 @@ function data = fetchData(obj,varargin)
     % idxDataOut  = accumarray([groupIdx,uVariableIdx],nData,[nGroups,nVariable],@(x) {cumsum(x)});
     idxDataOutIdx   = sub2ind([nGroups,nVariable],groupIdx,uVariableIdx);
     idxDataOut      = reshape(arrayfun(@(i) cumsum(nData(idxDataOutIdx == i)),1:nGroups*nVariable,'un',0),[nGroups,nVariable]); % end indices of the all slots in those cells
-    
+
     % initialize data outputs
     iData   = arrayfun(@(n) DataKit.getNotANumberValueForClass(cellstr(uIndepVariablesDataType),[n,1]),nDataOut,'un',0);
     dData   = arrayfun(@(n) NaN(n,1),nDataOut,'un',0);
     Flags   = arrayfun(@(n) DataKit.Metadata.dataFlag(n,1),nDataOut,'un',0);
-    
+
     % populate data outputs
   	for var = 1:nVariable
         % loop over requested variables
@@ -434,7 +434,7 @@ function data = fetchData(obj,varargin)
             end
         end
     end
-   
+
     % assign metadata
     data.IndepInfo.Variable         = cell(nGroups,nVariable);
     data.IndepInfo.PoolIdx          = cell(nGroups,nVariable);
@@ -444,10 +444,10 @@ function data = fetchData(obj,varargin)
     data.DepInfo.PoolIdx            = NaN(nGroups,nVariable);
     data.DepInfo.VariableIdx        = NaN(nGroups,nVariable);
     data.DepInfo.MeasuringDevice	= repmat(GearKit.measuringDevice(),nGroups,nVariable);
-    
+
     data.IndepInfo.Variable(idxDataOutIdx)          = repmat({uIndepVariables},numel(idxDataOutIdx),1);
     data.DepInfo.Variable(idxDataOutIdx)            = tmpInfoDepVar(idxDataOutIdx);
-    
+
 	switch groupBy
         case ''
         case 'MeasuringDevice'
@@ -457,7 +457,7 @@ function data = fetchData(obj,varargin)
             data.DepInfo.VariableIdx(idxDataOutIdx)     = dv;
             data.DepInfo.MeasuringDevice(idxDataOutIdx)	= cat(1,dinfo.VariableMeasuringDevice);
             data.IndepInfo.PoolIdx(idxDataOutIdx)    	= cellfun(@(dp,iv) repmat(dp,1,numel(iv)),num2cell(dp),iv,'un',0);
-            data.IndepInfo.VariableIdx(idxDataOutIdx)	= iv;            
+            data.IndepInfo.VariableIdx(idxDataOutIdx)	= iv;
 	end
 
     if nVariable <= 1 && ~forceCellOutput
@@ -556,7 +556,8 @@ function varargout = parseInputs(obj,varargin)
                   };
     % sanity check
 	if numel(fieldnames(p.Results)) ~= numel(varargout)
-        error('Parsed variable number mismatches the output.')
+        error('Dingi:DataKit:dataPool:fetchData:parseInputs:invalidNumberOfOutputs',...
+          'Parsed variable number mismatches the output.')
 	end
 end
 
@@ -571,18 +572,18 @@ function bool = checkVariable(x)
         if size(x,1) == 1
             bool = any(validatestring(x,validVariable));
         else
-            error('DataKit:dataPool:fetchData:checkVariable:invalidCharShape',...
+            error('Dingi:DataKit:dataPool:fetchData:checkVariable:invalidCharShape',...
                 'If variable is provided as a char, it has to be a vector of shape 1xn.\nIt was %s instead.\n',strjoin(cellstr(num2str(size(x)','%u')),' x '))
         end
     elseif isnumeric(x)
         if all(ismember(x,validVariableId))
             bool = true;
         else
-         	error('DataKit:dataPool:fetchData:checkVariable:invalidVariableId',...
+         	error('Dingi:DataKit:dataPool:fetchData:checkVariable:invalidVariableId',...
                 '''%u'' is an invalid variable id. Valid id''s are:\n\t%s\nIt was %u instead.\n',strjoin(regexprep(cellstr(num2str(validVariableId)),'\s+',''),', '),x(find(~ismember(x,validVariableId),1)))
         end
     else
-        error('DataKit:dataPool:fetchData:checkVariable:invalidType',...
+        error('Dingi:DataKit:dataPool:fetchData:checkVariable:invalidType',...
             'Expected input ''variable'' to be one of these types:\n\tchar, cellstr, numeric\nIt was %s instead.\n',class(x))
     end
 end

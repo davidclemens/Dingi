@@ -5,7 +5,7 @@ function [bool,info] = validateStr(str)
     elseif ischar(str)
         str = cellstr(str);
     else
-        error('DataKit:Metadata:variable:validateStr:invalidStringDataType',...
+        error('Dingi:DataKit:Metadata:variable:validateStr:invalidStringDataType',...
             '''str'' has to be either a char vector or a cellstr.')
     end
 

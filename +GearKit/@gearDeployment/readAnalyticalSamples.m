@@ -51,7 +51,7 @@ function readAnalyticalSamples(obj)
                     controlUnit         = obj.protocol{find(maskProtocol1,1),'ControlUnit'};
                     maskExperimentStart	= all(obj.protocol{:,{'Subgear','SampleId','Event'}} == {char(controlUnit),'System','Experiment Start'},2);
                     if sum(maskExperimentStart) ~= 1
-                        error('GearKit:gearDeployment:readAnalyticalSamples:invalidExperimentStart',...
+                        error('Dingi:GearKit:gearDeployment:readAnalyticalSamples:invalidExperimentStart',...
                             'There is no or too many experiment start events found for %s.',cat(2,char(obj.cruise),' ',char(obj.gear),' ',char(uMeasuringDevices{mdt,'Subgear'})))
                     end
                     variableOrigin      = {obj.protocol{maskExperimentStart,'Time'}};
@@ -63,7 +63,7 @@ function readAnalyticalSamples(obj)
                     data                = repmat(seconds(obj.timeRecovery - variableOrigin{1}),numel(indepidx),1);
                     worldDomain         = GearKit.worldDomain.BenthicWaterColumn;
                 otherwise
-                    error('GearKit:gearDeployment:readAnalyticalSamples:measuringDeviceTypeNotImplemented',...
+                    error('Dingi:GearKit:gearDeployment:readAnalyticalSamples:measuringDeviceTypeNotImplemented',...
                         'Reading analytical sample(s) for measuring device type ''%s'' is not implemented.',char(uMeasuringDevices{mdt,'MeasuringDeviceType'}))
             end
             data            = cat(2,data,accumarray(subs,tbl{maskTbl,{'Value'}},[numel(uRows),numel(uCols)],@nanmean,NaN));

@@ -158,7 +158,7 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
             if ~obj.initialized
                 obj.sampleN = value;
             else
-                error('GearKit:eddyFluxAnalysis:sampleNNotSetable',...
+                error('Dingi:GearKit:eddyFluxAnalysis:sampleNNotSetable',...
                       'SampleN is only set once during object construction.')
             end
         end

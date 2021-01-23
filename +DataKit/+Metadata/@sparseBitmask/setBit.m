@@ -18,7 +18,7 @@ function obj = setBit(obj,i,j,bit,highlow)
     import DataKit.arrayhom
     
     if any(bit(:) > 52) || any(bit(:) < 1)
-        error('DataKit:Metadata:sparseBitmask:setBit:bitPositionExceedsLimit',...
+        error('Dingi:DataKit:Metadata:sparseBitmask:setBit:bitPositionExceedsLimit',...
             'A bit position exceeds the limits. Only bits 1 to 52 can be set.')
     end
     
@@ -29,7 +29,7 @@ function obj = setBit(obj,i,j,bit,highlow)
     
     Sz  = obj.Sz;
     if any(i(:) > Sz(1)) || any(j(:) > Sz(2))
-        warning('DataKit:Metadata:sparseBitmask:setBit:subscriptsExceedBitmaskSize',...
+        warning('Dingi:DataKit:Metadata:sparseBitmask:setBit:subscriptsExceedBitmaskSize',...
             'Subscript exceeds bitmask size. The Bitmask is extended')
         % extend bitmask
         newDimMax   = cat(1,max(i(:)),max(j(:)));

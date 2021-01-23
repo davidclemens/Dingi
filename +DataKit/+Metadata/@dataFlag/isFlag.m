@@ -1,7 +1,7 @@
 function tf = isFlag(obj,flag)
 
     if ~ischar(flag) && ~isscalar(flag)
-        error('DataKit:Metadat:dataFlag:isFlag:onlyScalarContextAllowed',...
+        error('Dingi:DataKit:Metadat:dataFlag:isFlag:onlyScalarContextAllowed',...
             '''flag'' has to be scalar.')
     end
     

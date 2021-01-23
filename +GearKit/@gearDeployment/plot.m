@@ -123,7 +123,8 @@ function varargout = plot(obj,variables,varargin)
     plotVariablesAvailableInfo	= cat(1,obj.variables);
     if exist('variables','var') ~= 1
         [variableIsValid,variableInfo]    = DataKit.Metadata.variable.validateId(plotVariablesAvailableInfo{:,'Id'});
-%         error('TODO: implement a selection of all available variables. All is too many.')
+         error('Dingi:GearKit:gearDeployment:plot:TODO',...
+          'TODO: implement a selection of all available variables. All is too many.')
     else
         if ischar(variables) || iscellstr(variables)
             if ischar(variables)
@@ -135,14 +136,14 @@ function varargout = plot(obj,variables,varargin)
             variables	= variables(:);
             [variableIsValid,variableInfo]    = DataKit.Metadata.variable.validateId(variables);
         else
-            error('GearKit:gearDeployment:plot:invalidVariableType',...
+            error('Dingi:GearKit:gearDeployment:plot:invalidVariableType',...
                   'The requested parameter has to be specified as a char, cellstr or numeric vector.')
         end
     end
     variables   = variableInfo{variableIsValid,'Variable'};
     im          = ismember(variable2str(variables),plotVariablesAvailableInfo{:,'Name'});
     if ~all(im)
-        error('GearKit:GearDeployment:plot:invalidVariables',...
+        error('Dingi:GearKit:GearDeployment:plot:invalidVariables',...
               'One or more specified variables are invalid:\n\t%s\nValid variables are:\n\t%s\n',strjoin(variable2str(variables(~im)),', '),strjoin(cellstr(plotVariablesAvailableInfo{:,'Name'}),', '))
     end
  	nVariables          = numel(variables);
@@ -177,7 +178,7 @@ function varargout = plot(obj,variables,varargin)
                                 'GroupBy',                  'MeasuringDevice');
                 catch ME
                     switch ME.identifier
-                        case 'GearKit:gearDeployment:gd:invalidParameter'
+                        case 'Dingi:GearKit:gearDeployment:gd:invalidParameter'
                             parameterNotInDeployment(row,col) = true;
                         otherwise
                             rethrow(ME)
@@ -204,7 +205,7 @@ function varargout = plot(obj,variables,varargin)
                         YData	= data.DepData{gr}(sortInd);
                         FData   = data.Flags{gr}(sortInd);
                         maskRejected    = isFlag(FData,'MarkedRejected');
-                        
+
                         % plot rejected data
                         plot(XData(maskRejected),YData(maskRejected),...
                                     'LineStyle',    'none',...
@@ -213,7 +214,7 @@ function varargout = plot(obj,variables,varargin)
                         % plot data
                         hptmp   = plot(XData(~maskRejected),YData(~maskRejected),...
                                     'LineWidth',    1.5);
-                                
+
                         legendStr   = cat(1,legendStr,{[char(data.DepInfo.MeasuringDevice(gr).Type),', ',...
                                                         char(data.DepInfo.MeasuringDevice(gr).DeviceDomain.Abbreviation),' (',...
                                                         char(data.DepInfo.MeasuringDevice(gr).WorldDomain.Abbreviation),')']});
@@ -236,11 +237,11 @@ function varargout = plot(obj,variables,varargin)
     %   only keep the first occurance of the labels that is non-empty
     yLabelString    = yLabelString(cumsum(~cellfun(@isempty,yLabelString),2) == 1);
     titleString     = titleString(cumsum(~cellfun(@isempty,titleString),1) == 1);
-    
+
     %   set appearance and labels
     set([hsp(spi(1,:)).Title],...
         {'String'},      titleString)
-    
+
     for col = 1:spnx
         gear	= col;
         for row = 1:spny

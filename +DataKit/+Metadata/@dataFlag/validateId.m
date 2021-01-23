@@ -1,7 +1,7 @@
 function [bool,info] = validateId(id)
 
     if ~isnumeric(id)
-        error('DataKit:Metadata:dataFlag:validateId:invalidIdDataType',...
+        error('Dingi:DataKit:Metadata:dataFlag:validateId:invalidIdDataType',...
             '''id'' has to be numeric.')
     end
     
