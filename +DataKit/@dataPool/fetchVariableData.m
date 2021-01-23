@@ -69,7 +69,7 @@ function [data,flags] = fetchVariableData(obj,poolIdx,variableIdx,varargin)
 %
 %   See also DATAPOOL, FINDVARIABLE
 %
-%   Copyright 2020 David Clemens (dclemens@geomar.de)
+%   Copyright (c) 2020-2021 David Clemens (dclemens@geomar.de)
 %
     
     import DataKit.arrayhom

@@ -27,7 +27,7 @@ function disp(obj)
 %
 %   See also SPARSEBITMASK
 %
-%   Copyright 2021 David Clemens (dclemens@geomar.de)
+%   Copyright (c) 2021 David Clemens (dclemens@geomar.de)
 %
     
     import DataKit.ndigits

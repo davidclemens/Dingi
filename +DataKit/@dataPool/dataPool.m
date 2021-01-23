@@ -19,7 +19,7 @@ classdef dataPool
     %   fetchData - Gathers data from a datapool object in various ways
     %   disp - Displays metadata of a datapool instance
     %
-    % Copyright 2020 David Clemens (dclemens@geomar.de)
+    % Copyright (c) 2020-2021 David Clemens (dclemens@geomar.de)
     %
     
     properties
