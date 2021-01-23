@@ -66,7 +66,7 @@ function [time,varargout] = getSensorData(obj,parameter,varargin)
 % 
 % See also
 %
-% Copyright 2020 David Clemens (dclemens@geomar.de)
+% Copyright (c) 2020-2021 David Clemens (dclemens@geomar.de)
         
     import DataKit.importTableFile
 

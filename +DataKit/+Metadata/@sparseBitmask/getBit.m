@@ -23,7 +23,7 @@ function varargout = getBit(obj,varargin)
 %
 %   See also SETBIT
 %
-%   Copyright 2021 David Clemens (dclemens@geomar.de)
+%   Copyright (c) 2021 David Clemens (dclemens@geomar.de)
 %
 
     import DataKit.arrayhom
