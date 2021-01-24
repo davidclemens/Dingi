@@ -75,7 +75,7 @@ function readAnalyticalSamples(obj)
             measuringDevice.SerialNumber        = char(uMeasuringDevices{mdt,'Subgear'});
             measuringDevice.MountingLocation    = char(uMeasuringDevices{mdt,'Subgear'});
             measuringDevice.WorldDomain         = worldDomain;
-            measuringDevice.DeviceDomain        = GearKit.deviceDomain.abbreviation2devicedomain(char(uMeasuringDevices{mdt,'Subgear'}));
+            measuringDevice.DeviceDomain        = GearKit.deviceDomain.fromProperty('Abbreviation',char(uMeasuringDevices{mdt,'Subgear'}));
             
             variableOrigin          = cat(2,variableOrigin,repmat({0},1,size(data,2) - 1));
             uncertainty             = [];

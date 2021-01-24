@@ -1,4 +1,4 @@
-classdef deviceDomain
+classdef deviceDomain < DataKit.enum
     enumeration
         undefined           ('')
         ControlUnit1        ('CU1')
@@ -9,7 +9,7 @@ classdef deviceDomain
         Chamber1Water       ('Ch1W')
         Chamber2Water       ('Ch2W')
     end
-    properties
+    properties (SetAccess = 'immutable')
         Abbreviation char
     end
     methods
@@ -18,6 +18,7 @@ classdef deviceDomain
         end
     end
     methods (Static)
-        obj = abbreviation2devicedomain(abbr)
+        L = listMembers()
+        obj = fromProperty(propertyname,value)
     end
 end
