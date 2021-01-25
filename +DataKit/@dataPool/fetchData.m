@@ -327,16 +327,16 @@ function data = fetchData(obj,varargin)
                         'PoolIdx',              [],...
                         'VariableIdx',          []);
 
+
+    if any(~variableIsInDataPool)
+        error('Dingi:DataKit:dataPool:fetchData:requestedVariableIsUnavailable',...
+            '\nTODO: The requested variable ''%s'' is not a member of the data pool.\nAvailable variables are:\n\t%s\n',char(variable(find(~variableIsInDataPool,1))),strjoin(unique(cellstr(objIndex{:,'Variable'})),', '))
+    end
     if nIndexMatches == 0
         warning('Dingi:DataKit:dataPool:fetchData:noDataForRequestedInputsAvailable',...
             'No data matches the requested combination of inputs.')
         return
     end
-    if any(~variableIsInDataPool)
-        error('Dingi:DataKit:dataPool:fetchData:requestedVariableIsUnavailable',...
-            '\nTODO: The requested variable ''%s'' is not a member of the data pool.\nAvailable variables are:\n\t%s\n',char(variable(find(~variableIsInDataPool,1))),strjoin(unique(cellstr(objIndex{:,'Variable'})),', '))
-    end
-
     if isempty(variable)
         [~,uIdx,~]  = unique(objIndex{maskIndex,'Variable'});
         variable    = objIndex{maskIndex,'Variable'};
@@ -381,7 +381,6 @@ function data = fetchData(obj,varargin)
     %    been fetched (idata).
     uIndepVariables           	= cellfun(@(dp,v) obj.Info(dp).Variable(v),num2cell(dp),iv,'un',0); % all independant variables found in idata (with repetition)
     [uIndepVariables,uIdx1uIndepVariables,uIdx2uIndepVariables]  = unique(cat(2,uIndepVariables{:}),'stable'); % all independant variables found in idata (without repetition)
-    uIndepVariables     = DataKit.Metadata.variable(uIndepVariables)';
     nUIndepVariables    = numel(uIndepVariables);
 
     % 2. Find the return datatype for the uIndepVariables. This allows the
