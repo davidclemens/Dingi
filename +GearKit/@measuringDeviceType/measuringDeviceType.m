@@ -1,4 +1,4 @@
-classdef measuringDeviceType
+classdef measuringDeviceType < DataKit.enum
     enumeration
         undefined
         BigoOptode
@@ -15,7 +15,11 @@ classdef measuringDeviceType
         O2Logger
         PyrosciencePico
     end
+    properties (SetAccess = 'immutable')
+        
+    end
     methods (Static)
-        list = listAllMeasuringDeviceType()
+        L = listMembers()
+        obj = fromProperty(propertyname,value)
     end
 end

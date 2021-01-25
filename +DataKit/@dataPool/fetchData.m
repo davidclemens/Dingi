@@ -87,7 +87,7 @@ function data = fetchData(obj,varargin)
 %       [] (default) | GearKit.measuringDeviceType
 %         If specified, only data captured by a measuring device of type
 %         mdType is returned. Type
-%         'GearKit.measuringDeviceType.listAllMeasuringDeviceType' for a
+%         'GearKit.measuringDeviceType.listMembers' for a
 %         list of all measuring device types.
 %         If left empty (default), data of all measuring device types
 %         available in the data pool are returned.
@@ -494,7 +494,7 @@ function varargout = parseInputs(obj,varargin)
 
     checkVariableType         	= @(x) (isempty(x) && isa(x,'double')) || ((ischar(x) || iscellstr(x)) && ismember(x,DataKit.Metadata.validators.validInfoVariableType.listAllValidInfoVariableType));
     checkMeasuringDevice        = @(x) (isempty(x) && isa(x,'double')) || isa(x,'GearKit.measuringDevice');
-    checkMeasuringDeviceType    = @(x) (isempty(x) && isa(x,'double')) || ((ischar(x) || iscellstr(x)) && ismember(x,GearKit.measuringDeviceType.listAllMeasuringDeviceType));
+    checkMeasuringDeviceType    = @(x) (isempty(x) && isa(x,'double')) || ((ischar(x) || iscellstr(x)) && ismember(x,GearKit.measuringDeviceType.listMembers));
     checkPoolIdx                = @(x) (isempty(x) && isa(x,'double')) || (isvector(x) && isnumeric(x) && all(x <= obj.PoolCount));
     checkVarIdx                 = @(x) (isempty(x) && isa(x,'double')) || (isvector(x) && isnumeric(x) && all(x <= max(obj.Index{:,'VariableIndex'})));
 
