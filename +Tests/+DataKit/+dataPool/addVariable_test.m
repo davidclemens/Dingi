@@ -1,11 +1,11 @@
 classdef (SharedTestFixtures = { ...
             matlab.unittest.fixtures.PathFixture(subsref(strsplit(mfilename('fullpath'),'/+'),substruct('{}',{':'})))
         }) addVariable_test < matlab.unittest.TestCase
-    
+
     % run:
     % tests = matlab.unittest.TestSuite.fromClass(?Tests.DataKit.dataPool.addVariable_test);
     % run(tests)
-    
+
     properties
         DataPoolInstance
         IndependantVariables
@@ -106,9 +106,9 @@ classdef (SharedTestFixtures = { ...
                                                    'VariableType',      {{'Independant','Independant','Dependant','Dependant'}})...
                         )
     end
-    
+
     methods (TestClassSetup)
-        
+
     end
     methods (TestMethodSetup)
         function createDataPool(testCase,SetupData)
@@ -119,20 +119,20 @@ classdef (SharedTestFixtures = { ...
                 pool    = dp.PoolCount;
                 dp      = dp.addVariable(pool,SetupData.Variable,SetupData.Data,[],...
                             'VariableType',     SetupData.VariableType,...
-                            'VariableOrigin',   SetupData.VariableOrigin);     
+                            'VariableOrigin',   SetupData.VariableOrigin);
             end
             testCase.DataPoolInstance = dp;
         end
     end
     methods (TestMethodTeardown)
-        
+
     end
-    
-    methods (Test)   
+
+    methods (Test)
         function testDataErrorsAndWarnings(testCase,PoolIdx,NewData)
-            
+
             dp      = testCase.DataPoolInstance;
-            
+
             pool      	= PoolIdx;
             nSamplesNew	= size(NewData.Data,1);
             if PoolIdx > dp.PoolCount
@@ -140,22 +140,22 @@ classdef (SharedTestFixtures = { ...
             else
                 nSamplesExisting = size(dp.DataRaw{pool},1);
             end
-            
+
             if nSamplesExisting > 0 && nSamplesNew ~= nSamplesExisting
                 % Case: variable to add has a different number of samples
                 % than the existing variables in the pool.
-                
+
                 testCase.verifyError(@() ...
                 dp.addVariable(pool,NewData.Variable,NewData.Data,[],...
                     'VariableType',     NewData.VariableType,...
                     'VariableOrigin',   NewData.VariableOrigin),...
                 'Dingi:DataKit:dataPool:addVariable:invalidNumberOfSamples')
-            end     
-        end     
+            end
+        end
         function testAddVariable(testCase,PoolIdx,NewData)
-            
+
             dp      = testCase.DataPoolInstance;
-            
+
             pool                        = PoolIdx;
             [nSamplesNew,nVariablesNew] = size(NewData.Data);
             if PoolIdx > dp.PoolCount
@@ -164,14 +164,14 @@ classdef (SharedTestFixtures = { ...
             else
                 [nSamplesExisting,nVariablesExisting] = size(dp.DataRaw{pool});
             end
-            
+
             if nSamplesExisting > 0 && nSamplesNew ~= nSamplesExisting
                 % Case: variable to add has a different number of samples
-                % than the existing variables in the pool. Handled in 
+                % than the existing variables in the pool. Handled in
                 % 'testDataErrorsAndWarnings'.
                 return
             end
-            
+
             dp      = dp.addVariable(pool,NewData.Variable,NewData.Data,[],...
                         'VariableType',     NewData.VariableType,...
                         'VariableOrigin',   NewData.VariableOrigin);
@@ -181,22 +181,22 @@ classdef (SharedTestFixtures = { ...
             act  	= size(dp.DataRaw{pool},2);
             exp   	= nVariablesExisting + nVariablesNew;
             testCase.verifyEqual(act,exp)
-                    
+
             % Subtest 02: number of samples added
             act  	= size(dp.DataRaw{pool},1);
             exp   	= nSamplesNew;
             testCase.verifyEqual(act,exp)
-                    
+
             % Subtest 03: variable names
-            act  	= dp.Info(pool).Variable(nVariablesExisting + 1:end).variable2str;
+            act  	= cellstr(dp.Info(pool).Variable(nVariablesExisting + 1:end));
             exp   	= NewData.Variable;
             testCase.verifyEqual(act,exp)
-                    
+
             % Subtest 04: variable type
             act  	= cellstr(dp.Info(pool).VariableType(nVariablesExisting + 1:end));
             exp   	= NewData.VariableType;
             testCase.verifyEqual(act,exp)
-                    
+
             % Subtest 05: variable origin
             act  	= dp.Info(pool).VariableOrigin(nVariablesExisting + 1:end);
             exp   	= NewData.VariableOrigin;

@@ -122,7 +122,7 @@ function varargout = plot(obj,variables,varargin)
     %   parse parameter input
     plotVariablesAvailableInfo	= cat(1,obj.variables);
     if exist('variables','var') ~= 1
-        [variableIsValid,variableInfo]    = DataKit.Metadata.variable.validateId(plotVariablesAvailableInfo{:,'Id'});
+        [variableIsValid,variableInfo]    = DataKit.Metadata.variable.validate('Id',plotVariablesAvailableInfo{:,'Id'});
          error('Dingi:GearKit:gearDeployment:plot:TODO',...
           'TODO: implement a selection of all available variables. All is too many.')
     else
@@ -131,20 +131,20 @@ function varargout = plot(obj,variables,varargin)
                 variables   = cellstr(variables);
             end
             variables	= variables(:);
-            [variableIsValid,variableInfo]    = DataKit.Metadata.variable.validateStr(variables);
+            [variableIsValid,variableInfo]    = DataKit.Metadata.variable.validate([],variables);
         elseif isnumeric(variables)
             variables	= variables(:);
-            [variableIsValid,variableInfo]    = DataKit.Metadata.variable.validateId(variables);
+            [variableIsValid,variableInfo]    = DataKit.Metadata.variable.validate('Id',variables);
         else
             error('Dingi:GearKit:gearDeployment:plot:invalidVariableType',...
                   'The requested parameter has to be specified as a char, cellstr or numeric vector.')
         end
     end
     variables   = variableInfo{variableIsValid,'Variable'};
-    im          = ismember(variable2str(variables),plotVariablesAvailableInfo{:,'Name'});
+    im          = ismember(cellstr(variables),plotVariablesAvailableInfo{:,'Name'});
     if ~all(im)
         error('Dingi:GearKit:GearDeployment:plot:invalidVariables',...
-              'One or more specified variables are invalid:\n\t%s\nValid variables are:\n\t%s\n',strjoin(variable2str(variables(~im)),', '),strjoin(cellstr(plotVariablesAvailableInfo{:,'Name'}),', '))
+              'One or more specified variables are invalid:\n\t%s\nValid variables are:\n\t%s\n',strjoin(cellstr(variables(~im)),', '),strjoin(cellstr(plotVariablesAvailableInfo{:,'Name'}),', '))
     end
  	nVariables          = numel(variables);
 

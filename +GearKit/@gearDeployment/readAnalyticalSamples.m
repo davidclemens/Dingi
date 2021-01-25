@@ -67,7 +67,7 @@ function readAnalyticalSamples(obj)
                         'Reading analytical sample(s) for measuring device type ''%s'' is not implemented.',char(uMeasuringDevices{mdt,'MeasuringDeviceType'}))
             end
             data            = cat(2,data,accumarray(subs,tbl{maskTbl,{'Value'}},[numel(uRows),numel(uCols)],@nanmean,NaN));
-            variables       = cat(2,variables,cellstr(DataKit.Metadata.variable.id2variable(uCols)'));
+            variables       = cat(2,variables,cellstr(DataKit.Metadata.variable.fromProperty('Id',uCols)'));
             variableType    = cat(2,{'Independant'},repmat({'Dependant'},1,size(data,2) - 1));
             
            	measuringDevice                     = GearKit.measuringDevice();

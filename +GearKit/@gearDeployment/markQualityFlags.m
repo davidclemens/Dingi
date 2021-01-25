@@ -28,7 +28,7 @@ function markQualityFlags(obj)
     uVariableId                 = cat(2,uVariableId(:,1),availableVariables(uInd1,{'IndependantVariableId','IndependantVariable'}));
 
     % list information about those combinations
-    [~,variableInfo]            = DataKit.Metadata.variable.validateId(uVariableId{:,'Id'});
+    [~,variableInfo]            = DataKit.Metadata.variable.validate('Id',uVariableId{:,'Id'});
     variableInfo{:,'IndependantVariable'}   = cellfun(@(iv) strjoin({iv(:).Abbreviation},', '),uVariableId{:,'IndependantVariable'},'un',0);
 
     % let the user select which of those combinations to pick
@@ -215,7 +215,7 @@ function h = initializeGearDeploymentBrushFigureWindow(Variable)
 
     nVariable          = accumarray(uInd2,ones(size(uInd2)));
     nVariableMax       = max(nVariable);
-    [~,variableInfo]   = DataKit.Metadata.variable.validateId(Variable{:,'Id'});
+    [~,variableInfo]   = DataKit.Metadata.variable.validate('Id',Variable{:,'Id'});
 
     hsp                         = gobjects();
     hlgnd                       = gobjects();

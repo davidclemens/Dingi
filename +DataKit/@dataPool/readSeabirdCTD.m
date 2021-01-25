@@ -85,7 +85,7 @@ function obj = readSeabirdCTD(obj,path)
     measuringDevice.SerialNumber  	= SN;
     
     variables                   = varNames{1:end,'VarNameLong'};
-    [isValid,info]              = DataKit.Metadata.variable.validateStr(variables);
+    [isValid,info]              = DataKit.Metadata.variable.validate([],variables);
     
   	unitMatches                 = ~cellfun(@isempty,regexpi(varNames{:,'VarUnits'},info{:,'UnitRegexp'}));
     if sum(unitMatches(isValid)) ~= sum(isValid)

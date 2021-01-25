@@ -1,4 +1,4 @@
-classdef variable
+classdef variable < DataKit.enum
     enumeration
         % variable                  (Id,    Abbreviation,   Symbol,      Name,                              Type,               Unit,       UnitRegexp,                     PangaeaId, Description
         undefined                   (0,     '',             '',         '',                                 '',                 '',         '',                             NaN,    '')
@@ -47,7 +47,7 @@ classdef variable
         DurationD                	(44,    'dur.',         'Δt',       'Duration',                         'Duration',         'd',        'd(ay)?s?',                     NaN,    '')
         DurationY                	(45,    'dur.',         'Δt',       'Duration',                         'Duration',         'y',        'y(ear)?s?',                    NaN,    '')
     end
-    properties
+    properties (SetAccess = 'immutable')
         Id uint16
         Abbreviation char
         Symbol char
@@ -58,10 +58,10 @@ classdef variable
         PangaeaId uint16
         Description char
     end
-    properties (Hidden)
+    properties (Hidden, SetAccess = 'immutable')
         PangaeaParameterListFilename = '/PANGAEAParameterComplete.tab.tsv'
     end
-    
+
     methods
         function obj = variable(id, abbreviation, symbol, name, type, unit, unitRegexp, pangaeaId, description,varargin)
             obj.Id = id;
@@ -75,26 +75,17 @@ classdef variable
             obj.Description = description;
         end
     end
-    
-    methods (Access = public)
-        unit = variable2unit(obj)
-        id = variable2id(obj)
-        str = variable2str(obj)
-        id = variable2pangaeaid(obj)
-    end
-    
+
     % overloaded methods
     methods (Access = public)
         disp(obj)
-        varargout = unique(obj,varargin)
     end
-    
+
+    % Inherited abstract methods from superclass
     methods (Static)
-        tbl = listAllVariableInfo()
-        list = listAllVariables()
-        obj = id2variable(id)
-        obj = str2variable(str)
-        [bool,info] = validateId(id)
-        [bool,info] = validateStr(str)
+        tbl = listMembersInfo()
+        L = listMembers()
+        obj = fromProperty(propertyname,value)
+        [tf,info] = validate(propertyname,value)
     end
 end
