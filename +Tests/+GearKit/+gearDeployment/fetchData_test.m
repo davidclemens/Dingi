@@ -135,12 +135,12 @@ classdef (SharedTestFixtures = { ...
 
             nRequestedVariables = numel(RequestedVariables);
             if nRequestedVariables == 0
-                RequestedVariables  = unique(variable2str(index{index{:,'VariableType'} == 'Dependant','Variable'}));
+                RequestedVariables  = cellstr(unique(index{index{:,'VariableType'} == 'Dependant','Variable'}));
             end
             nRequestedVariables         = numel(RequestedVariables);
             testCase.NExpectedVariables	= nRequestedVariables;
 
-            maskIndex = ismember(variable2str(index{:,'Variable'}),RequestedVariables);
+            maskIndex = ismember(index{:,'Variable'},RequestedVariables);
             if sum(maskIndex) > 0
                 switch GroupBy
                     case ''

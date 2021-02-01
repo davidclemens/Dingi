@@ -29,13 +29,12 @@ function calibrateMeasuringDevices(obj)
                 'While trying to apply the following calibration data\n\t%s,\nthe measuring device was not found. Calibration is skipped.',strjoin(cellstr(uSignals{sig,{'Cruise','Gear','Type','SerialNumber'}}),' '))
             continue
         elseif numel(maskMeasuringDevicesInd) > 1
-%             error('Dingi:GearKit:gearDeployment:calibrateMeasuringDevices:TODO',...
-%                'TODO: Test this scenario')
+            %
         end
 
         % if no calibration signal is provided it should be read from the sensor data first
         if all(isnan(obj.calibration{maskCalibration,'Signal'}))
-            uRequestedVariableId  = unique(variable2id(obj.data.Index{maskMeasuringDevices,'Variable'}));
+            uRequestedVariableId  = unique(toProperty(obj.data.Index{maskMeasuringDevices,'Variable'},'Id'));
 
             data   = fetchData(obj.data,uRequestedVariableId,[],obj.data.Index{maskMeasuringDevices,'MeasuringDevice'},...
                                 'ReturnRawData',        true,...
@@ -104,7 +103,7 @@ function calibrateMeasuringDevices(obj)
                   '''%s'' is an unknown calibration method.',calMethod)
         end
 
-        [~,valueVariableInfo] 	= DataKit.Metadata.variable.validateId(obj.calibration{find(maskCalibration,1),'ValueVariableId'});
+        [~,valueVariableInfo] 	= DataKit.Metadata.variable.validate('Id',obj.calibration{find(maskCalibration,1),'ValueVariableId'});
 
         pool        = obj.data.Index{maskMeasuringDevicesInd,'DataPool'};
         var         = obj.data.Index{maskMeasuringDevicesInd,'VariableIndex'};
@@ -116,7 +115,7 @@ function calibrateMeasuringDevices(obj)
 
             % update variable to the calibrated variable
             obj.data	= obj.data.setInfoProperty(pool(v),var(v),'VariableRaw',obj.data.Info(pool(v)).Variable(var(v)));
-            obj.data	= obj.data.setInfoProperty(pool(v),var(v),'Variable',valueVariableInfo{:,'Variable'});
+            obj.data	= obj.data.setInfoProperty(pool(v),var(v),'Variable',valueVariableInfo.Variable);
         end
     end
 
