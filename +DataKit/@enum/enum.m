@@ -21,8 +21,17 @@ classdef enum
     methods (Static)
         L = core_listMembers(classname)
         T = core_listMembersInfo(classname)
-        obj = core_fromProperty(classname,propertyname,value)
-        [tf,info] = core_validate(classname,propertyname,value)
+        obj = core_fromProperty(classname,propertyname,values)
+        [tf,info] = core_validate(classname,propertyname,values)
+    end
+    
+    % Helper methods
+    methods (Static)
+        className = validateClassName(className)
+        propertyName = validatePropertyName(className,propertyName)
+        propertyValues = validatePropertyValues(className,propertyName,propertyValue)
+        [tf,ind] = isValidPropertyValue(className,propertyName,value)
+        validPropertyValues = listValidPropertyValues(className,propertyName)
     end
     
     % Abstract

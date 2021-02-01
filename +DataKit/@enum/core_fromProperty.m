@@ -1,16 +1,24 @@
-function obj = core_fromProperty(classname,propertyname,value)
+function obj = core_fromProperty(className,propertyName,values)
 
-    validProperties     = properties(classname);
-    if isempty(validProperties)
-        error('Dingi:DataKit:enum:core_fromProperty:noAttributesAvailable',...
-            'There are no attributes defined for class ''%s''.',classname)
-    end
-    propertyname        = validatestring(propertyname,validProperties);
+    import DataKit.enum.validateClassName
+    import DataKit.enum.validatePropertyName
+    import DataKit.enum.validatePropertyValues
+    import DataKit.enum.listValidPropertyValues
     
-    members             = enumeration(classname);
-    validPropertyValues = {members.(propertyname)}';
-    propertyValue       = validatestring(value,validPropertyValues);
+    className           = validateClassName(className);
+    propertyName        = validatePropertyName(className,propertyName);
+    propertyValues      = validatePropertyValues(className,propertyName,values);
+        
+    szValues            = size(propertyValues);
+    propertyValues      = reshape(propertyValues,[],1);
     
-    im  = ismember(validPropertyValues,propertyValue);
-    obj = members(im);
+    enumerationMembers	= enumeration(className);
+    
+    % Get valid property values
+    validPropertyValues = listValidPropertyValues(className,propertyName);
+    
+    [~,imInd]   = ismember(propertyValues,validPropertyValues);
+    
+    % Reshape to value shape
+    obj         = reshape(enumerationMembers(imInd),szValues);
 end
