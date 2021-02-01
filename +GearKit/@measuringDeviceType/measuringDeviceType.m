@@ -21,5 +21,6 @@ classdef measuringDeviceType < DataKit.enum
     methods (Static)
         L = listMembers()
         obj = fromProperty(propertyname,value)
+        [tf,info] = validate(propertyname,value)
     end
 end
