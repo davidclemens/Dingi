@@ -531,10 +531,6 @@ function varargout = parseInputs(obj,varargin)
     groupBy                         = validatestring(p.Results.GroupBy,validGropuBy);
     forceCellOutput               	= p.Results.ForceCellOutput;
 
-    if isnumeric(variable)
-        variable = cellstr(DataKit.Metadata.variable.fromProperty('Id',variable));
-    end
-
     poolIdx     = poolIdx(:);
     varIdx      = varIdx(:);
 

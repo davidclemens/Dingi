@@ -131,7 +131,7 @@ function varargout = plot(obj,variables,varargin)
                 variables   = cellstr(variables);
             end
             variables	= variables(:);
-            [variableIsValid,variableInfo]    = DataKit.Metadata.variable.validate([],variables);
+            [variableIsValid,variableInfo]    = DataKit.Metadata.variable.validate('Variable',variables);
         elseif isnumeric(variables)
             variables	= variables(:);
             [variableIsValid,variableInfo]    = DataKit.Metadata.variable.validate('Id',variables);

@@ -1,5 +1,7 @@
 function obj = readSeabirdCTD(obj,path)
 
+    import DataKit.Metadata.variable.validate
+    
     [~,name,ext]   = fileparts(path);
     if strcmp(ext,'.txt')
         tmp                 = regexp(name,'\w+\-\d{2}_([A-Za-z\d\-]+)_([\dA-Za-z]+)','tokens');
@@ -85,24 +87,24 @@ function obj = readSeabirdCTD(obj,path)
     measuringDevice.SerialNumber  	= SN;
     
     variables                   = varNames{1:end,'VarNameLong'};
-    [isValid,info]              = DataKit.Metadata.variable.validate([],variables);
+    [isValid,info]              = validate('Variable',variables);
     
-  	unitMatches                 = ~cellfun(@isempty,regexpi(varNames{:,'VarUnits'},info{:,'UnitRegexp'}));
+  	unitMatches                 = ~cellfun(@isempty,regexpi(varNames{:,'VarUnits'},{info.UnitRegexp}'));
     if sum(unitMatches(isValid)) ~= sum(isValid)
         warning('Dingi:DataKit:dataPool:readSeabirdCTD:invalidUnit',...
             'One or more variable was rejected because its unit was not recognized')
     end
     isValid                     = isValid & unitMatches;
     
-  	if ~all(isValid)
+	if ~all(isValid)
         warning('Dingi:GearKit:sensor:readSeabirdCTD:unrecognizedParameter',...
-                'The parameter(s):\n\t''%s''\nare not recognized in the DataKit toolbox. It is not imported.\n',strjoin(variables(~isValid),'\n\t'))
+                'The parameter(s):\n\t''%s''\nare not recognized in the DataKit toolbox. They are not imported.\n',strjoin(variables(~isValid),'\n\t'))
 	end
     
-    timeInd                     = find(info{:,'Variable'} == 'Time');
+    timeInd                	= find(cat(1,info.Variable) == 'Time');
     
   	pool                    = obj.PoolCount;
-    variables               = cellstr(info{isValid,'Variable'})';
+    variables               = cellstr(cat(1,info(isValid).Variable))';
     data                    = cat(2,rawText{isValid});
     data(:,timeInd)       	= data(:,timeInd) - data(1,timeInd);
     uncertainty             = [];

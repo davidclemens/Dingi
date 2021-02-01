@@ -29,8 +29,7 @@ function calibrateMeasuringDevices(obj)
                 'While trying to apply the following calibration data\n\t%s,\nthe measuring device was not found. Calibration is skipped.',strjoin(cellstr(uSignals{sig,{'Cruise','Gear','Type','SerialNumber'}}),' '))
             continue
         elseif numel(maskMeasuringDevicesInd) > 1
-%             error('Dingi:GearKit:gearDeployment:calibrateMeasuringDevices:TODO',...
-%                'TODO: Test this scenario')
+            %
         end
 
         % if no calibration signal is provided it should be read from the sensor data first
@@ -116,7 +115,7 @@ function calibrateMeasuringDevices(obj)
 
             % update variable to the calibrated variable
             obj.data	= obj.data.setInfoProperty(pool(v),var(v),'VariableRaw',obj.data.Info(pool(v)).Variable(var(v)));
-            obj.data	= obj.data.setInfoProperty(pool(v),var(v),'Variable',valueVariableInfo{:,'Variable'});
+            obj.data	= obj.data.setInfoProperty(pool(v),var(v),'Variable',valueVariableInfo.Variable);
         end
     end
 
