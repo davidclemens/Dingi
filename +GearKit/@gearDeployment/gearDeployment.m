@@ -32,6 +32,7 @@ classdef gearDeployment < handle
 
 	properties
         data DataKit.dataPool = DataKit.dataPool()
+        HardwareConfiguration GearKit.hardwareConfiguration
         gearType = char.empty % Type of gear
         cruise = categorical.empty % Cruise id of the deployment
         gear = categorical.empty % Gear id of the deployment
@@ -148,6 +149,7 @@ classdef gearDeployment < handle
     end
     methods (Access = protected, Abstract)
         readInternalMeasuringDevices(obj)
+        determineHardwareConfiguration(obj)
     end
     methods (Abstract)
         runAnalysis(obj)

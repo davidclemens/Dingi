@@ -36,6 +36,8 @@ classdef ecDeployment < GearKit.gearDeployment
             if isempty(path)
                 return
             end
+            
+            determineHardwareConfiguration(obj);
 
             obj.timeOfInterestStart     = obj.timeOfInterestStart + duration(0,30,0);
             obj.timeOfInterestEnd       = obj.timeOfInterestEnd - duration(0,30,0);
@@ -56,6 +58,7 @@ classdef ecDeployment < GearKit.gearDeployment
 
     methods (Access = protected)
         readInternalMeasuringDevices(obj)
+        determineHardwareConfiguration(obj)
         planarFitCoordinateSystem(obj)
     end
 end
