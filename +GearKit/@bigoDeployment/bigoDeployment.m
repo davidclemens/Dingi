@@ -4,7 +4,6 @@ classdef bigoDeployment < GearKit.gearDeployment
 %	deployment. The resulting object has plot, analysis and export methods.
 %
 % BIGODEPLOYMENT Properties:
-%	chamber -
 %	protocol -
 %
 % BIGODEPLOYMENT Methods:
@@ -14,7 +13,6 @@ classdef bigoDeployment < GearKit.gearDeployment
 % Copyright (c) 2020-2021 David Clemens (dclemens@geomar.de)
 
 	properties
-        chamber struct
         protocol table
     end
 
@@ -41,7 +39,7 @@ classdef bigoDeployment < GearKit.gearDeployment
                 return
             end
 
-            determineChamberMetadata(obj);
+            determineHardwareConfiguration(obj);
             readProtocol(obj);
             readInternalMeasuringDevices(obj);
 
@@ -64,7 +62,7 @@ classdef bigoDeployment < GearKit.gearDeployment
 
     methods (Access = protected)
         readInternalMeasuringDevices(obj)
-        determineChamberMetadata(obj)
+        determineHardwareConfiguration(obj)
         readProtocol(obj)
     end
 end
