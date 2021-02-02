@@ -43,6 +43,7 @@ classdef measuringDevice
     methods
         bool = eq(a,b)
         [C,ia,ic] = unique(A,varargin)
+        disp(obj)
     end
     methods (Static)
         list = listAllMeasuringDevice()
