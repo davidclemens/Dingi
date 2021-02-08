@@ -14,7 +14,7 @@ Before opening a new issue, please make sure that we do not have any duplicates 
 -->
 
 ## Current Implementation
-<!-- Describe or point to the current implementation that you would like to see improved -->
+<!-- Describe or point to the current implementation that you would like to see improved. -->
 
 ## Suggested Enhancement
 <!-- Outline the idea of your enhancement, by e.g., describing the algorithm you propose. -->
