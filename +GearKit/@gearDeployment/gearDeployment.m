@@ -32,7 +32,8 @@ classdef gearDeployment < handle
 
 	properties
         data DataKit.dataPool = DataKit.dataPool()
-        gearType = char.empty % Type of gear
+        HardwareConfiguration GearKit.hardwareConfiguration
+        gearType GearKit.gearType = GearKit.gearType.undefined % Type of gear
         cruise = categorical.empty % Cruise id of the deployment
         gear = categorical.empty % Gear id of the deployment
         station = categorical.empty % Station id of the deployment
@@ -53,10 +54,6 @@ classdef gearDeployment < handle
     properties (Dependent)
         variables % List of variables available for this deployment
         gearId % Id string that uniquely identifies a gearDeploment
-    end
-    properties (Hidden, Access = private, Constant)
-        validGearTypes = {'BIGO','EC'} % List of valid gear types
-        validFileExtensions = {'.bigo','.ec'}
     end
     properties (Hidden)
         debugger DebuggerKit.Debugger % Debugging object
@@ -79,7 +76,7 @@ classdef gearDeployment < handle
                                     'DebugLevel',       debugLevel);
 
             obj.gearType        = gearType;
-            
+
             if isempty(path)
                 return
             end
