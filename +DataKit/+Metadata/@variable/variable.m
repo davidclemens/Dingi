@@ -46,6 +46,18 @@ classdef variable < DataKit.enum
         DurationH                	(43,    'dur.',         'Δt',       'Duration',                         'Duration',         'h',        'h(our)?s?',                    NaN,    '')
         DurationD                	(44,    'dur.',         'Δt',       'Duration',                         'Duration',         'd',        'd(ay)?s?',                     NaN,    '')
         DurationY                	(45,    'dur.',         'Δt',       'Duration',                         'Duration',         'y',        'y(ear)?s?',                    NaN,    '')
+        Boron                       (46,    'B⁻',           'B⁻',       'Boron',                            'Concentration',    'mM',       'mmol(\sL(⁻¹|-1)|/L)',          NaN,    '')
+        Manganese                   (47,    'Mn',           'Mn',       'Manganese',                     	'Concentration',    'µM',       '(µ|u)mol(\sL(⁻¹|-1)|/L)',  	NaN,    '')
+        Calcium                     (48,    'Ca²⁺',         'Ca²⁺',     'Calcium',                          'Concentration',    'mM',       'mmol(\sL(⁻¹|-1)|/L)',          NaN,    '')
+        Iron                        (49,    'Fe',           'Fe',       'Iron',                             'Concentration',    'µM',       '(µ|u)mol(\sL(⁻¹|-1)|/L)',  	NaN,    '')
+        Sodium                      (50,    'Na',           'Na',       'Sodium',                           'Concentration',    'mM',       'mmol(\sL(⁻¹|-1)|/L)',          NaN,    '')
+        Magnesium                   (51,    'Mg',           'Mg',       'Magnesium',                        'Concentration',    'mM',       'mmol(\sL(⁻¹|-1)|/L)',          NaN,    '')
+        Strontium                	(52,    'Sr',           'Sr',       'Strontium',                        'Concentration',    'µM',       '(µ|u)mol(\sL(⁻¹|-1)|/L)',  	NaN,    '')
+        Silicium                    (53,    'Si',           'Si',       'Silicium',                         'Concentration',    'mM',       'mmol(\sL(⁻¹|-1)|/L)',          NaN,    '')
+        Barium                      (54,    'Ba',           'Ba',       'Barium',                           'Concentration',    'nM',       'nmol(\sL(⁻¹|-1)|/L)',          NaN,    '')
+        Lithium                     (55,    'Li',           'Li',       'Lithium',                          'Concentration',    'µM',       '(µ|u)mol(\sL(⁻¹|-1)|/L)',  	NaN,    '')
+        Potassium                   (56,    'K',            'K',        'Potassium',                        'Concentration',    'mM',       'mmol(\sL(⁻¹|-1)|/L)',          NaN,    '')
+        Zinc                        (57,    'Zn',           'Zn',       'Zinc',                             'Concentration',    'µM',       '(µ|u)mol(\sL(⁻¹|-1)|/L)',  	NaN,    '')
     end
     properties (SetAccess = 'immutable')
         Id uint16
