@@ -2,15 +2,15 @@ function readAnalyticalSamples(obj)
 % READANALYTICALSAMPLES
 
     import DataKit.importTableFile
-    
+
  	if obj.debugger.debugLevel >= 'Info'
-        fprintf('INFO: reading %s analytical sample(s) data... \n',obj.gearType);
+        fprintf('INFO: reading %s analytical sample(s) data... \n',char(obj.gearType));
 	end
-    
+
     try
-        filename    = [obj.dataFolderInfo.rootFolder,'/',char(obj.cruise),'_',obj.gearType,'_analyticalSamples.xlsx'];
+        filename    = [obj.dataFolderInfo.rootFolder,'/',char(obj.cruise),'_',char(obj.gearType),'_analyticalSamples.xlsx'];
         tbl         = importTableFile(filename);
-        
+
         if isempty(tbl)
             % no analytical data found
             return
@@ -24,9 +24,9 @@ function readAnalyticalSamples(obj)
                                     'MergeKeys',        true,...
                                     'RightVariables',   {'Time','TimeRelative'},...
                                     'Type',             'left');
-        
+
         uMeasuringDevices   = unique(tbl(:,{'MeasuringDeviceType','Subgear'}),'rows');
-        
+
         for mdt = 1:size(uMeasuringDevices,1)
             maskTbl     = all(tbl{:,{'MeasuringDeviceType','Subgear'}} == uMeasuringDevices{mdt,:},2);
             maskTblInd 	= find(maskTbl);
@@ -36,7 +36,7 @@ function readAnalyticalSamples(obj)
             subs    = [];
             [uRows,indepidx,subs(:,1)]	= unique(cellstr(tbl{maskTbl,{'SampleId'}}));
             [uCols,~,subs(:,2)]         = unique(tbl{maskTbl,{'ParameterId'}});
-            
+
             switch uMeasuringDevices{mdt,'MeasuringDeviceType'}
                 case 'BigoPushCore'
                     data                = tbl{maskTblInd(indepidx),'Depth'};
@@ -45,7 +45,7 @@ function readAnalyticalSamples(obj)
                     worldDomain         = GearKit.worldDomain.Sediment;
                 case 'BigoSyringeSampler'
                     data                = seconds(tbl{maskTblInd(indepidx),'TimeRelative'});
-                    variables           = {'Time'};                    
+                    variables           = {'Time'};
                     maskProtocol1       = obj.protocol{:,'MeasuringDeviceType'} == char(uMeasuringDevices{mdt,{'MeasuringDeviceType'}}) & ...
                                           obj.protocol{:,'Subgear'} == uMeasuringDevices{mdt,'Subgear'};
                     controlUnit         = obj.protocol{find(maskProtocol1,1),'ControlUnit'};
@@ -57,7 +57,7 @@ function readAnalyticalSamples(obj)
                     variableOrigin      = {obj.protocol{maskExperimentStart,'Time'}};
                     worldDomain         = GearKit.worldDomain.BenthicWaterColumn;
                 case 'BigoNiskinBottle'
-                    variables           = {'Time'};  
+                    variables           = {'Time'};
                     maskExperimentStart	= all(obj.protocol{:,{'SampleId','Event'}} == {'System','Experiment Start'},2);
                     variableOrigin      = {mean(obj.protocol{maskExperimentStart,'Time'})};
                     data                = repmat(seconds(obj.timeRecovery - variableOrigin{1}),numel(indepidx),1);
@@ -69,18 +69,18 @@ function readAnalyticalSamples(obj)
             data            = cat(2,data,accumarray(subs,tbl{maskTbl,{'Value'}},[numel(uRows),numel(uCols)],@nanmean,NaN));
             variables       = cat(2,variables,cellstr(DataKit.Metadata.variable.fromProperty('Id',uCols)'));
             variableType    = cat(2,{'Independant'},repmat({'Dependant'},1,size(data,2) - 1));
-            
+
            	measuringDevice                     = GearKit.measuringDevice();
             measuringDevice.Type                = char(uMeasuringDevices{mdt,'MeasuringDeviceType'});
             measuringDevice.SerialNumber        = char(uMeasuringDevices{mdt,'Subgear'});
             measuringDevice.MountingLocation    = char(uMeasuringDevices{mdt,'Subgear'});
             measuringDevice.WorldDomain         = worldDomain;
             measuringDevice.DeviceDomain        = GearKit.deviceDomain.fromProperty('Abbreviation',char(uMeasuringDevices{mdt,'Subgear'}));
-            
+
             variableOrigin          = cat(2,variableOrigin,repmat({0},1,size(data,2) - 1));
             uncertainty             = [];
             variableMeasuringDevice	= repmat(measuringDevice,1,size(data,2));
-           	
+
             obj.data    = obj.data.addPool;
             pool       	= obj.data.PoolCount;
             obj.data	= obj.data.addVariable(pool,variables,data,uncertainty,...
@@ -98,8 +98,8 @@ function readAnalyticalSamples(obj)
                 rethrow(ME)
         end
     end
-    
+
 	if obj.debugger.debugLevel >= 'Info'
-        fprintf('INFO: reading %s analytical sample(s) data... done\n',obj.gearType);
+        fprintf('INFO: reading %s analytical sample(s) data... done\n',char(obj.gearType));
 	end
 end

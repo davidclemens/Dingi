@@ -2,12 +2,12 @@ function assignMeasuringDeviceMountingData(obj)
 % ASSIGNMEASURINGDEVICEMOUNTINGDATA
 
     import DataKit.importTableFile
-    
+
 	if obj.debugger.debugLevel >= 'Info'
-        fprintf('INFO: assigning %s measuring device(s) mounting locations... \n',obj.gearType);
+        fprintf('INFO: assigning %s measuring device(s) mounting locations... \n',char(obj.gearType));
 	end
-    
-    measuringDeviceDataFile  = [obj.dataFolderInfo.rootFolder,'/',char(obj.cruise),'_',obj.gearType,'_measuringDevices.xlsx'];
+
+    measuringDeviceDataFile  = [obj.dataFolderInfo.rootFolder,'/',char(obj.cruise),'_',char(obj.gearType),'_measuringDevices.xlsx'];
     try
         measuringDeviceData	= importTableFile(measuringDeviceDataFile);
         measuringDeviceData	= measuringDeviceData(measuringDeviceData{:,'Cruise'} == obj.cruise & ...
@@ -21,7 +21,7 @@ function assignMeasuringDeviceMountingData(obj)
                 rethrow(ME);
         end
     end
-    
+
     maskMatches = obj.data.Index{:,'MeasuringDevice'} == cellstr(measuringDeviceData{:,{'Type','SerialNumber'}});
     for md = 1:size(obj.data.Index,1)
         dp  = obj.data.Index{md,'DataPool'};
@@ -35,9 +35,9 @@ function assignMeasuringDeviceMountingData(obj)
                 'There is no mounting data defined in\n\t%s\nfor\n\t%s\n',measuringDeviceDataFile,strjoin({obj.sensors(md).id,obj.sensors(md).serialNumber},' '))
         end
     end
-    
-    
+
+
 	if obj.debugger.debugLevel >= 'Info'
-        fprintf('INFO: assigning %s measuring device(s) mounting locations... done\n',obj.gearType);
+        fprintf('INFO: assigning %s measuring device(s) mounting locations... done\n',char(obj.gearType));
 	end
 end
