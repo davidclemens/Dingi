@@ -2,22 +2,22 @@ function getGearDeploymentMetadata(obj,pathName)
 % GETGEARDEPLOYMENTMETADATA
 
     import DataKit.importTableFile
-    
+
 	if obj.debugger.debugLevel >= 'Info'
-        fprintf('INFO: extracting %s deployment metadata... \n',obj.gearType);
+        fprintf('INFO: extracting %s deployment metadata... \n',char(obj.gearType));
 	end
-    
+
     % support empty initializeation of gearDeployment subclasses
     if isempty(pathName)
         return
     end
-    
+
     [~,obj.dataFolderInfo.gearName,~]  	= fileparts(pathName);
     obj.dataFolderInfo.dataFolder       = pathName;
-    tmpRootFolder                       = strsplit(pathName,'/');           
+    tmpRootFolder                       = strsplit(pathName,'/');
     obj.dataFolderInfo.rootFolder       = strjoin(tmpRootFolder(1:end - 2),'/');
-    
-    ids	= regexp(pathName,['(?<cruise>[A-Z]+\d+)_',obj.gearType,'_data(_)?(?<version>v\d+)?/(?<gear>',obj.gearType,'.+)$'],'names');
+
+    ids	= regexp(pathName,['(?<cruise>[A-Z]+\d+)_',char(obj.gearType),'_data(_)?(?<version>v\d+)?/(?<gear>',char(obj.gearType),'.+)$'],'names');
 
     obj.dataVersion = ids.version;
     obj.cruise      = categorical({ids.cruise});
@@ -28,10 +28,10 @@ function getGearDeploymentMetadata(obj,pathName)
             obj.gear    = categorical({ids.gear});
         otherwise
             error('Dingi:GearKit:GearDeployment:getGearDeploymentMetadata:undefinedGearType',...
-                'The gear type ''%s'' is not defined yet. Valid gear types are:\n\t%s.',obj.gearType,strjoin(obj.validGearTypes,', '))
+                'The gear type ''%s'' is not defined yet. Valid gear types are:\n\t%s.',char(obj.gearType),strjoin(GearKit.gearType.listMembers,', '))
     end
-    
-    deploymentMetadataFile  = [obj.dataFolderInfo.rootFolder,'/',char(obj.cruise),'_',obj.gearType,'_deployments.xlsx'];
+
+    deploymentMetadataFile  = [obj.dataFolderInfo.rootFolder,'/',char(obj.cruise),'_',char(obj.gearType),'_deployments.xlsx'];
     try
         deploymentMetadata     	= importTableFile(deploymentMetadataFile);
         deploymentMetadata      = deploymentMetadata(deploymentMetadata{:,'Cruise'} == obj.cruise & ...
@@ -58,8 +58,8 @@ function getGearDeploymentMetadata(obj,pathName)
                 rethrow(ME);
         end
     end
-    
+
 	if obj.debugger.debugLevel >= 'Info'
-        fprintf('INFO: extracting %s deployment metadata... done\n',obj.gearType);
+        fprintf('INFO: extracting %s deployment metadata... done\n',char(obj.gearType));
 	end
 end

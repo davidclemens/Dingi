@@ -6,7 +6,7 @@ function filenames = save(objIn,filename,varargin)
     end
     
     nGearDeployments    = numel(objIn);
-    gearDeploymentExt   = objIn(1).validFileExtensions{strcmp(objIn(1).gearType,objIn(1).validGearTypes)};
+    gearDeploymentExt   = objIn(1).gearType.FileExtension;
     if ~strcmp(ext,gearDeploymentExt)
         warning('Dingi:GearKit:gearDeployment:save:invalidFileExtension',...
             'The provided file extension ''%s'' was changed to ''%s''',ext,gearDeploymentExt);
