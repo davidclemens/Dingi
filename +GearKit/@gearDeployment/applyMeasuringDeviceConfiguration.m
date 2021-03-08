@@ -1,12 +1,16 @@
 function obj = applyMeasuringDeviceConfiguration(obj)
 
+	if obj.debugger.debugLevel >= 'Info'
+        fprintf('INFO: applying %s measuring device(s) configuration... \n',char(obj.gearType));
+	end
+    
     fName = [obj.dataFolderInfo.rootFolder,'/',char(obj.cruise),'_',char(obj.gearType),'_measuringDevicesConfiguration.xlsx'];
     try
         tbl = DataKit.importTableFile(fName);
     catch ME
         switch ME.identifier
             case 'MATLAB:xlsread:FileNotFound'
-                % do nothing
+                % Do nothing as the existance of the file is optional
                 return
             otherwise
                 rethrow(ME)
@@ -23,5 +27,9 @@ function obj = applyMeasuringDeviceConfiguration(obj)
             obj.data = obj.data.setMeasuringDeviceProperty(poolIdx(vv),variableIdx(vv),'Type',char(tbl{row,'TypeNew'}));
             obj.data = obj.data.setMeasuringDeviceProperty(poolIdx(vv),variableIdx(vv),'SerialNumber',char(tbl{row,'SerialNumberNew'}));
         end
+	end
+    
+	if obj.debugger.debugLevel >= 'Info'
+        fprintf('INFO: applying %s measuring device(s) configuration... done\n',char(obj.gearType));
 	end
 end
