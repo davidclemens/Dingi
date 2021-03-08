@@ -19,6 +19,7 @@ classdef dataFlag < DataKit.Metadata.sparseBitmask
                         bitmask(ii,:) = bitget(bitmasks(ii),1:52);
                     end
                     [~,flagId]  = find(bitmask);
+                    flagId      = flagId - 1;
                 case 2
                     flagId  = 0;
                 case 3

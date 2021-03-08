@@ -49,7 +49,7 @@ function disp(obj)
     
     if N > 0
         for ii = 1:n
-            flagIds = find(bitget(v(ii),1:52));
+            flagIds = find(bitget(v(ii),1:52)) - 1;
             flagCellstr = cellstr(DataKit.Metadata.dataFlag.id2validflag(flagIds));
             indexStr = sprintf('(%u, %u)',i(ii),j(ii));
             fprintf('%s%s%s\n',indexStr,repmat(' ',1,tabLength - numel(indexStr)),strjoin(flagCellstr,', '))

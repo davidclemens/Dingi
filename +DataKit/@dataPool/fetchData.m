@@ -491,7 +491,7 @@ function varargout = parseInputs(obj,varargin)
     validRelativeTime   = {'','milliseconds','seconds','minutes','hours','days','years'};
     validGropuBy        = {'','Variable','MeasuringDevice'}; % 'MeasuringDeviceType','DataPool','VariableType'
 
-    checkVariableType         	= @(x) (isempty(x) && isa(x,'double')) || ((ischar(x) || iscellstr(x)) && ismember(x,DataKit.Metadata.validators.validInfoVariableType.listAllValidInfoVariableType));
+    checkVariableType         	= @(x) (isempty(x) && isa(x,'double')) || GearKit.gearType.validate('GearType',x);
     checkMeasuringDevice        = @(x) (isempty(x) && isa(x,'double')) || isa(x,'GearKit.measuringDevice');
     checkMeasuringDeviceType    = @(x) (isempty(x) && isa(x,'double')) || ((ischar(x) || iscellstr(x)) && ismember(x,GearKit.measuringDeviceType.listMembers));
     checkPoolIdx                = @(x) (isempty(x) && isa(x,'double')) || (isvector(x) && isnumeric(x) && all(x <= obj.PoolCount));
