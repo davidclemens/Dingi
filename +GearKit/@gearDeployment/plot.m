@@ -140,7 +140,7 @@ function varargout = plot(obj,variables,varargin)
                   'The requested parameter has to be specified as a char, cellstr or numeric vector.')
         end
     end
-    variables   = variableInfo{variableIsValid,'Variable'};
+    variables   = variableInfo(variableIsValid).Variable;
     im          = ismember(cellstr(variables),plotVariablesAvailableInfo{:,'Name'});
     if ~all(im)
         error('Dingi:GearKit:GearDeployment:plot:invalidVariables',...
@@ -228,7 +228,7 @@ function varargout = plot(obj,variables,varargin)
                                                  'Location',        'best',...
                                                  'Interpreter',     'none');
                     legend(LegendVisible)
-                    yLabelString{row,col}	= [char(variableInfo{v,'Abbreviation'}),'\color[rgb]{0.6 0.6 0.6} (',char(variableInfo{v,'Unit'}),')'];
+                    yLabelString{row,col}	= [char(variableInfo(v).Abbreviation),'\color[rgb]{0.6 0.6 0.6} (',char(variableInfo(v).Unit),')'];
                     titleString{row,col} 	= strjoin([cellstr(obj(gear).cruise),cellstr(obj(gear).gear)],' ');
                 end
         end
@@ -240,7 +240,7 @@ function varargout = plot(obj,variables,varargin)
 
     %   set appearance and labels
     set([hsp(spi(1,:)).Title],...
-        {'String'},      titleString)
+        {'String'},      titleString(:))
 
     for col = 1:spnx
         gear	= col;
