@@ -1,31 +1,35 @@
-classdef validFlag
+classdef validFlag < DataKit.enum
     enumeration
-        % quality flag                   id     description
-        undefined                       (0,     '')
-        OutOfCalibrationRange           (1,     'Value out of calibration range')
-        BelowDetectionLimit             (2,     'Value below the detection limit')
-        MarkedRejected                  (3,     'Value was manually rejected')
-        ExcludeFromFit                  (4,     'Value should be excluded from fitting')
+        % validFlag                     Id      Name                            Description
+        undefined                       (0,     '<undefined>',                  '')
+        OutOfCalibrationRange           (1,     'out of calibration range', 	'Value out of calibration range')
+        BelowDetectionLimit             (2,    	'below detection limit',        'Value below the detection limit')
+        MarkedRejected                  (3,     'marked rejected',              'Value was manually rejected')
+        ExcludeFromFit                  (4,     'exluded from fit',             'Value should be excluded from fitting')
     end
-    properties
+    properties (SetAccess = 'immutable')
         Id uint8
+        Name char
         Description char
     end
-    properties (Dependent)
+    properties (Dependent, SetAccess = 'immutable')
         Bitmask uint64
     end
     methods
-        function obj = validFlag(id,description,varargin)
+        function obj = validFlag(id,name,description,varargin)
             obj.Id              = id;
+            obj.Name            = name;
             obj.Description     = description;
         end
     end
     
     methods (Static)
-        tbl = listAllValidFlagInfo()
+        L = listMembers()
+        obj = fromProperty(propertyname,value)
+        [tf,info] = validate(propertyname,value)
     end
     
-    % get methods
+    % Get methods
     methods
         function Bitmask = get.Bitmask(obj)
             if obj.Id == 0
