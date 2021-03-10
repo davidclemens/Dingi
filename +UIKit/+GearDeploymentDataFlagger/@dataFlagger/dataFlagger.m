@@ -99,6 +99,7 @@ classdef dataFlagger < handle
         initializeZoomAxis(obj)
         updateVariableAxes(obj)
         setStatusText(obj,str)
+        applyFlags(obj,dpAll,iAll,jAll,dpBrushed,iBrushed,jBrushed)
     end
     
     % Get methods
