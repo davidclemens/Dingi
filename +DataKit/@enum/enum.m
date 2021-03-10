@@ -5,14 +5,12 @@ classdef enum
             
         end
     end
-    methods
-        varargout = sort(obj,varargin)
-    end
     methods (Static)
         obj = cell2enum(C,classname)
     end
     
     methods
+        varargout = sort(obj,varargin)
         [C,ia,ic] = unique(obj,varargin)
         value = toProperty(obj,propertyname)
     end
