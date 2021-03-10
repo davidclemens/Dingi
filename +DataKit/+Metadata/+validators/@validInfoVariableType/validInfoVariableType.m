@@ -1,11 +1,25 @@
-classdef validInfoVariableType
+classdef validInfoVariableType < DataKit.enum
     enumeration
-        undefined
-        Dependant
-        Independant
+        % validInfoVariableType	Id      Name
+        undefined               (0,     '<undefined>')
+        Dependant               (1,     'dependent')
+        Independant             (2,     'independent')
+    end
+    properties (SetAccess = 'immutable')
+        Id uint8
+        Name char        
+    end
+    
+    methods
+        function obj = validInfoVariableType(id,name,varargin)
+            obj.Id              = id;
+            obj.Name            = name;
+        end
     end
     
     methods (Static)
-        tbl = listAllValidInfoVariableType()
+        L = listMembers()
+        obj = fromProperty(propertyname,value)
+        [tf,info] = validate(propertyname,value)
     end
 end
