@@ -31,15 +31,9 @@ function handleBrushChangedEvent(src,~)
         variableIdxBrushed	= arrayfun(@(n,v) v.*ones(n,1),nBrushedData,variableIdx,'un',0);
         variableIdxBrushed	= cat(1,variableIdxBrushed{:});
         sampleIdxBrushed   	= reshape(cat(2,brushData{:}),[],1);
-
-        % Flag to be set
-        newFlag        = df.FlagsList{df.FlagIsSelected,'Flag'}.Id;
         
-        % Set the selected flag to low for all array elements
-        df.Deployments(df.DeploymentIsSelected).data    = setFlag(df.Deployments(df.DeploymentIsSelected).data,poolIdxAll,sampleIdxAll,variableIdxAll,newFlag,0);
-        
-        % Set the selected flag to high for all brushed array elements
-        df.Deployments(df.DeploymentIsSelected).data    = setFlag(df.Deployments(df.DeploymentIsSelected).data,poolIdxBrushed,sampleIdxBrushed,variableIdxBrushed,newFlag,1);
+        % Apply flags
+        df.applyFlags(poolIdxAll,sampleIdxAll,variableIdxAll,poolIdxBrushed,sampleIdxBrushed,variableIdxBrushed);
 
         % Set status text
         setStatusText(df,'')

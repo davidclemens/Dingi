@@ -45,15 +45,8 @@ function setFlagForAllVariablesOfMeasurementdevice(obj)
     sampleIdxBrushed   	= cellfun(@(nv,b) reshape(repmat(reshape(b,[],1),1,nv),[],1),num2cell(nV),brushData,'un',0);
     sampleIdxBrushed	= cat(1,sampleIdxBrushed{:});
     
-	% Flag to be set
-    newFlag        = df.FlagsList{df.FlagIsSelected,'Flag'}.Id;
-
-    % Set the selected flag to low for all array elements
-    df.Deployments(df.DeploymentIsSelected).data    = setFlag(df.Deployments(df.DeploymentIsSelected).data,poolIdxAll,sampleIdxAll,variableIdxAll,newFlag,0);
-
-    % Set the selected flag to high for all brushed array elements
-    df.Deployments(df.DeploymentIsSelected).data    = setFlag(df.Deployments(df.DeploymentIsSelected).data,poolIdxBrushed,sampleIdxBrushed,variableIdxBrushed,newFlag,1);
-
+    % Apply flags
+    df.applyFlags(poolIdxAll,sampleIdxAll,variableIdxAll,poolIdxBrushed,sampleIdxBrushed,variableIdxBrushed);
 
     % Set status text
     setStatusText(df,'')
