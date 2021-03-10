@@ -5,6 +5,7 @@ classdef validFlag
         OutOfCalibrationRange           (1,     'Value out of calibration range')
         BelowDetectionLimit             (2,     'Value below the detection limit')
         MarkedRejected                  (3,     'Value was manually rejected')
+        ExcludeFromFit                  (4,     'Value should be excluded from fitting')
     end
     properties
         Id uint8
