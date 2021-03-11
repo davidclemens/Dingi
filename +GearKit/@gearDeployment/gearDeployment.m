@@ -56,7 +56,6 @@ classdef gearDeployment < handle
         gearId % Id string that uniquely identifies a gearDeploment
     end
     properties (Hidden)
-        debugger DebuggerKit.Debugger % Debugging object
         dataVersion % version of data structure to be used
         MatFile matlab.io.MatFile = ''
         SaveFile char = char.empty
@@ -66,14 +65,6 @@ classdef gearDeployment < handle
 	methods
         % CONSTRUCTOR METHOD
         function obj = gearDeployment(path,gearType,varargin)
-
-            % parse Name-Value pairs
-            optionName          = {'DebugLevel'}; % valid options (Name)
-            optionDefaultValue  = {'Info'}; % default value (Value)
-            [debugLevel]     	= internal.stats.parseArgs(optionName,optionDefaultValue,varargin{:}); % parse function arguments
-
-            obj.debugger        = DebuggerKit.Debugger(...
-                                    'DebugLevel',       debugLevel);
 
             obj.gearType        = gearType;
 
@@ -115,7 +106,7 @@ classdef gearDeployment < handle
         function gearId = get.gearId(obj)
             gearId = strjoin(cat(1,cellstr(obj.cruise),cellstr(obj.gear)),'_');
             if isempty(gearId)
-                gearId = 'generic_gearDeployment';
+                gearId = ['Generic',char(obj.gearType),'Deployment'];
             end
         end
     end

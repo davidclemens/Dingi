@@ -111,8 +111,7 @@ classdef (SharedTestFixtures = { ...
                         'VariableOrigin',   Data2.VariableOrigin);
 
 
-            bigo        = GearKit.bigoDeployment('',...
-                            'DebugLevel',   'Error');
+            bigo        = GearKit.bigoDeployment;
             bigo.data   = dp;
             bigo.timeDeployment         = datetime(2020,10,2,15,42,50);
             bigo.timeOfInterestStart    = datetime(2020,10,2,15,52,50);

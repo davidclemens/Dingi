@@ -1,8 +1,8 @@
 function obj = applyMeasuringDeviceConfiguration(obj)
 
-	if obj.debugger.debugLevel >= 'Info'
-        fprintf('INFO: applying %s measuring device(s) configuration... \n',char(obj.gearType));
-	end
+    import DebuggerKit.Debugger.printDebugMessage
+    
+    printDebugMessage('Info','Applying %s measuring device(s) configuration...',char(obj.gearType))
     
     fName = [obj.dataFolderInfo.rootFolder,'/',char(obj.cruise),'_',char(obj.gearType),'_measuringDevicesConfiguration.xlsx'];
     try
@@ -29,7 +29,5 @@ function obj = applyMeasuringDeviceConfiguration(obj)
         end
 	end
     
-	if obj.debugger.debugLevel >= 'Info'
-        fprintf('INFO: applying %s measuring device(s) configuration... done\n',char(obj.gearType));
-	end
+    printDebugMessage('Info','Applying %s measuring device(s) configuration... done',char(obj.gearType))
 end

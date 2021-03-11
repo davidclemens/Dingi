@@ -1,8 +1,8 @@
 function readInternalMeasuringDevices(obj)
     
-	if obj.debugger.debugLevel >= 'Info'
-        fprintf('INFO: reading internal measuring device(s)... \n');
-    end
+    import DebuggerKit.Debugger.printDebugMessage
+
+    printDebugMessage('Info','Reading internal measuring device(s)...',char(obj.gearType))
     
     controlUnits            = {'CHMB1','CHMB2'};
     controlUnitsPretty      = {'Ch1','Ch2'};
@@ -16,7 +16,5 @@ function readInternalMeasuringDevices(obj)
         end
     end
     
-	if obj.debugger.debugLevel >= 'Info'
-        fprintf('INFO: reading internal measuring device(s)... done\n');
-	end
+    printDebugMessage('Info','Reading internal measuring device(s)... done',char(obj.gearType))
 end

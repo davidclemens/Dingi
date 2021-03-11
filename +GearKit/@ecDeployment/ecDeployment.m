@@ -20,17 +20,11 @@ classdef ecDeployment < GearKit.gearDeployment
             if nargin == 0
                 path = char.empty;
             end
-
-            % parse Name-Value pairs
-            optionName          = {'DebugLevel'}; % valid options (Name)
-            optionDefaultValue  = {'Info'}; % default value (Value)
-            [debugLevel]     	= internal.stats.parseArgs(optionName,optionDefaultValue,varargin{:}); % parse function arguments
-
+            
             gearType    = 'EC';
 
             % call superclass constructor
-            obj     = obj@GearKit.gearDeployment(path,gearType,...
-                        'DebugLevel',       debugLevel);
+            obj     = obj@GearKit.gearDeployment(path,gearType);
 
             % support empty initializeation of gearDeployment subclasses
             if isempty(path)
