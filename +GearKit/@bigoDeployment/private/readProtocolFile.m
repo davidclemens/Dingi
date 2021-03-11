@@ -2,6 +2,7 @@ function t = readProtocolFile(filename,version,controlUnit)
 % READPROTOCOLFILE
 
     import DataKit.importTableFile
+    import DebuggerKit.Debugger.printDebugMessage
 
     pathRessources  = getToolboxRessources('GearKit');
 
@@ -99,8 +100,9 @@ function t = readProtocolFile(filename,version,controlUnit)
     % remove rows that did not match
     maskNoMatch     = all(cellfun(@isempty,MatchTable.EventMatch),2);
     if sum(maskNoMatch) > 0
-        warning('Dingi:GearKit:bigoDeployment:readProtocolFile:unmatchedEvents',...
-            'There were %g unmatched events in the following protocol file:\n\t%s\n',sum(maskNoMatch),filename);
+        printDebugMessage('Warning','There were %g unmatched events in the following protocol file:\n\t%s',sum(maskNoMatch),filename)
+%         warning('Dingi:GearKit:bigoDeployment:readProtocolFile:unmatchedEvents',...
+%             'There were %g unmatched events in the following protocol file:\n\t%s\n',sum(maskNoMatch),filename);
     end
 
     MatchTable(maskNoMatch,:) = [];
@@ -159,8 +161,10 @@ function t = readProtocolFile(filename,version,controlUnit)
         for ev = 1:EventOpenN
             ErrorEvent(ev,1)   = EventDict.Event(EventDict.EventId == EventOpen.EventId(ev));
         end
-        warning('Dingi:GearKit:bigoDeployment:readProtocolFile:missingEndTime',...
-          '\nOne or more events for\n\t%s\nhave no end time:\n\t%s\n',filename,strjoin(cellstr(ErrorEvent),'\n\t'))
+        
+        printDebugMessage('Warning','One or more events for\n\t%s\nhave no end time:\n\t%s',filename,strjoin(cellstr(ErrorEvent),'\n\t'))
+%         warning('Dingi:GearKit:bigoDeployment:readProtocolFile:missingEndTime',...
+%           '\nOne or more events for\n\t%s\nhave no end time:\n\t%s\n',filename,strjoin(cellstr(ErrorEvent),'\n\t'))
 
         % #####################################################
         % # TO-TO: deal with cases, where end time is missing #

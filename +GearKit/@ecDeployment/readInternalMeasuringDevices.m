@@ -1,9 +1,9 @@
 function readInternalMeasuringDevices(obj)
 % READINTERNALSENSORS
     
-	if obj.debugger.debugLevel >= 'Info'
-        fprintf('INFO: reading internal measuring device(s)... \n');
-	end
+    import DebuggerKit.Debugger.printDebugMessage
+    
+    printDebugMessage('Info','Reading internal measuring device(s)...')
     
     dirList         = dir([obj.dataFolderInfo.dataFolder,'/*.vec']);
     vecFileNames    = strcat({dirList.folder},{'/'},{dirList.name});
@@ -13,7 +13,5 @@ function readInternalMeasuringDevices(obj)
         obj.data    = obj.data.importData('NortekVector',vecFileNames{ff});
     end
     
-	if obj.debugger.debugLevel >= 'Info'
-        fprintf('INFO: reading internal measuring device(s)... done\n');
-	end
+    printDebugMessage('Info','Reading internal measuring device(s)... done')
 end

@@ -1,11 +1,11 @@
 classdef (SharedTestFixtures = { ...
             matlab.unittest.fixtures.PathFixture(subsref(strsplit(mfilename('fullpath'),'/+'),substruct('{}',{':'})))
         }) saveLoad_test < matlab.unittest.TestCase
-    
+
     % run:
     % tests = matlab.unittest.TestSuite.fromClass(?Tests.GearKit.bigoDeployment.saveLoad_test);
     % run(tests)
-    
+
     properties
         GearDeploymentInstance
         TemporaryFolder
@@ -50,19 +50,19 @@ classdef (SharedTestFixtures = { ...
                         )
     end
     properties (MethodSetupParameter)
-        
+
     end
     properties (TestParameter)
-        
+
     end
-    
+
     methods (TestClassSetup)
         function createTemporaryDirectory(testCase)
-            
+
             import matlab.unittest.fixtures.TemporaryFolderFixture
-            
+
             testCase.TemporaryFolder = testCase.applyFixture(TemporaryFolderFixture);
-            
+
 %             disp(['The temporary folder is: ' testCase.TemporaryFolder.Folder])
         end
         function createGearDeployment(testCase,Data1,Data2)
@@ -74,43 +74,42 @@ classdef (SharedTestFixtures = { ...
             dp      = dp.addVariable(pool,Data1.Variable,Data1.Data,[],...
                         'VariableType',     Data1.VariableType,...
                         'VariableOrigin',   Data1.VariableOrigin);
-                    
+
             % Add second pool
             dp      = dp.addPool();
             pool    = dp.PoolCount;
             dp      = dp.addVariable(pool,Data2.Variable,Data2.Data,[],...
                         'VariableType',     Data2.VariableType,...
                         'VariableOrigin',   Data2.VariableOrigin);
-                
-                    
-            bigo        = bigoDeployment('',...
-                            'DebugLevel',   'Error');
+
+
+            bigo        = bigoDeployment;
             bigo.data   = dp;
             bigo.timeDeployment         = datetime(2020,10,2,15,42,50);
             bigo.timeOfInterestStart    = datetime(2020,10,2,15,52,50);
             bigo.timeOfInterestEnd      = datetime(2020,10,2,19,32,38);
             bigo.timeRecovery           = datetime(2020,10,2,19,42,38);
-            
+
             testCase.GearDeploymentInstance = bigo;
-        end        
+        end
     end
     methods (TestMethodSetup)
         function saveDeployment(testCase)
             filenames = testCase.GearDeploymentInstance.save([testCase.TemporaryFolder.Folder,'/filename.bigo']);
-            
+
             testCase.Filenames = filenames;
         end
     end
     methods (TestMethodTeardown)
-        
+
     end
-    
+
     methods (Test)
         function testLoadedDeployment(testCase)
             loadStruct = load(testCase.Filenames{1},'-mat');
             loadedBigoDeployment = loadStruct.obj;
-            
-            
+
+
             metadata        = eval(['?',class(loadedBigoDeployment)]);
             propertyNames   = {metadata.PropertyList.Name}';
             needsComparing  = find(~any(cat(2,cat(1,metadata.PropertyList.Transient),...
@@ -119,7 +118,7 @@ classdef (SharedTestFixtures = { ...
             propertyIsEqual = false(numel(needsComparing),1);
             for ii = 1:numel(propertyNames)
                 propertyIsEqual(ii)     = isequal(loadedBigoDeployment.(propertyNames{ii}),testCase.GearDeploymentInstance.(propertyNames{ii}));
-                
+
                 testCase.verifyTrue(propertyIsEqual(ii),sprintf('''%s'' is not equal.',propertyNames{ii}));
             end
         end

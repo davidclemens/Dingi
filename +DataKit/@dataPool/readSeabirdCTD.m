@@ -1,6 +1,7 @@
 function obj = readSeabirdCTD(obj,path)
 
     import DataKit.Metadata.variable.validate
+    import DebuggerKit.Debugger.printDebugMessage
     
     [~,name,ext]   = fileparts(path);
     if strcmp(ext,'.txt')
@@ -20,8 +21,7 @@ function obj = readSeabirdCTD(obj,path)
     
     fId             = fopen(path,'r');
     if fId == -1
-        warning('Dingi:DataKit:dataPool:readSeabirdCTD:unableToOpenFile',...
-                'Unable to read data in:\n\t ''%s''',path)
+        printDebugMessage('Warning','Unable to read data in:\n\t ''%s''',path)
         return
     end
     
@@ -91,14 +91,12 @@ function obj = readSeabirdCTD(obj,path)
     
   	unitMatches                 = ~cellfun(@isempty,regexpi(varNames{:,'VarUnits'},{info.UnitRegexp}'));
     if sum(unitMatches(isValid)) ~= sum(isValid)
-        warning('Dingi:DataKit:dataPool:readSeabirdCTD:invalidUnit',...
-            'One or more variable was rejected because its unit was not recognized')
+        printDebugMessage('Warning','One or more variable was rejected because its unit was not recognized')
     end
     isValid                     = isValid & unitMatches;
     
 	if ~all(isValid)
-        warning('Dingi:GearKit:sensor:readSeabirdCTD:unrecognizedParameter',...
-                'The parameter(s):\n\t''%s''\nare not recognized in the DataKit toolbox. They are not imported.\n',strjoin(variables(~isValid),'\n\t'))
+        printDebugMessage('Warning','The parameter(s):\n\t''%s''\nare not recognized in the DataKit toolbox. They are not imported.',strjoin(variables(~isValid),'\n\t'))
 	end
     
     timeInd                	= find(cat(1,info.Variable) == 'Time');
