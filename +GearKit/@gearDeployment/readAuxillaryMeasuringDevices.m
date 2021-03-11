@@ -2,10 +2,9 @@ function readAuxillaryMeasuringDevices(obj)
 % READAUXILLARYSENSORS
 
     import GearKit.*
-    
-	if obj.debugger.debugLevel >= 'Info'
-        fprintf('INFO: reading auxillary measuring device(s)... \n');
-	end
+    import DebuggerKit.Debugger.printDebugMessage
+
+    printDebugMessage('Info','Reading auxillary measuring device(s)...')
     
     dirList           	= dir([obj.dataFolderInfo.dataFolder,'/AuxSensor_*']);
 	tmpMetadata       	= regexp({dirList.name},'AuxSensor_(\w+)_(\w+)','tokens');
@@ -23,7 +22,6 @@ function readAuxillaryMeasuringDevices(obj)
           	obj.data    = obj.data.importData(measuringUnitTypes{mut},[path,'/',measuringUnitList(mu).name]);
         end
     end
-	if obj.debugger.debugLevel >= 'Info'
-        fprintf('INFO: reading auxillary measuring device(s)... done\n');
-	end
+    
+    printDebugMessage('Info','Reading auxillary measuring device(s)... done')
 end

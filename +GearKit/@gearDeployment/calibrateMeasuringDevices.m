@@ -1,10 +1,9 @@
 function calibrateMeasuringDevices(obj)
 
     import GearKit.*
+    import DebuggerKit.Debugger.printDebugMessage
 
-	if obj.debugger.debugLevel >= 'Info'
-        fprintf('INFO: calibrating %s measuring device(s)... \n',char(obj.gearType));
-	end
+    printDebugMessage('Info','Calibrating %s measuring device(s)...',char(obj.gearType))
 
     obj.calibration{:,'CalibrationTime'} = mean(obj.calibration{:,{'CalibrationStart','CalibrationEnd'}},2);
 
@@ -119,7 +118,5 @@ function calibrateMeasuringDevices(obj)
         end
     end
 
-	if obj.debugger.debugLevel >= 'Info'
-        fprintf('INFO: calibrating %s measuring device(s)... done\n',char(obj.gearType));
-	end
+    printDebugMessage('Info','Calibrating %s measuring device(s)... done',char(obj.gearType))
 end

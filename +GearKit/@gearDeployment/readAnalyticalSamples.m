@@ -2,10 +2,9 @@ function readAnalyticalSamples(obj)
 % READANALYTICALSAMPLES
 
     import DataKit.importTableFile
+    import DebuggerKit.Debugger.printDebugMessage
 
- 	if obj.debugger.debugLevel >= 'Info'
-        fprintf('INFO: reading %s analytical sample(s) data... \n',char(obj.gearType));
-	end
+    printDebugMessage('Info','Reading %s analytical sample(s) data...',char(obj.gearType))
 
     try
         filename    = [obj.dataFolderInfo.rootFolder,'/',char(obj.cruise),'_',char(obj.gearType),'_analyticalSamples.xlsx'];
@@ -91,15 +90,11 @@ function readAnalyticalSamples(obj)
     catch ME
         switch ME.identifier
             case 'MATLAB:xlsread:FileNotFound'
-                if obj.debugger.debugLevel >= 'Verbose'
-                    fprintf('VERBOSE: no file with name ''%s'' found.\n',filename);
-                end
+                printDebugMessage('Info','No file with name ''%s'' found',filename)
             otherwise
                 rethrow(ME)
         end
     end
 
-	if obj.debugger.debugLevel >= 'Info'
-        fprintf('INFO: reading %s analytical sample(s) data... done\n',char(obj.gearType));
-	end
+    printDebugMessage('Info','Reading %s analytical sample(s) data... done',char(obj.gearType))
 end

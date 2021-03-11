@@ -3,6 +3,7 @@ function bool = eq(a,b)
 %     nA  = size(a,1);
 %     nB  = size(b,1);
     
+    import DebuggerKit.Debugger.printDebugMessage
     
     % convert inputs if neccessary
     a = harmonizeInput(a);
@@ -16,8 +17,8 @@ function bool = eq(a,b)
         b       = reshape(b,1,[]);
         [a,b]	= ndgrid(a,b);
     else
-        error('Dingi:GearKit:measuringDevice:eq:matrixDimensionsDisagree',...
-            'Matrix dimensions must agree.')
+        printDebugMessage('Dingi:GearKit:measuringDevice:eq:matrixDimensionsDisagree',...
+            'Error','Matrix dimensions must agree')
     end
 
     aType   = cat(1,a.Type);
@@ -40,8 +41,8 @@ function bool = eq(a,b)
         if isempty(affectedMeasuringDevicesInB)
             affectedMeasuringDevicesInB = '';
         end
-        warning('Dingi:GearKit:measuringDevice:eq:missingSerialNumber',...
-            'Equality can''t be tested for at least 1 pair because a measuring device serial number is not defined. Returning ''false'' for that pair.\n\tA: %s\n\tB: %s',strjoin(cellstr(affectedMeasuringDevicesInA),', '),strjoin(cellstr(affectedMeasuringDevicesInB),', '))
+        
+        printDebugMessage('Warning','Equality can''t be tested for at least 1 pair because a measuring device serial number is not defined. Returning ''false'' for that pair.\n\tA: %s\n\tB: %s',strjoin(cellstr(affectedMeasuringDevicesInA),', '),strjoin(cellstr(affectedMeasuringDevicesInB),', '))
     end
     
     bool                    = aType == bType & strcmp(aSN,bSN);
