@@ -1,17 +1,12 @@
 function obj = id2validflag(id)
 
-	if ~isnumeric(id)
-        error('Dingi:DataKit:Metadata:dataFlag:id2flag:invalidDataType',...
-            'The input argument ''id'' has to be numeric.')
-	end
+    sz              = size(id);
+    [tf,info]   	= DataKit.Metadata.validators.validFlag.validate('Id',id);
     
-    flagListInfo	= DataKit.Metadata.validators.validFlag.listAllValidFlagInfo();
-    [im,imIdx]   	= ismember(id,flagListInfo{:,'Id'});
-    
-    if ~all(im)
+    if ~all(tf)
         error('Dingi:DataKit:Metadata:dataFlag:id2flag:invalidFlagId',...
-            'The flag id %u is invalid.',id(find(~im,1)))
+            'The flag id %u is invalid.',id(find(~tf,1)))
     end
     
-    obj     = flagListInfo{imIdx,'Flag'};
+    obj     = reshape(cat(1,info.ValidFlag),sz);
 end

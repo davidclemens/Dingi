@@ -122,7 +122,7 @@ function varargout = plot(obj,variables,varargin)
     %   parse parameter input
     plotVariablesAvailableInfo	= cat(1,obj.variables);
     if exist('variables','var') ~= 1
-        [variableIsValid,variableInfo]    = DataKit.Metadata.variable.validateId(plotVariablesAvailableInfo{:,'Id'});
+        [variableIsValid,variableInfo]    = DataKit.Metadata.variable.validate('Id',plotVariablesAvailableInfo{:,'Id'});
          error('Dingi:GearKit:gearDeployment:plot:TODO',...
           'TODO: implement a selection of all available variables. All is too many.')
     else
@@ -131,20 +131,20 @@ function varargout = plot(obj,variables,varargin)
                 variables   = cellstr(variables);
             end
             variables	= variables(:);
-            [variableIsValid,variableInfo]    = DataKit.Metadata.variable.validateStr(variables);
+            [variableIsValid,variableInfo]    = DataKit.Metadata.variable.validate('Variable',variables);
         elseif isnumeric(variables)
             variables	= variables(:);
-            [variableIsValid,variableInfo]    = DataKit.Metadata.variable.validateId(variables);
+            [variableIsValid,variableInfo]    = DataKit.Metadata.variable.validate('Id',variables);
         else
             error('Dingi:GearKit:gearDeployment:plot:invalidVariableType',...
                   'The requested parameter has to be specified as a char, cellstr or numeric vector.')
         end
     end
-    variables   = variableInfo{variableIsValid,'Variable'};
-    im          = ismember(variable2str(variables),plotVariablesAvailableInfo{:,'Name'});
+    variables   = variableInfo(variableIsValid).Variable;
+    im          = ismember(cellstr(variables),plotVariablesAvailableInfo{:,'Name'});
     if ~all(im)
         error('Dingi:GearKit:GearDeployment:plot:invalidVariables',...
-              'One or more specified variables are invalid:\n\t%s\nValid variables are:\n\t%s\n',strjoin(variable2str(variables(~im)),', '),strjoin(cellstr(plotVariablesAvailableInfo{:,'Name'}),', '))
+              'One or more specified variables are invalid:\n\t%s\nValid variables are:\n\t%s\n',strjoin(cellstr(variables(~im)),', '),strjoin(cellstr(plotVariablesAvailableInfo{:,'Name'}),', '))
     end
  	nVariables          = numel(variables);
 
@@ -228,7 +228,7 @@ function varargout = plot(obj,variables,varargin)
                                                  'Location',        'best',...
                                                  'Interpreter',     'none');
                     legend(LegendVisible)
-                    yLabelString{row,col}	= [char(variableInfo{v,'Abbreviation'}),'\color[rgb]{0.6 0.6 0.6} (',char(variableInfo{v,'Unit'}),')'];
+                    yLabelString{row,col}	= [char(variableInfo(v).Abbreviation),'\color[rgb]{0.6 0.6 0.6} (',char(variableInfo(v).Unit),')'];
                     titleString{row,col} 	= strjoin([cellstr(obj(gear).cruise),cellstr(obj(gear).gear)],' ');
                 end
         end
@@ -240,7 +240,7 @@ function varargout = plot(obj,variables,varargin)
 
     %   set appearance and labels
     set([hsp(spi(1,:)).Title],...
-        {'String'},      titleString)
+        {'String'},      titleString(:))
 
     for col = 1:spnx
         gear	= col;

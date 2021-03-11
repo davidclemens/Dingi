@@ -19,7 +19,7 @@ function runTestsLocally(varargin)
     ignorePackages    = {'Tests'};
 
     % Determine packages
-    toolboxInfo = what('toolboxes');
+    toolboxInfo = what('Dingi');
     packages    = toolboxInfo.packages;
     packages    = packages(~ismember(packages,ignorePackages));
 

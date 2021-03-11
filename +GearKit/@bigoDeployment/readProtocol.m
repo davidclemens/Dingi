@@ -1,47 +1,58 @@
 function readProtocol(obj)
 % READPROTOCOL
 
-    uChambers   = fields(obj.chamber);
-    nChambers   = numel(uChambers);
     protocol    = table();
-    for ch = 1:nChambers
-        controlUnit     = ['Ch',num2str(ch)];
-        fName       = [obj.dataFolderInfo.dataFolder,'/CHMB',num2str(ch),'/PROTOCOL.TXT'];
-        newTbl      = readProtocolFile(fName,obj.dataVersion,controlUnit);
-        newTbl{:,'ControlUnit'} = categorical({controlUnit});
+    
+    controlUnits        = dir([obj.dataFolderInfo.dataFolder,'/CHMB*']);
+    controlUnits        = reshape({controlUnits.name},[],1);
+    controlUnitsPretty  = regexprep(controlUnits,'CHMB(\d)','Ch$1');
+    nControlUnits       = numel(controlUnits);
+    
+    for cu = 1:nControlUnits
+        fName       = [obj.dataFolderInfo.dataFolder,'/CHMB',num2str(cu),'/PROTOCOL.TXT'];
+        newTbl      = readProtocolFile(fName,obj.dataVersion,controlUnitsPretty{cu});
+        newTbl{:,'ControlUnit'} = categorical(controlUnitsPretty(cu));
         protocol	= [protocol;newTbl];
-        
     end
     obj.protocol = sortrows(protocol,{'Time'});
     
-    for ch = 1:nChambers
-        controlUnit     = ['Ch',num2str(ch)];
+    % Add experiment start & end times to the HardwareConfiguration
+    events              = {'Experiment Start','Experiment End'};
+    eventsVarName       = {'ExperimentStart','ExperimentEnd'};
+    defaultEventValue 	= {obj.timeDeployment,obj.timeRecovery};
+    nEvents             = numel(events);
+    
+    % initialize column
+    for ev = 1:nEvents
+        obj.HardwareConfiguration.DeviceDomainMetadata.(eventsVarName{ev}) = NaT(size(obj.HardwareConfiguration.DeviceDomainMetadata,1),1);
+    end
+    
+    for cu = 1:nControlUnits
+        maskHardwareConfiguration 	= ismember({obj.HardwareConfiguration.DeviceDomainMetadata{:,'DeviceDomain'}.Abbreviation}',controlUnitsPretty{cu});
         
-        parameters      = {'Experiment Start','Experiment End'};
-        defaultValue    = {obj.timeDeployment,obj.timeRecovery};
-        unit            = {'UTC','UTC'};
-        for par = 1:numel(parameters)
-            maskProtocol    = obj.protocol{:,'Event'} == parameters{par} & obj.protocol{:,'Subgear'} == controlUnit;
+        for ev = 1:nEvents
+            maskProtocol                = obj.protocol{:,'Event'} == events{ev} & ...
+                                          obj.protocol{:,'Subgear'} == controlUnitsPretty{cu};            
             if sum(maskProtocol) == 1
+                % use experiment start time if available
                 time       = obj.protocol{maskProtocol,'Time'};
             elseif sum(maskProtocol) == 0
-                time       = defaultValue{par};
+                % default to deployment start time if not available
+                time       = defaultEventValue{ev};
             else
                 error('Dingi:GearKit:bigoDeployment:readProtocol:invalidNumberOfControlUnits',...
-                    'error')
+                    'Invalid number of control units matching.')
             end
-            nParameter      = numel(fields(obj.chamber.(controlUnit)));
-            obj.chamber.(controlUnit)(nParameter + par).Parameter     = parameters{par};
-            obj.chamber.(controlUnit)(nParameter + par).Value         = time;
-            obj.chamber.(controlUnit)(nParameter + par).Unit          = unit{par};
+            
+            % assign value
+            obj.HardwareConfiguration.DeviceDomainMetadata.(eventsVarName{ev})(maskHardwareConfiguration) = time;
         end
     end
     
     % calculate relative times
-    obj.protocol{:,'TimeRelative'} = duration(NaN,NaN,NaN); % initialize
- 	for ch = 1:nChambers
-        controlUnit     = ['Ch',num2str(ch)];
-        maskProtocol1   = obj.protocol{:,'ControlUnit'} == controlUnit;
+    obj.protocol{:,'TimeRelative'} = duration(NaN(1,3)); % initialize
+ 	for cu = 1:nControlUnits
+        maskProtocol1   = obj.protocol{:,'ControlUnit'} == controlUnitsPretty{cu};
         maskProtocol2   = maskProtocol1 & ...
                           obj.protocol{:,'Event'} == 'Experiment Start';
         if sum(maskProtocol2) == 1

@@ -87,7 +87,7 @@ function data = fetchData(obj,varargin)
 %       [] (default) | GearKit.measuringDeviceType
 %         If specified, only data captured by a measuring device of type
 %         mdType is returned. Type
-%         'GearKit.measuringDeviceType.listAllMeasuringDeviceType' for a
+%         'GearKit.measuringDeviceType.listMembers' for a
 %         list of all measuring device types.
 %         If left empty (default), data of all measuring device types
 %         available in the data pool are returned.
@@ -277,12 +277,12 @@ function data = fetchData(obj,varargin)
         if isa(variable,'DataKit.Metadata.variable')
             % ok
         elseif isnumeric(variable)
-            variable    = DataKit.Metadata.variable.id2variable(variable);
+            variable    = DataKit.Metadata.variable.fromProperty('Id',variable);
         else
-            variable    = DataKit.Metadata.variable.str2variable(variable);
+            variable    = DataKit.Metadata.variable(variable);
         end
-        variableIsRequested     = ismember(objIndex{:,'Variable'},variable2str(variable));
-        variableIsInDataPool    = ismember(variable2str(variable),objIndex{:,'Variable'});
+        variableIsRequested     = ismember(objIndex{:,'Variable'},variable);
+        variableIsInDataPool    = ismember(variable,objIndex{:,'Variable'});
         maskIndex   = maskIndex & ...
                         variableIsRequested;
     else
@@ -327,24 +327,24 @@ function data = fetchData(obj,varargin)
                         'PoolIdx',              [],...
                         'VariableIdx',          []);
 
+
+    if any(~variableIsInDataPool)
+        error('Dingi:DataKit:dataPool:fetchData:requestedVariableIsUnavailable',...
+            '\nTODO: The requested variable ''%s'' is not a member of the data pool.\nAvailable variables are:\n\t%s\n',char(variable(find(~variableIsInDataPool,1))),strjoin(unique(cellstr(objIndex{:,'Variable'})),', '))
+    end
     if nIndexMatches == 0
         warning('Dingi:DataKit:dataPool:fetchData:noDataForRequestedInputsAvailable',...
             'No data matches the requested combination of inputs.')
         return
     end
-    if any(~variableIsInDataPool)
-        error('Dingi:DataKit:dataPool:fetchData:requestedVariableIsUnavailable',...
-            '\nTODO: The requested variable ''%s'' is not a member of the data pool.\nAvailable variables are:\n\t%s\n',char(variable(find(~variableIsInDataPool,1))),strjoin(unique(variable2str(objIndex{:,'Variable'})),', '))
-    end
-
     if isempty(variable)
-        [~,uIdx,~]  = unique(variable2str(objIndex{maskIndex,'Variable'}));
+        [~,uIdx,~]  = unique(objIndex{maskIndex,'Variable'});
         variable    = objIndex{maskIndex,'Variable'};
         variable    = variable(uIdx);
     end
 
     nVariable   = numel(variable);
-    [~,uVariableIdx]    = ismember(variable2str(objIndex{maskIndex,'Variable'}),variable2str(variable));
+    [~,uVariableIdx]    = ismember(objIndex{maskIndex,'Variable'},variable);
 
     [uMeasuringDevices,~,uMeasuringDevicesIdx]	= unique(objIndex{maskIndex,'MeasuringDevice'});
     nMeasuringDevices   = numel(uMeasuringDevices);
@@ -380,8 +380,7 @@ function data = fetchData(obj,varargin)
     % 1. Find the unique independant variables in all the data that has
     %    been fetched (idata).
     uIndepVariables           	= cellfun(@(dp,v) obj.Info(dp).Variable(v),num2cell(dp),iv,'un',0); % all independant variables found in idata (with repetition)
-    [uIndepVariables,uIdx1uIndepVariables,uIdx2uIndepVariables]  = unique(variable2str(cat(2,uIndepVariables{:})),'stable'); % all independant variables found in idata (without repetition)
-    uIndepVariables     = DataKit.Metadata.variable.str2variable(uIndepVariables)';
+    [uIndepVariables,uIdx1uIndepVariables,uIdx2uIndepVariables]  = unique(cat(2,uIndepVariables{:}),'stable'); % all independant variables found in idata (without repetition)
     nUIndepVariables    = numel(uIndepVariables);
 
     % 2. Find the return datatype for the uIndepVariables. This allows the
@@ -492,9 +491,9 @@ function varargout = parseInputs(obj,varargin)
     validRelativeTime   = {'','milliseconds','seconds','minutes','hours','days','years'};
     validGropuBy        = {'','Variable','MeasuringDevice'}; % 'MeasuringDeviceType','DataPool','VariableType'
 
-    checkVariableType         	= @(x) (isempty(x) && isa(x,'double')) || ((ischar(x) || iscellstr(x)) && ismember(x,DataKit.Metadata.validators.validInfoVariableType.listAllValidInfoVariableType));
+    checkVariableType         	= @(x) (isempty(x) && isa(x,'double')) || GearKit.gearType.validate('GearType',x);
     checkMeasuringDevice        = @(x) (isempty(x) && isa(x,'double')) || isa(x,'GearKit.measuringDevice');
-    checkMeasuringDeviceType    = @(x) (isempty(x) && isa(x,'double')) || ((ischar(x) || iscellstr(x)) && ismember(x,GearKit.measuringDeviceType.listAllMeasuringDeviceType));
+    checkMeasuringDeviceType    = @(x) (isempty(x) && isa(x,'double')) || ((ischar(x) || iscellstr(x)) && ismember(x,GearKit.measuringDeviceType.listMembers));
     checkPoolIdx                = @(x) (isempty(x) && isa(x,'double')) || (isvector(x) && isnumeric(x) && all(x <= obj.PoolCount));
     checkVarIdx                 = @(x) (isempty(x) && isa(x,'double')) || (isvector(x) && isnumeric(x) && all(x <= max(obj.Index{:,'VariableIndex'})));
 
@@ -532,10 +531,6 @@ function varargout = parseInputs(obj,varargin)
     groupBy                         = validatestring(p.Results.GroupBy,validGropuBy);
     forceCellOutput               	= p.Results.ForceCellOutput;
 
-    if isnumeric(variable)
-        variable = variable2str(DataKit.Metadata.variable.id2variable(variable));
-    end
-
     poolIdx     = poolIdx(:);
     varIdx      = varIdx(:);
 
@@ -562,8 +557,8 @@ function varargout = parseInputs(obj,varargin)
 end
 
 function bool = checkVariable(x)
-    validVariable   = DataKit.Metadata.variable.listAllVariables;
-    validVariableId = DataKit.Metadata.variable.listAllVariableInfo.Id;
+    validVariable   = DataKit.Metadata.variable.listMembers;
+    validVariableId = DataKit.Metadata.variable.listMembersInfo.Id;
     if isa(x,'DataKit.Metadata.variable')
         bool = true;
     elseif iscellstr(x)
