@@ -1,5 +1,5 @@
 classdef Debugger < handle
-% DEBUGGER Class of a debugger object
+% DEBUGGER A debugger object
 %   The DEBUGGER class holds debugging settings.
 %
 % Copyright (c) 2020-2021 David Clemens (dclemens@geomar.de)
@@ -16,7 +16,7 @@ classdef Debugger < handle
     end
     methods
         function obj = Debugger(varargin)
-        % DEBUGGER Constructs a debugger object.
+        % DEBUGGER Constructs a debugger instance.
         % Create a DEBUGGER object that holds debugging settings.
         %
         % Syntax
@@ -82,6 +82,13 @@ classdef Debugger < handle
             obj.ShowTime = showTime;
             obj.ShowStack = showStack;
             obj.TruncateMultiline = truncateMultiline;
+            
+            % Make this instance the global Debugger if none exists
+            global DEBUGGER
+            if isempty(DEBUGGER)
+                evalin('caller','global DEBUGGER')
+                assignin('caller','DEBUGGER',obj)
+            end
         end
     end
     

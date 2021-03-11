@@ -7,7 +7,7 @@ function printDebugMessage(varargin)
     
     % If no global debugger instance is defined yet. Define it now.
     if isempty(DEBUGGER)
-        DEBUGGER = DebuggerKit.Debugger;
+        DebuggerKit.Debugger;
     end
     
     % Parse input
