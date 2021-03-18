@@ -1,18 +1,20 @@
-function obj = addVariable(obj,pool,variable,data,uncertainty,varargin)
+function varargout = addVariable(obj,pool,variable,data,uncertainty,varargin)
 % addVariable  Adds a variable to a pool of a dataPool instance
 %   ADDVARIABLE adds a variable to the pool pool of the dataPool instance
 %	obj.
 %
 %   Syntax
-%     obj = ADDVARIABLE(obj,pool,variable,data,uncertainty)
-%     obj = ADDVARIABLE(__,Name,Value)
+%     ADDVARIABLE(obj,pool,variable,data,uncertainty)
+%     ADDVARIABLE(__,Name,Value)
+%     obj = ADDVARIABLE(__)
 %     
 %   Description
-%     obj = ADDVARIABLE(obj,pool,variable,data,uncertainty)
-%     obj = ADDVARIABLE(__,Name,Value)
+%     ADDVARIABLE(obj,pool,variable,data,uncertainty)
+%     ADDVARIABLE(__,Name,Value)
+%     obj = ADDVARIABLE(__)
 %
 %   Example(s)
-%     dp = ADDVARIABLE(dp,2,'Oxygen',data,uncertainty)
+%     ADDVARIABLE(dp,2,'Oxygen',data,uncertainty)
 %
 %
 %   Input Arguments
@@ -39,7 +41,6 @@ function obj = addVariable(obj,pool,variable,data,uncertainty,varargin)
 %
 %
 %   Output Arguments
-%
 %     obj - returned data pool instance
 %       DataKit.dataPool
 %         The new instance of the DataKit.dataPool class.
@@ -84,6 +85,9 @@ function obj = addVariable(obj,pool,variable,data,uncertainty,varargin)
 %
 
     import DataKit.Metadata.dataFlag
+    import internal.stats.parseArgs
+    
+    nargoutchk(0,1)
     
     if ischar(variable)
         variable    = cellstr(variable);
@@ -100,12 +104,13 @@ function obj = addVariable(obj,pool,variable,data,uncertainty,varargin)
      variableOrigin,...
      variableDescription,...
      variableMeasuringDevice...
-        ]               = internal.stats.parseArgs(optionName,optionDefaultValue,varargin{:}); %   parse function arguments
+        ]               = parseArgs(optionName,optionDefaultValue,varargin{:}); %   parse function arguments
     
     if pool > obj.PoolCount
-        obj     = obj.addPool;
-        pool    = obj.PoolCount;
+        obj.addPool;
     end
+    
+    pool    = obj.PoolCount;
     
     if size(data,3) > 2
         error('Dingi:DataKit:dataPool:addVariable:invalidDimensionsOfNewData',...
@@ -154,6 +159,10 @@ function obj = addVariable(obj,pool,variable,data,uncertainty,varargin)
                         'VariableMeasuringDevice',      variableMeasuringDevice);
                     
 	for vv = 1:nVariablesNew
-        obj = obj.applyCalibrationFunction(pool,nVariables + vv);
+        obj.applyCalibrationFunction(pool,nVariables + vv);
 	end
+    
+    if nargout == 1
+        varargout{1} = obj;
+    end
 end

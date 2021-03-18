@@ -1,4 +1,6 @@
-function obj = readO2Logger(obj,path)
+function varargout = readO2Logger(obj,path)
+    
+    nargoutchk(0,1)
     
     fId             = fopen(path,'r');
     if fId == -1
@@ -37,8 +39,12 @@ function obj = readO2Logger(obj,path)
     variableOrigin          = {dt(1), 0, 0};
     variableMeasuringDevice	= repmat(measuringDevice,1,size(data,2));
     
-    obj	= obj.addVariable(pool,variables,data,uncertainty,...
-            'VariableType',             variableType,...
-            'VariableOrigin',           variableOrigin,...
-            'VariableMeasuringDevice',	variableMeasuringDevice);
+    obj.addVariable(pool,variables,data,uncertainty,...
+        'VariableType',             variableType,...
+        'VariableOrigin',           variableOrigin,...
+        'VariableMeasuringDevice',	variableMeasuringDevice);
+        
+	if nargout == 1
+        varargout{1} = obj;
+	end
 end

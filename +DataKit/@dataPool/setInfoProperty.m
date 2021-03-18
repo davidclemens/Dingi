@@ -1,5 +1,7 @@
-function obj = setInfoProperty(obj,pool,idx,property,value)
+function varargout = setInfoProperty(obj,pool,idx,property,value)
 
+    nargoutchk(0,1)
+    
     validProperties = properties(obj.Info(pool));
     if ~ismember(property,validProperties)
         error('Dingi:DataKit:dataPool:setInfoProperty:invalidProperty',...
@@ -7,4 +9,8 @@ function obj = setInfoProperty(obj,pool,idx,property,value)
     end
     
     obj.Info(pool).(property)(idx) = value;
+    
+    if nargout == 1
+        varargout{1} = obj;
+    end
 end

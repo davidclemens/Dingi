@@ -1,7 +1,9 @@
-function obj = readSeabirdCTD(obj,path)
+function varargout = readSeabirdCTD(obj,path)
 
     import DataKit.Metadata.variable.validate
     import DebuggerKit.Debugger.printDebugMessage
+    
+    nargoutchk(0,1)
     
     [~,name,ext]   = fileparts(path);
     if strcmp(ext,'.txt')
@@ -112,8 +114,12 @@ function obj = readSeabirdCTD(obj,path)
     variableOrigin{timeInd} = startTime;
     variableMeasuringDevice	= repmat(measuringDevice,1,size(data,2));
     
-    obj	= obj.addVariable(pool,variables,data,uncertainty,...
-            'VariableType',             variableType,...
-            'VariableOrigin',           variableOrigin,...
-            'VariableMeasuringDevice',	variableMeasuringDevice);
+    obj.addVariable(pool,variables,data,uncertainty,...
+        'VariableType',             variableType,...
+        'VariableOrigin',           variableOrigin,...
+        'VariableMeasuringDevice',	variableMeasuringDevice);
+        
+	if nargout == 1
+        varargout{1} = obj;
+	end
 end

@@ -1,7 +1,9 @@
-function obj = readNortekVector(obj,path)
+function varargout = readNortekVector(obj,path)
 
     import ECToolbox.*
 
+    nargoutchk(0,1)
+    
   	vec         = NortekVecFile(path);
     
 	measuringDevice                 = GearKit.measuringDevice();
@@ -17,8 +19,12 @@ function obj = readNortekVector(obj,path)
     variableOrigin          = {vec.timeRapid(1), 0, 0, 0, 0, 0};
     variableMeasuringDevice	= repmat(measuringDevice,1,size(data,2));
     
-    obj	= obj.addVariable(pool,variables,data,uncertainty,...
-            'VariableType',             variableType,...
-            'VariableOrigin',           variableOrigin,...
-            'VariableMeasuringDevice',	variableMeasuringDevice);
+    obj.addVariable(pool,variables,data,uncertainty,...
+        'VariableType',             variableType,...
+        'VariableOrigin',           variableOrigin,...
+        'VariableMeasuringDevice',	variableMeasuringDevice);
+        
+	if nargout == 1
+        varargout{1} = obj;
+	end
 end

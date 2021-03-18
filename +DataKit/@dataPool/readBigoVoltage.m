@@ -1,5 +1,7 @@
-function obj = readBigoVoltage(obj,path)
+function varargout = readBigoVoltage(obj,path)
 
+    nargoutchk(0,1)
+    
     fId             = fopen(path,'r');
     if fId == -1
         warning('Dingi:DataKit:dataPool:readBigoVoltage:unableToOpenFile',...
@@ -25,8 +27,12 @@ function obj = readBigoVoltage(obj,path)
     variableOrigin          = {rawText{1}(1), 0};
     variableMeasuringDevice	= repmat(measuringDevice,1,size(data,2));
     
-    obj	= obj.addVariable(pool,variables,data,uncertainty,...
-            'VariableType',             variableType,...
-            'VariableOrigin',           variableOrigin,...
-            'VariableMeasuringDevice',	variableMeasuringDevice);
+    obj.addVariable(pool,variables,data,uncertainty,...
+        'VariableType',             variableType,...
+        'VariableOrigin',           variableOrigin,...
+        'VariableMeasuringDevice',	variableMeasuringDevice);
+        
+	if nargout == 1
+        varargout{1} = obj;
+	end
 end

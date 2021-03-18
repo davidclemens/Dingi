@@ -1,5 +1,7 @@
-function obj = readHoboLightLogger(obj,path)
+function varargout = readHoboLightLogger(obj,path)
 
+    nargoutchk(0,1)
+    
     tmpFile     = [path(1:end - 4),'.tmp'];
     copyOk      = copyfile(path,tmpFile);
     if copyOk == 1
@@ -43,8 +45,12 @@ function obj = readHoboLightLogger(obj,path)
     variableOrigin          = {rawText{1}(1), 0};
     variableMeasuringDevice	= repmat(measuringDevice,1,size(data,2));
     
-    obj	= obj.addVariable(pool,variables,data,uncertainty,...
-            'VariableType',             variableType,...
-            'VariableOrigin',           variableOrigin,...
-            'VariableMeasuringDevice',	variableMeasuringDevice);
+    obj.addVariable(pool,variables,data,uncertainty,...
+        'VariableType',             variableType,...
+        'VariableOrigin',           variableOrigin,...
+        'VariableMeasuringDevice',	variableMeasuringDevice);
+        
+	if nargout == 1
+        varargout{1} = obj;
+	end
 end

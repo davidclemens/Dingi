@@ -1,4 +1,4 @@
-classdef dataPool
+classdef dataPool < handle
     % dataPool  Store & manage self-descriptive measurement data
     % A data pool instance can contain a variety of data from multiple
     % sources. The data is self describing, which means that metadata such
@@ -46,30 +46,30 @@ classdef dataPool
     end
     
     methods (Access = public)
-        obj = addPool(obj)
-        obj = addVariable(obj,pool,variable,data,uncertainty,varargin)
-        obj = removePool(obj,pool)
-        obj = importData(obj,importType,path)
-        obj = setMeasuringDeviceProperty(obj,pool,idx,property,value)
-        obj = setInfoProperty(obj,pool,idx,property,value)
+        varargout = addPool(obj)
+        varargout = addVariable(obj,pool,variable,data,uncertainty,varargin)
+        varargout = removePool(obj,pool)
+        varargout = importData(obj,importType,path)
+        varargout = setMeasuringDeviceProperty(obj,pool,idx,property,value)
+        varargout = setInfoProperty(obj,pool,idx,property,value)
         tbl = info(obj)
         data = fetchData(obj,varargin)
         [data,flags] = fetchVariableData(obj,poolIdx,variableIdx,varargin)
-        obj = applyCalibrationFunction(obj,poolIdx,variableIdx)
+        varargout = applyCalibrationFunction(obj,poolIdx,variableIdx)
         [poolIdx,variableIdx] = findVariable(obj,varargin)
-        obj = setFlag(obj,poolIdx,i,j,flag,highlow)
+        varargout = setFlag(obj,poolIdx,i,j,flag,highlow)
         tf = isequal(objA,objB)
     end
     
     methods (Access = private)
-        obj = readBigoVoltage(obj,path)
-        obj = readBigoOptode(obj,path)
-        obj = readBigoConductivityCell(obj,path)
-        obj = readHoboLightLogger(obj,path)
-        obj = readSeabirdCTD(obj,path)
-        obj = readNortekVector(obj,path)
-        obj = readO2Logger(obj,path)
-        obj = readSeabirdCTDLegacy(obj,path)
+        varargout = readBigoVoltage(obj,path)
+        varargout = readBigoOptode(obj,path)
+        varargout = readBigoConductivityCell(obj,path)
+        varargout = readHoboLightLogger(obj,path)
+        varargout = readSeabirdCTD(obj,path)
+        varargout = readNortekVector(obj,path)
+        varargout = readO2Logger(obj,path)
+        varargout = readSeabirdCTDLegacy(obj,path)
     end
     
   	% Overloaded methods
