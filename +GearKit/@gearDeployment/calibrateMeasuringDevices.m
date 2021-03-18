@@ -109,12 +109,12 @@ function calibrateMeasuringDevices(obj)
 
         for v = 1:numel(pool)
             % set calibration function
-            obj.data	= obj.data.setInfoProperty(pool(v),var(v),'VariableCalibrationFunction',{calibrationFunction});
-            obj.data    = obj.data.applyCalibrationFunction(pool(v),var(v));
+            obj.data.setInfoProperty(pool(v),var(v),'VariableCalibrationFunction',{calibrationFunction});
+            obj.data.applyCalibrationFunction(pool(v),var(v));
 
             % update variable to the calibrated variable
-            obj.data	= obj.data.setInfoProperty(pool(v),var(v),'VariableRaw',obj.data.Info(pool(v)).Variable(var(v)));
-            obj.data	= obj.data.setInfoProperty(pool(v),var(v),'Variable',valueVariableInfo.Variable);
+            obj.data.setInfoProperty(pool(v),var(v),'VariableRaw',obj.data.Info(pool(v)).Variable(var(v)));
+            obj.data.setInfoProperty(pool(v),var(v),'Variable',valueVariableInfo.Variable);
         end
     end
 

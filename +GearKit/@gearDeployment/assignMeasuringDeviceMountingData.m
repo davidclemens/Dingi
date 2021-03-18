@@ -26,9 +26,9 @@ function assignMeasuringDeviceMountingData(obj)
         dp  = obj.data.Index{md,'DataPool'};
         mdi = obj.data.Index{md,'VariableIndex'};
         if sum(maskMatches(md,:)) == 1
-            obj.data = setMeasuringDeviceProperty(obj.data,dp,mdi,'MountingLocation',measuringDeviceData{maskMatches(md,:),'MountingLocation'}{:});
-            obj.data = setMeasuringDeviceProperty(obj.data,dp,mdi,'WorldDomain',char(measuringDeviceData{maskMatches(md,:),'WorldDomain'}));
-            obj.data = setMeasuringDeviceProperty(obj.data,dp,mdi,'DeviceDomain',char(measuringDeviceData{maskMatches(md,:),'DeviceDomain'}));
+            setMeasuringDeviceProperty(obj.data,dp,mdi,'MountingLocation',measuringDeviceData{maskMatches(md,:),'MountingLocation'}{:});
+            setMeasuringDeviceProperty(obj.data,dp,mdi,'WorldDomain',char(measuringDeviceData{maskMatches(md,:),'WorldDomain'}));
+            setMeasuringDeviceProperty(obj.data,dp,mdi,'DeviceDomain',char(measuringDeviceData{maskMatches(md,:),'DeviceDomain'}));
         else
             warning('Dingi:GearKit:gearDeployment:assignMeasuringDeviceMountingData:noMountingLocationFound',...
                 'There is no mounting data defined in\n\t%s\nfor\n\t%s\n',measuringDeviceDataFile,strjoin({obj.sensors(md).id,obj.sensors(md).serialNumber},' '))
