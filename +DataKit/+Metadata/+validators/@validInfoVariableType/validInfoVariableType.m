@@ -4,6 +4,8 @@ classdef validInfoVariableType < DataKit.enum
         undefined               (0,     '<undefined>')
         Dependant               (1,     'dependent')
         Independant             (2,     'independent')
+        Dependent               (1,     'dependent')
+        Independent             (2,     'independent')
     end
     properties (SetAccess = 'immutable')
         Id uint8
