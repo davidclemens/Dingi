@@ -11,8 +11,7 @@ function readInternalMeasuringDevices(obj)
     measuringUnitPath     	= {'/SPL_VLTG.TXT','/OPTODATA.TXT','/CONDUCT.TXT'};
     for cu = 1:numel(controlUnits)
         for mu = 1:numel(measuringUnitType)
-            obj.data    = obj.data.addPool;
-            obj.data    = obj.data.importData(measuringUnitType{mu},[obj.dataFolderInfo.dataFolder,'/',controlUnits{cu},measuringUnitPath{mu}]);
+            obj.data.importData(measuringUnitType{mu},[obj.dataFolderInfo.dataFolder,'/',controlUnits{cu},measuringUnitPath{mu}]);
         end
     end
     

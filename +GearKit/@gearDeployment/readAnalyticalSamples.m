@@ -92,15 +92,12 @@ function readAnalyticalSamples(obj)
             measuringDevice.DeviceDomain        = GearKit.deviceDomain.fromProperty('Abbreviation',char(uMeasuringDevices{mdt,'Subgear'}));
 
             variableOrigin          = cat(2,variableOrigin,repmat({0},1,size(data,2) - 1));
-            uncertainty             = [];
             variableMeasuringDevice	= repmat(measuringDevice,1,size(data,2));
 
-            obj.data    = obj.data.addPool;
-            pool       	= obj.data.PoolCount;
-            obj.data	= obj.data.addVariable(pool,variables,data,uncertainty,...
-                            'VariableType',             variableType,...
-                            'VariableOrigin',           variableOrigin,...
-                            'VariableMeasuringDevice',	variableMeasuringDevice);
+            obj.data.addVariable(variables,data,...
+                'VariableType',             variableType,...
+                'VariableOrigin',           variableOrigin,...
+                'VariableMeasuringDevice',	variableMeasuringDevice);
         end
     catch ME
         switch ME.identifier
