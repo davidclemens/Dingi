@@ -25,8 +25,11 @@ function readAnalyticalSamples(obj)
                                     'Type',             'left');
 
         uMeasuringDevices   = unique(tbl(:,{'MeasuringDeviceType','Subgear'}),'rows');
-
-        for mdt = 1:size(uMeasuringDevices,1)
+        nuMeasuringDevices  = size(uMeasuringDevices,1);
+        for mdt = 1:nuMeasuringDevices
+            
+            printDebugMessage('Verbose','Reading analytical data for measuring device %u of %u: %s %s ...',mdt,nuMeasuringDevices,char(uMeasuringDevices{mdt,'MeasuringDeviceType'}),char(uMeasuringDevices{mdt,'Subgear'}))
+    
             maskTbl     = all(tbl{:,{'MeasuringDeviceType','Subgear'}} == uMeasuringDevices{mdt,:},2);
             maskTblInd 	= find(maskTbl);
             if sum(maskTbl) == 0
@@ -42,7 +45,7 @@ function readAnalyticalSamples(obj)
                     variables           = {'Depth'};
                     variableOrigin      = {0};
                     worldDomain         = GearKit.worldDomain.Sediment;
-                case 'BigoSyringeSampler'
+                case {'BigoSyringeSampler','BigoCapillarySampler'}
                     data                = seconds(tbl{maskTblInd(indepidx),'TimeRelative'});
                     variables           = {'Time'};
                     maskProtocol1       = obj.protocol{:,'MeasuringDeviceType'} == char(uMeasuringDevices{mdt,{'MeasuringDeviceType'}}) & ...
@@ -55,6 +58,18 @@ function readAnalyticalSamples(obj)
                     end
                     variableOrigin      = {obj.protocol{maskExperimentStart,'Time'}};
                     worldDomain         = GearKit.worldDomain.BenthicWaterColumn;
+                case 'BigoManualSampling'
+                    maskProtocol1       = obj.protocol{:,'Subgear'} == uMeasuringDevices{mdt,'Subgear'};
+                    controlUnit         = obj.protocol{find(maskProtocol1,1),'ControlUnit'};
+                    maskExperimentStart	= all(obj.protocol{:,{'Subgear','SampleId','Event'}} == {char(controlUnit),'System','Experiment Start'},2);
+                    if sum(maskExperimentStart) ~= 1
+                        error('Dingi:GearKit:gearDeployment:readAnalyticalSamples:invalidExperimentStart',...
+                            'There is no or too many experiment start events found for %s.',cat(2,char(obj.cruise),' ',char(obj.gear),' ',char(uMeasuringDevices{mdt,'Subgear'})))
+                    end
+                    variableOrigin      = {obj.protocol{maskExperimentStart,'Time'}};
+                    variables           = {'Time'};
+                    data                = seconds(obj.timeRecovery - variableOrigin{:});
+                    worldDomain         = GearKit.worldDomain.BenthicWaterColumn;                    
                 case 'BigoNiskinBottle'
                     variables           = {'Time'};
                     maskExperimentStart	= all(obj.protocol{:,{'SampleId','Event'}} == {'System','Experiment Start'},2);

@@ -5,6 +5,7 @@ classdef measuringDeviceType < DataKit.enum
         BigoConductivityCell
         BigoSyringeSampler
         BigoCapillarySampler
+        BigoManualSampling
         BigoInjector
         BigoNiskinBottle
         BigoPushCore
