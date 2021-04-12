@@ -44,8 +44,7 @@ function varargout = arrayhom(varargin)
 %
 %   Copyright (c) 2021 David Clemens (dclemens@geomar.de)
 %
-
-
+    
     maxDim      = 1;
     nvarargin   = numel(varargin);
     dims        = max(cellfun(@ndims,varargin));
