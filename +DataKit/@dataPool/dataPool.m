@@ -24,16 +24,21 @@ classdef dataPool < handle
     
     properties
         DataRaw(1,:) cell = cell(1,0) % Data without calibration functions applied
-        Info(1,:) DataKit.Metadata.info % Data pool metadata
+        Info(1,:) DataKit.Metadata.poolInfo % Data pool metadata
         Uncertainty(1,:) cell = cell(1,0) % Uncertainty of DataRaw
         Flag(1,:) cell = cell(1,0) % Flags of DataRaw
     end
     properties (Dependent)
         PoolCount % The number of data pools
-        Index % An overview table of all variables in the data pool
     end
     properties (SetAccess = private)
         Data(1,:) cell = cell(1,0) % Data with calibration functions applied
+    end
+    properties (GetObservable, SetAccess = private)
+        Index % An overview table of all variables in the data pool
+    end
+    properties % (Hidden)
+        IndexNeedsUpdating (1,1) logical = true
     end
     properties (Dependent, Hidden)
         PropertyList
@@ -42,6 +47,7 @@ classdef dataPool < handle
     methods
         function obj = dataPool()
             
+            addlistener(obj,'Index','PreGet',@DataKit.dataPool.handlePropertyChangeEvents);
         end
     end
     
@@ -70,6 +76,7 @@ classdef dataPool < handle
         varargout = readNortekVector(obj,path)
         varargout = readO2Logger(obj,path)
         varargout = readSeabirdCTDLegacy(obj,path)
+        varargout = updateIndex(obj)
     end
     
   	% Overloaded methods
@@ -81,28 +88,6 @@ classdef dataPool < handle
     methods
         function PoolCount = get.PoolCount(obj)
             PoolCount = numel(obj.DataRaw);
-        end
-        function Index = get.Index(obj)
-            Index = table();
-            for pool = 1:obj.PoolCount
-                nVariables	= obj.Info(pool).VariableCount;
-                independantVariableIdx  = repmat({find(obj.Info(pool).VariableType' == 'Independant')},nVariables,1);
-                independantVariableIdx(obj.Info(pool).VariableType' == 'Independant') = {[]};
-                
-                Index       = cat(1,Index,table(...
-                                            repmat(pool,nVariables,1),...
-                                            (1:nVariables)',...
-                                            independantVariableIdx,...
-                                            obj.Info(pool).Variable',...
-                                            obj.Info(pool).VariableRaw',...
-                                            obj.Info(pool).VariableType',...
-                                            categorical(cellfun(@class,obj.Info(pool).VariableOrigin,'un',0)'),...
-                                            obj.Info(pool).VariableCalibrationFunction',...
-                                            obj.Info(pool).VariableMeasuringDevice',...
-                                            arrayfun(@(v) obj.Info(pool).selectVariable(v),(1:nVariables)'),...
-                                            'VariableNames',{'DataPool','VariableIndex','IndependantVariableIndex','Variable','VariableRaw','VariableType','DataType','Calibration','MeasuringDevice','Info'}));
-
-            end
         end
         function PropertyList = get.PropertyList(obj)
             for pool = 1:obj.PoolCount
@@ -136,5 +121,10 @@ classdef dataPool < handle
                 end
             end
         end
+    end
+    
+    % Event handler methods
+    methods (Static)
+        handlePropertyChangeEvents(src,evnt)
     end
 end

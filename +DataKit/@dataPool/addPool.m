@@ -41,7 +41,7 @@ function varargout = addPool(obj)
     obj.Data(pool)          = {NaN(0,0)};
     obj.Flag(pool)          = {zeros(0,0,'uint32')};
     obj.Uncertainty(pool)	= {sparse(zeros(0,0))};
-    obj.Info(pool)          = DataKit.Metadata.info;
+    obj.Info(pool)          = DataKit.Metadata.poolInfo;
     
     if nargout == 1
         varargout{1} = obj;

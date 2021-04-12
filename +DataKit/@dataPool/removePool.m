@@ -13,6 +13,8 @@ function varargout = removePool(obj,pool)
     obj.Uncertainty(pool)	= [];
     obj.Info(pool)          = [];
     
+    obj.IndexNeedsUpdating = true;
+    
     if nargout == 1
         varargout{1} = obj;
     end
