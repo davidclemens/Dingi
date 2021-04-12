@@ -1,7 +1,7 @@
 function varargout = readHoboLightLogger(obj,path)
 
     nargoutchk(0,1)
-    
+
     tmpFile     = [path(1:end - 4),'.tmp'];
     copyOk      = copyfile(path,tmpFile);
     if copyOk == 1
@@ -29,28 +29,26 @@ function varargout = readHoboLightLogger(obj,path)
                         'MultipleDelimsAsOne',  false,...
                         'HeaderLines',          2);
     fclose(fId);
-        
+
     % extract serial number from filename
     measuringDevice                 = GearKit.measuringDevice();
     measuringDevice.Type            = 'HoboLightLogger';
     SN                              = regexp(path,'_(\d+)\.txt$','tokens');
     SN                              = SN{:}{:};
     measuringDevice.SerialNumber  	= SN;
-    
-	pool                    = obj.PoolCount;
+
     variables               = {'Time','Illuminance'};
     data                    = cat(2,seconds(rawText{1} - rawText{1}(1)),rawText{3});
-    uncertainty             = [];
     variableType            = {'Independant','Dependant'};
     variableOrigin          = {rawText{1}(1), 0};
     variableMeasuringDevice	= repmat(measuringDevice,1,size(data,2));
-    
-    obj.addVariable(pool,variables,data,uncertainty,...
+
+    obj.addVariable(variables,data,...
         'VariableType',             variableType,...
         'VariableOrigin',           variableOrigin,...
         'VariableMeasuringDevice',	variableMeasuringDevice);
-        
-	if nargout == 1
+
+  if nargout == 1
         varargout{1} = obj;
-	end
+  end
 end

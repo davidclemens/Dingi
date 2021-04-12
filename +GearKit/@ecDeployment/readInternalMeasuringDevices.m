@@ -9,7 +9,6 @@ function readInternalMeasuringDevices(obj)
     vecFileNames    = strcat({dirList.folder},{'/'},{dirList.name});
     
     for ff = 1:numel(vecFileNames)
-        obj.data.addPool;
         obj.data.importData('NortekVector',vecFileNames{ff});
     end
     

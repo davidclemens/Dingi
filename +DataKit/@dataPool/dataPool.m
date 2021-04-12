@@ -52,8 +52,7 @@ classdef dataPool < handle
     end
     
     methods (Access = public)
-        varargout = addPool(obj)
-        varargout = addVariable(obj,pool,variable,data,uncertainty,varargin)
+        varargout = addVariable(obj,variable,data,uncertainty,varargin)
         varargout = removePool(obj,pool)
         varargout = importData(obj,importType,path)
         varargout = setMeasuringDeviceProperty(obj,pool,idx,property,value)
@@ -68,6 +67,7 @@ classdef dataPool < handle
     end
     
     methods (Access = private)
+        varargout = addPool(obj)
         varargout = readBigoVoltage(obj,path)
         varargout = readBigoOptode(obj,path)
         varargout = readBigoConductivityCell(obj,path)

@@ -18,7 +18,6 @@ function readAuxillaryMeasuringDevices(obj)
         measuringUnitList   = dir([path,'/*.',measuringUnitExt{mut}]);
         nMeasuringUnits     = numel(measuringUnitList);
         for mu = 1:nMeasuringUnits
-            obj.data.addPool;
           	obj.data.importData(measuringUnitTypes{mut},[path,'/',measuringUnitList(mu).name]);
         end
     end
