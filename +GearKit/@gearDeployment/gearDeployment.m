@@ -31,7 +31,7 @@ classdef gearDeployment < handle
     %
 
 	properties
-        data DataKit.dataPool = DataKit.dataPool()
+        data DataKit.dataPool
         HardwareConfiguration GearKit.hardwareConfiguration
         gearType GearKit.gearType = GearKit.gearType.undefined % Type of gear
         cruise = categorical.empty % Cruise id of the deployment
@@ -66,8 +66,10 @@ classdef gearDeployment < handle
         % CONSTRUCTOR METHOD
         function obj = gearDeployment(path,gearType,varargin)
 
-            obj.gearType        = gearType;
+            obj.gearType   	= gearType;
 
+            obj.data        = DataKit.dataPool();
+            
             if isempty(path)
                 return
             end
