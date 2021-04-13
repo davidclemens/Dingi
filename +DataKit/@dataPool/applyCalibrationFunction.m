@@ -54,13 +54,13 @@ function varargout = applyCalibrationFunction(obj,poolIdx,variableIdx)
         return
     end
     maskTimeIdx	= obj.Index{:,'DataPool'} == poolIdx & ...
-                  obj.Index{:,'VariableType'} == 'Independant' & ...
+                  obj.Index{:,'VariableType'} == 'Independent' & ...
                   obj.Index{:,'Variable'} == 'Time';
     timeIdx     = obj.Index{maskTimeIdx,'VariableIndex'};
 
 
     if isempty(timeIdx)
-        % skip this data pool if there is not independant time variable
+        % skip this data pool if there is not independent time variable
         time    = NaN(size(obj.DataRaw{poolIdx},1),1);
     else
         time	= datenum(obj.fetchVariableData(poolIdx,timeIdx,...

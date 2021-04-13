@@ -21,7 +21,7 @@ function varargout = readBigoVoltage(obj,path)
     
     variables               = {'Time','Voltage'};
     data                    = cat(2,seconds(rawText{1} - rawText{1}(1)),rawText{2});
-    variableType            = {'Independant', 'Dependant'};
+    variableType            = {'Independent', 'Dependent'};
     variableOrigin          = {rawText{1}(1), 0};
     variableMeasuringDevice	= repmat(measuringDevice,1,size(data,2));
 

@@ -99,8 +99,8 @@ classdef dataPool < handle
                	indProperties = find(cellfun(@(prop) numel(obj.Info(pool).(prop)),propertyNames) == nVariables);
                 nProperties = numel(indProperties);
                 
-                independantVariableIdx  = repmat({find(obj.Info(pool).VariableType' == 'Independant')},nVariables,1);
-                independantVariableIdx(obj.Info(pool).VariableType' == 'Independant') = {[]};
+                independentVariableIdx  = repmat({find(obj.Info(pool).VariableType' == 'Independent')},nVariables,1);
+                independentVariableIdx(obj.Info(pool).VariableType' == 'Independent') = {[]};
                 
              	value = cell(nProperties,nVariables);
                 for prop = 1:nProperties

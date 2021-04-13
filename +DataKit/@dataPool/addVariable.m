@@ -54,7 +54,7 @@ function varargout = addVariable(obj,variable,data,varargin)
 %         Sets data flags. See the dataFlag documentation.
 %
 %     VariableType - variable type
-%       'Dependant' (default) | 'Independant'
+%       'Dependent' (default) | 'Independent'
 %         Sets the variable type. Has to have the same size as variable.
 %
 %     VariableCalibrationFunction - variable calibration function

@@ -25,7 +25,7 @@ function varargout = readBigoConductivityCell(obj,path)
     
     variables               = {'Time','Conductivity','Temperature','Salinity'};
     data                    = cat(2,seconds(time - time(1)),rawText{4:6});
-    variableType            = {'Independant','Dependant','Dependant','Dependant'};
+    variableType            = {'Independent','Dependent','Dependent','Dependent'};
     variableOrigin          = {time(1), 0, 0 ,0};
     variableMeasuringDevice	= repmat(measuringDevice,1,size(data,2));
 

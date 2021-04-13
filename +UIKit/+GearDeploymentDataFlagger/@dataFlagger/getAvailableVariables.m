@@ -6,10 +6,10 @@ function getAvailableVariables(obj)
         newTable{:,'ObjId'}	= oo;
         availableVariables	= cat(1,availableVariables,newTable);
     end
-    availableVariables  = availableVariables(availableVariables{:,'Type'} == 'Dependant',:);
-    availableVariables{:,'NIndependantVariables'} = cellfun(@numel,availableVariables{:,'IndependantVariableIndex'});
+    availableVariables  = availableVariables(availableVariables{:,'Type'} == 'Dependent',:);
+    availableVariables{:,'NIndependentVariables'} = cellfun(@numel,availableVariables{:,'IndependentVariableIndex'});
 
-    if any(availableVariables{:,'NIndependantVariables'} > 1)
+    if any(availableVariables{:,'NIndependentVariables'} > 1)
         error('Dingi:UIKit:GearDeploymentDataFlagger:dataFlagger:getAvailableVariables:TODO',...
           'TODO: not implemented yet.')
     end
