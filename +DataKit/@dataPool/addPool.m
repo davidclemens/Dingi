@@ -1,15 +1,17 @@
-function obj = addPool(obj)
+function varargout = addPool(obj)
 % addPool  Adds a pool to the dataPool instance
 %   ADDPOOL adds an empty pool to the dataPool instance obj.
 %
 %   Syntax
-%     obj = ADDPOOL(obj)
+%     ADDPOOL(obj)
+%     obj = ADDPOOL(__)
 %
 %   Description
-%     obj = ADDPOOL(obj) adds an empty pool to the dataPool instance obj.
+%     ADDPOOL(obj) adds an empty pool to the dataPool instance obj.
+%     obj = ADDPOOL(__) additionally returns the dataPool handle.
 %
 %   Example(s)
-%     obj = FETCHDATA(obj)
+%     ADDPOOL(obj)
 %
 %
 %   Input Arguments
@@ -19,7 +21,6 @@ function obj = addPool(obj)
 %
 %
 %   Output Arguments
-%
 %     obj - returned data pool instance
 %       DataKit.dataPool
 %         The new instance of the DataKit.dataPool class.
@@ -33,10 +34,16 @@ function obj = addPool(obj)
 %   Copyright (c) 2020-2021 David Clemens (dclemens@geomar.de)
 %
 
+    nargoutchk(0,1);
+
     pool                    = obj.PoolCount + 1;
     obj.DataRaw(pool)     	= {NaN(0,0)};
     obj.Data(pool)          = {NaN(0,0)};
     obj.Flag(pool)          = {zeros(0,0,'uint32')};
     obj.Uncertainty(pool)	= {sparse(zeros(0,0))};
-    obj.Info(pool)          = DataKit.Metadata.info;
+    obj.Info(pool)          = DataKit.Metadata.poolInfo;
+    
+    if nargout == 1
+        varargout{1} = obj;
+    end
 end

@@ -22,16 +22,22 @@ function assignMeasuringDeviceMountingData(obj)
     end
 
     maskMatches = obj.data.Index{:,'MeasuringDevice'} == cellstr(measuringDeviceData{:,{'Type','SerialNumber'}});
+    
+    dataPoolIndex  = obj.data.Index{:,'DataPool'};
+    measuringDeviceIndex = obj.data.Index{:,'VariableIndex'};
     for md = 1:size(obj.data.Index,1)
-        dp  = obj.data.Index{md,'DataPool'};
-        mdi = obj.data.Index{md,'VariableIndex'};
+        dp  = dataPoolIndex(md);
+        mdi = measuringDeviceIndex(md);
         if sum(maskMatches(md,:)) == 1
-            obj.data = setMeasuringDeviceProperty(obj.data,dp,mdi,'MountingLocation',measuringDeviceData{maskMatches(md,:),'MountingLocation'}{:});
-            obj.data = setMeasuringDeviceProperty(obj.data,dp,mdi,'WorldDomain',char(measuringDeviceData{maskMatches(md,:),'WorldDomain'}));
-            obj.data = setMeasuringDeviceProperty(obj.data,dp,mdi,'DeviceDomain',char(measuringDeviceData{maskMatches(md,:),'DeviceDomain'}));
+            setMeasuringDeviceProperty(obj.data,dp,mdi,'MountingLocation',measuringDeviceData{maskMatches(md,:),'MountingLocation'}{:});
+            setMeasuringDeviceProperty(obj.data,dp,mdi,'WorldDomain',char(measuringDeviceData{maskMatches(md,:),'WorldDomain'}));
+            setMeasuringDeviceProperty(obj.data,dp,mdi,'DeviceDomain',char(measuringDeviceData{maskMatches(md,:),'DeviceDomain'}));
         else
-            warning('Dingi:GearKit:gearDeployment:assignMeasuringDeviceMountingData:noMountingLocationFound',...
-                'There is no mounting data defined in\n\t%s\nfor\n\t%s\n',measuringDeviceDataFile,strjoin({obj.sensors(md).id,obj.sensors(md).serialNumber},' '))
+            tmpMd = obj.data.Info(dp).VariableMeasuringDevice(mdi);
+            if isempty(tmpMd.MountingLocation) || isempty(tmpMd.WorldDomain) || isempty(tmpMd.DeviceDomain)
+                warning('Dingi:GearKit:gearDeployment:assignMeasuringDeviceMountingData:noMountingLocationFound',...
+                    'There is no mounting data defined in\n\t%s\nfor\n\t%s\n',measuringDeviceDataFile,strjoin({char(obj.data.Index{md,'MeasuringDevice'}.Type),obj.data.Index{md,'MeasuringDevice'}.SerialNumber},' '))
+            end
         end
     end
 

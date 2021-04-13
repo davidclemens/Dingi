@@ -27,4 +27,6 @@ function uuid = uuid(varargin)
     for ii = 1:n
         uuid(ii,:) = uuidFunc();
     end
+    
+    uuid    = reshape(cellstr(uuid),s);
 end

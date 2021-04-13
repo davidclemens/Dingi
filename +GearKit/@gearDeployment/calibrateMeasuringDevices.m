@@ -7,17 +7,22 @@ function calibrateMeasuringDevices(obj)
 
     obj.calibration{:,'CalibrationTime'} = mean(obj.calibration{:,{'CalibrationStart','CalibrationEnd'}},2);
 
-    [uSignals,~,uSignalsInd] = unique(obj.calibration(:,{'Cruise','Gear','Type','SerialNumber','SignalVariableId'}),'rows');
+    [uSignals,~,uSignalsInd]    = unique(obj.calibration(:,{'Cruise','Gear','Type','SerialNumber','SignalVariableId'}),'rows');
+    uSignals.MeasuringDevice	= cellfun(@(t,s) GearKit.measuringDevice(t,s),cellstr(uSignals{:,'Type'}),cellstr(uSignals{:,'SerialNumber'}),'un',1);
+    nuSignals                   = size(uSignals,1);
 
     % loop over all available calibration signals. A signal is a unique
     % calibration time-data pair for which calibration information exists.
-    for sig = 1:size(uSignals,1)
+    for sig = 1:nuSignals
+        
+        printDebugMessage('Verbose','Reading signal data %u of %u: %s (SN: %s) ...',sig,nuSignals,char(uSignals{sig,'MeasuringDevice'}.Type),char(uSignals{sig,'MeasuringDevice'}.SerialNumber))
+        
         % create logical indecies (LI) and indices (I)
         maskCalibration         = uSignalsInd == sig; % LI calibration table
         maskCalibrationInd      = find(maskCalibration); % I calibration table
 
 
-        maskMeasuringDevices  	= obj.data.Index{:,'MeasuringDevice'} == cellstr(uSignals{sig,{'Type','SerialNumber'}}) & ...
+        maskMeasuringDevices  	= obj.data.Index{:,'MeasuringDevice'} == uSignals{sig,'MeasuringDevice'} & ...
                                   (cat(1,obj.data.Index{:,'VariableRaw'}.Id) == uSignals{sig,'SignalVariableId'} | ...
                                    cat(1,obj.data.Index{:,'Variable'}.Id) == uSignals{sig,'SignalVariableId'});
 
@@ -28,22 +33,35 @@ function calibrateMeasuringDevices(obj)
                 'While trying to apply the following calibration data\n\t%s,\nthe measuring device was not found. Calibration is skipped.',strjoin(cellstr(uSignals{sig,{'Cruise','Gear','Type','SerialNumber'}}),' '))
             continue
         elseif numel(maskMeasuringDevicesInd) > 1
-            %
+            % Multiple dataPool variables with the relevant measuring
+            % device were found. Concatenate all of them and sort by time.
         end
 
-        % if no calibration signal is provided it should be read from the sensor data first
-        if all(isnan(obj.calibration{maskCalibration,'Signal'}))
-            uRequestedVariableId  = unique(toProperty(obj.data.Index{maskMeasuringDevices,'Variable'},'Id'));
+        % If no calibration signal is provided it should be read from the
+        % sensor data first.
+        noCalibrationDataAvailable  = isnan(obj.calibration{maskCalibration,'Signal'});
+        if any(noCalibrationDataAvailable)
+            
+            % Loop over the calibrations that need a signal value from the
+            % data.
+            for ii = 1:numel(noCalibrationDataAvailable)
+                if ~noCalibrationDataAvailable(ii)
+                    % Calibration data is available
+                    continue
+                end
+                
+                % Get the signal data
+                data   = fetchData(obj.data,uSignals{sig,'SignalVariableId'},[],uSignals{sig,'MeasuringDevice'},...
+                                    'GroupBy',              'MeasuringDevice',...
+                                    'ReturnRawData',        true);
+                                
+                % Find the index of the 'Time' variable within the independent
+                % variables.
+                maskIndependentData	= cellfun(@(x) find(x == 'Time',1),data.IndepInfo.Variable);
 
-            data   = fetchData(obj.data,uRequestedVariableId,[],obj.data.Index{maskMeasuringDevices,'MeasuringDevice'},...
-                                'ReturnRawData',        true,...
-                                'GroupBy',              'MeasuringDevice');
-
-            maskIndependantData     = data.IndepInfo.Variable{:} == 'Time';
-            iData       = datenum(cat(1,data.IndepData{:,maskIndependantData}));
-            dData       = cat(1,data.DepData);
-            % write the mean signal over the calibration period to the calibration table
-            for ii = 1:sum(maskCalibration)
+                iData       = datenum(cat(1,data.IndepData{:,maskIndependentData}));
+                dData       = cat(1,data.DepData);
+                % write the mean signal over the calibration period to the calibration table
                 maskTime    = iData >= datenum(obj.calibration{maskCalibrationInd(ii),'CalibrationStart'}) & ...
                               iData <= datenum(obj.calibration{maskCalibrationInd(ii),'CalibrationEnd'});
                 if isempty(maskTime)
@@ -109,12 +127,12 @@ function calibrateMeasuringDevices(obj)
 
         for v = 1:numel(pool)
             % set calibration function
-            obj.data	= obj.data.setInfoProperty(pool(v),var(v),'VariableCalibrationFunction',{calibrationFunction});
-            obj.data    = obj.data.applyCalibrationFunction(pool(v),var(v));
+            obj.data.setInfoProperty(pool(v),var(v),'VariableCalibrationFunction',{calibrationFunction});
+            obj.data.applyCalibrationFunction(pool(v),var(v));
 
             % update variable to the calibrated variable
-            obj.data	= obj.data.setInfoProperty(pool(v),var(v),'VariableRaw',obj.data.Info(pool(v)).Variable(var(v)));
-            obj.data	= obj.data.setInfoProperty(pool(v),var(v),'Variable',valueVariableInfo.Variable);
+            obj.data.setInfoProperty(pool(v),var(v),'VariableRaw',obj.data.Info(pool(v)).Variable(var(v)));
+            obj.data.setInfoProperty(pool(v),var(v),'Variable',valueVariableInfo.Variable);
         end
     end
 

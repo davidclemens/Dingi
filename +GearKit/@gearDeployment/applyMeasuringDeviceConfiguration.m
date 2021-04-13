@@ -24,8 +24,8 @@ function obj = applyMeasuringDeviceConfiguration(obj)
 
         % set new measurment device metadata
         for vv = 1:numel(variableIdx)
-            obj.data = obj.data.setMeasuringDeviceProperty(poolIdx(vv),variableIdx(vv),'Type',char(tbl{row,'TypeNew'}));
-            obj.data = obj.data.setMeasuringDeviceProperty(poolIdx(vv),variableIdx(vv),'SerialNumber',char(tbl{row,'SerialNumberNew'}));
+            obj.data.setMeasuringDeviceProperty(poolIdx(vv),variableIdx(vv),'Type',char(tbl{row,'TypeNew'}));
+            obj.data.setMeasuringDeviceProperty(poolIdx(vv),variableIdx(vv),'SerialNumber',char(tbl{row,'SerialNumberNew'}));
         end
 	end
     

@@ -1,4 +1,4 @@
-classdef dataPool
+classdef dataPool < handle
     % dataPool  Store & manage self-descriptive measurement data
     % A data pool instance can contain a variety of data from multiple
     % sources. The data is self describing, which means that metadata such
@@ -24,16 +24,21 @@ classdef dataPool
     
     properties
         DataRaw(1,:) cell = cell(1,0) % Data without calibration functions applied
-        Info(1,:) DataKit.Metadata.info % Data pool metadata
+        Info(1,:) DataKit.Metadata.poolInfo % Data pool metadata
         Uncertainty(1,:) cell = cell(1,0) % Uncertainty of DataRaw
         Flag(1,:) cell = cell(1,0) % Flags of DataRaw
     end
     properties (Dependent)
         PoolCount % The number of data pools
-        Index % An overview table of all variables in the data pool
     end
     properties (SetAccess = private)
         Data(1,:) cell = cell(1,0) % Data with calibration functions applied
+    end
+    properties (GetObservable, SetAccess = private)
+        Index % An overview table of all variables in the data pool
+    end
+    properties % (Hidden)
+        IndexNeedsUpdating (1,1) logical = true
     end
     properties (Dependent, Hidden)
         PropertyList
@@ -42,34 +47,36 @@ classdef dataPool
     methods
         function obj = dataPool()
             
+            addlistener(obj,'Index','PreGet',@DataKit.dataPool.handlePropertyChangeEvents);
         end
     end
     
     methods (Access = public)
-        obj = addPool(obj)
-        obj = addVariable(obj,pool,variable,data,uncertainty,varargin)
-        obj = removePool(obj,pool)
-        obj = importData(obj,importType,path)
-        obj = setMeasuringDeviceProperty(obj,pool,idx,property,value)
-        obj = setInfoProperty(obj,pool,idx,property,value)
+        varargout = addVariable(obj,variable,data,uncertainty,varargin)
+        varargout = removePool(obj,pool)
+        varargout = importData(obj,importType,path)
+        varargout = setMeasuringDeviceProperty(obj,pool,idx,property,value)
+        varargout = setInfoProperty(obj,pool,idx,property,value)
         tbl = info(obj)
         data = fetchData(obj,varargin)
         [data,flags] = fetchVariableData(obj,poolIdx,variableIdx,varargin)
-        obj = applyCalibrationFunction(obj,poolIdx,variableIdx)
+        varargout = applyCalibrationFunction(obj,poolIdx,variableIdx)
         [poolIdx,variableIdx] = findVariable(obj,varargin)
-        obj = setFlag(obj,poolIdx,i,j,flag,highlow)
+        varargout = setFlag(obj,poolIdx,i,j,flag,highlow)
         tf = isequal(objA,objB)
     end
     
     methods (Access = private)
-        obj = readBigoVoltage(obj,path)
-        obj = readBigoOptode(obj,path)
-        obj = readBigoConductivityCell(obj,path)
-        obj = readHoboLightLogger(obj,path)
-        obj = readSeabirdCTD(obj,path)
-        obj = readNortekVector(obj,path)
-        obj = readO2Logger(obj,path)
-        obj = readSeabirdCTDLegacy(obj,path)
+        varargout = addPool(obj)
+        varargout = readBigoVoltage(obj,path)
+        varargout = readBigoOptode(obj,path)
+        varargout = readBigoConductivityCell(obj,path)
+        varargout = readHoboLightLogger(obj,path)
+        varargout = readSeabirdCTD(obj,path)
+        varargout = readNortekVector(obj,path)
+        varargout = readO2Logger(obj,path)
+        varargout = readSeabirdCTDLegacy(obj,path)
+        varargout = updateIndex(obj)
     end
     
   	% Overloaded methods
@@ -82,28 +89,6 @@ classdef dataPool
         function PoolCount = get.PoolCount(obj)
             PoolCount = numel(obj.DataRaw);
         end
-        function Index = get.Index(obj)
-            Index = table();
-            for pool = 1:obj.PoolCount
-                nVariables	= obj.Info(pool).VariableCount;
-                independantVariableIdx  = repmat({find(obj.Info(pool).VariableType' == 'Independant')},nVariables,1);
-                independantVariableIdx(obj.Info(pool).VariableType' == 'Independant') = {[]};
-                
-                Index       = cat(1,Index,table(...
-                                            repmat(pool,nVariables,1),...
-                                            (1:nVariables)',...
-                                            independantVariableIdx,...
-                                            obj.Info(pool).Variable',...
-                                            obj.Info(pool).VariableRaw',...
-                                            obj.Info(pool).VariableType',...
-                                            categorical(cellfun(@class,obj.Info(pool).VariableOrigin,'un',0)'),...
-                                            obj.Info(pool).VariableCalibrationFunction',...
-                                            obj.Info(pool).VariableMeasuringDevice',...
-                                            arrayfun(@(v) obj.Info(pool).selectVariable(v),(1:nVariables)'),...
-                                            'VariableNames',{'DataPool','VariableIndex','IndependantVariableIndex','Variable','VariableRaw','VariableType','DataType','Calibration','MeasuringDevice','Info'}));
-
-            end
-        end
         function PropertyList = get.PropertyList(obj)
             for pool = 1:obj.PoolCount
                 nVariables	= obj.Info(pool).VariableCount;
@@ -114,8 +99,8 @@ classdef dataPool
                	indProperties = find(cellfun(@(prop) numel(obj.Info(pool).(prop)),propertyNames) == nVariables);
                 nProperties = numel(indProperties);
                 
-                independantVariableIdx  = repmat({find(obj.Info(pool).VariableType' == 'Independant')},nVariables,1);
-                independantVariableIdx(obj.Info(pool).VariableType' == 'Independant') = {[]};
+                independentVariableIdx  = repmat({find(obj.Info(pool).VariableType' == 'Independent')},nVariables,1);
+                independentVariableIdx(obj.Info(pool).VariableType' == 'Independent') = {[]};
                 
              	value = cell(nProperties,nVariables);
                 for prop = 1:nProperties
@@ -136,5 +121,10 @@ classdef dataPool
                 end
             end
         end
+    end
+    
+    % Event handler methods
+    methods (Static)
+        handlePropertyChangeEvents(src,evnt)
     end
 end

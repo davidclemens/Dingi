@@ -1,5 +1,7 @@
-function obj = setMeasuringDeviceProperty(obj,pool,idx,property,value)
+function varargout = setMeasuringDeviceProperty(obj,pool,idx,property,value)
 
+    nargoutchk(0,1)
+    
     if ~isscalar(pool) || ~isscalar(idx) || ...
        (iscellstr(property) && ~isscalar(property))
         error('Dingi:DataKit:dataPool:setMeasuringDeviceProperty:onlyScalar',...
@@ -16,4 +18,8 @@ function obj = setMeasuringDeviceProperty(obj,pool,idx,property,value)
     end
     
     obj.Info(pool).VariableMeasuringDevice(idx).(property) = value;
+    
+    if nargout == 1
+        varargout{1} = obj;
+    end
 end

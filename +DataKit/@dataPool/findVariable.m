@@ -36,8 +36,8 @@ function [poolIdx,variableIdx] = findVariable(obj,varargin)
 %     measured by measurement devices that start with 'Bigo' (i.e. matching the
 %     regular expression '^Bigo.*').
 %
-%     [poolIdx,variableIdx] = FINDVARIABLE(obj,'VariableType','Dependant','-and','-regexp',VariableMeasuringDevice.deviceDomain','^Chamber/d+')
-%     returns the indices of all dependant variables that where measured in a
+%     [poolIdx,variableIdx] = FINDVARIABLE(obj,'VariableType','Dependent','-and','-regexp',VariableMeasuringDevice.deviceDomain','^Chamber/d+')
+%     returns the indices of all dependent variables that where measured in a
 %     deviceDomain 'Chamber' (i.e. matching the regular expression
 %     '^Chamber/d+').
 %
@@ -87,20 +87,24 @@ function [poolIdx,variableIdx] = findVariable(obj,varargin)
     validOperators = {'-and','-or','-xor','-not','-regexp'};
     maskIsCompinationalOperator = [true(1,3),false(1,2)];
 
+    % Get all object properties
     propertyList    = obj.PropertyList;
 
+    % Initialize variables
     nInputs         = numel(varargin);
     maskIsOperator  = false(1,nInputs);
     maskIsName      = false(1,nInputs);
     maskIsValue     = false(1,nInputs);
 
-    maskIsChar                  = cellfun(@ischar,varargin);
-    maskIsOperator(maskIsChar)  = ~cellfun(@isempty,regexp(varargin(maskIsChar),'^-'));
-    indIsNotOperator            = find(~maskIsOperator);
-    indIsName                   = indIsNotOperator(1:2:end);
-    maskIsName(indIsName)       = true;
-    maskIsValue(indIsName + 1) 	= true;
+    % Characterize inputs
+    maskIsChar                  = cellfun(@ischar,varargin); % Find character inputs in the inputs
+    maskIsOperator(maskIsChar)  = cellfun(@(in) any(strcmp(in,validOperators)),varargin(maskIsChar)); % Find operators inputs in the inputs
+    indIsNotOperator            = find(~maskIsOperator); % Find inputs that are not operators
+    indIsName                   = indIsNotOperator(1:2:end); % Every second non-operator input should be a 'Name', of the name-value pairs followed by its corresponding 'Value'
+    maskIsName(indIsName)       = true; % Find 'Names' of the name-value pairs
+    maskIsValue(indIsName + 1) 	= true; % Find 'Values' of the name-value pairs
 
+    % Throw errors if necessary
     if ~all(maskIsChar(maskIsName))
         error('Dingi:DataKit:dataPool:findVariable:invalidPropertyNameType',...
           'All property names must be char.')
@@ -110,23 +114,31 @@ function [poolIdx,variableIdx] = findVariable(obj,varargin)
           'All operators must be char.')
     end
 
+    % Extract names. Split at the dot ('.') character allowing for matching
+    % lower levels in the poolInfo object (i.e.
+    % 'VariableMeasuringDevice.SerialNumber').
     nNames  = sum(maskIsName);
     names   = varargin(maskIsName);
     names   = regexp(names,'\.','split')';
+    % Extract values corresponding to names.
     values  = varargin(maskIsValue);
+    % Get the range of the name-value pairs including any corresponding operators in the inputs.
     indNameStart	= [1,indIsName(1:end - 1) + 2];
     indNameEnd      = indIsName + 1;
 
-    indIsOperator   = find(maskIsOperator);
-
+    % Initialize variables
     operators               = cell(nNames,1);
     combinationalOperators  = cell(nNames,1);
+	% Loop over all names to process any operators
     for nn = 1:nNames
+        % Get the range for the current name-value pair as a logical mask.
         maskRange   = false(1,nInputs);
         maskRange(indNameStart(nn):indNameEnd(nn)) = true;
+        
+        % Get any operators for the current name-value pair.
         operators{nn} = varargin(maskIsOperator & maskRange);
 
-        % add -and operator if no other logical operator is found
+        % Add '-and' operator if no other logical operator is found.
         if nn > 1 && all(~ismember(validOperators(maskIsCompinationalOperator),operators{nn}))
             operators{nn} = cat(2,operators{nn},{'-and'});
         end
@@ -138,14 +150,21 @@ function [poolIdx,variableIdx] = findVariable(obj,varargin)
             combinationalOperators{nn} = combinationalOperators{nn}{:};
         end
     end
-
+    
     nObjValues  = numel(propertyList);
+    % Initialize Variables
     objValues   = cell(1,nNames);
     bool        = false(nObjValues,nNames);
+	% Loop over all names.
     for nn = 1:nNames
+        % Get the actual values corresponding to the current name.
         objValues{nn} = getAllLevels(propertyList,names{nn});
 
+        % Process the actual values according to any operator provided.
         if ismember('-regexp',operators{nn})
+            % Match using the regular expression
+            
+            % Try converting the actual values to cellstr
             try
                 % check if object is convertible to cellstr
                 str = cellstr(cat(1,objValues{nn}{:}));
@@ -158,14 +177,26 @@ function [poolIdx,variableIdx] = findVariable(obj,varargin)
                         rethrow(ME)
                 end
             end
-            bool(:,nn) = ~cellfun(@isempty,regexp(str,values{nn}));
+            
+            if iscellstr(values{nn})
+                tmp = false(numel(str),numel(values{nn}));
+                for ii = 1:numel(values{nn})
+                    tmp(:,ii) = ~cellfun(@isempty,regexp(str,values{nn}{ii}));
+                end
+            else
+                tmp = ~cellfun(@isempty,regexp(str,values{nn}));
+            end
+            bool(:,nn)  = any(tmp,2);
         else
+            % Switch on the class of the actual value
             switch class(objValues{nn}{1})
                 case 'char'
-                    bool(:,nn) = cellfun(@(a) strcmp(a,values{nn}),objValues{nn});
+                    tmp	= cellfun(@(a) strcmp(a,values{nn}),objValues{nn},'un',0);
                 otherwise
-                    bool(:,nn) = cellfun(@(a) a == values{nn},objValues{nn});
+                	tmp	= cellfun(@(a) a == values{nn},objValues{nn},'un',0);
             end
+            tmp         = cat(1,tmp{:});
+            bool(:,nn)  = any(tmp,2);
         end
 
         if ismember('-not',operators{nn})

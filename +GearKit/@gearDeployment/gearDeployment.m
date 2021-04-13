@@ -31,7 +31,7 @@ classdef gearDeployment < handle
     %
 
 	properties
-        data DataKit.dataPool = DataKit.dataPool()
+        data DataKit.dataPool
         HardwareConfiguration GearKit.hardwareConfiguration
         gearType GearKit.gearType = GearKit.gearType.undefined % Type of gear
         cruise = categorical.empty % Cruise id of the deployment
@@ -66,8 +66,10 @@ classdef gearDeployment < handle
         % CONSTRUCTOR METHOD
         function obj = gearDeployment(path,gearType,varargin)
 
-            obj.gearType        = gearType;
+            obj.gearType   	= gearType;
 
+            obj.data        = DataKit.dataPool();
+            
             if isempty(path)
                 return
             end
@@ -82,26 +84,26 @@ classdef gearDeployment < handle
  	methods
       	function variables = get.variables(obj)
             dataPoolInfo	= obj.data.info;
-            mask            = dataPoolInfo{:,'Type'} == 'Dependant';
+            mask            = dataPoolInfo{:,'Type'} == 'Dependent';
             dataPoolInfo   	= dataPoolInfo(mask,:);
             [~,uIdxa,uIdxb] = unique(dataPoolInfo(:,{'Id'}),'rows');
             variables       = dataPoolInfo(uIdxa,:);
 
-            % create dependant variable index touples (dpIdx,dvIdx)
+            % create dependent variable index touples (dpIdx,dvIdx)
             subs            = [[uIdxb,ones(size(uIdxb))];[uIdxb,2.*ones(size(uIdxb))]];
             val             = cat(1,dataPoolInfo{:,'DataPoolIndex'},dataPoolInfo{:,'VariableIndex'});
             tmp             = accumarray(subs,val,[size(variables,1),2],@(x) {x},{[]});
             variables.Index = arrayfun(@(r) cat(2,tmp{r,1},tmp{r,2}),1:size(tmp,1),'un',0)';
 
-            % create independant variableindex touples (dpIdx,ivIdx)
-            variables{:,'IndependantVariable'}     = {{}};
+            % create independent variableindex touples (dpIdx,ivIdx)
+            variables{:,'IndependentVariable'}     = {{}};
             for vv = 1:size(variables,1)
                 maskDataPoolInfo    = uIdxb == vv;
-                variables{vv,'IndependantVariable'} = {dataPoolInfo{maskDataPoolInfo,'IndependantVariable'}};
+                variables{vv,'IndependentVariable'} = {dataPoolInfo{maskDataPoolInfo,'IndependentVariable'}};
             end
 
             variables.Name  = categorical(cellstr(variables.Variable));
-            variables       = variables(:,{'Name','Id','Type','Unit','Index','IndependantVariable'});
+            variables       = variables(:,{'Name','Id','Type','Unit','Index','IndependentVariable'});
         end
         function gearId = get.gearId(obj)
             gearId = strjoin(cat(1,cellstr(obj.cruise),cellstr(obj.gear)),'_');

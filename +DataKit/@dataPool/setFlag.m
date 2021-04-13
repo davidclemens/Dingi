@@ -1,6 +1,8 @@
-function obj = setFlag(obj,poolIdx,i,j,flag,highlow)
+function varargout = setFlag(obj,poolIdx,i,j,flag,highlow)
 
     import DataKit.arrayhom
+    
+    nargoutchk(0,1)
     
     if ~isscalar(obj)
         error('Dingi:DataKit:dataPool:setFlag:onlyScalarContextAllowed',...
@@ -17,5 +19,9 @@ function obj = setFlag(obj,poolIdx,i,j,flag,highlow)
         mask    = poolIdx == pool;
         
         obj.Flag{pool} =  setBit(obj.Flag{pool},i(mask),j(mask),flag(mask),highlow(mask));
+    end
+    
+    if nargout == 1
+        varargout{1} = obj;
     end
 end

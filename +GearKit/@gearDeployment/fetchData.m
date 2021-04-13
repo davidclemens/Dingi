@@ -50,8 +50,8 @@ function data = fetchData(obj,variable,varargin)
         end
         
         if sum(hasTime) == 0
-%             warning('Dingi:GearKit:gearDeployment:fetchData:noIndependantVariableTimeFound',...
-%                 'If ''DeploymentDataOnly'' or ''TimeOfInterestDataOnly'' are set to true, the requested variable(s) should have an independant variable ''Time''.')
+%             warning('Dingi:GearKit:gearDeployment:fetchData:noIndependentVariableTimeFound',...
+%                 'If ''DeploymentDataOnly'' or ''TimeOfInterestDataOnly'' are set to true, the requested variable(s) should have an independent variable ''Time''.')
         end
         
         for ii = 1:nOutputCells
