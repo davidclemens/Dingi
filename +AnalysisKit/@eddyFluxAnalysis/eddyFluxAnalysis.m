@@ -24,9 +24,9 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
         name = 'eddyFlux' % Analysis name.
         type = 'flux' % Analysis type.
         
-        timeRaw % Raw Time (datenum).
+        TimeRaw % Raw Time (datenum).
         velocityRaw % Raw velocity (m/s).
-        fluxParameterRaw % Raw flux parameter.
+        FluxParameterRaw % Raw flux parameter.
         
         window duration % Window (duration)
         downsamples % Subsampling is applied first
@@ -45,7 +45,7 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
         coordinateSystemUnitVectorJ
         coordinateSystemUnitVectorK
         detrendingFunction
-        initialized logical = false
+        Initialized logical = false
     end
     properties (Dependent)
         frequency % Frequency (Hz)
@@ -83,17 +83,17 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
             obj = obj@AnalysisKit.analysis();
             
             % populate properties
-            obj.timeRaw                         = time;
+            obj.TimeRaw                         = time;
             obj.velocityRaw                     = velocity;
-            obj.fluxParameterRaw                = fluxParameter;
+            obj.FluxParameterRaw                = fluxParameter;
             
             obj.window                          = Window;
             obj.downsamples                     = Downsamples;
             obj.coordinateSystemRotationMethod	= CoordinateSystemRotationMethod;
             obj.detrendingMethod                = DetrendingMethod;
             
-            % set initialized flag
-            obj.initialized                     = true;
+            % set Initialized flag
+            obj.Initialized                     = true;
             
             % calculate
             obj     = obj.calculate(...
@@ -128,7 +128,7 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
         
         
         function frequency = get.frequency(obj)
-            frequency = round(1/(nanmean(diff(obj.timeRaw))*24*60^2),6,'Significant')/obj.downsamples;
+            frequency = round(1/(nanmean(diff(obj.TimeRaw))*24*60^2),6,'Significant')/obj.downsamples;
         end
         function coordinateSystemUnitVectors = get.coordinateSystemUnitVectors(obj)
             coordinateSystemUnitVectors = cat(3,obj.coordinateSystemUnitVectorI,obj.coordinateSystemUnitVectorJ,obj.coordinateSystemUnitVectorK);
@@ -155,7 +155,7 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
         
         % set methods
         function obj = set.sampleN(obj,value)
-            if ~obj.initialized
+            if ~obj.Initialized
                 obj.sampleN = value;
             else
                 error('Dingi:GearKit:eddyFluxAnalysis:sampleNNotSetable',...
@@ -165,7 +165,7 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
         function obj = set.downsamples(obj,value)
             validateattributes(value,{'numeric'},{'scalar','integer','nonzero','positive'});
             obj.downsamples = value;
-            if obj.initialized
+            if obj.Initialized
                 obj	= obj.calculate(...
                         'Downsample',                   true,...
                         'RotateCoordinateSystem',       false,...
@@ -175,7 +175,7 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
         end
         function obj = set.coordinateSystemRotationMethod(obj,value)
             obj.coordinateSystemRotationMethod = validatestring(value,obj.validCoordinateSystemRotationMethods);
-            if obj.initialized
+            if obj.Initialized
                 obj	= obj.calculate(...
                         'Downsample',                   false,...
                         'RotateCoordinateSystem',       true,...
@@ -185,7 +185,7 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
         end
         function obj = set.detrendingMethod(obj,value)
             obj.detrendingMethod = validatestring(value,obj.validDetrendingMethods);
-            if obj.initialized
+            if obj.Initialized
                 obj	= obj.calculate(...
                         'Downsample',                   false,...
                         'RotateCoordinateSystem',       false,...
@@ -195,7 +195,7 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
         end
         function obj = set.window(obj,value)
             obj.window = value;
-            if obj.initialized
+            if obj.Initialized
                 obj	= obj.calculate(...
                         'Downsample',                   true,...
                         'RotateCoordinateSystem',       true,...

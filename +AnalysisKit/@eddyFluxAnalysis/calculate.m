@@ -16,9 +16,9 @@ function obj = calculate(obj,varargin)
     % TODO: despiking
     % subsample
     if Downsample
-        obj.timeDownsampled          = downsample(obj.timeRaw,obj.downsamples);
+        obj.timeDownsampled          = downsample(obj.TimeRaw,obj.downsamples);
         obj.velocityDownsampled      = downsample(obj.velocityRaw,obj.downsamples);
-        obj.fluxParameterDownsampled = downsample(obj.fluxParameterRaw,obj.downsamples);
+        obj.fluxParameterDownsampled = downsample(obj.FluxParameterRaw,obj.downsamples);
     end
     
     % calculate coordinate system rotation

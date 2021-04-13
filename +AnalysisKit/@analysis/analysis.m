@@ -8,4 +8,9 @@ classdef analysis < handle
             
         end
     end
+    
+    % Methods in other files
+    methods
+        varargout = plot(obj,varargin)
+    end
 end

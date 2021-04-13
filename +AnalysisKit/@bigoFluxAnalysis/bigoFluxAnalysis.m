@@ -1,98 +1,85 @@
 classdef bigoFluxAnalysis < AnalysisKit.analysis
 % BIGOFLUXANALYSIS
-
-
-% TODO:
-%   ( ) implement dealing with the data quality flags.
-%   ( ) implement the use of the syringe/cap data
-%   ( ) implement a mechanism to mark outliers
-%
-% IDEAS:
-%   ( ) maybe derive from the handle class to support event listeners on
-%       properties.
     
     
+    properties (SetObservable)
+        Name char = 'BigoFlux' % Analysis name
+        Type char = 'Flux' % Analysis type
+        DeviceDomains GearKit.deviceDomain % The device domain(s) to be analysed
+        
+        Bigo GearKit.bigoDeployment
+        
+        FitType char = 'linear' % Fit method
+        FitInterval duration = hours([0,5]) % The interval that should be fitted to
+        FitEvaluationInterval duration = hours([0,4]) % The interval in which the fit statistics should be evaluated
+        TimeUnit char = 'h'
+    end
     properties
-        name = 'bigoFlux' % Analysis name.
-        type = 'flux' % Analysis type.
+        NFits double
         
-        fitType %
-        fitInterval % (h)
+        FluxStatistics
+        Flux
+        FluxConfInt
         
-        timeRaw
-        fluxParameterRaw
-        
-        meta
-        timeUnit
-        
-        fluxStatistics
-        flux
-        fluxConfInt
-        
-        fluxVolume
-        fluxCrossSection
+        FluxVolume double
+        FluxCrossSection double
     end
     properties %(Hidden)
-        initialized = false
-        excluded
-        fitObjects
-        fitGOF
-        fitOutput
+        PoolIndex double
+        VariableIndex double
+        TimeUnitFunction function_handle = @(x) x
+        TimeVariable DataKit.Metadata.variable = DataKit.Metadata.variable.Time
         
-        indSource
-        indParameter
-        nFits
+        FitOriginTime datetime % The absolute time origin
+        FitStartTime duration % The relative time offset of the fit start from the FitOriginTime
+        FitEndTime duration % The relative time offset of the fit end from the FitOriginTime
+        
+        FitDeviceDomains GearKit.deviceDomain
+        FitObjects cell
+        FitGOF
+        FitOutput
+        FitVariables DataKit.Metadata.variable
     end
     properties (Dependent)
-        fluxParameterId
-        fluxParameterUnit
+        NDeviceDomains
     end
     properties (Hidden, Constant)
-        validFitTypes = {'linear','sigmoidal'};
+        ValidFitTypes = {'linear','sigmoidal'};
     end
+    
     methods
-        function obj = bigoFluxAnalysis(time,fluxParameterData,meta,varargin)
+        function obj = bigoFluxAnalysis(bigoDeployment,varargin)
                         
-            % parse Name-Value pairs
-            optionName          = {'FitType','FitInterval','TimeUnit','FluxVolume','FluxCrossSection','Outlier'}; % valid options (Name)
-            optionDefaultValue  = {'linear',[0,8],'h',ones(size(fluxParameterData,1),1),ones(size(fluxParameterData,1),1),cellfun(@(s) false(size(s)),fluxParameterData,'un',0)}; % default value (Value)
-            [FitType,...
-             FitInterval,...
-             TimeUnit,...
-             FluxVolume,...
-             FluxCrossSection,...
-             Outlier...
-                ]	= internal.stats.parseArgs(optionName,optionDefaultValue,varargin{:}); % parse function arguments
+            import internal.stats.parseArgs
+            import AnalysisKit.bigoFluxAnalysis.handlePropertyChangeEvents
+            
+            % Parse Name-Value pairs
+            optionName          = {'deviceDomains','FitType','FitEvaluationInterval','TimeUnit'}; % valid options (Name)
+            optionDefaultValue  = {GearKit.deviceDomain.fromProperty('Abbreviation',{'Ch1';'Ch2'}),'linear',hours([0,4]),'h'}; % default value (Value)
+            [deviceDomains,...
+             fitType,...
+             fitEvaluationInterval,...
+             timeUnit] = parseArgs(optionName,optionDefaultValue,varargin{:}); % parse function arguments
+            
+            % Input checks
+            if ~isscalar(bigoDeployment)
+                error('Dingi:AnalysisKit:bigoFluxAnalysis:bigoFluxAnalysis:nonScalarContext',...
+                    'The analysis can only be run on a single bigoDeployment instance.')
+            end
 
-            % call superclass constructor
+            % Call superclass constructor
             obj = obj@AnalysisKit.analysis();
             
-            % populate properties
-            obj.timeRaw             = time;
-            obj.fluxParameterRaw    = fluxParameterData;
+            % Add property listeners
+            addlistener(obj,'DeviceDomains','PostSet',@handlePropertyChangeEvents);
+            addlistener(obj,'TimeUnit','PostSet',@handlePropertyChangeEvents);
             
-            obj.fitType             = FitType;
-            obj.fitInterval         = FitInterval;
-            
-            obj.meta                = meta;
-            
-            obj.timeUnit            = TimeUnit;
-            
-            obj.fluxVolume          = FluxVolume;
-            obj.fluxCrossSection    = FluxCrossSection;
-            
-            % initialize exclude mask to exclude NaNs
-            obj.excluded  	= cellfun(@(fp,o) isnan(fp) | o,obj.fluxParameterRaw,Outlier,'un',0);
-            
-            % intialize others
-            [obj.indSource,obj.indParameter]    = find(~cellfun(@isempty,obj.fluxParameterRaw));
-            obj.nFits                          	= numel(obj.indSource);
-            
-            % initialize flux
-            obj.flux       	= NaN(obj.nFits,3);
-            
-            % set initialized flag
-            obj.initialized	= true;
+            % Populate properties
+            obj.Bigo                    = bigoDeployment;
+            obj.FitType                 = fitType;
+            obj.FitEvaluationInterval  	= fitEvaluationInterval;
+            obj.TimeUnit                = timeUnit;
+            obj.DeviceDomains           = deviceDomains;
             
             % Calculate
             obj.calculate;
@@ -108,24 +95,33 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
         
         varargout   = plot(obj,varargin)
         func        = fitLinear(x,y,varargin)
+        tbl         = getFlux(obj,variables)
+    end
+    methods (Access = private)
+        varargout = plotFits(obj,variable,axesProperties)
+        varargout = plotFlux(obj,variable,axesProperties)
+    end
         
-        tbl         = getFlux(obj,parameters)
-        
-        % get methods
-        function fluxParameterUnit = get.fluxParameterUnit(obj)
-            [~,parameterInfo]   = DataKit.validateParameterId(obj.fluxParameterId);
-            fluxParameterUnit   = cellstr(parameterInfo{:,'Unit'})';
+  	% Get methods
+	methods
+        function NDeviceDomains = get.NDeviceDomains(obj)
+            NDeviceDomains = numel(obj.DeviceDomains);
         end
-        function fluxParameterId = get.fluxParameterId(obj)
-            fluxParameterId     = obj.meta(1).parameterId;
-        end
-        
-        % set methods
-        function obj = set.fitType(obj,value)
-            obj.fitType     = validatestring(value,obj.validFitTypes);
-            if obj.initialized
-                obj	= obj.calculate();
-            end            
+    end
+    
+    % Event handler methods
+    methods (Access = private)
+        setFitVariables(obj)
+        setRelativeTimeFunction(obj)
+    end
+    methods (Static)
+        function handlePropertyChangeEvents(src,evnt)
+            switch src.Name
+                case 'DeviceDomains'
+                    setFitVariables(evnt.AffectedObject)
+                case 'TimeUnit'
+                    setRelativeTimeFunction(evnt.AffectedObject)
+            end
         end
     end
 end
