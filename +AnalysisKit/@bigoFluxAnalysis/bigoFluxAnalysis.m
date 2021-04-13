@@ -94,14 +94,18 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
             % set initialized flag
             obj.initialized	= true;
             
-            % calculate
-            obj             = obj.calculate();
+            % Calculate
+            obj.calculate;
         end
+    end
+    
+    % Methods in other files
+    methods
+        setFitExclusions(obj)
+        calculate(obj,varargin)
+        fit(obj,varargin)
+        calculateFlux(obj)
         
-        % methods in other files
-        obj         = calculate(obj,varargin)
-        obj         = fit(obj,varargin)
-        obj         = calculateFlux(obj)
         varargout   = plot(obj,varargin)
         func        = fitLinear(x,y,varargin)
         

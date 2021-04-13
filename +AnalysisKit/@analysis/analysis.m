@@ -1,7 +1,7 @@
-classdef analysis
+classdef analysis < handle
     properties (Abstract)
-        name
-        type
+        Name char
+        Type char
     end
     methods
         function obj = analysis()
