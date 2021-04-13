@@ -36,8 +36,8 @@ function [poolIdx,variableIdx] = findVariable(obj,varargin)
 %     measured by measurement devices that start with 'Bigo' (i.e. matching the
 %     regular expression '^Bigo.*').
 %
-%     [poolIdx,variableIdx] = FINDVARIABLE(obj,'VariableType','Dependant','-and','-regexp',VariableMeasuringDevice.deviceDomain','^Chamber/d+')
-%     returns the indices of all dependant variables that where measured in a
+%     [poolIdx,variableIdx] = FINDVARIABLE(obj,'VariableType','Dependent','-and','-regexp',VariableMeasuringDevice.deviceDomain','^Chamber/d+')
+%     returns the indices of all dependent variables that where measured in a
 %     deviceDomain 'Chamber' (i.e. matching the regular expression
 %     '^Chamber/d+').
 %

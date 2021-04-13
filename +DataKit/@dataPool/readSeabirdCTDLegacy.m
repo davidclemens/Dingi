@@ -25,7 +25,7 @@ function varargout = readSeabirdCTDLegacy(obj,path)
 
     variables               = {'Time','Temperature','Pressure','Conductivity'};
     data                    = cat(2,seconds(dt - dt(1)),cat(2,rawText{1:3}));
-    variableType            = {'Independant','Dependant','Dependant','Dependant'};
+    variableType            = {'Independent','Dependent','Dependent','Dependent'};
     variableOrigin          = {dt(1), 0, 0, 0};
     variableMeasuringDevice	= repmat(measuringDevice,1,size(data,2));
 

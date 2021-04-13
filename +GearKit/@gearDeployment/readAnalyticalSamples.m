@@ -82,7 +82,7 @@ function readAnalyticalSamples(obj)
             end
             data            = cat(2,data,accumarray(subs,tbl{maskTbl,{'Value'}},[numel(uRows),numel(uCols)],@nanmean,NaN));
             variables       = cat(2,variables,cellstr(DataKit.Metadata.variable.fromProperty('Id',uCols)'));
-            variableType    = cat(2,{'Independant'},repmat({'Dependant'},1,size(data,2) - 1));
+            variableType    = cat(2,{'Independent'},repmat({'Dependent'},1,size(data,2) - 1));
 
            	measuringDevice                     = GearKit.measuringDevice();
             measuringDevice.Type                = char(uMeasuringDevices{mdt,'MeasuringDeviceType'});

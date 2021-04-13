@@ -12,7 +12,7 @@ function varargout = readNortekVector(obj,path)
 
     variables               = {'Time','VelocityU','VelocityV','VelocityW','AnalogInput1','AnalogInput2'};
     data                    = cat(2,seconds(vec.timeRapid - vec.timeRapid(1)),vec.velocity,vec.analogInput1,vec.analogInput2);
-    variableType            = {'Independant','Dependant','Dependant','Dependant','Dependant','Dependant'};
+    variableType            = {'Independent','Dependent','Dependent','Dependent','Dependent','Dependent'};
     variableOrigin          = {vec.timeRapid(1), 0, 0, 0, 0, 0};
     variableMeasuringDevice	= repmat(measuringDevice,1,size(data,2));
 

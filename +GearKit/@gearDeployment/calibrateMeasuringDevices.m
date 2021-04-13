@@ -57,9 +57,9 @@ function calibrateMeasuringDevices(obj)
                                 
                 % Find the index of the 'Time' variable within the independent
                 % variables.
-                maskIndependantData	= cellfun(@(x) find(x == 'Time',1),data.IndepInfo.Variable);
+                maskIndependentData	= cellfun(@(x) find(x == 'Time',1),data.IndepInfo.Variable);
 
-                iData       = datenum(cat(1,data.IndepData{:,maskIndependantData}));
+                iData       = datenum(cat(1,data.IndepData{:,maskIndependentData}));
                 dData       = cat(1,data.DepData);
                 % write the mean signal over the calibration period to the calibration table
                 maskTime    = iData >= datenum(obj.calibration{maskCalibrationInd(ii),'CalibrationStart'}) & ...

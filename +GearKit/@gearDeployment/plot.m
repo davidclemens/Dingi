@@ -187,11 +187,11 @@ function varargout = plot(obj,variables,varargin)
 
 
                 if ~isempty(DataDomain)
-                    maskDataDomain  = cat(1,data.DependantInfo.MeasuringDevice.WorldDomain) == DataDomain;
-                    data.IndependantVariables               = data.IndependantVariables(maskDataDomain,:);
-                    data.DependantVariables                 = data.DependantVariables(maskDataDomain,:);
-                    data.IndependantInfo.MeasuringDevice    = data.IndependantInfo.MeasuringDevice(maskDataDomain);
-                    data.DependantInfo.MeasuringDevice      = data.DependantInfo.MeasuringDevice(maskDataDomain);
+                    maskDataDomain  = cat(1,data.DependentInfo.MeasuringDevice.WorldDomain) == DataDomain;
+                    data.IndependentVariables               = data.IndependentVariables(maskDataDomain,:);
+                    data.DependentVariables                 = data.DependentVariables(maskDataDomain,:);
+                    data.IndependentInfo.MeasuringDevice    = data.IndependentInfo.MeasuringDevice(maskDataDomain);
+                    data.DependentInfo.MeasuringDevice      = data.DependentInfo.MeasuringDevice(maskDataDomain);
                 end
 
                 iihp    = 1;

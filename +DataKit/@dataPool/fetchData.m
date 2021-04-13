@@ -48,7 +48,7 @@ function data = fetchData(obj,varargin)
 %     data = FETCHDATA(dp,{'Oxygen','Temperature'})
 %     data = FETCHDATA(dp,[2,15])
 %     data = FETCHDATA(dp,DataKit.Metadata.variable)
-%     data = FETCHDATA(dp,[],'Independant')
+%     data = FETCHDATA(dp,[],'Independent')
 %     data = FETCHDATA(dp,[],[],GearKit.measuringDevice)
 %     data = FETCHDATA(dp,[],[],[],'BigoOptode')
 %     data = FETCHDATA(dp,[],[],[],[],[2,3])
@@ -72,7 +72,7 @@ function data = fetchData(obj,varargin)
 %
 %     varType - variable type
 %       [] (default) | DataKit.Metadata.validators.validInfoVariableType
-%         The variable type ('Dependant' or 'Independant').
+%         The variable type ('Dependent' or 'Independent').
 %         If left empty (default), data of all variable types available in
 %         the data pool are returned.
 %
@@ -123,10 +123,10 @@ function data = fetchData(obj,varargin)
 %         results in the return of N variables Var1 to VarN grouped into M
 %         groups Group1 to GroupM and Var1 is found in data pools dp2 and
 %         dp3 while VarN is found in dp5, dp6 and dp7.
-%         If, for example, dp3 doesn't contain independant variable indepI,
+%         If, for example, dp3 doesn't contain independent variable indepI,
 %         it is filled with the appropriate empty value type.
 %         Flags has the same structure as DepData and holds dataFlag
-%         instances with the flags that applied to the dependant data.
+%         instances with the flags that applied to the dependent data.
 %
 %         data.DepData:
 %
@@ -261,7 +261,7 @@ function data = fetchData(obj,varargin)
         varIdx,...
         sort,...
         returnRawData,...
-        forceReturnIndependantVariable,...
+        forceReturnIndependentVariable,...
         relativeTime,...
         groupBy,...
         forceCellOutput...
@@ -309,7 +309,7 @@ function data = fetchData(obj,varargin)
                         any(objIndex{:,'VariableIndex'} == varIdx',2);
     end
     maskIndex       = maskIndex & ...
-                        objIndex{:,'VariableType'} == 'Dependant';
+                        objIndex{:,'VariableType'} == 'Dependent';
     nIndexMatches   = sum(maskIndex);
 
 
@@ -351,8 +351,8 @@ function data = fetchData(obj,varargin)
 
     % indices of index matches into the data pool
     dp      = objIndex{maskIndex,'DataPool'}; % data pool index
-    dv      = objIndex{maskIndex,'VariableIndex'}; % dependant variable index
-    iv      = objIndex{maskIndex,'IndependantVariableIndex'}; % independant variable(s) index
+    dv      = objIndex{maskIndex,'VariableIndex'}; % dependent variable index
+    iv      = objIndex{maskIndex,'IndependentVariableIndex'}; % independent variable(s) index
 
     % fetch data
 	[ddata,flags]	= obj.fetchVariableData(dp,dv,...
@@ -376,11 +376,11 @@ function data = fetchData(obj,varargin)
             nGroups     = nIndexMatches;
 	end
 
-    % Handle multiple unique independant variables:
-    % 1. Find the unique independant variables in all the data that has
+    % Handle multiple unique independent variables:
+    % 1. Find the unique independent variables in all the data that has
     %    been fetched (idata).
-    uIndepVariables           	= cellfun(@(dp,v) obj.Info(dp).Variable(v),num2cell(dp),iv,'un',0); % all independant variables found in idata (with repetition)
-    [uIndepVariables,uIdx1uIndepVariables,uIdx2uIndepVariables]  = unique(cat(2,uIndepVariables{:}),'stable'); % all independant variables found in idata (without repetition)
+    uIndepVariables           	= cellfun(@(dp,v) obj.Info(dp).Variable(v),num2cell(dp),iv,'un',0); % all independent variables found in idata (with repetition)
+    [uIndepVariables,uIdx1uIndepVariables,uIdx2uIndepVariables]  = unique(cat(2,uIndepVariables{:}),'stable'); % all independent variables found in idata (without repetition)
     nUIndepVariables    = numel(uIndepVariables);
 
     % 2. Find the return datatype for the uIndepVariables. This allows the
@@ -390,7 +390,7 @@ function data = fetchData(obj,varargin)
     uIndepVariablesDataType   	= uIndepVariablesDataType(uIdx1uIndepVariables);
 
     % 3. Construct an index back into idata but of the shape of all
-    %    independant variables in idata vertically concatenated.
+    %    independent variables in idata vertically concatenated.
     uIndepVariablesMatchIndex	= arrayfun(@(n) repmat(n,1,numel(iv{n})),(1:nIndexMatches)','un',0);
     uIndepVariablesMatchIndex	= reshape(cat(2,uIndepVariablesMatchIndex{:}),[],1);
 
@@ -420,14 +420,14 @@ function data = fetchData(obj,varargin)
             idxIVar         = uIdx2uIndepVariables(any(uIndepVariablesMatchIndex == idxData',2));
 
             [~,~,uIdx2uSlots] = unique(uIndepVariablesMatchIndex(any(uIndepVariablesMatchIndex == idxData',2)),'stable');
-            dData{gr,var}   = cat(1,ddata{idxData}); % the dependant data that belongs to variable 'var' and group 'gr' only
-            Flags{gr,var}   = cat(1,flags{idxData}); % the dependant data that belongs to variable 'var' and group 'gr' only
-            tmpIData        = cat(1,idata{idxData}); % the independant data that belongs to variable 'var' and group 'gr' only
+            dData{gr,var}   = cat(1,ddata{idxData}); % the dependent data that belongs to variable 'var' and group 'gr' only
+            Flags{gr,var}   = cat(1,flags{idxData}); % the dependent data that belongs to variable 'var' and group 'gr' only
+            tmpIData        = cat(1,idata{idxData}); % the independent data that belongs to variable 'var' and group 'gr' only
             slotStart       = [0;idxDataOut{gr,var}(1:end - 1)] + 1; % start indices for that data in the output slot
             slotEnd         = idxDataOut{gr,var}; % end indices for that data in the output slot
 
             for ivar = 1:numel(tmpIData)
-                % loop over all input independant variables
+                % loop over all input independent variables
                 slotRange   = (slotStart(uIdx2uSlots(ivar)):slotEnd(uIdx2uSlots(ivar)))';
                 iData{gr,var}{idxIVar(ivar)}(slotRange) = tmpIData{ivar}; % write data to appropriate slot
             end
@@ -483,7 +483,7 @@ function varargout = parseInputs(obj,varargin)
 
     defaultSort                             = false;
     defaultReturnRawData                    = false;
-    defaultForceReturnIndependantVariable	= true;
+    defaultForceReturnIndependentVariable	= true;
     defaultRelativeTime                     = '';
     defaultGroupBy                          = 'Variable';
     defaultForceCellOutput                  = false;
@@ -510,7 +510,7 @@ function varargout = parseInputs(obj,varargin)
     addOptional(p,'varIdx',defualtVarIdx,checkVarIdx)
     addParameter(p,'Sort',defaultSort,isScalarLogical)
     addParameter(p,'ReturnRawData',defaultReturnRawData,isScalarLogical)
-    addParameter(p,'ForceReturnIndependantVariable',defaultForceReturnIndependantVariable,isScalarLogical)
+    addParameter(p,'ForceReturnIndependentVariable',defaultForceReturnIndependentVariable,isScalarLogical)
     addParameter(p,'RelativeTime',defaultRelativeTime,checkRelativeTime)
     addParameter(p,'GroupBy',defaultGroupBy,checkGroupBy)
     addParameter(p,'ForceCellOutput',defaultForceCellOutput,isScalarLogical)
@@ -526,7 +526,7 @@ function varargout = parseInputs(obj,varargin)
     varIdx              = p.Results.varIdx;
     sort                            = p.Results.Sort;
     returnRawData                   = p.Results.ReturnRawData;
-    forceReturnIndependantVariable  = p.Results.ForceReturnIndependantVariable;
+    forceReturnIndependentVariable  = p.Results.ForceReturnIndependentVariable;
     relativeTime                    = validatestring(p.Results.RelativeTime,validRelativeTime);
     groupBy                         = validatestring(p.Results.GroupBy,validGropuBy);
     forceCellOutput               	= p.Results.ForceCellOutput;
@@ -544,7 +544,7 @@ function varargout = parseInputs(obj,varargin)
                     varIdx,...
                     sort,...
                     returnRawData,...
-                    forceReturnIndependantVariable,...
+                    forceReturnIndependentVariable,...
                     relativeTime,...
                     groupBy,...
                     forceCellOutput...

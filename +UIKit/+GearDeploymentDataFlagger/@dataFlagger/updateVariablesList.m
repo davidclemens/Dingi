@@ -1,8 +1,8 @@
 function updateVariablesList(obj)
 
-    % Get unique dependant-independant variable combinations
-    [uVariable,uInd1,uInd]	= unique(cat(2,obj.AvailableVariables(:,'Id'),table(cellfun(@num2str,obj.AvailableVariables{:,'IndependantVariableId'},'un',0))),'rows');
-    uVariable            	= cat(2,uVariable(:,1),obj.AvailableVariables(uInd1,{'IndependantVariableId','IndependantVariable'}));
+    % Get unique dependent-independent variable combinations
+    [uVariable,uInd1,uInd]	= unique(cat(2,obj.AvailableVariables(:,'Id'),table(cellfun(@num2str,obj.AvailableVariables{:,'IndependentVariableId'},'un',0))),'rows');
+    uVariable            	= cat(2,uVariable(:,1),obj.AvailableVariables(uInd1,{'IndependentVariableId','IndependentVariable'}));
     nU                      = size(uVariable,1);
     
     isInSelectedDeployment          = obj.AvailableVariables{:,'ObjId'} == find(obj.DeploymentIsSelected);
@@ -18,11 +18,11 @@ function updateVariablesList(obj)
     variableInfo        = struct2table(variableInfo);
     
     variableInfo    = cat(2,obj.AvailableVariables(uInd1,:),variableInfo(:,{'Abbreviation','Symbol','Name'}));
-    variableInfo{:,'IndependantVariableLabel'}   = cellfun(@(iv) strjoin({iv(:).Abbreviation},', '),variableInfo{:,'IndependantVariable'},'un',0);
+    variableInfo{:,'IndependentVariableLabel'}   = cellfun(@(iv) strjoin({iv(:).Abbreviation},', '),variableInfo{:,'IndependentVariable'},'un',0);
     
     obj.VariablesList       = variableInfo;
     obj.VariablesListInd    = uInd;
-    obj.VariablesList.Label = strcat(marker,variableInfo{:,'Abbreviation'},{' ('},variableInfo{:,'IndependantVariableLabel'},{')'});
+    obj.VariablesList.Label = strcat(marker,variableInfo{:,'Abbreviation'},{' ('},variableInfo{:,'IndependentVariableLabel'},{')'});
     obj.VariablesList.Tag   = strtrim(cellstr(num2str(variableInfo{:,'Id'})));
     
     hListBox    = findobj(obj.FigureHandle,'Tag','ListBoxVariables');

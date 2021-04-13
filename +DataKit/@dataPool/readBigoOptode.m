@@ -38,12 +38,12 @@ function varargout = readBigoOptode(obj,path)
         if opt == 1
             variables               = {'Time','Oxygen','Temperature'};
             data                    = cat(2,seconds(rawText{1} - rawText{1}(1)),data);
-            variableType            = {'Independant','Dependant','Dependant'};
+            variableType            = {'Independent','Dependent','Dependent'};
             variableOrigin          = {rawText{1}(1),0,0};
             variableMeasuringDevice = repmat(measuringDevice,1,size(data,2));
         else
             variables               = {'Oxygen','Temperature'};
-            variableType            = {'Dependant','Dependant'};
+            variableType            = {'Dependent','Dependent'};
             variableOrigin          = {0,0};
             variableMeasuringDevice = repmat(measuringDevice,1,size(data,2));
         end

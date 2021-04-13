@@ -24,7 +24,7 @@ classdef poolInfo < handle
         VariableIsCalibrated(1,:) logical
     end
     properties (Dependent, Hidden)
-        NoIndependantVariable
+        NoIndependentVariable
         VariableReturnDataType
         VariableCount(1,1) double
     end
@@ -136,8 +136,8 @@ classdef poolInfo < handle
         function VariableIsCalibrated = get.VariableIsCalibrated(obj)
             VariableIsCalibrated = ~cellfun(@(f) strcmp(func2str(f),'@(x)x'),obj.VariableCalibrationFunction);
         end
-        function NoIndependantVariable = get.NoIndependantVariable(obj)
-            NoIndependantVariable = ~any(obj.VariableType == 'Independant') | ~any(obj.VariableType == 'Independent');
+        function NoIndependentVariable = get.NoIndependentVariable(obj)
+            NoIndependentVariable = ~any(obj.VariableType == 'Independent');
         end
         function VariableReturnDataType = get.VariableReturnDataType(obj)
             VariableReturnDataType = categorical(cellfun(@class,obj.VariableOrigin,'un',0));
