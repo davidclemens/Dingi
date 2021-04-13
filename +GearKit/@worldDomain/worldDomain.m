@@ -1,5 +1,6 @@
 classdef worldDomain
     enumeration
+        %                        Abbreviation
         undefined               ('')
         BenthicWaterColumn      ('BWC')
         PelagicWaterColumn      ('PWC')
