@@ -16,204 +16,248 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
 %   ( ) implement get & set property access methods
 %
 % IDEAS:
-%   ( ) maybe derive from the handle class to support event listeners on
+%   (x) maybe derive from the handle class to support event listeners on
 %       properties.
-    
-    
+
+
     properties
-        name = 'eddyFlux' % Analysis name.
-        type = 'flux' % Analysis type.
-        
+        Name char = 'eddyFlux' % Analysis name.
+        Type char = 'flux' % Analysis type.
+
         TimeRaw % Raw Time (datenum).
-        velocityRaw % Raw velocity (m/s).
+        VelocityRaw % Raw velocity (m/s).
         FluxParameterRaw % Raw flux parameter.
-        
-        window duration % Window (duration)
-        downsamples % Subsampling is applied first
-        coordinateSystemRotationMethod char
-        detrendingMethod char
-        
-        timeDownsampled
-        velocityDownsampled
-        fluxParameterDownsampled
-        
-        w_ % Rotated and trend corrected vertical velocity (m/s)
-        fluxParameter_ % Trend corrected flux parameter
+
+        Window duration % Window (duration)
+        Downsamples % Subsampling is applied first
+        CoordinateSystemRotationMethod char
+        DetrendingMethod char
+
+        TimeDownsampled
+        VelocityDownsampled
+        FluxParameterDownsampled
+
+        StartTime datetime
+        EndTime datetime
+
+        FluxParameterTimeShift % Time shift of the flux parameter (# of samples)
+
+        W_ % Rotated and trend corrected vertical velocity (m/s)
+        FluxParameter_ % Trend corrected flux parameter
     end
     properties %(Hidden)
-        coordinateSystemUnitVectorI
-        coordinateSystemUnitVectorJ
-        coordinateSystemUnitVectorK
-        detrendingFunction
+        CoordinateSystemUnitVectorI
+        CoordinateSystemUnitVectorJ
+        CoordinateSystemUnitVectorK
+        DetrendingFunction
         Initialized logical = false
     end
     properties (Dependent)
-        frequency % Frequency (Hz)
-        sampleWindowedN double % Number of samples in windows
-        
-       	time % Time (datenum). Padded by NaNs to fit an integer multiple of windowLength. The Shape is [sample,window]. The Size is windowLength x windowN.
-        velocity % Velocity (m/s). Rotated according to the CoordinateSystemRotationMethod. Padded by NaNs to fit an integer multiple of windowLength. The Shape is [sample,window,[vx,vy,vz]]. The Size is windowLength x windowN x 3.
-        fluxParameter % flux parameter. Padded by NaNs to fit an integer multiple of windowLength. The Shape is [sample,window,[fluxParameters]]. The Size is windowLength x windowN x fluxParameterN.
+        Frequency % Frequency (Hz)
+        SampleWindowedN double % Number of samples in windows
+
+       	Time % Time (datenum). Padded by NaNs to fit an integer multiple of windowLength. The Shape is [sample,window]. The Size is windowLength x windowN.
+        Velocity % Velocity (m/s). Rotated according to the CoordinateSystemRotationMethod. Padded by NaNs to fit an integer multiple of windowLength. The Shape is [sample,window,[vx,vy,vz]]. The Size is windowLength x windowN x 3.
+        FluxParameter % flux parameter. Padded by NaNs to fit an integer multiple of windowLength. The Shape is [sample,window,[fluxParameters]]. The Size is windowLength x windowN x fluxParameterN.
     end
     properties (Dependent) %Hidden
-        sampleN % Number of raw samples
-        fluxParameterN % Number of flux parameters
-        windowLength % Window length (samples)
-        windowN % Number of full windows in timeseries
-        windowPaddingLength % Padding length (samples) of the last incomplete window.
-        coordinateSystemUnitVectors
+        SampleN % Number of raw samples
+        FluxParameterN % Number of flux parameters
+        WindowLength % Window length (samples)
+        WindowN % Number of full windows in timeseries
+        WindowPaddingLength % Padding length (samples) of the last incomplete window.
+        CoordinateSystemUnitVectors
+        WindowMask % Windows that fully lie within the [StartTime,EndTime] interval
     end
     properties (Hidden, Constant)
-        validCoordinateSystemRotationMethods = {'none','planar fit'};
-        validDetrendingMethods = {'none','mean removal','linear','moving mean'};
+        ValidCoordinateSystemRotationMethods = {'none','planar fit'};
+        ValidDetrendingMethods = {'none','mean removal','linear','moving mean'};
     end
     methods
         function obj = eddyFluxAnalysis(time,velocity,fluxParameter,varargin)
-                        
+
+            import internal.stats.parseArgs
+
             % parse Name-Value pairs
-            optionName          = {'Window','Downsamples','CoordinateSystemRotationMethod','DetrendingMethod'}; % valid options (Name)
-            optionDefaultValue  = {duration(0,10,0),4,'planar fit','moving mean'}; % default value (Value)
-            [Window,...
-             Downsamples,...
-             CoordinateSystemRotationMethod,...
-             DetrendingMethod,...
-             ]	= internal.stats.parseArgs(optionName,optionDefaultValue,varargin{:}); % parse function arguments
+            optionName          = {'Window','Downsamples','CoordinateSystemRotationMethod','DetrendingMethod','Start','End'}; % valid options (Name)
+            optionDefaultValue  = {duration(0,30,0),2,'planar fit','linear',[],[]}; % default value (Value)
+            [window,...
+             downsamples,...
+             coordinateSystemRotationMethod,...
+             detrendingMethod,...
+             startTime,...
+             endTime...
+             ]	= parseArgs(optionName,optionDefaultValue,varargin{:}); % parse function arguments
 
             % call superclass constructor
             obj = obj@AnalysisKit.analysis();
-            
+
             % populate properties
             obj.TimeRaw                         = time;
-            obj.velocityRaw                     = velocity;
+            obj.VelocityRaw                     = velocity;
             obj.FluxParameterRaw                = fluxParameter;
-            
-            obj.window                          = Window;
-            obj.downsamples                     = Downsamples;
-            obj.coordinateSystemRotationMethod	= CoordinateSystemRotationMethod;
-            obj.detrendingMethod                = DetrendingMethod;
-            
-            % set Initialized flag
-            obj.Initialized                     = true;
-            
+
+            obj.Window                          = window;
+            obj.Downsamples                     = downsamples;
+            obj.CoordinateSystemRotationMethod	= coordinateSystemRotationMethod;
+            obj.DetrendingMethod                = detrendingMethod;
+
+            if isempty(startTime)
+                obj.StartTime   = datetime(obj.TimeRaw(1),'ConvertFrom','datenum');
+            elseif ~isempty(startTime) && isdatetime(startTime)
+                obj.StartTime   = startTime;
+            else
+                error('')
+            end
+
+            if isempty(endTime)
+                obj.EndTime   = datetime(obj.TimeRaw(end),'ConvertFrom','datenum');
+            elseif ~isempty(endTime) && isdatetime(endTime)
+                obj.EndTime   = endTime;
+            else
+                error('')
+            end
+
+            % set initialized flag
+            obj.Initialized	= true;
+
             % calculate
-            obj     = obj.calculate(...
-                        'Downsample',                   true,...
-                        'RotateCoordinateSystem',       true,...
-                        'DetrendFluxParameter',         true,...
-                        'DetrendVerticalVelocity',      true);
+            obj.calculate(...
+                'Downsample',                   true,...
+                'RotateCoordinateSystem',       true,...
+                'DetrendFluxParameter',         true,...
+                'DetrendVerticalVelocity',      true,...
+                'TimeShift',                    true,...
+                'CalculateCospectrum',          true);
         end
-        
+    end
+
+	% Methods in other files
+    methods
+        varargout = calculate(obj,varargin)
+        varargout = planarFitCoordinateSystem(obj)
+        varargout = detrend(obj,varargin)
+        varargout = timeShift(obj)
+        varargout = calculateCospectrum(obj)
+        [i,j,k] = csUnitVectors(obj)
+        func = dGetDetrendingFunction(obj,detrendingOptions)
+        varargout = plot(obj,varargin)
+        varargout = plotSpectra(obj,window)
+    end
+
+    methods (Static)
         % methods in other files
-        obj         = calculate(obj,varargin)
-        obj         = planarFitCoordinateSystem(obj)
-        obj         = detrend(obj,varargin)
-        [i,j,k]     = csUnitVectors(obj)
-        func        = dGetDetrendingFunction(obj,detrendingOptions)
-        varargout   = plot(obj,varargin)
-        
-        % get methods
-        function time = get.time(obj)
-            time = reshape(cat(1,obj.timeDownsampled,NaN(obj.windowPaddingLength,1)),obj.windowLength,obj.windowN + 1);
+        y = downsample(x,N)
+        y = detrendMeanRemoval(x)
+        y = detrendLinear(x)
+        y = detrendMovingMean(x,window)
+
+        [k,b0] = csPlanarFitUnitVectorK(U1)
+        [i,j] = csPlanarFitUnitVectorIJ(U1,k)
+%         [uc,vc,wc] = csPlanarFitRotateScalarFlux(u1c,v1c,w1c,i,j,k)
+%         [uu,vv,ww,uw,vw]=csPlanarFitRotateVelocityStat(u,i,j,k)
+    end
+
+    % Get methods
+    methods
+        function time = get.Time(obj)
+            time = reshape(cat(1,obj.TimeDownsampled,NaN(obj.WindowPaddingLength,1)),obj.WindowLength,obj.WindowN + 1);
         end
-        function velocity = get.velocity(obj)
-            tmpVelocity	= permute(reshape(shiftdim(cat(1,obj.velocityDownsampled,NaN(obj.windowPaddingLength,3)),-1),obj.windowLength,obj.windowN + 1,[]),[1,3,2]);
-        	velocity 	= NaN(obj.windowLength,obj.windowN + 1,3);
-            for win = 1:obj.windowN + 1
-                velocity(:,win,:) = tmpVelocity(:,:,win)*obj.coordinateSystemUnitVectors(:,:,win);
+        function velocity = get.Velocity(obj)
+            tmpVelocity	= permute(reshape(shiftdim(cat(1,obj.VelocityDownsampled,NaN(obj.WindowPaddingLength,3)),-1),obj.WindowLength,obj.WindowN + 1,[]),[1,3,2]);
+        	velocity 	= NaN(obj.WindowLength,obj.WindowN + 1,3);
+            for win = 1:obj.WindowN + 1
+                velocity(:,win,:) = tmpVelocity(:,:,win)*obj.CoordinateSystemUnitVectors(:,:,win);
             end
         end
-        function fluxParameter = get.fluxParameter(obj)
-            fluxParameter = reshape(shiftdim(cat(1,obj.fluxParameterDownsampled,NaN(obj.windowPaddingLength,obj.fluxParameterN)),-1),obj.windowLength,obj.windowN + 1,[]);
+        function fluxParameter = get.FluxParameter(obj)
+            fluxParameter = reshape(shiftdim(cat(1,obj.FluxParameterDownsampled,NaN(obj.WindowPaddingLength,obj.FluxParameterN)),-1),obj.WindowLength,obj.WindowN + 1,[]);
         end
-        
-        
-        function frequency = get.frequency(obj)
-            frequency = round(1/(nanmean(diff(obj.TimeRaw))*24*60^2),6,'Significant')/obj.downsamples;
+
+
+        function frequency = get.Frequency(obj)
+            frequency = round(1/(nanmean(diff(obj.TimeRaw))*24*60^2),6,'Significant')/obj.Downsamples;
         end
-        function coordinateSystemUnitVectors = get.coordinateSystemUnitVectors(obj)
-            coordinateSystemUnitVectors = cat(3,obj.coordinateSystemUnitVectorI,obj.coordinateSystemUnitVectorJ,obj.coordinateSystemUnitVectorK);
+        function coordinateSystemUnitVectors = get.CoordinateSystemUnitVectors(obj)
+            coordinateSystemUnitVectors = cat(3,obj.CoordinateSystemUnitVectorI,obj.CoordinateSystemUnitVectorJ,obj.CoordinateSystemUnitVectorK);
             coordinateSystemUnitVectors = permute(coordinateSystemUnitVectors,[3,2,1]);
         end
-        function sampleN = get.sampleN(obj)
-            sampleN = size(obj.timeDownsampled,1);
+        function sampleN = get.SampleN(obj)
+            sampleN = size(obj.TimeDownsampled,1);
         end
-        function fluxParameterN = get.fluxParameterN(obj)
-            fluxParameterN = size(obj.fluxParameterDownsampled,2);
+        function fluxParameterN = get.FluxParameterN(obj)
+            fluxParameterN = size(obj.FluxParameterDownsampled,2);
         end
-        function windowLength = get.windowLength(obj)
-            windowLength = floor(obj.frequency*seconds(obj.window));
+        function windowLength = get.WindowLength(obj)
+            windowLength = floor(obj.Frequency*seconds(obj.Window));
         end
-        function windowN = get.windowN(obj)
-            windowN = floor(size(obj.velocityDownsampled,1)/obj.windowLength);
+        function windowN = get.WindowN(obj)
+            windowN = floor(size(obj.VelocityDownsampled,1)/obj.WindowLength);
         end
-        function windowPaddingLength = get.windowPaddingLength(obj)
-            windowPaddingLength = obj.windowLength - (obj.sampleN - obj.sampleWindowedN);
+        function windowPaddingLength = get.WindowPaddingLength(obj)
+            windowPaddingLength = obj.WindowLength - (obj.SampleN - obj.SampleWindowedN);
         end
-        function sampleWindowedN = get.sampleWindowedN(obj)
-            sampleWindowedN = obj.windowLength*obj.windowN;
+        function sampleWindowedN = get.SampleWindowedN(obj)
+            sampleWindowedN = obj.WindowLength*obj.WindowN;
         end
-        
-        % set methods
-        function obj = set.sampleN(obj,value)
+        function windowMask = get.WindowMask(obj)
+            windowMask = ...
+                obj.Time >= datenum(obj.StartTime) & ...
+                obj.Time <= datenum(obj.EndTime);
+        end
+    end
+
+    % Set methods
+  	methods
+        function obj = set.SampleN(obj,value)
             if ~obj.Initialized
-                obj.sampleN = value;
+                obj.SampleN = value;
             else
                 error('Dingi:GearKit:eddyFluxAnalysis:sampleNNotSetable',...
                       'SampleN is only set once during object construction.')
             end
         end
-        function obj = set.downsamples(obj,value)
+        function obj = set.Downsamples(obj,value)
             validateattributes(value,{'numeric'},{'scalar','integer','nonzero','positive'});
-            obj.downsamples = value;
+            obj.Downsamples = value;
             if obj.Initialized
-                obj	= obj.calculate(...
-                        'Downsample',                   true,...
-                        'RotateCoordinateSystem',       false,...
-                        'DetrendFluxParameter',         true,...
-                        'DetrendVerticalVelocity',      true);
-            end            
-        end
-        function obj = set.coordinateSystemRotationMethod(obj,value)
-            obj.coordinateSystemRotationMethod = validatestring(value,obj.validCoordinateSystemRotationMethods);
-            if obj.Initialized
-                obj	= obj.calculate(...
-                        'Downsample',                   false,...
-                        'RotateCoordinateSystem',       true,...
-                        'DetrendFluxParameter',         false,...
-                        'DetrendVerticalVelocity',      true);
+                obj.calculate(...
+                    'Downsample',                   true,...
+                    'RotateCoordinateSystem',       false,...
+                    'DetrendFluxParameter',         true,...
+                    'DetrendVerticalVelocity',      true);
             end
         end
-        function obj = set.detrendingMethod(obj,value)
-            obj.detrendingMethod = validatestring(value,obj.validDetrendingMethods);
+        function obj = set.CoordinateSystemRotationMethod(obj,value)
+            obj.CoordinateSystemRotationMethod = validatestring(value,obj.ValidCoordinateSystemRotationMethods);
             if obj.Initialized
-                obj	= obj.calculate(...
-                        'Downsample',                   false,...
-                        'RotateCoordinateSystem',       false,...
-                        'DetrendFluxParameter',         true,...
-                        'DetrendVerticalVelocity',      true);
+                obj.calculate(...
+                    'Downsample',                   false,...
+                    'RotateCoordinateSystem',       true,...
+                    'DetrendFluxParameter',         false,...
+                    'DetrendVerticalVelocity',      true);
             end
         end
-        function obj = set.window(obj,value)
-            obj.window = value;
+        function obj = set.DetrendingMethod(obj,value)
+            obj.DetrendingMethod = validatestring(value,obj.ValidDetrendingMethods);
             if obj.Initialized
-                obj	= obj.calculate(...
-                        'Downsample',                   true,...
-                        'RotateCoordinateSystem',       true,...
-                        'DetrendFluxParameter',         true,...
-                        'DetrendVerticalVelocity',      true);
+               	obj.calculate(...
+                    'Downsample',                   false,...
+                    'RotateCoordinateSystem',       false,...
+                    'DetrendFluxParameter',         true,...
+                    'DetrendVerticalVelocity',      true);
+            end
+        end
+        function obj = set.Window(obj,value)
+            obj.Window = value;
+            if obj.Initialized
+               	obj.calculate(...
+                    'Downsample',                   true,...
+                    'RotateCoordinateSystem',       true,...
+                    'DetrendFluxParameter',         true,...
+                    'DetrendVerticalVelocity',      true);
             end
         end
     end
-    methods (Static)
-        % methods in other files
-        y           = downsample(x,N)
-        y           = detrendMeanRemoval(x)
-        y           = detrendLinear(x)
-        y           = detrendMovingMean(x,window)
-        
-        [k,b0]      = csPlanarFitUnitVectorK(U1)
-        [i,j]       = csPlanarFitUnitVectorIJ(U1,k)
-%         [uc,vc,wc] = csPlanarFitRotateScalarFlux(u1c,v1c,w1c,i,j,k)
-%         [uu,vv,ww,uw,vw]=csPlanarFitRotateVelocityStat(u,i,j,k)
-    end
+
 end

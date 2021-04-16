@@ -48,7 +48,7 @@ classdef ecDeployment < GearKit.gearDeployment
 
 	% methods in seperate files
     methods (Access = public)
-       	runAnalysis(obj)
+       	runAnalysis(obj,varargin)
     end
 
     methods (Access = protected)

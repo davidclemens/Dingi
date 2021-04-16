@@ -1,41 +1,48 @@
-function obj = detrend(obj,varargin)
+function varargout = detrend(obj,varargin)
 % DETREND
 
-                        
+	import internal.stats.parseArgs
+    
+    nargoutchk(0,1)
+    
     % parse Name-Value pairs
     optionName          = {'DetrendFluxParameter','DetrendVerticalVelocity'}; % valid options (Name)
     optionDefaultValue  = {true,true}; % default value (Value)
-    [DetrendFluxParameter,...
-     DetrendVerticalVelocity,...
-    ]	= internal.stats.parseArgs(optionName,optionDefaultValue,varargin{:}); % parse function arguments
+    [detrendFluxParameter,...
+     detrendVerticalVelocity,...
+    ]	= parseArgs(optionName,optionDefaultValue,varargin{:}); % parse function arguments
 
-	switch obj.detrendingMethod
+	switch obj.DetrendingMethod
         case 'none'
             
         case 'mean removal'
-            if DetrendFluxParameter
-                obj.fluxParameter_ = detrendMeanRemoval(obj.fluxParameter);
+            if detrendFluxParameter
+                obj.FluxParameter_ = detrendMeanRemoval(obj.FluxParameter);
             end
-            if DetrendVerticalVelocity
-                obj.w_ = detrendMeanRemoval(obj.velocity(:,:,3));
+            if detrendVerticalVelocity
+                obj.W_ = detrendMeanRemoval(obj.Velocity(:,:,3));
             end
         case 'linear'
-            if DetrendFluxParameter
-                obj.fluxParameter_ = detrendLinear(obj.fluxParameter);
+            if detrendFluxParameter
+                obj.FluxParameter_ = detrendLinear(obj.FluxParameter);
             end
-            if DetrendVerticalVelocity
-                obj.w_ = detrendLinear(obj.velocity(:,:,3));
+            if detrendVerticalVelocity
+                obj.W_ = detrendLinear(obj.Velocity(:,:,3));
             end            
         case 'moving mean'
-            window = round(1*obj.windowN);
-            if DetrendFluxParameter
-                obj.fluxParameter_ = detrendMovingMean(obj.fluxParameter,window);
+            window = obj.WindowLength/2;
+            if detrendFluxParameter
+                obj.FluxParameter_ = detrendMovingMean(obj.FluxParameter,window);
             end
-            if DetrendVerticalVelocity
-                obj.w_ = detrendMovingMean(obj.velocity(:,:,3),window);
+            if detrendVerticalVelocity
+                obj.W_ = detrendMovingMean(obj.Velocity(:,:,3),window);
             end 
         otherwise
             error('Dingi:GearKit:eddyFluxAnalysis:detrend:unknownDetrendingMethod',...
-                '''%s'' is not a valid detrending method.',obj.detrendingMethod)
+                '''%s'' is not a valid detrending method.',obj.DetrendingMethod)
 	end
+    
+    if nargout == 1
+        varargout{1} = obj;
+    end
 end
