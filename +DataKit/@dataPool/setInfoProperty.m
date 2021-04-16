@@ -10,6 +10,8 @@ function varargout = setInfoProperty(obj,pool,idx,property,value)
     
     obj.Info(pool).(property)(idx) = value;
     
+    obj.IndexNeedsUpdating = true;
+    
     if nargout == 1
         varargout{1} = obj;
     end

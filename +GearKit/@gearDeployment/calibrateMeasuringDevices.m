@@ -135,6 +135,6 @@ function calibrateMeasuringDevices(obj)
             obj.data.setInfoProperty(pool(v),var(v),'Variable',valueVariableInfo.Variable);
         end
     end
-
+    
     printDebugMessage('Info','Calibrating %s measuring device(s)... done',char(obj.gearType))
 end

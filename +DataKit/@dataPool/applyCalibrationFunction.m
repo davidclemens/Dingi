@@ -70,6 +70,8 @@ function varargout = applyCalibrationFunction(obj,poolIdx,variableIdx)
 
     obj.Data{poolIdx}(:,variableIdx)	= fh(time,obj.DataRaw{poolIdx}(:,variableIdx));
     
+    obj.IndexNeedsUpdating = true;
+    
     if nargout == 1
         varargout{1} = obj;
     end
