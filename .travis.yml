@@ -5,7 +5,7 @@ env:
     - CC_TEST_REPORTER=$TRAVIS_BUILD_DIR/cc-test-reporter
 matlab:
   - R2020a  # Earliest supported MATLAB release on Travis CI
-  - latest  # Default MATLAB release on Travis CI
+  #- latest  # Default MATLAB release on Travis CI
 
 before_script:
   # download code climate test reporter, make it executable & run the before build
