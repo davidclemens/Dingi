@@ -1,4 +1,4 @@
-function obj = setBit(obj,i,j,bit,highlow)
+function obj = setBit(obj,i,j,bit,highlow,varargin)
 
 % Note:
 % if the same bit at the same index is adressed multiple times with
@@ -16,6 +16,17 @@ function obj = setBit(obj,i,j,bit,highlow)
 
 
     import DataKit.arrayhom
+    
+    if nargin == 5
+        fastMode = true;
+    elseif nargin == 6
+        fastMode = varargin{1};
+        if ~isscalar(fastMode) || ~islogical(fastMode)
+            error('Dingi:DataKit:Metadata:sparseBitmask:setBit:invalidFastModeInput',...
+            'FastMode has to be provided as a scalar logical.')
+        end
+    end
+    
     
     if any(bit(:) > 52) || any(bit(:) < 1)
         error('Dingi:DataKit:Metadata:sparseBitmask:setBit:bitPositionExceedsLimit',...
@@ -48,13 +59,37 @@ function obj = setBit(obj,i,j,bit,highlow)
     highlow(highlow > 0) = 1;
     
     [i,j,bit,highlow] = arrayhom(i,j,bit,highlow);
+    
+    if ~fastMode
+        [u,uind] = unique(cat(2,i,j,bit),'rows');
+
+        i           = u(:,1);
+        j           = u(:,2);
+        bit      	= u(:,3);
+        highlow     = highlow(uind);
+    end
+    
     if nnz(obj.Bitmask) == 0
         % no non-zero elements
         bitmaskNew 	= bitset(zeros(size(bit)),bit,highlow);
         obj.Bitmask	= sparse(i,j,bitmaskNew,Sz(1),Sz(2));
     else
-        
         % non-zero elements already exist
+        
+        %%{
+        ind             = sub2ind(obj.Sz,i,j);
+        bitmaskIn       = full(obj.Bitmask(ind));
+        
+        if ~fastMode
+            [uInd,~,uIndInd2]   = unique(ind);
+            bitmaskIn         	= bitset(bitmaskIn,bit,highlow);
+            bitmaskOut      	= accumarray(uIndInd2,bitmaskIn,size(uInd),@sum);
+            obj.Bitmask(uInd)   = bitmaskOut;
+        else
+            obj.Bitmask(ind)  	= bitset(bitmaskIn,bit,highlow);
+        end
+        %}
+        %{
         [iBm,jBm]           = find(obj.Bitmask);
         indBm               = sub2ind(obj.Sz,iBm,jBm);
         
@@ -86,6 +121,7 @@ function obj = setBit(obj,i,j,bit,highlow)
         bitmask(indChange)      = bitmaskChange;
         
         obj.Bitmask             = bitmask;
+        %}
     end
     
 %     for ii = 1:n

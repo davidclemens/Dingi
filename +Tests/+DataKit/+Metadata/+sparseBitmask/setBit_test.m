@@ -121,7 +121,7 @@ classdef (SharedTestFixtures = { ...
 %                 setBit(testCase.Bitmask,testCase.Sz(1) + 1,1,1,1),...
 %                 'Dingi:DataKit:Metadata:sparseBitmask:setBit:subscriptsExceedBitmaskSize')
         end
-        function testSetBit(testCase,i,j,bit,hl)
+        function testSetBitFastModeDisabled(testCase,i,j,bit,hl)
             import matlab.unittest.fixtures.SuppressedWarningsFixture
             import DataKit.Metadata.sparseBitmask
             import DataKit.arrayhom
@@ -147,7 +147,7 @@ classdef (SharedTestFixtures = { ...
             
             % get actual value
             BitmaskA	= testCase.Bitmask;
-            act         = setBit(BitmaskA,i,j,bit,hl);
+            act         = setBit(BitmaskA,i,j,bit,hl,false); % test without fastMode
             act       	= act.Bitmask;
             
             % determine expected bitmask
@@ -159,7 +159,9 @@ classdef (SharedTestFixtures = { ...
             [uBits,~,uBitsInd]  = unique(cat(2,ind,bit2),'rows'); % get unique index-bit touples
             for ii = 1:size(uBits,1)
                 mask                = uBitsInd == ii;
-                highlow             = max(hl2(mask));   % if the same bit is addressed multiple times set it to the max of the corresponding highlow values.
+                highlow             = hl2(find(mask,1));   % if the same bit is addressed multiple times set it to the first of the corresponding highlow values.
+%                 highlow             = max(hl2(mask));   % if the same bit is addressed multiple times set it to the first of the corresponding highlow values.
+
                 exp(uBits(ii,1))	= bitset(full(exp(uBits(ii,1))),uBits(ii,2),highlow);
             end
             
