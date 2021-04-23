@@ -11,20 +11,17 @@ function L = getSubclasses(ofClass,withinScope)
     
     function subpaths = listClasses(path)
         
-        excludePath = '/Dingi/Tests/';
-        classesNew  = struct('Class',{''},'Path',{''},'Superclass',{''});
         if ischar(path)
             path = cellstr(path);
         end        
         nPath       = numel(path);
         for pp = 1:nPath
-            tmp         = what(path{pp});
+            tmp           	= what(path{pp});
+            
+            pathHasPackages	= ~isempty(tmp.packages);
+            pathHasClasses	= ~isempty(tmp.classes);
 
-            subpaths    = fullfile(tmp.path,tmp.packages);
-            pathMask    = cellfun(@isempty,regexp(subpaths,'/Dingi/Tests'));
-            subpaths    = subpaths(pathMask);
-
-            if ~isempty(tmp.classes)
+            if pathHasClasses
                 classNames	= strsplit(tmp.path,'+');
                 classNames  = strrep(classNames,'/','');
                 classNames	= strcat(strjoin(classNames(2:end),'.'),{'.'},tmp.classes);
@@ -40,8 +37,15 @@ function L = getSubclasses(ofClass,withinScope)
                 classes(ind)    = struct('Class',classNames,'Path',repmat({tmp.path},nClasses,1),'Superclasses',superClassList);
             end
             
-            if ~isempty(subpaths)
-                subpaths = listClasses(subpaths);
+            
+            if pathHasPackages                
+                subpaths    = fullfile(tmp.path,strcat({'+'},tmp.packages));
+                pathMask    = cellfun(@isempty,regexp(subpaths,'/Dingi/\+Tests'));
+                subpaths    = subpaths(pathMask);
+                
+                subpaths    = listClasses(subpaths);
+            else
+                subpaths    = {''};
             end
         end
     end

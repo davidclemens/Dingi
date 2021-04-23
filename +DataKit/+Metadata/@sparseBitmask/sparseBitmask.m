@@ -128,7 +128,7 @@ classdef sparseBitmask
     methods
         disp(obj)
         obj = initializeBitmask(obj,i,j,bit,sz)
-        obj = setBit(obj,i,j,bit,highlow)
+        obj = setBit(obj,i,j,bit,highlow,varargin)
         varargout = getBit(obj,varargin)
     end
     methods (Static, Hidden)

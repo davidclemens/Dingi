@@ -19,6 +19,8 @@ function varargout = setMeasuringDeviceProperty(obj,pool,idx,property,value)
     
     obj.Info(pool).VariableMeasuringDevice(idx).(property) = value;
     
+    obj.IndexNeedsUpdating = true;
+    
     if nargout == 1
         varargout{1} = obj;
     end

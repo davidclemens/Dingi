@@ -23,6 +23,11 @@ try
                 'Producing',            CoberturaFormat(coberturaFilename));
 
     runner.addPlugin(plugin)
+    
+    % Output test size to command line
+    testClassNames  = unique(cellfun(@(s) subsref(strsplit(s,{'/','['}),substruct('{}',{':'})),{tests.Name},'un',0))';
+    fprintf('Running %u tests across %u test classes:\n\t%s\n',numel(tests),numel(testClassNames),strjoin(testClassNames,'\n\t'));
+    
     result  = runner.run(tests);
     
     display(result);
