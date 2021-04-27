@@ -1,10 +1,27 @@
 classdef bitmask
+    % BITMASK  Encodes binary flags in decimal arrays
+    % The bitmask class encodes binary flags in decimal arrays by setting
+    % individual bits to high or low. It also chooses the most efficient
+    % storage type for the bits that are set.
+    %
+    % BITMASK Properties:
+    %   StorageTypeName - Current storage type
+    %   Bits - Decimal bitmask array
+    %   Size - Bitmask size
+    %
+    % BITMASK Methods:
+    %   bitmask - Constructor method
+    %   setBit - Set specific bits at specific indices
+    %   setNum - Set decimal numbers at specific indices
+    %
+    % Copyright (c) 2021 David Clemens (dclemens@geomar.de)
+    %
     
     % Frontend
     properties (Dependent)
-        StorageTypeName char
-        Bits
-        Size double
+        StorageTypeName char % Current storage type name
+        Bits % Decimal bitmask array
+        Size double % Bitmask size
     end
     
     % Backend
@@ -14,20 +31,93 @@ classdef bitmask
         StorageType_ uint8 = 8
     end
     properties (Access = protected, Dependent)
-        StorageType double
+        StorageType double % Number of bits of the current storage type
     end
-    properties (Access = protected, Constant)
+    properties (Access = private, Constant)
         MaxNumber = intmax('uint64')
         validStorageTypeNames = {'uint8','uint16','uint32','uint64'}
         validStorageTypes uint8 = 2.^(3:6)
     end
     
+    % Constructor method
     methods
         function obj = bitmask(varargin)
-        %     obj = bitmask(A)
-        %     obj = bitmask(m,n)
-        %     obj = bitmask(i,j,bit)
-        %     obj = bitmask(i,j,bit,m,n)
+            % bitmask  Bitmask constructor method
+            %   BITMASK constructs a bitmask instance.
+            %
+            %   Syntax
+            %     obj = BITMASK(A)
+            %     obj = BITMASK(m,n)
+            %     obj = BITMASK(i,j,bit)
+            %     obj = BITMASK(i,j,bit,m,n)
+            %
+            %   Description
+            %     obj = BITMASK(A) converts a decimal array A into a bitmask. It holds
+            %       the same number and shape as A. The values in A are assumed to
+            %       encode up to 64 bits. Hence, no value in A can exceed
+            %       intmax('uint64'). The storage type is optimized, meaning that if
+            %       only the first 8 bits are set, the bitmask is stored as uint8.
+            %     obj = BITMASK(m,n) creates an m-by-n bitmask with all bits set to
+            %       zero.
+            %     obj = BITMASK(i,j,bit) creates a max(i(:)) x max(j(:)) bitmask with
+            %       bits bit at indices (i,j) set to high.
+            %     obj = BITMASK(i,j,bit,m,n) additionally specifies the size of the
+            %       bitmask array.
+            %
+            %   Example(s)
+            %     obj = BITMASK(magic(5))
+            %     obj = BITMASK(3,5) creates a 3x5 bitmask with all zeros.
+            %     obj = BITMASK(2,3,9) creates a 2x3 bitmask with bit 9 at index (2,3)
+            %       set to 1. It is stored as uint16.
+            %     obj = BITMASK(2,3,9,5,10) creates a 5x10 bitmask with bit 9 at index
+            %       (2,3) set to 1. It is stored as uint16.
+            %     obj = BITMASK([2,1],[3,8],[2,9],5,10) creates a 5x10 bitmask with bit 
+            %       2 at index (2,3) and bit 9 at index (1,8) set to 1. It is stored as
+            %       uint16.
+            %
+            %
+            %   Input Arguments
+            %     A - Input Matrix
+            %       scalar | vector | matrix
+            %         Input matrix, specified as a numeric matrix with no value
+            %         exceeding intmax('uint64').
+            %
+            %     i, j - Subscript pairs (as seperate arguments)
+            %       scalar | vector
+            %         Subscript pairs, specified as separate arguments of scalars,
+            %         vectors, or matrices. Corresponding elements in i and j specify
+            %         subscript pairs into the bitmask, which determine the setting
+            %         of the bit into the output.
+            %
+            %     bit - Bit position to be enabled
+            %       scalar | vector
+            %         Bit positions which should be enabled, specified as a scalar or
+            %         vector. Any elements in bit that are zero are ignored, as are the
+            %         corresponding subscripts in i and j. However, if you do not
+            %         specify the dimension sizes of the output, m and n, then
+            %         sparseBitmask calculates the maxima m = max(i(:)) and n = max(j(:))
+            %         before ignoring any zero elements in bit.
+            %
+            %     m, n - Size of each dimension (as separate arguments)
+            %       integer values
+            %         Size of each dimension of the bitmask matrix, specified as
+            %         separate arguments of integer values. If you specify m (the row
+            %         size), you also must specify n (the column size).
+            %         If you do not specify m and n, then bitmask uses the
+            %         default values m = max(i(:)) and n = max(j(:)). These maxima are
+            %         computed before any zeros in bit are removed. Note that even
+            %         though the constructor only accepts 2D arrays, after creation the
+            %         bitmask array can be extended to N-dimensional arrays using the
+            %         setBit or setNum methods.
+            %
+            %
+            %   Name-Value Pair Arguments
+            %
+            %
+            %   See also SETBIT, SETNUM
+            %
+            %   Copyright (c) 2021 David Clemens (dclemens@geomar.de)
+            %
             
             switch nargin
                 case 0
@@ -57,11 +147,9 @@ classdef bitmask
         end
     end
     
-    methods (Access = private)
-        obj = initializeBitmask(obj,i,j,bit,sz)
-        obj = changeStorageType(obj,newStorageType)
-        storageType = minStorageType(obj,A)
-        obj = extendBitmask(obj,varargin)
+    methods
+        obj = setBit(obj,bit,highlow,varargin)
+        obj = setNum(obj,num,varargin)
     end
     
     % Overloaded methods
@@ -70,8 +158,15 @@ classdef bitmask
         obj = cat(dim,varargin)
     end
     
+    methods (Access = private)
+        obj = initializeBitmask(obj,i,j,bit,sz)
+        obj = changeStorageType(obj,newStorageType)
+        storageType = minStorageType(obj,A)
+        obj = extendBitmask(obj,varargin)
+    end    
+    
     % Static methods
-    methods (Static)
+    methods (Access = private, Static)
         intout = setbits(bits)
     end
     

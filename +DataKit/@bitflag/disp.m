@@ -1,22 +1,26 @@
 function disp(obj,varargin)
-% disp  Displays metadata of a dataFlag instance
-%   DISP displays metadata of a dataFlag instance. It overloads the
+% disp  Displays metadata of a bitflag instance
+%   DISP displays metadata of a bitflag instance. It overloads the
 %   builtin disp(x) function.
 %
 %   Syntax
-%     data = DISP(obj)
+%     DISP(obj)
+%     DISP(__,'builtin')
+%     DISP(__,'bits')
 %
 %   Description
-%     data = DISP(obj) displays metadata of a dataFlag instance.
+%     DISP(obj) displays metadata of a bitflag instance.
+%     DISP(__,'builtin') runs the builtin disp method.
+%     DISP(__,'bits') displays the underlying bitmask.
 %
 %   Example(s)
-%     data = DISP(obj)
+%     DISP(obj)
 %
 %
 %   Input Arguments
-%     obj - dataFlag
-%       dataFlag
-%         An instance of the dataFlag class.
+%     obj - bitflag
+%       DataKit.bitflag
+%         An instance of the DataKit.bitflag class.
 %
 %
 %   Output Arguments
@@ -25,7 +29,7 @@ function disp(obj,varargin)
 %   Name-Value Pair Arguments
 %
 %
-%   See also SPARSEBITMASK
+%   See also BITFLAG
 %
 %   Copyright (c) 2021 David Clemens (dclemens@geomar.de)
 %
@@ -49,6 +53,9 @@ function disp(obj,varargin)
     end
     
     [i,j,v]         = find(obj.Bits);
+    i               = reshape(i,[],1);
+    j               = reshape(j,[],1);
+    v               = reshape(v,[],1);
     sz              = obj.Size;
     nDims           = numel(sz);
     if nDims > 2
