@@ -25,7 +25,7 @@ classdef (SharedTestFixtures = { ...
             'VariableMeasuringDevice',      {repmat(GearKit.measuringDevice('BigoManualSampling','Ch1AA1','Chamber Lid','BenthicWaterColumn','Chamber1'),1,2)})
     end
     properties (ClassSetupParameter)
-        
+
     end
     properties (MethodSetupParameter)
         % Creates data pools with a single (s) or multiple (m),
@@ -36,7 +36,7 @@ classdef (SharedTestFixtures = { ...
                 'Data',              cat(2,linspace(0,3600,16000)',reshape(repmat(0:15,1000,1),[],1),randn(16000,1),randn(16000,1)),...
                 'VariableOrigin',    {{datetime(2020,10,2,15,32,50),0,0,0}},...
                 'VariableType',      {{'Independent','Independent','Dependent','Dependent'}},...
-                'MeasuringDevice',   repmat(GearKit.measuringDevice('BigoSyringeSampler','Ch1AA1','Chamber Lid','BenthicWaterColumn','Chamber1'),1,4)))        
+                'MeasuringDevice',   repmat(GearKit.measuringDevice('BigoSyringeSampler','Ch1AA1','Chamber Lid','BenthicWaterColumn','Chamber1'),1,4)))
     end
     properties (TestParameter)
         % Selectively only input some of the inputs
@@ -47,7 +47,7 @@ classdef (SharedTestFixtures = { ...
         UseVariableCalibrationFunction	= struct('yes',true,'no',false)
         UseVariableOrigin               = struct('yes',true,'no',false)
         UseVariableMeasuringDevice     	= struct('yes',true,'no',false)
-     
+
         % Add the new data to an existing or a new data pool
         PoolIdx = struct(...
                          'existing',        1,...
@@ -122,75 +122,75 @@ classdef (SharedTestFixtures = { ...
     end
 
     methods (TestClassSetup)
-        
+
     end
     methods (TestMethodSetup)
         function createDataPool(testCase,SetupData)
        	% Create a data pool before every test is run
-        
+
             import DataKit.dataPool
-            
+
             dp = dataPool();
             dp.addVariable(SetupData.Variable,SetupData.Data,...
                 'VariableType',     SetupData.VariableType,...
                 'VariableOrigin',   SetupData.VariableOrigin);
-            
+
             testCase.DataPoolInstance = dp;
-            
+
             testCase.addTeardown(@delete,testCase.DataPoolInstance)
         end
     end
     methods (TestMethodTeardown)
-        
+
     end
 
     methods (Test)
         function testNoInput(testCase)
         % Test addVariable with no inputs
-            
+
             testCase.verifyError(@() testCase.DataPoolInstance.addVariable(),'MATLAB:narginchk:notEnoughInputs');
         end
         function testEmptyVariableInput(testCase)
         % Test addVariable with empty variable
-            
+
             testCase.verifyError(@() testCase.DataPoolInstance.addVariable([],1),'Dingi:DataKit:dataPool:addVariable:emptyVariable');
         end
         function testEmptyDataInput(testCase)
         % Test addVariable with empty data
-            
+
             testCase.verifyError(@() testCase.DataPoolInstance.addVariable('Oxygen',[]),'Dingi:DataKit:dataPool:addVariable:emptyData');
         end
         function testVariableDataSizeMismatch(testCase)
         % Test addVariable with mismatching variable/data shapes
-            
+
             testCase.verifyError(@() testCase.DataPoolInstance.addVariable('Oxygen',ones(2,5)),'Dingi:DataKit:dataPool:addVariable:variableDataSizeMismatch');
         end
         function testWithDifferingInputCounts(testCase,UsePool,UseUncertainty,UseFlag,UseVariableType,UseVariableCalibrationFunction,UseVariableOrigin,UseVariableMeasuringDevice)
-            
-            import DataKit.Metadata.dataFlag
+
+            import DataKit.bitflag
             import DataKit.Metadata.validators.validInfoVariableType
             import GearKit.measuringDevice
-            
+
             dp = testCase.DataPoolInstance;
-            
+
             inputArguments = {testCase.ExampleData.Variable,testCase.ExampleData.Data};
-            
+
             nVariables      = numel(testCase.ExampleData.Variable);
-            
+
             if UsePool
                 inputArguments  = cat(2,inputArguments,'Pool',testCase.ExampleData.Pool);
             end
             if UseUncertainty
                 inputArguments  = cat(2,inputArguments,'Uncertainty',testCase.ExampleData.Uncertainty);
-                expUncertainty  = sparse(testCase.ExampleData.Uncertainty);
+                expUncertainty  = testCase.ExampleData.Uncertainty;
             else
-                expUncertainty  = sparse(zeros(size(testCase.ExampleData.Uncertainty)));
+                expUncertainty  = zeros(size(testCase.ExampleData.Uncertainty));
             end
             if UseFlag
                 inputArguments  = cat(2,inputArguments,'Flag',testCase.ExampleData.Flag);
-                expFlag         = dataFlag(testCase.ExampleData.Flag);
+                expFlag         = bitflag('DataKit.Metadata.validators.validFlag',testCase.ExampleData.Flag);
             else
-                expFlag         = dataFlag(size(testCase.ExampleData.Flag,1),size(testCase.ExampleData.Flag,2));
+                expFlag         = bitflag('DataKit.Metadata.validators.validFlag',size(testCase.ExampleData.Flag,1),size(testCase.ExampleData.Flag,2));
             end
             if UseVariableType
                 inputArguments  = cat(2,inputArguments,'VariableType',{testCase.ExampleData.VariableType});
@@ -216,25 +216,25 @@ classdef (SharedTestFixtures = { ...
             else
                 expVariableMeasuringDevice  = repmat(measuringDevice(),1,nVariables);
             end
-            
+
             % Call addVariable
             dp.addVariable(inputArguments{:})
-            
+
             % Test uncertainty
             testCase.verifyEqual(dp.Uncertainty{2},expUncertainty);
-            
+
             % Test flags
             testCase.verifyEqual(dp.Flag{2},expFlag);
-            
+
             % Test variable type
             testCase.verifyEqual(dp.Info(2).VariableType,expVariableType);
-            
+
             % Test variable calibration function
 %             testCase.verifyEqual(dp.Info(2).VariableCalibrationFunction,expVariableCalibrationFunction);
-            
+
             % Test variable origin
             testCase.verifyEqual(dp.Info(2).VariableOrigin,expVariableOrigin);
-            
+
             % Test variable origin
             testCase.verifyEqual(dp.Info(2).VariableMeasuringDevice,expVariableMeasuringDevice);
         end

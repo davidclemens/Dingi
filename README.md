@@ -37,15 +37,11 @@ DataKit encompasses general data handling classes and definitions.
 
 `DataKit.dataPool` — A data container that is self describing.
 
-`DataKit.Metadata.sparseBitmask` — Encodes arrays of bitmasks with up to 52 bits as sparse doubles.
-
-`DataKit.Metadata.dataFlag` — Subclass to `DataKit.Metadata.sparseBitmask` implementing the us of data flags as defined in `DataKit.Metadata.validators.validFlag`.
-
 `DataKit.Metadata.poolInfo` — Defines the metadata for a data pool in `DataKit.dataPool`.
 
 `DataKit.Metadata.variable` — Defines valid variables and metadata.
 
-`DataKit.Metadata.validators.validFlag` — Defines valid data flags for `DataKit.Metadata.dataFlag`.
+`DataKit.Metadata.validators.validFlag` — Defines valid data flags.
 
 `DataKit.Metadata.validators.validInfoVariableType` — Defines valid variable types for `DataKit.Metadata.poolInfo`.
 

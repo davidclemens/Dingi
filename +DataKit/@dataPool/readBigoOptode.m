@@ -27,6 +27,7 @@ function varargout = readBigoOptode(obj,path)
     optodeDataTmp  	= table(rawText{:});
     SN              = cellstr(num2str(optodeDataTmp{1,2:4:end}'));
     
+    newPoolInd      = obj.PoolCount + 1;
     for opt = 1:nOptodes
         measuringDevice                 = GearKit.measuringDevice();
         measuringDevice.Type            = 'BigoOptode';
@@ -49,6 +50,7 @@ function varargout = readBigoOptode(obj,path)
         end
 
         obj.addVariable(variables,data,...
+            'Pool',                     newPoolInd,...
             'VariableType',             variableType,...
             'VariableOrigin',           variableOrigin,...
             'VariableMeasuringDevice',	variableMeasuringDevice);

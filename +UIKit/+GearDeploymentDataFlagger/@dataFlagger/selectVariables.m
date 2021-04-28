@@ -93,7 +93,7 @@ function selectVariables(obj)
             % If a valid flag id is selected, set the brush data
             % accordingly.
             if obj.FlagsList{obj.FlagIsSelected,'Flag'}.Id > 0
-                FData           = data.Flags{src} == char(obj.FlagsList{obj.FlagIsSelected,'Flag'});
+                FData           = isFlag(data.Flags{src},char(obj.FlagsList{obj.FlagIsSelected,'Flag'}));
                 htmp.BrushData  = double(FData');
             end
 

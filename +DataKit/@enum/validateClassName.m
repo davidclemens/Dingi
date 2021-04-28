@@ -16,7 +16,7 @@ function className = validateClassName(className)
         switch ME.identifier
             case 'MATLAB:unrecognizedStringChoice'
                 error('Dingi:DataKit:enum:validateClassName:invalidClassName',...
-                    'The class name ''%s'' does not exist. Valid class names are:\n\t%s\n',className,className,strjoin(validClassNames,', '))
+                    'The enumeration class name ''%s'' does not exist. Valid enumeration class names are:\n\t%s\n',className,strjoin(validClassNames,'\n\t'))
             otherwise
                 rethrow(ME)
         end

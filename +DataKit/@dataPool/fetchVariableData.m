@@ -51,7 +51,7 @@ function [data,flags] = fetchVariableData(obj,poolIdx,variableIdx,varargin)
 %     flags - returned data flags
 %       2D matrix | cell
 %         If poolIdx and variableIdx are scalar, the data is returned as a
-%         dataFlag matrix. If they are not scalar or ForceCellOutput is set
+%         bitflag matrix. If they are not scalar or ForceCellOutput is set
 %         to true, each one is returned within a cell.
 %
 %
@@ -71,7 +71,7 @@ function [data,flags] = fetchVariableData(obj,poolIdx,variableIdx,varargin)
 %
 %   Copyright (c) 2020-2021 David Clemens (dclemens@geomar.de)
 %
-    
+
     import DataKit.arrayhom
 
     % parse Name-Value pairs
@@ -81,7 +81,7 @@ function [data,flags] = fetchVariableData(obj,poolIdx,variableIdx,varargin)
      returnRawData,...                      %
      forceCellOutput...
      ]	= internal.stats.parseArgs(optionName,optionDefaultValue,varargin{:}); % parse function arguments
- 
+
     if ~isnumeric(poolIdx) || ~isnumeric(variableIdx)
         error('Dingi:DataKit:dataPool:fetchVariableData:nonNumericIdx',...
             'Indices have to be numeric.')
@@ -98,27 +98,27 @@ function [data,flags] = fetchVariableData(obj,poolIdx,variableIdx,varargin)
         error('Dingi:DataKit:dataPool:fetchVariableData:nonVectorIdx',...
             'Vector indices required.')
     end
-    
+
     % reshape to only deal with column vectors
     poolIdx     = reshape(poolIdx,[],1);
     variableIdx	= reshape(variableIdx,[],1);
-    
+
     sPoolIdx        = size(poolIdx);
     sVariableIdx    = size(variableIdx);
-    
+
     % grow vectors to match if necessary
     [poolIdx,variableIdx] = arrayhom(poolIdx,variableIdx);
     nVariables  = numel(variableIdx);
-    
+
     if returnRawData
         data = arrayfun(@(p,v) obj.DataRaw{p}(:,v),poolIdx,variableIdx,'un',0);
     else
         data = arrayfun(@(p,v) obj.Data{p}(:,v),poolIdx,variableIdx,'un',0);
     end
     origin  = arrayfun(@(p,v) obj.Info(p).VariableOrigin{v},poolIdx,variableIdx,'un',0);
-    
+
     flags   = arrayfun(@(p,v) obj.Flag{p}(:,v),poolIdx,variableIdx,'un',0);
-    
+
     for ii = 1:numel(poolIdx)
         switch obj.Info(poolIdx(ii)).VariableReturnDataType(variableIdx(ii))
             case 'datetime'
@@ -130,7 +130,7 @@ function [data,flags] = fetchVariableData(obj,poolIdx,variableIdx,varargin)
                     'Variable return type ''%s'' not implemented yet.',char(obj.Info(poolIdx(ii)).VariableReturnDataType(variableIdx(ii))))
         end
     end
-    
+
     if nVariables == 1 && ~forceCellOutput
         data    = data{:};
         flags   = flags{:};

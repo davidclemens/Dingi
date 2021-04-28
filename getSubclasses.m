@@ -30,6 +30,10 @@ function L = getSubclasses(ofClass,withinScope)
                 superClassList  = cell(nClasses,1);
                 for cc = 1:nClasses
                     a                   = eval(['?',classNames{cc}]);
+                    if isempty(a)
+                        % The class folder exists, but no classdef .m file is found.
+                        continue
+                    end
                     superClassList{cc}  = arrayfun(@(cl) cl.Name, a.SuperclassList,'un',0);
                 end
                 superClassList(cellfun(@isempty,superClassList)) = {{''}};
