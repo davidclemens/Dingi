@@ -158,8 +158,11 @@ classdef bitmask
     % Overloaded methods
     methods
         disp(obj,varargin)
+        varargout = subsref(obj,s)
         obj = subsasgn(obj,s,b)
         obj = cat(dim,varargin)
+        varargout = size(obj,varargin)
+        obj = reshape(obj,varargin)
     end
 
     methods (Access = private)

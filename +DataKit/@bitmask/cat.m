@@ -1,19 +1,20 @@
 function obj = cat(dim,varargin)
-
-    import DataKit.bitmask
     
-    isaBitmask = cellfun(@(in) isa(in,'DataKit.bitmask'),varargin);
-    if ~all(isaBitmask)
-        error('Dingi:DataKit:bitmask:cat:invalidInputType',...
-            'All inputs must be bitmasks')
+    uClassNames = unique(cellfun(@(in) class(in),varargin,'un',0));
+    
+    if numel(uClassNames) ~= 1
+        error('Dingi:DataKit:bitmask:cat:differingInputTypes',...
+            'All inputs must be the same type.')
     end
     
+    obj     = varargin{1};
+    
     % extract all bitmasks
-    bitmasks    = cellfun(@(in) in.Bits,varargin,'un',0);
+    bms    = cellfun(@(in) in.Bits,varargin,'un',0);
     
     % concatenate the bitmask
-    bitmask     = cat(dim,bitmasks{:});
+    bm     = cat(dim,bms{:});
     
-    % create new sparse bitmask object
-    obj         = bitmask(bitmask);
+    % create new bitmask object
+    obj.Bits = bm;
 end
