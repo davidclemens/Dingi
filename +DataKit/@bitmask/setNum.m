@@ -111,6 +111,9 @@ function obj = setNum(obj,num,varargin)
         return
 	end
     
+    % Homogonize the input arrays
+    [num,varargin{:}] = arrayhom(num,varargin{:});
+    
     % Extend bitmask if necessary
     obj = extendBitmask(obj,varargin{:});
     
@@ -120,9 +123,6 @@ function obj = setNum(obj,num,varargin)
     % Reshape inputs
     ind = reshape(ind,[],1);
     num = reshape(num,[],1);
-    
-    % Homogonize the input arrays
-    [ind,num] = arrayhom(ind,num);
     
     % Set storage type and assign the new bitmask numbers
     obj             = obj.changeStorageType(storageType);

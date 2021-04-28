@@ -87,7 +87,7 @@ function disp(obj,varargin)
         tabStr      = arrayfun(@(l) repmat(' ',1,l),tabLength - cellfun(@numel,indexStr),'un',0);
         
         if showAsBitmask
-            maskStr     = cellstr(dec2bin(v,obj.StorageType));
+            maskStr     = cellstr(dec2bin(v(1:n),obj.StorageType));
             maskStr     = strrep(maskStr,'0','.');
             printStr    = strcat(indexStr,tabStr,maskStr);
             

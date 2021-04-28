@@ -100,6 +100,9 @@ function obj = setBit(obj,bit,highlow,varargin)
         return
 	end
     
+    % Homogonize the input arrays
+    [bit,highlow,varargin{:}] = arrayhom(bit,highlow,varargin{:});
+    
     % Extend bitmask if necessary
     obj = extendBitmask(obj,varargin{:});
     
@@ -110,9 +113,6 @@ function obj = setBit(obj,bit,highlow,varargin)
     ind     = reshape(ind,[],1);
     bit     = reshape(bit,[],1);
     highlow = reshape(highlow,[],1);
-    
-    % Homogonize the input arrays
-    [ind,bit,highlow] = arrayhom(ind,bit,highlow);
     
     % Extract the relevant bitmask numbers
     Ain = reshape(obj.Bits_(ind),[],1);
