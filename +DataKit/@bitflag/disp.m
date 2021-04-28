@@ -80,11 +80,21 @@ function disp(obj,varargin)
         tabStr      = arrayfun(@(l) repmat(' ',1,l),tabLength - cellfun(@numel,indexStr),'un',0);
         
         if showAsBitmask
+            headerNums  = fliplr(num2str((1:obj.StorageType)','%u')');
             maskStr     = cellstr(dec2bin(v(1:n),obj.StorageType));
             maskStr     = strrep(maskStr,'0','.');
             printStr    = strcat(indexStr,tabStr,maskStr);
             
             noFlag      = false;
+            
+            % Print header numbers
+            for hl = 1:size(headerNums,1)
+                if hl == 1
+                    fprintf('(index)%s%s\n',repmat(' ',1,tabLength - 7),headerNums(hl,:));
+                else
+                    fprintf('%s%s\n',repmat(' ',1,tabLength),headerNums(hl,:));
+                end
+            end
         else
             flagNames   = obj.EnumerationMembers;
             [ind,bit]   = find(bitget(repmat(v(1:n),1,obj.StorageType),repmat(1:obj.StorageType,n,1)));
@@ -103,6 +113,7 @@ function disp(obj,varargin)
             printStr    = strcat(indexStr,tabStr,flagStr);            
         end
         
+        % Print contents
         fprintf('%s\n',printStr{:})
         
         if LimitIsReached

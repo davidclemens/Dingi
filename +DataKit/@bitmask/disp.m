@@ -72,6 +72,7 @@ function disp(obj,varargin)
     
     if N > 0
         tabLength  	= max([minTab,3 + 2*(nDims - 1) + sum(ndigits(cellfun(@max,subs)))]);
+        headerNums  = fliplr(num2str((1:obj.StorageType)','%u')');
         indexStr    = cellstr(num2str(subsref(cat(2,subs{:}),substruct('()',{1:n,':'})),['(',strjoin(repmat({'%u'},1,nDims),', '),')\n']));
         tabStr      = arrayfun(@(l) repmat(' ',1,l),tabLength - cellfun(@numel,indexStr),'un',0);
         
@@ -79,6 +80,16 @@ function disp(obj,varargin)
         maskStr     = strrep(maskStr,'0','.');
         printStr    = strcat(indexStr,tabStr,maskStr);
         
+        % Print header numbers
+        for hl = 1:size(headerNums,1)
+            if hl == 1
+                fprintf('(index)%s%s\n',repmat(' ',1,tabLength - 7),headerNums(hl,:));
+            else
+                fprintf('%s%s\n',repmat(' ',1,tabLength),headerNums(hl,:));
+            end
+        end
+        
+        % Print contents
         fprintf('%s\n',printStr{:})
         
         if LimitIsReached
