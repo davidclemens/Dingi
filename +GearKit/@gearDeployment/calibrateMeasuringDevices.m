@@ -132,7 +132,7 @@ function calibrateMeasuringDevices(obj)
 
             % update variable to the calibrated variable
             obj.data.setInfoProperty(pool(v),var(v),'VariableRaw',obj.data.Info(pool(v)).Variable(var(v)));
-            obj.data.setInfoProperty(pool(v),var(v),'Variable',valueVariableInfo.Variable);
+            obj.data.setInfoProperty(pool(v),var(v),'Variable',valueVariableInfo.EnumerationMemberName);
         end
     end
     

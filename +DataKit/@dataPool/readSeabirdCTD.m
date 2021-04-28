@@ -101,9 +101,9 @@ function varargout = readSeabirdCTD(obj,path)
         printDebugMessage('Warning','The parameter(s):\n\t''%s''\nare not recognized in the DataKit toolbox. They are not imported.',strjoin(variables(~isValid),'\n\t'))
 	end
 
-    timeInd                	= find(cat(1,info.Variable) == 'Time');
+    timeInd                	= find(cat(1,info.EnumerationMemberName) == 'Time');
 
-    variables               = cellstr(cat(1,info(isValid).Variable))';
+    variables               = cellstr(cat(1,info(isValid).EnumerationMemberName))';
     data                    = cat(2,rawText{isValid});
     data(:,timeInd)       	= data(:,timeInd) - data(1,timeInd);
     variableType            = repmat({'Dependent'},size(variables));

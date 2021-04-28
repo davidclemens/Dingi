@@ -125,7 +125,7 @@ function data = fetchData(obj,varargin)
 %         dp3 while VarN is found in dp5, dp6 and dp7.
 %         If, for example, dp3 doesn't contain independent variable indepI,
 %         it is filled with the appropriate empty value type.
-%         Flags has the same structure as DepData and holds dataFlag
+%         Flags has the same structure as DepData and holds bitflag
 %         instances with the flags that applied to the dependent data.
 %
 %         data.DepData:
@@ -407,7 +407,7 @@ function data = fetchData(obj,varargin)
     % initialize data outputs
     iData   = arrayfun(@(n) DataKit.getNotANumberValueForClass(cellstr(uIndepVariablesDataType),[n,1]),nDataOut,'un',0);
     dData   = arrayfun(@(n) NaN(n,1),nDataOut,'un',0);
-    Flags   = arrayfun(@(n) DataKit.Metadata.dataFlag(n,1),nDataOut,'un',0);
+    Flags   = arrayfun(@(n) DataKit.bitflag(obj.Flag{1}.EnumerationClassName,n,1),nDataOut,'un',0);
 
     % populate data outputs
   	for var = 1:nVariable
