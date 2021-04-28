@@ -18,7 +18,7 @@ function obj = extendBitmask(obj,varargin)
         newBitmask  = obj.Bits_;
         for dim = 1:nNewDimensions
             if dim > nDimensions
-                dN = newDimensionMaxSubscript(dim);
+                dN = newDimensionMaxSubscript(dim) - 1;
             else
                 dN = newDimensionMaxSubscript(dim) - dimensionMaxSubscript(dim);
             end
