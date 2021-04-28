@@ -4,19 +4,23 @@ function obj = setNum(obj,num,varargin)
 %
 %   Syntax
 %     obj = SETNUM(obj,num)
-%     obj = SETNUM(obj,num,dim1,dim2)
-%     obj = SETNUM(obj,num,dim1,...,dimN)
+%     obj = SETNUM(obj,num,ind)
+%     obj = SETNUM(obj,num,dim1Sub,...,dimNSub)
 %
 %   Description
 %     obj = SETNUM(obj,num) replaces the current bitmask with the array
 %       num.
-%     obj = SETNUM(obj,num,i,j) sets the decimal number at indices (i,j) of
-%       bitmask obj to num.
-%     obj = SETNUM(obj,num,dim1,...,dimN) the decimal number at indices
-%       (dim1,...,dimN) of bitmask obj to num.
+%     obj = SETNUM(obj,num,ind) sets the decimal number at the linear index
+%       ind of bitmask obj to num.
+%     obj = SETNUM(obj,num,dim1,...,dimN) the decimal number at subscripts
+%       (dim1,...,dimN, with N >= 2) of bitmask obj to num.
 %
 %   Example(s)
 %     obj = SETNUM(obj,zeros(5)) creates a new 5x5 bitmask with all zeros.
+%     obj = SETNUM(obj,3,10) where obj is a 3x2 bitmask sets element (1,4)
+%       of bitmask obj to 3. Note that the bitmask is now of size (3,4) as
+%       the linear index exceeded the number of elements. The bitmask was
+%       grown along the first dimension.
 %     obj = SETNUM(obj,3,1,2) sets element (1,2) of bitmask obj to 3,
 %       setting all bits to low while bit 1 & 2 are set to high.
 %     obj = SETNUM(obj,1:3,1,5:8,2) sets elements (5,2), (6,2) and (7,2) to
@@ -36,9 +40,18 @@ function obj = setNum(obj,num,varargin)
 %         same size. The values of num must be between 0 and
 %         intmax('uint64').
 %
+%     ind - Bitmask linear index
+%       vectors
+%         Linear index into the bitmask.
+%         Note: If the linear index exceeds the number of bitmask elements,
+%         the bitmask is grown along its first dimension to accomodate the
+%         linear index.
+%
 %     dim1,...,dimN - Bitmask subscripts
 %       vectors
-%         Dimension subscript vectors, indexing into the bitmask.
+%         Dimension subscript vectors, indexing into the bitmask. If the
+%         subscript exceeds the bitmask size, the bitmask is grown
+%         accordingly.
 %
 %
 %   Output Arguments
@@ -79,13 +92,18 @@ function obj = setNum(obj,num,varargin)
     end
     
     if nargin == 2
+        % No index is given. Replace the current bitmask with num.
         obj         = obj.changeStorageType(storageType);
         obj.Bits_ 	= num;
         obj        	= obj.changeStorageType(storageType);
         return
     elseif nargin == 3
-        error('Dingi:DataKit:bitmask:setNum:invalidNumberOfInputs',...
-            'Invalid number of inputs.')
+        % Only 1 index is given. Interpret it as a linear index into the bitmask.
+        % If the linear index > prod(obj.Size) the array grows along the first
+        % dimension.
+        subs       	= cell(1,ndims(obj.Bits));
+        [subs{:}]	= ind2sub(obj.Size,varargin{:});
+        varargin    = subs;
     end
     
 	if isempty(num) || any(cellfun(@isempty,varargin))

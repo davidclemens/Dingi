@@ -3,19 +3,23 @@ function obj = setBit(obj,bit,highlow,varargin)
 %   SETBIT sets the bit(s) of a bitmask at a specific index to high or low.
 %
 %   Syntax
-%     obj = SETBIT(obj,bit,highlow,i,j)
+%     obj = SETBIT(obj,bit,highlow,ind)
 %     obj = SETBIT(obj,bit,highlow,dim1,...,dimN)
 %
 %   Description
-%     obj = SETBIT(obj,bit,highlow,i,j) sets bit(s) bit at indices (i,j) of
-%       bitmask obj to high or low according to highlow.
+%     obj = SETBIT(obj,bit,highlow,ind) sets bit(s) bit at linear indices
+%       ind of bitmask obj to high or low according to highlow.
 %     obj = SETBIT(obj,bit,highlow,dim1,...,dimN) sets bit(s) bit at
-%       indices (dim1,...,dimN) of bitmask obj to high or low according to
-%       highlow.
+%       subscripts (dim1,...,dimN, with N >= 2) of bitmask obj to high or
+%       low according to highlow.
 %
 %   Example(s)
 %     obj = SETBIT(obj,3,1,1,2) sets bit 3 of element (1,2) of bitmask obj
 %       to high.
+%     obj = SETBIT(obj,3,1,10) where obj is a 3x2 bitmask sets bit 3 for 
+%       element (1,4) of bitmask obj to high. Note that the bitmask is now 
+%       of size (3,4) as the linear index exceeded the number of elements. 
+%       The bitmask was grown along the first dimension.
 %     obj = SETBIT(obj,1:2,1,1,2:3) sets bit 1 of element (1,2) and bit 2
 %       of element (1,3) of bitmask obj to high.
 %
@@ -40,6 +44,13 @@ function obj = setBit(obj,bit,highlow,varargin)
 %             (off).
 %           - If highlow is nonzero, then the bit position bit is set to 1
 %             (on).
+%
+%     ind - Bitmask linear index
+%       vectors
+%         Linear index into the bitmask.
+%         Note: If the linear index exceeds the number of bitmask elements,
+%         the bitmask is grown along its first dimension to accomodate the
+%         linear index.
 %
 %     dim1,...,dimN - Bitmask subscripts
 %       vectors
@@ -74,8 +85,16 @@ function obj = setBit(obj,bit,highlow,varargin)
     import DataKit.arrayhom
     
     % Check number of input arguments
-    narginchk(5,inf)
+    narginchk(4,inf)
     
+    if nargin == 4
+        % Only 1 index is given. Interpret it as a linear index into the bitmask.
+        % If the linear index > prod(obj.Size) the array grows along the first
+        % dimension.
+        subs       	= cell(1,ndims(obj.Bits));
+        [subs{:}]	= ind2sub(obj.Size,varargin{:});
+        varargin    = subs;
+    end
 	if isempty(bit) || isempty(highlow) || any(cellfun(@isempty,varargin))
         % If any of the relevant inputs is empty return the original object
         return
