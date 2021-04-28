@@ -11,7 +11,7 @@ classdef bitflag < DataKit.bitmask
     % BITFLAG Methods:
     %   bitflag - Constructor method
     %   setFlag - Set specific flags at a specific indices
-    %   disp - Display a bitflag instance int the command line
+    %   disp - Display a bitflag instance in the command line
     %
     % Copyright (c) 2021 David Clemens (dclemens@geomar.de)
     %

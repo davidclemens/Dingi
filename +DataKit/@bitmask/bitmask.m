@@ -13,6 +13,7 @@ classdef bitmask
     %   bitmask - Constructor method
     %   setBit - Set specific bits at specific indices
     %   setNum - Set decimal numbers at specific indices
+    %   disp - Display a bitmask instance in the command line
     %
     % Copyright (c) 2021 David Clemens (dclemens@geomar.de)
     %
@@ -154,6 +155,7 @@ classdef bitmask
     
     % Overloaded methods
     methods
+        disp(obj,varargin)
         obj = subsasgn(obj,s,b)
         obj = cat(dim,varargin)
     end
