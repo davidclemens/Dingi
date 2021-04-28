@@ -49,7 +49,8 @@ classdef (SharedTestFixtures = { ...
             'B',    {{[1 1],...
                       [1 2]}},...
             'C',    {{[1 1],...
-                      [2 2]}})
+                      [2 2]}},...
+            'D',    {{[1 1]}})
     end
     
     methods (TestClassSetup)
@@ -100,7 +101,37 @@ classdef (SharedTestFixtures = { ...
             act = testCase.obj.setBit(bit,highlow,dim{:});
             
             testCase.verifyEqual(act.Bits,exp)
+        end
+        function testGrowBitmask(testCase)
             
+            import DataKit.bitmask
+            
+          	Ain = uint8([...
+                17    24     5
+                 4     8    20]);
+             
+            bm = bitmask(Ain);
+            
+            act = bm.setBit(3,1,8);
+            exp = cat(2,Ain,[0;4]);
+            
+            testCase.verifyEqual(act.Bits,exp)
+        end
+        function testGrowBitmaskNewDim(testCase)
+            
+            import DataKit.bitmask
+            
+          	Ain = uint8([...
+                17    24     5
+                 4     8    20]);
+             
+            bm = bitmask(Ain);
+            
+            act = bm.setBit(3,1,1,2,3);
+            exp = cat(3,Ain,zeros(size(Ain)));
+            exp(1,2,3) = 4;
+            
+            testCase.verifyEqual(act.Bits,exp)
         end
 	end
 end
