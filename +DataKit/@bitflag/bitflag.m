@@ -11,6 +11,7 @@ classdef bitflag < DataKit.bitmask
     % BITFLAG Methods:
     %   bitflag - Constructor method
     %   setFlag - Set specific flags at a specific indices
+    %   isFlag - Test if a flag is set
     %   disp - Display a bitflag instance in the command line
     %
     % Copyright (c) 2021 David Clemens (dclemens@geomar.de)
@@ -167,6 +168,7 @@ classdef bitflag < DataKit.bitmask
     
     methods
         obj = setFlag(obj,flag,highlow,varargin)
+        tf = isFlag(obj,flag)
     end
     
     methods (Access = private, Static)
