@@ -50,8 +50,8 @@ function varargout = addVariable(obj,variable,data,varargin)
 %         Sets the absolute data uncertainty. Default is all zeros.
 %
 %     Flag - data flags
-%       2D array | DataKit.Metadata.dataFlag
-%         Sets data flags. See the dataFlag documentation.
+%       DataKit.bitflag
+%         Sets data flags. See the bitflag documentation.
 %
 %     VariableType - variable type
 %       'Dependent' (default) | 'Independent'
@@ -82,9 +82,10 @@ function varargout = addVariable(obj,variable,data,varargin)
 %   Copyright (c) 2020-2021 David Clemens (dclemens@geomar.de)
 %
 
-    import DataKit.Metadata.dataFlag
+    import DataKit.arrayhom
+    import DataKit.bitflag
     import internal.stats.parseArgs
-    
+
     % Input checks
     narginchk(3,inf)
     nargoutchk(0,1)
@@ -141,40 +142,16 @@ function varargout = addVariable(obj,variable,data,varargin)
     nSamplesNew         = size(data,1);
     nVariablesNew       = size(data,2);
 
-    % Shape uncertainty and flag inputs
-    if isscalar(uncertainty)
-        if issparse(uncertainty)
-            uncertainty = repmat(uncertainty,nSamplesNew,nVariablesNew);
-        else
-            uncertainty = repmat(sparse(uncertainty),nSamplesNew,nVariablesNew);
-        end
-    elseif ~isscalar(uncertainty)
-        if all(size(uncertainty) == size(data))
-            if ~issparse(uncertainty)
-                uncertainty = sparse(uncertainty);
-            end
-        else
-            error('Dingi:DataKit:dataPool:addVariable:invalidUncertaintyShape',...
-                'New data uncertainty needs to have the same number of samples (%u) and variables (%u) as the new data for the data pool. It has %u and %u instead.',nSamplesNew,nVariablesNew,size(uncertainty,1),size(uncertainty,2))
-        end
-    end
-    if isscalar(flag)
-        if isa(flag,'DataKit.Metadata.dataFlag')
-            flag = repmat(flag,nSamplesNew,nVariablesNew);
-        else
-            flag = dataFlag(repmat(flag,nSamplesNew,nVariablesNew));
-        end
-    elseif ~isscalar(flag)
-        if all(size(flag) == size(data))
-            if ~isa(flag,'DataKit.Metadata.dataFlag')
-                flag = dataFlag(flag);
-            end
-        else
-            error('Dingi:DataKit:dataPool:addVariable:invalidFlagShape',...
-                'New data flag needs to have the same number of samples (%u) and variables (%u) as the new data for the data pool. It has %u and %u instead.',nSamplesNew,nVariablesNew,size(flag,1),size(flag,2))
-        end
-    end
+    [data,uncertainty,flag] = arrayhom(data,uncertainty,flag);
+    data        = reshape(data,nSamplesNew,nVariablesNew);
+    uncertainty = reshape(uncertainty,nSamplesNew,nVariablesNew);
+    flag        = bitflag('DataKit.Metadata.validators.validFlag',reshape(flag,nSamplesNew,nVariablesNew));
     
+    if ~all(size(data) == [nSamplesNew,nVariablesNew])
+        error('Dingi:DataKit:dataPool:addVariable:invalidUncertaintyOrFlagShape',...
+            'Invalid uncertainty or flag array shapes.')
+    end
+
     if nVariables == 0
         % there is no data in the data pool yet
      	obj.DataRaw{pool}       = data;
@@ -205,7 +182,7 @@ function varargout = addVariable(obj,variable,data,varargin)
 	end
 
     obj.IndexNeedsUpdating = true;
-    
+
     if nargout == 1
         varargout{1} = obj;
     end

@@ -140,7 +140,7 @@ function varargout = plot(obj,variables,varargin)
                   'The requested parameter has to be specified as a char, cellstr or numeric vector.')
         end
     end
-    variables   = variableInfo(variableIsValid).Variable;
+    variables   = variableInfo(variableIsValid).EnumerationMemberName;
     im          = ismember(cellstr(variables),plotVariablesAvailableInfo{:,'Name'});
     if ~all(im)
         error('Dingi:GearKit:GearDeployment:plot:invalidVariables',...

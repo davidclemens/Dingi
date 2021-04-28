@@ -26,7 +26,7 @@ function tbl = core_listMembersInfo(classname)
     end
     tbl             = struct2table(tblStruct);
     
-    tbl.(classTableName)	= variableList;
+    tbl.EnumerationMemberName	= variableList;
     % The following rearranging is commented out, since ther is a bug in
     % MATLAB's table.disp() method, where enums are not padded correctly,
     % which messes up the command output. By leaving the enum column as the
