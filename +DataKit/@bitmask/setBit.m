@@ -118,7 +118,7 @@ function obj = setBit(obj,bit,highlow,varargin)
     Ain = reshape(obj.Bits_(ind),[],1);
     
     % Find unique linear indices
-    [uInd,~,uIndInd2] = unique(ind);
+    [uInd,uIndInd1] = unique(ind,'last');
     
     % Determine appropriate storage type
     storageType = obj.minStorageType(2^max(uint64(bit)));
@@ -131,7 +131,7 @@ function obj = setBit(obj,bit,highlow,varargin)
  	Ain = bitset(Ain,bit,highlow);
     
     % Only keep the last bit that was set if there are equal linear indices
-    Aout = accumarray(uIndInd2,Ain,size(uInd),@(x) x(end));
+    Aout = Ain(uIndInd1);
     
     % Set storage type and assign the new bitmask
     obj             = obj.changeStorageType(storageType);
