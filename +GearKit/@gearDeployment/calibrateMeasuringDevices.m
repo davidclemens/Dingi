@@ -64,7 +64,7 @@ function calibrateMeasuringDevices(obj)
                 % write the mean signal over the calibration period to the calibration table
                 maskTime    = iData >= datenum(obj.calibration{maskCalibrationInd(ii),'CalibrationStart'}) & ...
                               iData <= datenum(obj.calibration{maskCalibrationInd(ii),'CalibrationEnd'});
-                if isempty(maskTime)
+                if sum(maskTime) == 0
                     warning('Dingi:GearKit:gearDeployment:calibrateMeasuringDevices:noCalibrationSignalAvailable',...
                         'No calibration signal data available for for the specified times.')
                 elseif sum(diff(maskTime) == 1) < 1 || sum(diff(maskTime) == -1) < 1
