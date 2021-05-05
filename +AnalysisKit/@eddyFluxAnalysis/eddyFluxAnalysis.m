@@ -21,41 +21,41 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
 
 
     properties
-        Name char = 'eddyFlux' % Analysis name.
-        Type char = 'flux' % Analysis type.
+        Name char = 'eddyFlux' % Analysis name
+        Type char = 'flux' % Analysis type
 
-        TimeRaw % Raw Time (datenum).
-        VelocityRaw % Raw velocity (m/s).
-        FluxParameterRaw % Raw flux parameter.
+        TimeRaw (:,1) double % Raw Time (datenum)
+        VelocityRaw (:,3) double % Raw velocity (m/s)
+        FluxParameterRaw double % Raw flux parameter data
         SNR (:,3) double % Signal to noise ratio
         BeamCorrelation (:,3) double % Beam correlation
 
-        Window duration % Window (duration)
-        Downsamples % Subsampling is applied first
-        CoordinateSystemRotationMethod char
-        DetrendingMethod char
+        Window duration % Window or averaging interval (duration)
+        Downsamples % Number of downlsamples.
+        CoordinateSystemRotationMethod char = 'planar fit'
+        DetrendingMethod char = 'moving mean' % Detrending method
 
-        TimeDownsampled
-        VelocityDownsampled
-        FluxParameterDownsampled
+        TimeDownsampled (:,1) double
+        VelocityDownsampled (:,3) double
+        FluxParameterDownsampled double
 
-        StartTime datetime
-        EndTime datetime
+        StartTime (1,1) datetime
+        EndTime (1,1) datetime
 
         FluxParameterTimeShift % Time shift of the flux parameter (# of samples)
 
-        W_ % Rotated and trend corrected vertical velocity (m/s)
-        FluxParameter_ % Trend corrected flux parameter
+        W_ (:,1) double % Rotated and trend corrected vertical velocity (m/s)
+        FluxParameter_ double % Trend corrected flux parameter
     end
     properties %(Hidden)
-        CoordinateSystemUnitVectorI
-        CoordinateSystemUnitVectorJ
-        CoordinateSystemUnitVectorK
+        CoordinateSystemUnitVectorI (:,3) double
+        CoordinateSystemUnitVectorJ (:,3) double
+        CoordinateSystemUnitVectorK (:,3) double
         DetrendingFunction
         Initialized logical = false
     end
     properties (Dependent)
-        Frequency % Frequency (Hz)
+        Frequency (1,1) double % Frequency (Hz)
         SampleWindowedN double % Number of samples in windows
 
        	Time % Time (datenum). Padded by NaNs to fit an integer multiple of windowLength. The Shape is [sample,window]. The Size is windowLength x windowN.
@@ -107,8 +107,8 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
 
             obj.Window                          = window;
             obj.Downsamples                     = downsamples;
-            obj.CoordinateSystemRotationMethod	= coordinateSystemRotationMethod;
-            obj.DetrendingMethod                = detrendingMethod;
+            obj.CoordinateSystemRotationMethod	= validatestring(coordinateSystemRotationMethod,obj.ValidCoordinateSystemRotationMethods);
+            obj.DetrendingMethod                = validatestring(detrendingMethod,obj.ValidDetrendingMethods);
 
             if isempty(startTime)
                 obj.StartTime   = datetime(obj.TimeRaw(1),'ConvertFrom','datenum');
@@ -194,7 +194,7 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
             sampleN = size(obj.TimeDownsampled,1);
         end
         function fluxParameterN = get.FluxParameterN(obj)
-            fluxParameterN = size(obj.FluxParameterDownsampled,2);
+            fluxParameterN = size(obj.FluxParameterRaw,2);
         end
         function windowLength = get.WindowLength(obj)
             windowLength = floor(obj.Frequency*seconds(obj.Window));
