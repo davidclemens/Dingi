@@ -59,6 +59,12 @@ classdef variable < DataKit.enum
         Potassium                   (56,    'K',            'K',        'Potassium',                        'Concentration',    'mM',       'mmol(\sL(⁻¹|-1)|/L)',          NaN,    '')
         Zinc                        (57,    'Zn',           'Zn',       'Zinc',                             'Concentration',    'µM',       '(µ|u)mol(\sL(⁻¹|-1)|/L)',  	NaN,    '')
         DissolvedInorganicCarbon    (58,    'DIC',          'DIC',      'Carbon, inorganic, dissolved',   	'Concentration',    'µM',       '(µ|u)mol(\sL(⁻¹|-1)|/L)',  	NaN,    '')
+        SignalToNoiseRatio1         (59,    'SNR',          'SNR',      'Signal to noise ratio',            '',                 'dB',       'dB',                           NaN,    '')
+        SignalToNoiseRatio2         (60,    'SNR',          'SNR',      'Signal to noise ratio',            '',                 'dB',       'dB',                           NaN,    '')
+        SignalToNoiseRatio3         (61,    'SNR',          'SNR',      'Signal to noise ratio',            '',                 'dB',       'dB',                           NaN,    '')
+        BeamCorrelation1            (62,    'BC',           'BC',       'Beam correlation',                 '',                 '%',        '',                             NaN,    '')
+        BeamCorrelation2            (63,    'BC',           'BC',       'Beam correlation',                 '',                 '%',        '',                             NaN,    '')
+        BeamCorrelation3            (64,    'BC',           'BC',       'Beam correlation',                 '',                 '%',        '',                             NaN,    '')
     end
     properties (SetAccess = 'immutable')
         Id uint16

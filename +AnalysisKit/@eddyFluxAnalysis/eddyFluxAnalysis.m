@@ -27,6 +27,8 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
         TimeRaw % Raw Time (datenum).
         VelocityRaw % Raw velocity (m/s).
         FluxParameterRaw % Raw flux parameter.
+        SNR (:,3) double % Signal to noise ratio
+        BeamCorrelation (:,3) double % Beam correlation
 
         Window duration % Window (duration)
         Downsamples % Subsampling is applied first
@@ -79,14 +81,18 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
             import internal.stats.parseArgs
 
             % parse Name-Value pairs
-            optionName          = {'Window','Downsamples','CoordinateSystemRotationMethod','DetrendingMethod','Start','End'}; % valid options (Name)
-            optionDefaultValue  = {duration(0,30,0),2,'planar fit','linear',[],[]}; % default value (Value)
-            [window,...
+            optionName          = {'SNR','BeamCorrelation','Window','Downsamples','CoordinateSystemRotationMethod','DetrendingMethod','DespikeMethod','Start','End','ObstacleAngles'}; % valid options (Name)
+            optionDefaultValue  = {[],[],duration(0,30,0),2,'planar fit','moving mean','phase-space thresholding',[],[],[]}; % default value (Value)
+            [snr,...
+             beamCorrelation,...
+             window,...
              downsamples,...
              coordinateSystemRotationMethod,...
              detrendingMethod,...
+             despikeMethod,...
              startTime,...
-             endTime...
+             endTime,...
+             obstacleAngles...
              ]	= parseArgs(optionName,optionDefaultValue,varargin{:}); % parse function arguments
 
             % call superclass constructor
@@ -96,6 +102,8 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
             obj.TimeRaw                         = time;
             obj.VelocityRaw                     = velocity;
             obj.FluxParameterRaw                = fluxParameter;
+            obj.SNR                             = snr;
+            obj.BeamCorrelation                 = beamCorrelation;
 
             obj.Window                          = window;
             obj.Downsamples                     = downsamples;
