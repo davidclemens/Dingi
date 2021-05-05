@@ -14,6 +14,8 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
 %   (x) implement subsampling of the original dataset
 %   ( ) implement setting start and end time of the analysis
 %   ( ) implement get & set property access methods
+%   ( ) implement flags to track which data points were manipulated
+%   ( ) implement NaNs
 %
 % IDEAS:
 %   (x) maybe derive from the handle class to support event listeners on
@@ -29,11 +31,16 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
         FluxParameterRaw double % Raw flux parameter data
         SNR (:,3) double % Signal to noise ratio
         BeamCorrelation (:,3) double % Beam correlation
+        
+        TimeQC (:,1) double % Quality controlled time (datenum)
+        VelocityQC (:,3) double % Quality controlled velocity (m/s)
+        FluxParameterQC double % Quality controlled flux parameter data
 
         Window duration % Window or averaging interval (duration)
         Downsamples % Number of downlsamples.
         CoordinateSystemRotationMethod char = 'planar fit'
         DetrendingMethod char = 'moving mean' % Detrending method
+        ReplaceMethod char = 'linear' % Method to use to replace rejected data points
 
         TimeDownsampled (:,1) double
         VelocityDownsampled (:,3) double
@@ -46,6 +53,13 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
 
         W_ (:,1) double % Rotated and trend corrected vertical velocity (m/s)
         FluxParameter_ double % Trend corrected flux parameter
+        
+        FlagDataset DataKit.bitflag = DataKit.bitflag('AnalysisKit.Metadata.eddyFluxAnalysisDatasetFlag',1,1)
+        FlagVelocity DataKit.bitflag = DataKit.bitflag('AnalysisKit.Metadata.eddyFluxAnalysisDataFlag')
+        FlagFluxParameter DataKit.bitflag = DataKit.bitflag('AnalysisKit.Metadata.eddyFluxAnalysisDataFlag')
+        
+        ObstacleAngles (:,1) double % The anticlockwise angle(s) seen from above the lander starting with 0° on the ADV x-axis, where obstacles (legs, sensors, etc.) are located.
+        ObstacleSectorWidth (1,1) double = 5 % Sector width in degrees
     end
     properties %(Hidden)
         CoordinateSystemUnitVectorI (:,3) double
@@ -104,11 +118,19 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
             obj.FluxParameterRaw                = fluxParameter;
             obj.SNR                             = snr;
             obj.BeamCorrelation                 = beamCorrelation;
+            
+            obj.TimeQC                          = obj.TimeRaw;
+            obj.VelocityQC                      = obj.VelocityRaw;
+            obj.FluxParameterQC                 = obj.FluxParameterRaw;
+            
+            obj.FlagVelocity                  	= obj.FlagVelocity.setNum(0,size(obj.VelocityRaw,1),size(obj.VelocityRaw,2));
+            obj.FlagFluxParameter             	= obj.FlagFluxParameter.setNum(0,size(obj.FluxParameterRaw,1),size(obj.FluxParameterRaw,2));
 
             obj.Window                          = window;
             obj.Downsamples                     = downsamples;
             obj.CoordinateSystemRotationMethod	= validatestring(coordinateSystemRotationMethod,obj.ValidCoordinateSystemRotationMethods);
             obj.DetrendingMethod                = validatestring(detrendingMethod,obj.ValidDetrendingMethods);
+            obj.ObstacleAngles                  = obstacleAngles;
 
             if isempty(startTime)
                 obj.StartTime   = datetime(obj.TimeRaw(1),'ConvertFrom','datenum');
@@ -128,6 +150,8 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
 
             % set initialized flag
             obj.Initialized	= true;
+            
+            obj.runQualityControl;
 
             % calculate
             obj.calculate(...
@@ -142,6 +166,7 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
 
 	% Methods in other files
     methods
+        varargout = runQualityControl(obj)
         varargout = calculate(obj,varargin)
         varargout = planarFitCoordinateSystem(obj)
         varargout = detrend(obj,varargin)
@@ -151,6 +176,10 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
         func = dGetDetrendingFunction(obj,detrendingOptions)
         varargout = plot(obj,varargin)
         varargout = plotSpectra(obj,window)
+        varargout = plotQualityControl(obj,fig)
+    end
+    methods (Access = private)
+        varargout = qualityControlRawData(obj)
     end
 
     methods (Static)
