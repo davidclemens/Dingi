@@ -200,7 +200,8 @@ classdef bitmask
             caller         = dbs(1).file;
             validCallers   = {'@bitmask/setBit.m';
                               '@bitmask/setNum.m';
-                              '@bitmask/changeStorageType.m'};
+                              '@bitmask/changeStorageType.m';
+                              '/load.m'}; % When the object is loaded, this set method is called. Therefore, any load method should be permitted to set the Bits_ property.
             if ~endsWith(caller,validCallers)
                 error('Dingi:DataKit:bitmask:setDotBits_:invalidCaller',...
                     'Invalid caller ''%s''.',caller)
