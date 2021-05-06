@@ -197,6 +197,7 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
     end
     methods (Access = private)
         varargout = qualityControlRawData(obj)
+        varargout = replaceData(obj,flag)
     end
 
     methods (Static)

@@ -192,6 +192,8 @@ function varargout = qualityControlRawData(obj)
         else
             obj.FlagDataset = obj.FlagDataset.setFlag('LowSignalToNoiseRatio',1,1,1);
         end
+        
+        obj.replaceData('LowSignalToNoiseRatio')
     end
     function checkBeamCorrelation(obj)
         
@@ -207,6 +209,8 @@ function varargout = qualityControlRawData(obj)
             obj.FlagDataset = obj.FlagDataset.setFlag('LowBeamCorrelation',0,1,1);
         else
             obj.FlagDataset = obj.FlagDataset.setFlag('LowBeamCorrelation',1,1,1);
-        end        
+        end
+        
+        obj.replaceData('LowBeamCorrelation')
     end
 end
