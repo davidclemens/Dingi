@@ -21,45 +21,70 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
 %   (x) maybe derive from the handle class to support event listeners on
 %       properties.
 
-
+    % Frontend
     properties
         Name char = 'eddyFlux' % Analysis name
         Type char = 'flux' % Analysis type
-
+    end
+    
+    properties
+        SNR (:,3) double % Signal to noise ratio
+        BeamCorrelation (:,3) double % Beam correlation
+    end
+    properties (Dependent)
         TimeRaw (:,1) double % Raw Time (datenum)
         VelocityRaw (:,3) double % Raw velocity (m/s)
         FluxParameterRaw double % Raw flux parameter data
-        SNR (:,3) double % Signal to noise ratio
-        BeamCorrelation (:,3) double % Beam correlation
         
         TimeQC (:,1) double % Quality controlled time (datenum)
         VelocityQC (:,3) double % Quality controlled velocity (m/s)
         FluxParameterQC double % Quality controlled flux parameter data
-
+    end
+    properties
+        TimeDownsampled (:,1) double
+        VelocityDownsampled (:,3) double
+        FluxParameterDownsampled double
+        
+        W_ (:,1) double % Rotated and trend corrected vertical velocity (m/s)
+        FluxParameter_ double % Trend corrected flux parameter
+        
+        FlagDataset DataKit.bitflag = DataKit.bitflag('AnalysisKit.Metadata.eddyFluxAnalysisDatasetFlag',1,1)
+        FlagTime DataKit.bitflag = DataKit.bitflag('AnalysisKit.Metadata.eddyFluxAnalysisDataFlag')
+        FlagVelocity DataKit.bitflag = DataKit.bitflag('AnalysisKit.Metadata.eddyFluxAnalysisDataFlag')
+        FlagFluxParameter DataKit.bitflag = DataKit.bitflag('AnalysisKit.Metadata.eddyFluxAnalysisDataFlag')
+    end
+    properties
         Window duration % Window or averaging interval (duration)
         Downsamples % Number of downlsamples.
         CoordinateSystemRotationMethod char = 'planar fit'
         DetrendingMethod char = 'moving mean' % Detrending method
         ReplaceMethod char = 'linear' % Method to use to replace rejected data points
 
-        TimeDownsampled (:,1) double
-        VelocityDownsampled (:,3) double
-        FluxParameterDownsampled double
 
         StartTime (1,1) datetime
         EndTime (1,1) datetime
 
         FluxParameterTimeShift % Time shift of the flux parameter (# of samples)
 
-        W_ (:,1) double % Rotated and trend corrected vertical velocity (m/s)
-        FluxParameter_ double % Trend corrected flux parameter
-        
-        FlagDataset DataKit.bitflag = DataKit.bitflag('AnalysisKit.Metadata.eddyFluxAnalysisDatasetFlag',1,1)
-        FlagVelocity DataKit.bitflag = DataKit.bitflag('AnalysisKit.Metadata.eddyFluxAnalysisDataFlag')
-        FlagFluxParameter DataKit.bitflag = DataKit.bitflag('AnalysisKit.Metadata.eddyFluxAnalysisDataFlag')
         
         ObstacleAngles (:,1) double % The anticlockwise angle(s) seen from above the lander starting with 0° on the ADV x-axis, where obstacles (legs, sensors, etc.) are located.
         ObstacleSectorWidth (1,1) double = 5 % Sector width in degrees
+    end
+    
+    % Backend
+    properties (Access = 'private')
+        TimeRaw_ (:,1) double % Raw Time (datenum)
+        VelocityRaw_ (:,3) double % Raw velocity (m/s)
+        FluxParameterRaw_ double % Raw flux parameter data
+        
+        TimeQC_ (:,1) double % Quality controlled time (datenum)
+        VelocityQC_ (:,3) double % Quality controlled velocity (m/s)
+        FluxParameterQC_ double % Quality controlled flux parameter data        
+    end
+    properties (Access = 'private')
+        % Update required flags (UpdateRequired, IsUpdating, IsUpdated)
+        UpdateQC char = 'UpdateRequired'
+        UpdateFluxes char = 'UpdateRequired'
     end
     properties %(Hidden)
         CoordinateSystemUnitVectorI (:,3) double
@@ -113,19 +138,13 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
             obj = obj@AnalysisKit.analysis();
 
             % populate properties
-            obj.TimeRaw                         = time;
-            obj.VelocityRaw                     = velocity;
-            obj.FluxParameterRaw                = fluxParameter;
             obj.SNR                             = snr;
             obj.BeamCorrelation                 = beamCorrelation;
             
-            obj.TimeQC                          = obj.TimeRaw;
-            obj.VelocityQC                      = obj.VelocityRaw;
-            obj.FluxParameterQC                 = obj.FluxParameterRaw;
+            obj.TimeRaw                         = time;
+            obj.VelocityRaw                     = velocity;
+            obj.FluxParameterRaw                = fluxParameter;
             
-            obj.FlagVelocity                  	= obj.FlagVelocity.setNum(0,size(obj.VelocityRaw,1),size(obj.VelocityRaw,2));
-            obj.FlagFluxParameter             	= obj.FlagFluxParameter.setNum(0,size(obj.FluxParameterRaw,1),size(obj.FluxParameterRaw,2));
-
             obj.Window                          = window;
             obj.Downsamples                     = downsamples;
             obj.CoordinateSystemRotationMethod	= validatestring(coordinateSystemRotationMethod,obj.ValidCoordinateSystemRotationMethods);
@@ -150,8 +169,6 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
 
             % set initialized flag
             obj.Initialized	= true;
-            
-            obj.runQualityControl;
 
             % calculate
             obj.calculate(...
@@ -196,6 +213,40 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
     end
 
     % Get methods
+    methods
+        % Frontend/Backend interface
+        function timeRaw = get.TimeRaw(obj)
+            timeRaw = obj.TimeRaw_;
+        end
+        function velocityRaw = get.VelocityRaw(obj)
+            velocityRaw = obj.VelocityRaw_;
+        end
+        function fluxParameterRaw = get.FluxParameterRaw(obj)
+            fluxParameterRaw = obj.FluxParameterRaw_;
+        end
+        function timeQC = get.TimeQC(obj)
+            switch obj.UpdateQC
+                case 'UpdateRequired'
+                    obj.runQualityControl
+            end
+            timeQC = obj.TimeQC_;
+        end
+        function velocityQC = get.VelocityQC(obj)
+            switch obj.UpdateQC
+                case 'UpdateRequired'
+                    obj.runQualityControl
+            end
+            velocityQC = obj.VelocityQC_;
+        end
+        function fluxParameterQC = get.FluxParameterQC(obj)
+            switch obj.UpdateQC
+                case 'UpdateRequired'
+                    obj.runQualityControl
+            end
+            fluxParameterQC = obj.FluxParameterQC_;
+        end
+    end
+    
     methods
         function time = get.Time(obj)
             time = reshape(cat(1,obj.TimeDownsampled,NaN(obj.WindowPaddingLength,1)),obj.WindowLength,obj.WindowN + 1);
@@ -245,6 +296,40 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
     end
 
     % Set methods
+    methods
+        % If frontend properties are set, update the backend and set any necessary
+        % flags.
+        function obj = set.TimeRaw(obj,value)
+            obj.TimeRaw_   	= value;
+            obj.TimeQC     	= obj.TimeRaw;
+            obj.FlagTime   	= obj.FlagTime.setNum(0,size(obj.TimeRaw,1),size(obj.TimeRaw,2));
+            obj.UpdateQC 	= 'UpdateRequired';
+        end
+        function obj = set.VelocityRaw(obj,value)
+            obj.VelocityRaw_    = value;
+            obj.VelocityQC    	= obj.VelocityRaw;
+            obj.FlagVelocity   	= obj.FlagVelocity.setNum(0,size(obj.VelocityRaw,1),size(obj.VelocityRaw,2));
+            obj.UpdateQC        = 'UpdateRequired';
+        end
+        function obj = set.FluxParameterRaw(obj,value)
+            obj.FluxParameterRaw_	= value;
+            obj.FluxParameterQC   	= obj.FluxParameterRaw;
+            obj.FlagFluxParameter 	= obj.FlagFluxParameter.setNum(0,size(obj.FluxParameterRaw,1),size(obj.FluxParameterRaw,2));
+            obj.UpdateQC            = 'UpdateRequired';
+        end
+        function obj = set.TimeQC(obj,value)
+            obj.TimeQC_         = value;
+            obj.UpdateFluxes  	= 'UpdateRequired';
+        end
+        function obj = set.VelocityQC(obj,value)
+            obj.VelocityQC_     = value;
+            obj.UpdateFluxes 	= 'UpdateRequired';
+        end
+        function obj = set.FluxParameterQC(obj,value)
+            obj.FluxParameterQC_	= value;
+            obj.UpdateFluxes        = 'UpdateRequired';
+        end
+    end
   	methods
         function obj = set.SampleN(obj,value)
             if ~obj.Initialized
