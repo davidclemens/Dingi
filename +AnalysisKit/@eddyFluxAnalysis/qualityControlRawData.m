@@ -36,7 +36,7 @@ function varargout = qualityControlRawData(obj)
         %       N >  3%         1
         
         nMissing    = sum(isnan(obj.TimeRaw(:))) + sum(isnan(obj.VelocityRaw(:))) + sum(isnan(obj.FluxParameterRaw(:)));
-        nTotal      = numel(obj.TimeRaw) + numel(obj.VelocityRaw) + numel(obj.FluxParameterRaw);
+        nTotal      = numel(obj.TimeDS) + numel(obj.VelocityDS) + numel(obj.FluxParameterDS);
         
         N   = nMissing/nTotal;
         
@@ -52,12 +52,12 @@ function varargout = qualityControlRawData(obj)
         % or AnalysisKit.Metadata.eddyFluxAnalysis.DatasetFlag enumeration classes.
         
         % Check horizontal velocity components limits        
-        flagHorizontal    	= abs(obj.VelocityRaw(:,1:2)) >= eval([obj.FlagVelocity.EnumerationClassName,'.AbsoluteHorizontalVelocityLimitExceeded.Threshold']);
+        flagHorizontal    	= abs(obj.VelocityDS(:,1:2)) >= eval([obj.FlagVelocity.EnumerationClassName,'.AbsoluteHorizontalVelocityLimitExceeded.Threshold']);
         obj.FlagVelocity    = obj.FlagVelocity.setFlag('AbsoluteHorizontalVelocityLimitExceeded',1,find(flagHorizontal(:,1)),1);
         obj.FlagVelocity    = obj.FlagVelocity.setFlag('AbsoluteHorizontalVelocityLimitExceeded',1,find(flagHorizontal(:,2)),2);
         
         % Check vertical velocity limits
-        flagVertical      	= abs(obj.VelocityRaw(:,3)) >= eval([obj.FlagVelocity.EnumerationClassName,'.AbsoluteVerticalVelocityLimitExceeded.Threshold']);
+        flagVertical      	= abs(obj.VelocityDS(:,3)) >= eval([obj.FlagVelocity.EnumerationClassName,'.AbsoluteVerticalVelocityLimitExceeded.Threshold']);
         obj.FlagVelocity 	= obj.FlagVelocity.setFlag('AbsoluteVerticalVelocityLimitExceeded',1,find(flagVertical),3);
         
         % Also set the dataset flag, if too many flags were raised.
@@ -78,7 +78,7 @@ function varargout = qualityControlRawData(obj)
         
         % Convert the horizontal velocity components (u,v) to a complex
         % number:
-        direction	= complex(obj.VelocityRaw(:,1),obj.VelocityRaw(:,2));
+        direction	= complex(obj.VelocityDS(:,1),obj.VelocityDS(:,2));
         
         % Calculate the absolute horizontal velocity
         velocity    = movmean(abs(direction),2*obj.Frequency);
@@ -109,7 +109,7 @@ function varargout = qualityControlRawData(obj)
         obj.FlagVelocity	= obj.FlagVelocity.setFlag('ObstructedCurrentDirection',1,flag,2);
         obj.FlagVelocity	= obj.FlagVelocity.setFlag('ObstructedCurrentDirection',1,flag,3);
         
-        N   = numel(flag)/size(obj.VelocityRaw,1);
+        N   = numel(flag)/size(obj.VelocityDS,1);
         
         % If too many data points have bad absolute limits, also set the
         % dataset flag.        
@@ -128,7 +128,7 @@ function varargout = qualityControlRawData(obj)
         end
         function flag = checkAmplitudeResolutionForDataset(obj,dataSetName)
         
-            dataSetNameRaw  = [dataSetName,'Raw'];
+            dataSetNameRaw  = [dataSetName,'DS'];
             dataSetNameFlag = ['Flag',dataSetName];
             windowSize      = 1000;
             windowOverlap   = windowSize/2;
@@ -180,7 +180,7 @@ function varargout = qualityControlRawData(obj)
     function checkSignalToNoiseRatio(obj)
         
         % Check signal to noise ratio (SNR)
-        flag                = obj.SNR < eval([obj.FlagVelocity.EnumerationClassName,'.LowSignalToNoiseRatio.Threshold']);
+        flag                = obj.SNRDS < eval([obj.FlagVelocity.EnumerationClassName,'.LowSignalToNoiseRatio.Threshold']);
         obj.FlagVelocity  	= obj.FlagVelocity.setFlag('LowSignalToNoiseRatio',1,find(flag(:,1)),1);
         obj.FlagVelocity  	= obj.FlagVelocity.setFlag('LowSignalToNoiseRatio',1,find(flag(:,2)),2);
         obj.FlagVelocity  	= obj.FlagVelocity.setFlag('LowSignalToNoiseRatio',1,find(flag(:,3)),3);
@@ -198,7 +198,7 @@ function varargout = qualityControlRawData(obj)
     function checkBeamCorrelation(obj)
         
         % Check beam correlation (BC)
-        flag                = obj.BeamCorrelation < eval([obj.FlagVelocity.EnumerationClassName,'.LowBeamCorrelation.Threshold']);
+        flag                = obj.BeamCorrelationDS < eval([obj.FlagVelocity.EnumerationClassName,'.LowBeamCorrelation.Threshold']);
         obj.FlagVelocity  	= obj.FlagVelocity.setFlag('LowBeamCorrelation',1,find(flag(:,1)),1);
         obj.FlagVelocity  	= obj.FlagVelocity.setFlag('LowBeamCorrelation',1,find(flag(:,2)),2);
         obj.FlagVelocity  	= obj.FlagVelocity.setFlag('LowBeamCorrelation',1,find(flag(:,3)),3);

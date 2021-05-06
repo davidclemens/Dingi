@@ -41,10 +41,9 @@ function varargout = plotQualityControl(obj,fig)
     row = 1;
     col = 1;
     axes(hsp(spi(row,col)));
-        set(hsp(spi(row,col)),...
-            'YScale',       'log')
-        bar(flagNamesCat,flagCounts)
+        bar(flagNamesCat,100.*flagCounts./size(obj.TimeDS,1))
         legend(flagGroupLabels)
+        ylabel('fraction of dataset (%)')
     
     if nargout == 1
         varargout{1} = hfig;
