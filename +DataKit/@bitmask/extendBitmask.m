@@ -13,7 +13,7 @@ function obj = extendBitmask(obj,varargin)
     end
     if nNewDimensions > nDimensions || any(newDimensionMaxSubscript > dimensionMaxSubscript)
         printDebugMessage('Dingi:DataKit:bitmask:setBit:subscriptsExceedBitmaskSize',...
-            'Warning',['Subscript exceeds bitmask size. The Bitmask is extended from %u',repmat('x%u',1,nDimensions - 1),' to %u',repmat('x%u',1,nNewDimensions - 1),'.'],dimensionMaxSubscript,max(cat(1,newDimensionMaxSubscript,cat(2,dimensionMaxSubscript,zeros(1,nNewDimensions - nDimensions)))))
+            'Verbose',['Subscript exceeds bitmask size. The Bitmask is extended from %u',repmat('x%u',1,nDimensions - 1),' to %u',repmat('x%u',1,nNewDimensions - 1),'.'],dimensionMaxSubscript,max(cat(1,newDimensionMaxSubscript,cat(2,dimensionMaxSubscript,zeros(1,nNewDimensions - nDimensions)))))
         % extend bitmask
         newBitmask  = obj.Bits_;
         for dim = 1:nNewDimensions

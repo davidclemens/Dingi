@@ -130,6 +130,13 @@ function obj = setBit(obj,bit,highlow,varargin)
     % Set all specified bits to highlow
  	Ain = bitset(Ain,bit,highlow);
     
+    % Determine appropriate storage type again
+    storageType = obj.minStorageType(max(Ain(:)));
+    
+    if ~isa(Ain,storageType)
+        Ain = cast(Ain,storageType);
+    end
+    
     % Only keep the last bit that was set if there are equal linear indices
     Aout = Ain(uIndInd1);
     
