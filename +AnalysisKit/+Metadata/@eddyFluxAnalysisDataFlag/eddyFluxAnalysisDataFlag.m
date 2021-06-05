@@ -10,7 +10,7 @@ classdef eddyFluxAnalysisDataFlag < DataKit.enum
         LowBeamCorrelation                          (6,     70,         'low BC',               'The beam correlation is too low.')
         LowAmplitudeResolution                   	(7,     0.7,        'low amp. res.',       	'The amplitude resolution is too low.')
         IsSetToNaN                                	(8,     NaN,        'set to NaN',       	'The value has been set to NaN.')
-        
+        Spike                                       (9,     NaN,        'spike',                'The value is identified as a spike.')
     end
     properties (SetAccess = 'immutable')
         Id uint8

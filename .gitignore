@@ -6,6 +6,7 @@
 
 # Ignore the DespikeKit
 +DataKit/+DespikeKit/
++DataKit/@despiker/
 
 # Ignore any 'gitignore' subfolder
 gitignore/

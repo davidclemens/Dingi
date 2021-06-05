@@ -14,7 +14,7 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
 %   (x) implement subsampling of the original dataset
 %   ( ) implement setting start and end time of the analysis
 %   ( ) implement get & set property access methods
-%   ( ) implement flags to track which data points were manipulated
+%   (x) implement flags to track which data points were manipulated
 %   ( ) implement NaNs
 %
 % IDEAS:
@@ -59,6 +59,7 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
     end
     properties
         Window duration % Window or averaging interval (duration)
+        DespikeMethod char = 'phase-space thresholding' % Despiking method
         Downsamples = 1 % Number of downlsamples.
         CoordinateSystemRotationMethod char = 'planar fit'
         DetrendingMethod char = 'moving mean' % Detrending method
@@ -122,6 +123,7 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
     properties (Hidden, Constant)
         ValidCoordinateSystemRotationMethods = {'none','planar fit'};
         ValidDetrendingMethods = {'none','mean removal','linear','moving mean'};
+        ValidDespikingMethods = {'none','phase-space thresholding'};
     end
     methods
         function obj = eddyFluxAnalysis(time,velocity,fluxParameter,varargin)
@@ -141,7 +143,7 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
              despikeMethod,...
              startTime,...
              endTime,...
-             obstacleAngles...
+             obstacleAngles,...
              parent...
              ]	= parseArgs(optionName,optionDefaultValue,varargin{:}); % parse function arguments
 
@@ -155,6 +157,7 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
             obj.Downsamples                     = downsamples;
             obj.CoordinateSystemRotationMethod	= validatestring(coordinateSystemRotationMethod,obj.ValidCoordinateSystemRotationMethods);
             obj.DetrendingMethod                = validatestring(detrendingMethod,obj.ValidDetrendingMethods);
+            obj.DespikeMethod                   = validatestring(despikeMethod,obj.ValidDespikingMethods);
             obj.ObstacleAngles                  = obstacleAngles;
 
             if isempty(startTime)
@@ -185,13 +188,13 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
             obj.Initialized	= true;
 
             % calculate
-            obj.calculate(...
-                'Downsample',                   true,...
-                'RotateCoordinateSystem',       true,...
-                'DetrendFluxParameter',         true,...
-                'DetrendVerticalVelocity',      true,...
-                'TimeShift',                    true,...
-                'CalculateCospectrum',          true);
+%             obj.calculate(...
+%                 'Downsample',                   true,...
+%                 'RotateCoordinateSystem',       true,...
+%                 'DetrendFluxParameter',         true,...
+%                 'DetrendVerticalVelocity',      true,...
+%                 'TimeShift',                    true,...
+%                 'CalculateCospectrum',          true);
         end
     end
 
@@ -199,6 +202,7 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
     methods
         varargout = runDownsampling(obj)
         varargout = runQualityControl(obj)
+        varargout = despike(obj)
         varargout = calculate(obj,varargin)
         varargout = planarFitCoordinateSystem(obj)
         varargout = detrend(obj,varargin)
@@ -208,11 +212,23 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
         func = dGetDetrendingFunction(obj,detrendingOptions)
         varargout = plot(obj,varargin)
         varargout = plotSpectra(obj,window)
-        varargout = plotQualityControl(obj,fig)
+        varargout = plotQualityControlStatistics(obj,fig)
+        varargout = plotQualityControl(obj,fig,datasetName,varargin)
+        varargout = plotTracerPath(obj,fig)
     end
     methods (Access = private)
         varargout = qualityControlRawData(obj)
+        varargout = despikePST(obj,datasetName)
         varargout = replaceData(obj,flag)
+        checkForMissingData(obj)
+        checkForAbsoluteLimits(obj)
+        checkForSpikes(obj)
+        checkForCurrentObstructions(obj)
+        checkForAmplitudeResolution(obj)
+        checkForDropouts(obj)
+        checkForSignalToNoiseRatio(obj)
+        checkForBeamCorrelation(obj)
+        
     end
 
     methods (Static)
@@ -226,6 +242,9 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
         [i,j] = csPlanarFitUnitVectorIJ(U1,k)
 %         [uc,vc,wc] = csPlanarFitRotateScalarFlux(u1c,v1c,w1c,i,j,k)
 %         [uu,vv,ww,uw,vw]=csPlanarFitRotateVelocityStat(u,i,j,k)
+
+
+        varargout = plotPhaseSpace(x,dx,d2x,uniCrit,theta)
     end
 
     % Get methods
@@ -340,35 +359,35 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
         % flags.
         function obj = set.TimeRaw(obj,value)
             obj.TimeRaw_   	= value;
-            obj.TimeDS     	= obj.TimeRaw;
+%             obj.TimeDS     	= obj.TimeRaw;
             obj.UpdateDownsamples 	= 'UpdateRequired';
         end
         function obj = set.VelocityRaw(obj,value)
             obj.VelocityRaw_    = value;
-            obj.VelocityDS    	= obj.VelocityRaw;
+%             obj.VelocityDS    	= obj.VelocityRaw;
             obj.UpdateDownsamples	= 'UpdateRequired';
         end
         function obj = set.FluxParameterRaw(obj,value)
             obj.FluxParameterRaw_	= value;
-            obj.FluxParameterDS   	= obj.FluxParameterRaw;
+%             obj.FluxParameterDS   	= obj.FluxParameterRaw;
             obj.UpdateDownsamples   = 'UpdateRequired';
         end
         
         function obj = set.TimeDS(obj,value)
             obj.TimeDS_   	= value;
-            obj.TimeQC     	= obj.TimeDS;
+%             obj.TimeQC     	= obj.TimeDS;
             obj.FlagTime   	= obj.FlagTime.setNum(0,size(obj.TimeDS,1),size(obj.TimeDS,2));
             obj.UpdateQC 	= 'UpdateRequired';
         end
         function obj = set.VelocityDS(obj,value)
-            obj.VelocityDS_    = value;
-            obj.VelocityQC    	= obj.VelocityDS;
+            obj.VelocityDS_     = value;
+%             obj.VelocityQC    	= obj.VelocityDS;
             obj.FlagVelocity   	= obj.FlagVelocity.setNum(0,size(obj.VelocityDS,1),size(obj.VelocityDS,2));
             obj.UpdateQC        = 'UpdateRequired';
         end
         function obj = set.FluxParameterDS(obj,value)
             obj.FluxParameterDS_	= value;
-            obj.FluxParameterQC   	= obj.FluxParameterDS;
+%             obj.FluxParameterQC   	= obj.FluxParameterDS;
             obj.FlagFluxParameter 	= obj.FlagFluxParameter.setNum(0,size(obj.FluxParameterDS,1),size(obj.FluxParameterDS,2));
             obj.UpdateQC            = 'UpdateRequired';
         end
@@ -398,43 +417,43 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
         function obj = set.Downsamples(obj,value)
             validateattributes(value,{'numeric'},{'scalar','integer','nonzero','positive'});
             obj.Downsamples = value;
-            if obj.Initialized
-                obj.calculate(...
-                    'Downsample',                   true,...
-                    'RotateCoordinateSystem',       false,...
-                    'DetrendFluxParameter',         true,...
-                    'DetrendVerticalVelocity',      true);
-            end
+%             if obj.Initialized
+%                 obj.calculate(...
+%                     'Downsample',                   true,...
+%                     'RotateCoordinateSystem',       false,...
+%                     'DetrendFluxParameter',         true,...
+%                     'DetrendVerticalVelocity',      true);
+%             end
         end
         function obj = set.CoordinateSystemRotationMethod(obj,value)
             obj.CoordinateSystemRotationMethod = validatestring(value,obj.ValidCoordinateSystemRotationMethods);
-            if obj.Initialized
-                obj.calculate(...
-                    'Downsample',                   false,...
-                    'RotateCoordinateSystem',       true,...
-                    'DetrendFluxParameter',         false,...
-                    'DetrendVerticalVelocity',      true);
-            end
+%             if obj.Initialized
+%                 obj.calculate(...
+%                     'Downsample',                   false,...
+%                     'RotateCoordinateSystem',       true,...
+%                     'DetrendFluxParameter',         false,...
+%                     'DetrendVerticalVelocity',      true);
+%             end
         end
         function obj = set.DetrendingMethod(obj,value)
             obj.DetrendingMethod = validatestring(value,obj.ValidDetrendingMethods);
-            if obj.Initialized
-               	obj.calculate(...
-                    'Downsample',                   false,...
-                    'RotateCoordinateSystem',       false,...
-                    'DetrendFluxParameter',         true,...
-                    'DetrendVerticalVelocity',      true);
-            end
+%             if obj.Initialized
+%                	obj.calculate(...
+%                     'Downsample',                   false,...
+%                     'RotateCoordinateSystem',       false,...
+%                     'DetrendFluxParameter',         true,...
+%                     'DetrendVerticalVelocity',      true);
+%             end
         end
         function obj = set.Window(obj,value)
             obj.Window = value;
-            if obj.Initialized
-               	obj.calculate(...
-                    'Downsample',                   true,...
-                    'RotateCoordinateSystem',       true,...
-                    'DetrendFluxParameter',         true,...
-                    'DetrendVerticalVelocity',      true);
-            end
+%             if obj.Initialized
+%                	obj.calculate(...
+%                     'Downsample',                   true,...
+%                     'RotateCoordinateSystem',       true,...
+%                     'DetrendFluxParameter',         true,...
+%                     'DetrendVerticalVelocity',      true);
+%             end
         end
     end
 

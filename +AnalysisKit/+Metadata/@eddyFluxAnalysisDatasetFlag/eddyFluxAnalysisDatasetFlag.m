@@ -7,6 +7,7 @@ classdef eddyFluxAnalysisDatasetFlag < DataKit.enum
         ObstructedCurrentDirectionThresholdExceeded    	(3,     0.05,       'curr. dir.',  	'Too many values are flagged for exceeding the obstructed current direction threshold.')
         LowSignalToNoiseRatio                           (4,     0.03,       'low SNR',  	'Too many values are flagged for low signal to noise ratio.')
         LowBeamCorrelation                              (5,     0.03,       'low BC',       'Too many values are flagged for low beam correlation.')
+        SpikeThresholdExceeded                          (6,     0.03,       'spikes',       'Too many values are flagged for spikes.')
     end
     properties (SetAccess = 'immutable')
         Id uint8
