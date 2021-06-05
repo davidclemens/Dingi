@@ -2,6 +2,7 @@ classdef analysis < handle
     properties (Abstract)
         Name char
         Type char
+        Parent
     end
     methods
         function obj = analysis()

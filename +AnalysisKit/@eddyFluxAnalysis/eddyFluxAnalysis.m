@@ -25,6 +25,7 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
     properties
         Name char = 'eddyFlux' % Analysis name
         Type char = 'flux' % Analysis type
+        Parent = GearKit.ecDeployment % Parent
     end
     
     properties
@@ -126,10 +127,11 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
         function obj = eddyFluxAnalysis(time,velocity,fluxParameter,varargin)
 
             import internal.stats.parseArgs
+            import GearKit.ecDeployment
 
             % parse Name-Value pairs
-            optionName          = {'SNR','BeamCorrelation','Window','Downsamples','CoordinateSystemRotationMethod','DetrendingMethod','DespikeMethod','Start','End','ObstacleAngles'}; % valid options (Name)
-            optionDefaultValue  = {[],[],duration(0,30,0),2,'planar fit','moving mean','phase-space thresholding',[],[],[]}; % default value (Value)
+            optionName          = {'SNR','BeamCorrelation','Window','Downsamples','CoordinateSystemRotationMethod','DetrendingMethod','DespikeMethod','Start','End','ObstacleAngles','Parent'}; % valid options (Name)
+            optionDefaultValue  = {[],[],duration(0,30,0),2,'planar fit','moving mean','phase-space thresholding',[],[],[],ecDeployment}; % default value (Value)
             [snr,...
              beamCorrelation,...
              window,...
@@ -140,13 +142,15 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
              startTime,...
              endTime,...
              obstacleAngles...
+             parent...
              ]	= parseArgs(optionName,optionDefaultValue,varargin{:}); % parse function arguments
 
             % call superclass constructor
             obj = obj@AnalysisKit.analysis();
 
             % populate properties
-            
+            validateattributes(parent,{'GearKit.ecDeployment'},{});
+            obj.Parent                          = parent;
             obj.Window                          = window;
             obj.Downsamples                     = downsamples;
             obj.CoordinateSystemRotationMethod	= validatestring(coordinateSystemRotationMethod,obj.ValidCoordinateSystemRotationMethods);
