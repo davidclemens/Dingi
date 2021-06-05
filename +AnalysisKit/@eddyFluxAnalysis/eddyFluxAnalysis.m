@@ -69,7 +69,7 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
         StartTime (1,1) datetime
         EndTime (1,1) datetime
 
-        FluxParameterTimeShift % Time shift of the flux parameter (# of samples)
+        FluxParameterTimeShift (1,:) double % Time shift of the flux parameter (# of samples)
 
         
         ObstacleAngles (:,1) double % The anticlockwise angle(s) seen from above the lander starting with 0° on the ADV x-axis, where obstacles (legs, sensors, etc.) are located.
