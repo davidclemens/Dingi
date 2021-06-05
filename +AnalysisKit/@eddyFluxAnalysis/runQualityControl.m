@@ -4,19 +4,26 @@ function varargout = runQualityControl(obj)
 
     nargoutchk(0,1)
     
-    printDebugMessage('Info','Quality controlling raw data ...')
+    nObj    = numel(obj);
     
-    % Set update flag to updating
-    obj.UpdateQC = 'IsUpdating';
+    for oo = 1:nObj
     
-    printDebugMessage('Info','Finding and replacing bad data ...')
-    obj.qualityControlRawData
-    printDebugMessage('Info','Finding and replacing bad data ... done')
-    
-    printDebugMessage('Info','Quality controlling raw data ... done')
-    
-    % Set update flag to updated
-    obj.UpdateQC = 'IsUpdated';
+        printDebugMessage('Info','Quality controlling raw data for %s ...',obj(oo).Parent.gearId)
+
+        obj(oo).TimeQC          = obj(oo).TimeDS;
+        obj(oo).VelocityQC    	= obj(oo).VelocityDS;
+        obj(oo).FluxParameterQC	= obj(oo).FluxParameterDS;
+
+        % Set update flag to updating
+        obj(oo).UpdateQC = 'IsUpdating';
+
+        obj(oo).qualityControlRawData
+
+        printDebugMessage('Info','Quality controlling raw data for %s ... done',obj(oo).Parent.gearId)
+
+        % Set update flag to updated
+        obj(oo).UpdateQC = 'IsUpdated';
+    end
     
     if nargout == 1
         varargout{1} = obj;

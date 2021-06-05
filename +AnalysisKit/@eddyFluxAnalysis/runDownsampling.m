@@ -5,21 +5,25 @@ function varargout = runDownsampling(obj)
 
     nargoutchk(0,1)
     
-    printDebugMessage('Info','Downsampling raw data ...')
+    nObj    = numel(obj);
     
-    % Set update flag to updating
-    obj.UpdateDownsamples = 'IsUpdating';
-    
-    obj.TimeDS_             = downsample(obj.TimeRaw,obj.Downsamples);
-    obj.VelocityDS_         = downsample(obj.VelocityRaw,obj.Downsamples);
-    obj.FluxParameterDS_    = downsample(obj.FluxParameterRaw,obj.Downsamples);
-    obj.SNRDS               = downsample(obj.SNR,obj.Downsamples);
-    obj.BeamCorrelationDS   = downsample(obj.BeamCorrelation,obj.Downsamples);
-    
-    printDebugMessage('Info','Downsampling raw data ... done')
-    
-    % Set update flag to updated
-    obj.UpdateDownsamples = 'IsUpdated';
+    for oo = 1:nObj
+        printDebugMessage('Info','Downsampling raw data for %s ...',obj(oo).Parent.gearId)
+        
+        % Set update flag to updating
+        obj(oo).UpdateDownsamples = 'IsUpdating';
+
+        obj(oo).TimeDS              = downsample(obj(oo).TimeRaw,obj(oo).Downsamples);
+        obj(oo).VelocityDS          = downsample(obj(oo).VelocityRaw,obj(oo).Downsamples);
+        obj(oo).FluxParameterDS     = downsample(obj(oo).FluxParameterRaw,obj(oo).Downsamples);
+        obj(oo).SNRDS               = downsample(obj(oo).SNR,obj(oo).Downsamples);
+        obj(oo).BeamCorrelationDS   = downsample(obj(oo).BeamCorrelation,obj(oo).Downsamples);
+
+        printDebugMessage('Info','Downsampling raw data for %s ... done',obj(oo).Parent.gearId)
+
+        % Set update flag to updated
+        obj(oo).UpdateDownsamples = 'IsUpdated';
+    end
     
     if nargout == 1
         varargout{1} = obj;
