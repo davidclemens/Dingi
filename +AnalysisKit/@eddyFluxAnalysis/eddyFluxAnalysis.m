@@ -27,7 +27,7 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
         Type char = 'flux' % Analysis type
         Parent = GearKit.ecDeployment % Parent
     end
-    
+
     properties
         SNR (:,3) double % Signal to noise ratio
         BeamCorrelation (:,3) double % Beam correlation
@@ -36,11 +36,11 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
         TimeRaw (:,1) double % Raw Time (datenum)
         VelocityRaw (:,3) double % Raw velocity (m/s)
         FluxParameterRaw double % Raw flux parameter data
-        
+
         TimeDS (:,1) double % Downsampled time (datenum)
         VelocityDS (:,3) double % Downsampled velocity (m/s)
         FluxParameterDS double % Downsampled flux parameter data
-        
+
         TimeQC (:,1) double % Quality controlled time (datenum)
         VelocityQC (:,3) double % Quality controlled velocity (m/s)
         FluxParameterQC double % Quality controlled flux parameter data
@@ -48,47 +48,45 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
     properties
         SNRDS (:,3) double % Downsampled signal to noise ratio
         BeamCorrelationDS (:,3) double % Downsampled beam correlation
-        
+
         W_ (:,1) double % Rotated and trend corrected vertical velocity (m/s)
         FluxParameter_ double % Trend corrected flux parameter
-        
+
         FlagDataset DataKit.bitflag = DataKit.bitflag('AnalysisKit.Metadata.eddyFluxAnalysisDatasetFlag',1,1)
         FlagTime DataKit.bitflag = DataKit.bitflag('AnalysisKit.Metadata.eddyFluxAnalysisDataFlag')
         FlagVelocity DataKit.bitflag = DataKit.bitflag('AnalysisKit.Metadata.eddyFluxAnalysisDataFlag')
         FlagFluxParameter DataKit.bitflag = DataKit.bitflag('AnalysisKit.Metadata.eddyFluxAnalysisDataFlag')
     end
     properties
-        Window duration % Window or averaging interval (duration)
+        WindowDuration duration % Window or averaging interval (duration)
         DespikeMethod char = 'phase-space thresholding' % Despiking method
         Downsamples = 1 % Number of downlsamples.
         CoordinateSystemRotationMethod char = 'planar fit'
         DetrendingMethod char = 'moving mean' % Detrending method
         ReplaceMethod char = 'linear' % Method to use to replace rejected data points
 
-
         StartTime (1,1) datetime
         EndTime (1,1) datetime
 
         FluxParameterTimeShift (1,:) double % Time shift of the flux parameter (# of samples)
 
-        
         ObstacleAngles (:,1) double % The anticlockwise angle(s) seen from above the lander starting with 0° on the ADV x-axis, where obstacles (legs, sensors, etc.) are located.
         ObstacleSectorWidth (1,1) double = 5 % Sector width in degrees
     end
-    
+
     % Backend
     properties (Access = 'private')
         TimeRaw_ (:,1) double % Raw Time (datenum)
         VelocityRaw_ (:,3) double % Raw velocity (m/s)
         FluxParameterRaw_ double % Raw flux parameter data
-        
+
         TimeDS_ (:,1) double % Downsampled time (datenum)
         VelocityDS_ (:,3) double % Downsampled velocity (m/s)
         FluxParameterDS_ double % Downsampled flux parameter data
-        
+
         TimeQC_ (:,1) double % Quality controlled time (datenum)
         VelocityQC_ (:,3) double % Quality controlled velocity (m/s)
-        FluxParameterQC_ double % Quality controlled flux parameter data        
+        FluxParameterQC_ double % Quality controlled flux parameter data
     end
     properties (Access = 'private')
         % Update required flags (UpdateRequired, IsUpdating, IsUpdated)
@@ -132,11 +130,11 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
             import GearKit.ecDeployment
 
             % parse Name-Value pairs
-            optionName          = {'SNR','BeamCorrelation','Window','Downsamples','CoordinateSystemRotationMethod','DetrendingMethod','DespikeMethod','Start','End','ObstacleAngles','Parent'}; % valid options (Name)
+            optionName          = {'SNR','BeamCorrelation','WindowDuration','Downsamples','CoordinateSystemRotationMethod','DetrendingMethod','DespikeMethod','Start','End','ObstacleAngles','Parent'}; % valid options (Name)
             optionDefaultValue  = {[],[],duration(0,30,0),2,'planar fit','moving mean','phase-space thresholding',[],[],[],ecDeployment}; % default value (Value)
             [snr,...
              beamCorrelation,...
-             window,...
+             windowDuration,...
              downsamples,...
              coordinateSystemRotationMethod,...
              detrendingMethod,...
@@ -153,7 +151,7 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
             % populate properties
             validateattributes(parent,{'GearKit.ecDeployment'},{});
             obj.Parent                          = parent;
-            obj.Window                          = window;
+            obj.WindowDuration                  = windowDuration;
             obj.Downsamples                     = downsamples;
             obj.CoordinateSystemRotationMethod	= validatestring(coordinateSystemRotationMethod,obj.ValidCoordinateSystemRotationMethods);
             obj.DetrendingMethod                = validatestring(detrendingMethod,obj.ValidDetrendingMethods);
@@ -179,11 +177,11 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
             % Populate data
             obj.SNR                             = snr;
             obj.BeamCorrelation                 = beamCorrelation;
-            
+
             obj.TimeRaw                         = time;
             obj.VelocityRaw                     = velocity;
             obj.FluxParameterRaw                = fluxParameter;
-            
+
             % set initialized flag
             obj.Initialized	= true;
         end
@@ -200,6 +198,7 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
         varargout = calculateCospectrum(obj)
         [i,j,k] = csUnitVectors(obj)
         func = dGetDetrendingFunction(obj,detrendingOptions)
+        
         varargout = plot(obj,varargin)
         varargout = plotSpectra(obj,window)
         varargout = plotQualityControlStatistics(obj,fig)
@@ -250,7 +249,7 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
         function fluxParameterRaw = get.FluxParameterRaw(obj)
             fluxParameterRaw = obj.FluxParameterRaw_;
         end
-        
+
         function timeDS = get.TimeDS(obj)
             switch obj.UpdateDownsamples
                 case 'UpdateRequired'
@@ -272,7 +271,7 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
             end
             fluxParameterDS = obj.FluxParameterDS_;
         end
-        
+
         function timeQC = get.TimeQC(obj)
             switch obj.UpdateQC
                 case 'UpdateRequired'
@@ -295,7 +294,7 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
             fluxParameterQC = obj.FluxParameterQC_;
         end
     end
-    
+
     methods
         function time = get.Time(obj)
             time = reshape(cat(1,obj.TimeDownsampled,NaN(obj.WindowPaddingLength,1)),obj.WindowLength,obj.WindowN + 1);
@@ -349,47 +348,41 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
         % If frontend properties are set, update the backend and set any necessary
         % flags.
         function obj = set.TimeRaw(obj,value)
-            obj.TimeRaw_   	= value;
-%             obj.TimeDS     	= obj.TimeRaw;
+            obj.TimeRaw_            = value;
             obj.UpdateDownsamples 	= 'UpdateRequired';
         end
         function obj = set.VelocityRaw(obj,value)
-            obj.VelocityRaw_    = value;
-%             obj.VelocityDS    	= obj.VelocityRaw;
+            obj.VelocityRaw_        = value;
             obj.UpdateDownsamples	= 'UpdateRequired';
         end
         function obj = set.FluxParameterRaw(obj,value)
             obj.FluxParameterRaw_	= value;
-%             obj.FluxParameterDS   	= obj.FluxParameterRaw;
             obj.UpdateDownsamples   = 'UpdateRequired';
         end
-        
+
         function obj = set.TimeDS(obj,value)
-            obj.TimeDS_   	= value;
-%             obj.TimeQC     	= obj.TimeDS;
-            obj.FlagTime   	= obj.FlagTime.setNum(0,size(obj.TimeDS,1),size(obj.TimeDS,2));
-            obj.UpdateQC 	= 'UpdateRequired';
+            obj.TimeDS_             = value;
+            obj.FlagTime            = obj.FlagTime.setNum(0,size(obj.TimeDS,1),size(obj.TimeDS,2));
+            obj.UpdateQC            = 'UpdateRequired';
         end
         function obj = set.VelocityDS(obj,value)
-            obj.VelocityDS_     = value;
-%             obj.VelocityQC    	= obj.VelocityDS;
-            obj.FlagVelocity   	= obj.FlagVelocity.setNum(0,size(obj.VelocityDS,1),size(obj.VelocityDS,2));
-            obj.UpdateQC        = 'UpdateRequired';
+            obj.VelocityDS_        	= value;
+            obj.FlagVelocity        = obj.FlagVelocity.setNum(0,size(obj.VelocityDS,1),size(obj.VelocityDS,2));
+            obj.UpdateQC            = 'UpdateRequired';
         end
         function obj = set.FluxParameterDS(obj,value)
             obj.FluxParameterDS_	= value;
-%             obj.FluxParameterQC   	= obj.FluxParameterDS;
             obj.FlagFluxParameter 	= obj.FlagFluxParameter.setNum(0,size(obj.FluxParameterDS,1),size(obj.FluxParameterDS,2));
             obj.UpdateQC            = 'UpdateRequired';
         end
-        
+
         function obj = set.TimeQC(obj,value)
-            obj.TimeQC_         = value;
-            obj.UpdateFluxes  	= 'UpdateRequired';
+            obj.TimeQC_             = value;
+            obj.UpdateFluxes        = 'UpdateRequired';
         end
         function obj = set.VelocityQC(obj,value)
-            obj.VelocityQC_     = value;
-            obj.UpdateFluxes 	= 'UpdateRequired';
+            obj.VelocityQC_         = value;
+            obj.UpdateFluxes        = 'UpdateRequired';
         end
         function obj = set.FluxParameterQC(obj,value)
             obj.FluxParameterQC_	= value;
@@ -406,22 +399,19 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
             end
         end
         function obj = set.Downsamples(obj,value)
-            validateattributes(value,{'numeric'},{'scalar','integer','nonzero','positive'});
+            validateattributes(value,{'numeric'},{'scalar','integer','positive','nonnan','finite'});
             obj.Downsamples = value;
-            
         end
         function obj = set.CoordinateSystemRotationMethod(obj,value)
             obj.CoordinateSystemRotationMethod = validatestring(value,obj.ValidCoordinateSystemRotationMethods);
-            
         end
         function obj = set.DetrendingMethod(obj,value)
             obj.DetrendingMethod = validatestring(value,obj.ValidDetrendingMethods);
-            
         end
-        function obj = set.Window(obj,value)
-            obj.Window = value;
-            
+        function obj = set.WindowDuration(obj,value)
+            validateattributes(value,{'duration'},{'scalar'});
+            validateattributes(seconds(value),{'numeric'},{'positive','nonnan','finite'});
+            obj.WindowDuration = value;
         end
     end
-
 end

@@ -12,7 +12,7 @@ function varargout = planarFitCoordinateSystem(obj)
 
     % wilczak’s routine
     u       = (obj.Velocity(:,1))';
-    v       = (obj.Velocity(:,2))';d
+    v       = (obj.Velocity(:,2))';
     w       = (obj.Velocity(:,3))';
     flen	= length(u);
     
