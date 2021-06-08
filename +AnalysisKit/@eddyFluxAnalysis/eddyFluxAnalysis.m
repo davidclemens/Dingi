@@ -218,7 +218,8 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
         checkForDropouts(obj)
         checkForSignalToNoiseRatio(obj)
         checkForBeamCorrelation(obj)
-        
+        checkForHighCurrentRotation(obj)
+        checkForLowHorizontalVelocity(obj)
     end
 
     methods (Static)

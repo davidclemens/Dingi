@@ -4,8 +4,6 @@ function varargout = qualityControlRawData(obj)
     
     nargoutchk(0,1)
    
-    
-    
     printDebugMessage('Verbose','Checking for missing data ...')
     checkForMissingData(obj)
     
@@ -19,10 +17,10 @@ function varargout = qualityControlRawData(obj)
     checkForCurrentObstructions(obj)
     
     printDebugMessage('Verbose','Checking amplitude resolution ...')
-%     checkForAmplitudeResolution(obj)
+    % checkForAmplitudeResolution(obj)
     
     printDebugMessage('Verbose','Checking for dropouts ...')
-    checkForDropouts(obj)
+    % checkForDropouts(obj)
     
     printDebugMessage('Verbose','Checking the signal to noise ratio ...')
     checkForSignalToNoiseRatio(obj)
@@ -30,7 +28,11 @@ function varargout = qualityControlRawData(obj)
     printDebugMessage('Verbose','Checking the beam correlation ...')
     checkForBeamCorrelation(obj)
     
-%     plotTracerPath(obj)
+    printDebugMessage('Verbose','Checking for low horizontal velocities ...')
+    checkForLowHorizontalVelocity(obj)
+    
+    printDebugMessage('Verbose','Checking for high horizontal current rotation rates ...')
+    checkForHighCurrentRotation(obj)
     
     if nargout == 1
         varargout{1} = obj;
