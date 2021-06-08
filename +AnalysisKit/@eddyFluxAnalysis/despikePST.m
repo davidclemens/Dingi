@@ -2,6 +2,7 @@ function varargout = despikePST(obj,datasetName)
 % CALCULATE
     
     import AnalysisKit.eddyFluxAnalysis.plotPhaseSpace
+    import DebuggerKit.Debugger.printDebugMessage
     
     nargoutchk(0,1)
     
@@ -26,7 +27,7 @@ function varargout = despikePST(obj,datasetName)
         run             = true;
         iter            = 1;
         while run
-            fprintf('Dimension %d of %d: Despiking iteration %d ... ',ser,nSeries,iter)
+            printDebugMessage('Verbose','Dimension %d of %d: Despiking iteration %d ... ',ser,nSeries,iter)
 
             % (1) get first and second derivative
             dData               = derive(Data);
@@ -68,7 +69,7 @@ function varargout = despikePST(obj,datasetName)
                           iter <= 10;
             iter = iter + 1;
 
-            fprintf('%d spikes replaced\n',nDespiked)
+            printDebugMessage('Verbose','%d spikes replaced',nDespiked)
         end
         dataDespiked(:,ser)     = Data;
         
