@@ -79,7 +79,7 @@ function selectVariables(obj)
             end
 
             % Create display name. Add it to the legend entries.
-            displayName     = [data.DepInfo.MeasuringDevice(src).DeviceDomain.Abbreviation,' (',char(data.DepInfo.MeasuringDevice(src).Type),')'];
+            displayName     = char(data.DepInfo.MeasuringDevice(src));
             legendEntries  	= cat(1,legendEntries,{displayName});
             
             % Plot the data
