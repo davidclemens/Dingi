@@ -4,18 +4,18 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
 
 
 % TODO:
-%   ( ) implement new velocityRaw, velocity, velocityRotated, etc. ...
+%   (x) implement new velocityRaw, velocity, velocityRotated, etc. ...
 %   (x) reshape timeseries so that dim2 represents the windows to make per-
 %       window calculations easier.
-%   ( ) implement despiking.
+%   (x) implement despiking.
 %   ( ) implement time-shift correction between velocity and fluxParameters
 %   ( ) implement custom moving window size for detrending method 'moving
 %       mean'.
 %   (x) implement subsampling of the original dataset
-%   ( ) implement setting start and end time of the analysis
-%   ( ) implement get & set property access methods
+%   (x) implement setting start and end time of the analysis
+%   (x) implement get & set property access methods
 %   (x) implement flags to track which data points were manipulated
-%   ( ) implement NaNs
+%   (x) implement NaNs
 %
 % IDEAS:
 %   (x) maybe derive from the handle class to support event listeners on
@@ -33,24 +33,38 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
         BeamCorrelation (:,3) double % Beam correlation
     end
     properties (Dependent)
+        % Stack depth 1 (Raw data)
         TimeRaw (:,1) double % Raw Time (datenum)
         VelocityRaw (:,3) double % Raw velocity (m/s)
         FluxParameterRaw double % Raw flux parameter data
 
+        % Stack depth 2 (Downsampling)
         TimeDS (:,1) double % Downsampled time (datenum)
         VelocityDS (:,3) double % Downsampled velocity (m/s)
         FluxParameterDS double % Downsampled flux parameter data
 
+        % Stack depth 3 (Quality control)
         TimeQC (:,1) double % Quality controlled time (datenum)
         VelocityQC (:,3) double % Quality controlled velocity (m/s)
         FluxParameterQC double % Quality controlled flux parameter data
+        
+        % Stack depth 4 (Rotation & time segragation)
+        CoordinateSystemUnitVectorI (:,3) double
+        CoordinateSystemUnitVectorJ (:,3) double
+        CoordinateSystemUnitVectorK (:,3) double
+        TimeRS double % Segregated time
+        VelocityRS double % Rotated & segregated velocity (m/s)
+        FluxParameterRS double % Segregated flux parameter
+        
+        % Stack depth 5 (Detrending)
+        VelocityDT double % Detrended velocity (m/s)
+        FluxParameterDT double % Detrended flux parameter data
+        VelocityDTMean double % Velocity mean value (m/s)
+        FluxParameterDTMean double % Flux parameter mean value
     end
     properties
         SNRDS (:,3) double % Downsampled signal to noise ratio
         BeamCorrelationDS (:,3) double % Downsampled beam correlation
-
-        W_ (:,1) double % Rotated and trend corrected vertical velocity (m/s)
-        FluxParameter_ double % Trend corrected flux parameter
 
         FlagDataset DataKit.bitflag = DataKit.bitflag('AnalysisKit.Metadata.eddyFluxAnalysisDatasetFlag',1,1)
         FlagTime DataKit.bitflag = DataKit.bitflag('AnalysisKit.Metadata.eddyFluxAnalysisDataFlag')
@@ -59,7 +73,7 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
     end
     properties
         WindowDuration duration % Window or averaging interval (duration)
-        DespikeMethod char = 'phase-space thresholding' % Despiking method
+        DespikeMethod char = 'none' % Despiking method
         Downsamples = 1 % Number of downlsamples.
         CoordinateSystemRotationMethod char = 'planar fit'
         DetrendingMethod char = 'moving mean' % Detrending method
@@ -76,51 +90,66 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
 
     % Backend
     properties (Access = 'private')
+        % Stack depth 1
         TimeRaw_ (:,1) double % Raw Time (datenum)
         VelocityRaw_ (:,3) double % Raw velocity (m/s)
         FluxParameterRaw_ double % Raw flux parameter data
 
+        % Stack depth 2
         TimeDS_ (:,1) double % Downsampled time (datenum)
         VelocityDS_ (:,3) double % Downsampled velocity (m/s)
         FluxParameterDS_ double % Downsampled flux parameter data
 
+        % Stack depth 3
         TimeQC_ (:,1) double % Quality controlled time (datenum)
         VelocityQC_ (:,3) double % Quality controlled velocity (m/s)
         FluxParameterQC_ double % Quality controlled flux parameter data
+        
+        % Stack depth 4
+        CoordinateSystemUnitVectorI_ (:,3) double
+        CoordinateSystemUnitVectorJ_ (:,3) double
+        CoordinateSystemUnitVectorK_ (:,3) double
+        TimeRS_ double % Segregated time
+        VelocityRS_ double % Rotated & segregated velocity (m/s)
+        FluxParameterRS_ double % Segregated flux parameter
+        
+        % Stack depth 5
+        VelocityDT_ double % Detrended velocity (m/s)
+        FluxParameterDT_ double % Detrended flux parameter data
+        VelocityDTMean_ double % Velocity mean value (m/s)
+        FluxParameterDTMean_ double % Flux parameter mean value
+    end
+    properties (Dependent) %Access = 'private', 
+        UpdateStack
     end
     properties (Access = 'private')
-        % Update required flags (UpdateRequired, IsUpdating, IsUpdated)
-        UpdateDownsamples char = 'UpdateRequired'
-        UpdateQC char = 'UpdateRequired'
-        UpdateFluxes char = 'UpdateRequired'
+        UpdateStack_ = 2.*ones(5,1) % Initialize as update required
     end
     properties %(Hidden)
-        CoordinateSystemUnitVectorI (:,3) double
-        CoordinateSystemUnitVectorJ (:,3) double
-        CoordinateSystemUnitVectorK (:,3) double
         DetrendingFunction
         Initialized logical = false
     end
     properties (Dependent)
         Frequency (1,1) double % Frequency (Hz)
-        SampleWindowedN double % Number of samples in windows
 
        	Time % Time (datenum). Padded by NaNs to fit an integer multiple of windowLength. The Shape is [sample,window]. The Size is windowLength x windowN.
         Velocity % Velocity (m/s). Rotated according to the CoordinateSystemRotationMethod. Padded by NaNs to fit an integer multiple of windowLength. The Shape is [sample,window,[vx,vy,vz]]. The Size is windowLength x windowN x 3.
         FluxParameter % flux parameter. Padded by NaNs to fit an integer multiple of windowLength. The Shape is [sample,window,[fluxParameters]]. The Size is windowLength x windowN x fluxParameterN.
     end
     properties (Dependent) %Hidden
-        SampleN % Number of raw samples
-        FluxParameterN % Number of flux parameters
-        WindowLength % Window length (samples)
-        WindowN % Number of full windows in timeseries
-        WindowPaddingLength % Padding length (samples) of the last incomplete window.
-        CoordinateSystemUnitVectors
+        NFluxParameters (1,1) double % Number of flux parameters
+        NSamplesRaw (1,1) double % Number of raw samples
+        NSamplesDS (1,1) double % Number of downsampled samples
+        NSamplesPerWindow (1,1) double % Number of samples in each window
+        NSamplesInWindows (1,1) double % Total number of samples that are covered by a window.
+        NSamplesWindowsPadding (1,1) double % Padding length (samples) of the last incomplete window.
+        NWindows (1,1) double % Number of full windows in timeseries
         WindowMask % Windows that fully lie within the [StartTime,EndTime] interval
+        CoordinateSystemUnitVectors
     end
     properties (Hidden, Constant)
-        ValidCoordinateSystemRotationMethods = {'none','planar fit'};
-        ValidDetrendingMethods = {'none','mean removal','linear','moving mean'};
+        ValidCoordinateSystemRotationMethods = {'planar fit'};
+        ValidDetrendingMethods = {'mean removal','linear','moving mean'};
         ValidDespikingMethods = {'none','phase-space thresholding'};
     end
     methods
@@ -131,7 +160,7 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
 
             % parse Name-Value pairs
             optionName          = {'SNR','BeamCorrelation','WindowDuration','Downsamples','CoordinateSystemRotationMethod','DetrendingMethod','DespikeMethod','Start','End','ObstacleAngles','Parent'}; % valid options (Name)
-            optionDefaultValue  = {[],[],duration(0,30,0),2,'planar fit','moving mean','phase-space thresholding',[],[],[],ecDeployment}; % default value (Value)
+            optionDefaultValue  = {[],[],duration(0,30,0),2,'planar fit','moving mean','none',[],[],[],ecDeployment}; % default value (Value)
             [snr,...
              beamCorrelation,...
              windowDuration,...
@@ -189,14 +218,17 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
 
 	% Methods in other files
     methods
+        varargout = checkUpdateStack(obj,stackDepth)
         varargout = runDownsampling(obj)
         varargout = runQualityControl(obj)
+        varargout = runCoordinateSystemRotation(obj)
+        varargout = runFootprintAnalysis(obj)
         varargout = despike(obj)
         varargout = planarFitCoordinateSystem(obj)
         varargout = detrend(obj,varargin)
         varargout = timeShift(obj)
         varargout = calculateCospectrum(obj)
-        [i,j,k] = csUnitVectors(obj)
+        varargout = rotateCoordinateSystem(obj)
         func = dGetDetrendingFunction(obj,detrendingOptions)
         
         varargout = plot(obj,varargin)
@@ -205,10 +237,11 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
         varargout = plotQualityControl(obj,fig,datasetName,varargin)
         varargout = plotTracerPath(obj,fig)
     end
-    methods (Access = private)
+    methods (Access = 'private')
         varargout = qualityControlRawData(obj)
         varargout = despikePST(obj,datasetName)
         varargout = replaceData(obj,flag)
+        varargout = rotateSegregateScalars(obj)
         checkForMissingData(obj)
         checkForAbsoluteLimits(obj)
         checkForSpikes(obj)
@@ -221,18 +254,15 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
         checkForLowHorizontalVelocity(obj)
     end
 
-    methods (Static)
+    methods (Static, Access = 'private')
         % methods in other files
         y = downsample(x,N)
-        y = detrendMeanRemoval(x)
-        y = detrendLinear(x)
-        y = detrendMovingMean(x,window)
+        [y,meanValue] = detrendMeanRemoval(x)
+        [y,meanValue] = detrendLinear(x)
+        [y,meanValue] = detrendMovingMean(x,window)
 
         [k,b0] = csPlanarFitUnitVectorK(U1)
         [i,j] = csPlanarFitUnitVectorIJ(U1,k)
-%         [uc,vc,wc] = csPlanarFitRotateScalarFlux(u1c,v1c,w1c,i,j,k)
-%         [uu,vv,ww,uw,vw]=csPlanarFitRotateVelocityStat(u,i,j,k)
-
 
         varargout = plotPhaseSpace(x,dx,d2x,uniCrit,theta)
     end
@@ -241,76 +271,111 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
     methods
         % Frontend/Backend interface
         function timeRaw = get.TimeRaw(obj)
+            stackDepth = 1;
+            obj.checkUpdateStack(stackDepth)
             timeRaw = obj.TimeRaw_;
         end
         function velocityRaw = get.VelocityRaw(obj)
+            stackDepth = 1;
+            obj.checkUpdateStack(stackDepth)
             velocityRaw = obj.VelocityRaw_;
         end
         function fluxParameterRaw = get.FluxParameterRaw(obj)
+            stackDepth = 1;
+            obj.checkUpdateStack(stackDepth)
             fluxParameterRaw = obj.FluxParameterRaw_;
         end
 
         function timeDS = get.TimeDS(obj)
-            switch obj.UpdateDownsamples
-                case 'UpdateRequired'
-                    obj.runDownsampling
-            end
+            stackDepth = 2;
+            obj.checkUpdateStack(stackDepth)
             timeDS = obj.TimeDS_;
         end
         function velocityDS = get.VelocityDS(obj)
-            switch obj.UpdateDownsamples
-                case 'UpdateRequired'
-                    obj.runDownsampling
-            end
+            stackDepth = 2;
+            obj.checkUpdateStack(stackDepth)
             velocityDS = obj.VelocityDS_;
         end
         function fluxParameterDS = get.FluxParameterDS(obj)
-            switch obj.UpdateDownsamples
-                case 'UpdateRequired'
-                    obj.runDownsampling
-            end
+            stackDepth = 2;
+            obj.checkUpdateStack(stackDepth)
             fluxParameterDS = obj.FluxParameterDS_;
         end
 
         function timeQC = get.TimeQC(obj)
-            switch obj.UpdateQC
-                case 'UpdateRequired'
-                    obj.runQualityControl
-            end
+            stackDepth = 3;
+            obj.checkUpdateStack(stackDepth)
             timeQC = obj.TimeQC_;
         end
         function velocityQC = get.VelocityQC(obj)
-            switch obj.UpdateQC
-                case 'UpdateRequired'
-                    obj.runQualityControl
-            end
+            stackDepth = 3;
+            obj.checkUpdateStack(stackDepth)
             velocityQC = obj.VelocityQC_;
         end
         function fluxParameterQC = get.FluxParameterQC(obj)
-            switch obj.UpdateQC
-                case 'UpdateRequired'
-                    obj.runQualityControl
-            end
+            stackDepth = 3;
+            obj.checkUpdateStack(stackDepth)
             fluxParameterQC = obj.FluxParameterQC_;
+        end
+        
+        function coordinateSystemUnitVectorI = get.CoordinateSystemUnitVectorI(obj)
+            stackDepth = 4;
+            obj.checkUpdateStack(stackDepth)
+            coordinateSystemUnitVectorI = obj.CoordinateSystemUnitVectorI_;            
+        end
+        function coordinateSystemUnitVectorJ = get.CoordinateSystemUnitVectorJ(obj)
+            stackDepth = 4;
+            obj.checkUpdateStack(stackDepth)
+            coordinateSystemUnitVectorJ = obj.CoordinateSystemUnitVectorJ_;            
+        end
+        function coordinateSystemUnitVectorK = get.CoordinateSystemUnitVectorK(obj)
+            stackDepth = 4;
+            obj.checkUpdateStack(stackDepth)
+            coordinateSystemUnitVectorK = obj.CoordinateSystemUnitVectorK_;            
+        end
+        function timeRS = get.TimeRS(obj)
+            stackDepth = 4;
+            obj.checkUpdateStack(stackDepth)
+            timeRS = obj.TimeRS_;  
+        end
+        function velocityRS = get.VelocityRS(obj)
+            stackDepth = 4;
+            obj.checkUpdateStack(stackDepth)
+            velocityRS = obj.VelocityRS_;  
+        end
+        function fluxParameterRS = get.FluxParameterRS(obj)
+            stackDepth = 4;
+            obj.checkUpdateStack(stackDepth)
+            fluxParameterRS = obj.FluxParameterRS_;  
+        end
+        
+        function velocityDT = get.VelocityDT(obj)
+            stackDepth = 5;
+            obj.checkUpdateStack(stackDepth)
+            velocityDT = obj.VelocityDT_;  
+        end
+        function fluxParameterDT = get.FluxParameterDT(obj)
+            stackDepth = 5;
+            obj.checkUpdateStack(stackDepth)
+            fluxParameterDT = obj.FluxParameterDT_;  
+        end
+        function velocityDTMean = get.VelocityDTMean(obj)
+            stackDepth = 5;
+            obj.checkUpdateStack(stackDepth)
+            velocityDTMean = obj.VelocityDTMean_;  
+        end
+        function fluxParameterDTMean = get.FluxParameterDTMean(obj)
+            stackDepth = 5;
+            obj.checkUpdateStack(stackDepth)
+            fluxParameterDTMean = obj.FluxParameterDTMean_;  
+        end
+        
+        function updateStack = get.UpdateStack(obj)
+            updateStack = obj.UpdateStack_;
         end
     end
 
     methods
-        function time = get.Time(obj)
-            time = reshape(cat(1,obj.TimeDownsampled,NaN(obj.WindowPaddingLength,1)),obj.WindowLength,obj.WindowN + 1);
-        end
-        function velocity = get.Velocity(obj)
-            tmpVelocity	= permute(reshape(shiftdim(cat(1,obj.VelocityDownsampled,NaN(obj.WindowPaddingLength,3)),-1),obj.WindowLength,obj.WindowN + 1,[]),[1,3,2]);
-        	velocity 	= NaN(obj.WindowLength,obj.WindowN + 1,3);
-            for win = 1:obj.WindowN + 1
-                velocity(:,win,:) = tmpVelocity(:,:,win)*obj.CoordinateSystemUnitVectors(:,:,win);
-            end
-        end
-        function fluxParameter = get.FluxParameter(obj)
-            fluxParameter = reshape(shiftdim(cat(1,obj.FluxParameterDownsampled,NaN(obj.WindowPaddingLength,obj.FluxParameterN)),-1),obj.WindowLength,obj.WindowN + 1,[]);
-        end
-
-
         function frequency = get.Frequency(obj)
             frequency = round(1/(nanmean(diff(obj.TimeRaw))*24*60^2),6,'Significant')/obj.Downsamples;
         end
@@ -318,28 +383,32 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
             coordinateSystemUnitVectors = cat(3,obj.CoordinateSystemUnitVectorI,obj.CoordinateSystemUnitVectorJ,obj.CoordinateSystemUnitVectorK);
             coordinateSystemUnitVectors = permute(coordinateSystemUnitVectors,[3,2,1]);
         end
-        function sampleN = get.SampleN(obj)
-            sampleN = size(obj.TimeDownsampled,1);
+        
+        function nFluxParameters = get.NFluxParameters(obj)
+            nFluxParameters = size(obj.FluxParameterRaw_,2);
         end
-        function fluxParameterN = get.FluxParameterN(obj)
-            fluxParameterN = size(obj.FluxParameterRaw,2);
+        function nSamplesRaw = get.NSamplesRaw(obj)
+            nSamplesRaw = size(obj.TimeRaw_,1);
         end
-        function windowLength = get.WindowLength(obj)
-            windowLength = floor(obj.Frequency*seconds(obj.Window));
+        function nSamplesDS = get.NSamplesDS(obj)
+            nSamplesDS = size(obj.TimeDS_,1);
         end
-        function windowN = get.WindowN(obj)
-            windowN = floor(size(obj.VelocityDownsampled,1)/obj.WindowLength);
+        function nSamplesPerWindow = get.NSamplesPerWindow(obj)
+            nSamplesPerWindow = floor(obj.Frequency*seconds(obj.WindowDuration));
         end
-        function windowPaddingLength = get.WindowPaddingLength(obj)
-            windowPaddingLength = obj.WindowLength - (obj.SampleN - obj.SampleWindowedN);
+        function nWindows = get.NWindows(obj)
+            nWindows = floor(obj.NSamplesDS/obj.NSamplesPerWindow);
         end
-        function sampleWindowedN = get.SampleWindowedN(obj)
-            sampleWindowedN = obj.WindowLength*obj.WindowN;
+        function nSamplesInWindows = get.NSamplesInWindows(obj)
+            nSamplesInWindows = obj.NSamplesPerWindow*obj.NWindows;
+        end
+        function nSamplesWindowsPadding = get.NSamplesWindowsPadding(obj)
+            nSamplesWindowsPadding = obj.NSamplesPerWindow - (obj.NSamplesDS - obj.NSamplesInWindows);
         end
         function windowMask = get.WindowMask(obj)
             windowMask = ...
-                obj.Time >= datenum(obj.StartTime) & ...
-                obj.Time <= datenum(obj.EndTime);
+                obj.TimeQC >= datenum(obj.StartTime) & ...
+                obj.TimeQC <= datenum(obj.EndTime);
         end
     end
 
@@ -348,70 +417,119 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
         % If frontend properties are set, update the backend and set any necessary
         % flags.
         function obj = set.TimeRaw(obj,value)
-            obj.TimeRaw_            = value;
-            obj.UpdateDownsamples 	= 'UpdateRequired';
+            stackDepth                  = 1;
+            obj.UpdateStack(stackDepth) = 1; % Set to 'Updating'
+            obj.TimeRaw_                = value;
+            obj.UpdateStack(stackDepth) = 0; % Set to 'Updated'
         end
         function obj = set.VelocityRaw(obj,value)
-            obj.VelocityRaw_        = value;
-            obj.UpdateDownsamples	= 'UpdateRequired';
+            stackDepth                  = 1;
+            obj.UpdateStack(stackDepth) = 1; % Set to 'Updating'
+            obj.VelocityRaw_            = value;
+            obj.UpdateStack(stackDepth) = 0; % Set to 'Updated'
         end
         function obj = set.FluxParameterRaw(obj,value)
-            obj.FluxParameterRaw_	= value;
-            obj.UpdateDownsamples   = 'UpdateRequired';
+            stackDepth                  = 1;
+            obj.UpdateStack(stackDepth) = 1; % Set to 'Updating'
+            obj.FluxParameterRaw_       = value;
+            obj.UpdateStack(stackDepth) = 0; % Set to 'Updated'
         end
 
         function obj = set.TimeDS(obj,value)
             obj.TimeDS_             = value;
-            obj.FlagTime            = obj.FlagTime.setNum(0,size(obj.TimeDS,1),size(obj.TimeDS,2));
-            obj.UpdateQC            = 'UpdateRequired';
+            obj.FlagTime            = DataKit.bitflag('AnalysisKit.Metadata.eddyFluxAnalysisDataFlag',obj.NSamplesDS,1);
         end
         function obj = set.VelocityDS(obj,value)
             obj.VelocityDS_        	= value;
-            obj.FlagVelocity        = obj.FlagVelocity.setNum(0,size(obj.VelocityDS,1),size(obj.VelocityDS,2));
-            obj.UpdateQC            = 'UpdateRequired';
+            obj.FlagVelocity        = DataKit.bitflag('AnalysisKit.Metadata.eddyFluxAnalysisDataFlag',obj.NSamplesDS,3);
         end
         function obj = set.FluxParameterDS(obj,value)
             obj.FluxParameterDS_	= value;
-            obj.FlagFluxParameter 	= obj.FlagFluxParameter.setNum(0,size(obj.FluxParameterDS,1),size(obj.FluxParameterDS,2));
-            obj.UpdateQC            = 'UpdateRequired';
+            obj.FlagFluxParameter 	= DataKit.bitflag('AnalysisKit.Metadata.eddyFluxAnalysisDataFlag',obj.NSamplesDS,obj.NFluxParameters);
         end
 
         function obj = set.TimeQC(obj,value)
-            obj.TimeQC_             = value;
-            obj.UpdateFluxes        = 'UpdateRequired';
+            obj.TimeQC_                         = value;
         end
         function obj = set.VelocityQC(obj,value)
-            obj.VelocityQC_         = value;
-            obj.UpdateFluxes        = 'UpdateRequired';
+            obj.VelocityQC_                     = value;
         end
         function obj = set.FluxParameterQC(obj,value)
-            obj.FluxParameterQC_	= value;
-            obj.UpdateFluxes        = 'UpdateRequired';
+            obj.FluxParameterQC_                = value;
+        end
+        
+        function obj = set.CoordinateSystemUnitVectorI(obj,value)
+            obj.CoordinateSystemUnitVectorI_  	= value;
+        end
+        function obj = set.CoordinateSystemUnitVectorJ(obj,value)
+            obj.CoordinateSystemUnitVectorJ_  	= value;
+        end
+        function obj = set.CoordinateSystemUnitVectorK(obj,value)
+            obj.CoordinateSystemUnitVectorK_  	= value;
+        end
+        function obj = set.TimeRS(obj,value)
+            obj.TimeRS_  	= value;
+        end
+        function obj = set.VelocityRS(obj,value)
+            obj.VelocityRS_  	= value;
+        end
+        function obj = set.FluxParameterRS(obj,value)
+            obj.FluxParameterRS_  	= value;
+        end
+        
+        function obj = set.VelocityDT(obj,value)
+            obj.VelocityDT_         = value;
+        end
+        function obj = set.FluxParameterDT(obj,value)
+            obj.FluxParameterDT_	= value;
+        end
+        function obj = set.VelocityDTMean(obj,value)
+            obj.VelocityDTMean_  	= value;
+        end
+        function obj = set.FluxParameterDTMean(obj,value)
+            obj.FluxParameterDTMean_	= value;
+        end
+        
+        function obj = set.UpdateStack(obj,value)
+            if ~isequal(obj.UpdateStack,value)
+                % If the UpdateStack is set (modified), set all stackDepths below the first change to 'UpdateRequired'
+                updateStackDepth           	= find(diff(cat(2,obj.UpdateStack_,value),1,2) == 2,1); % Status changes from Updated to UpdateRequired
+                value(updateStackDepth:end) = 2; % Set all stati downstream to UpdateRequired
+                obj.UpdateStack_            = value;
+            end
         end
     end
   	methods
-        function obj = set.SampleN(obj,value)
-            if ~obj.Initialized
-                obj.SampleN = value;
-            else
-                error('Dingi:GearKit:eddyFluxAnalysis:sampleNNotSetable',...
-                      'SampleN is only set once during object construction.')
-            end
-        end
         function obj = set.Downsamples(obj,value)
             validateattributes(value,{'numeric'},{'scalar','integer','positive','nonnan','finite'});
-            obj.Downsamples = value;
+            if ~isequal(obj.Downsamples,value)
+                obj.Downsamples = value;
+                stackDepth = 2;
+                obj.UpdateStack(stackDepth) = 2; % Set to UpdateRequired
+            end
         end
         function obj = set.CoordinateSystemRotationMethod(obj,value)
             obj.CoordinateSystemRotationMethod = validatestring(value,obj.ValidCoordinateSystemRotationMethods);
+            if ~isequal(obj.CoordinateSystemRotationMethod,value)
+                stackDepth = 4;
+                obj.UpdateStack(stackDepth) = 2; % Set to UpdateRequired
+            end
         end
         function obj = set.DetrendingMethod(obj,value)
             obj.DetrendingMethod = validatestring(value,obj.ValidDetrendingMethods);
+            if ~isequal(obj.DetrendingMethod,value)
+                stackDepth = 5;
+                obj.UpdateStack(stackDepth) = 2; % Set to UpdateRequired
+            end
         end
         function obj = set.WindowDuration(obj,value)
             validateattributes(value,{'duration'},{'scalar'});
             validateattributes(seconds(value),{'numeric'},{'positive','nonnan','finite'});
-            obj.WindowDuration = value;
+            if ~isequal(obj.WindowDuration,value)
+                obj.WindowDuration = value;
+                stackDepth = 4;
+                obj.UpdateStack(stackDepth) = 2; % Set to UpdateRequired
+            end
         end
     end
 end

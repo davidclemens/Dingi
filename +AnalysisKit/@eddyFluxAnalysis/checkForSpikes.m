@@ -1,6 +1,11 @@
 function checkForSpikes(obj)
 
     obj.despike
-
-    obj.replaceData('Spike')
+    
+    switch obj.DespikeMethod
+    	case 'none'
+            % Do nothing
+        otherwise
+            obj.replaceData('Spike')
+    end
 end

@@ -1,4 +1,4 @@
-function y = detrendLinear(x)
+function [y,meanValue] = detrendLinear(x)
 % DETRENDLINEAR    
 
     import GearKit.fitLinear

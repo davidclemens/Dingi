@@ -11,7 +11,8 @@ function varargout = runDownsampling(obj)
         printDebugMessage('Info','Downsampling raw data for %s ...',obj(oo).Parent.gearId)
         
         % Set update flag to updating
-        obj(oo).UpdateDownsamples = 'IsUpdating';
+        stackDepth  = 2;
+        obj(oo).UpdateStack(stackDepth) = 1;
 
         obj(oo).TimeDS              = downsample(obj(oo).TimeRaw,obj(oo).Downsamples);
         obj(oo).VelocityDS          = downsample(obj(oo).VelocityRaw,obj(oo).Downsamples);
@@ -22,7 +23,7 @@ function varargout = runDownsampling(obj)
         printDebugMessage('Info','Downsampling raw data for %s ... done',obj(oo).Parent.gearId)
 
         % Set update flag to updated
-        obj(oo).UpdateDownsamples = 'IsUpdated';
+        obj(oo).UpdateStack(stackDepth) = 0;
     end
     
     if nargout == 1
