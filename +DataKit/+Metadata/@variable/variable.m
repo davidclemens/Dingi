@@ -59,6 +59,9 @@ classdef variable < DataKit.enum
         Potassium                   (56,    'K',            'K',        'Potassium',                        'Concentration',    'mM',       'mmol(\sL(⁻¹|-1)|/L)',          NaN,    '')
         Zinc                        (57,    'Zn',           'Zn',       'Zinc',                             'Concentration',    'µM',       '(µ|u)mol(\sL(⁻¹|-1)|/L)',  	NaN,    '')
         DissolvedInorganicCarbon    (58,    'DIC',          'DIC',      'Carbon, inorganic, dissolved',   	'Concentration',    'µM',       '(µ|u)mol(\sL(⁻¹|-1)|/L)',  	NaN,    '')
+        Pitch                       (59,    'pitch',        'pitch',    'Pitch',                            '',                 '°',        '°|((d|D)eg(ree)?s?)',         	NaN,    '')
+        Roll                        (60,    'roll',         'roll',     'Roll',                             '',                 '°',        '°|((d|D)eg(ree)?s?)',         	NaN,    '')
+        Yaw                         (61,    'yaw',          'yaw',      'Yaw',                              '',                 '°',        '°|((d|D)eg(ree)?s?)',         	NaN,    '')
     end
     properties (SetAccess = 'immutable')
         Id uint16
