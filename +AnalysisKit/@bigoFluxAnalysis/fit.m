@@ -79,7 +79,15 @@ function obj = fit(obj,varargin)
                     'The fit type ''%s'' is not defined yet.',obj.FitType)
         end
 
-        [fitObj{ff},FitGOF{ff},FitOutput{ff}] = fit(xData,yData,FitType,fitOptions);
+        try
+            [fitObj{ff},FitGOF{ff},FitOutput{ff}] = fit(xData,yData,FitType,fitOptions);
+        catch ME
+            switch ME.identifier
+                case 'curvefit:fit:InsufficientData'
+                otherwise
+                    rethrow(ME);
+            end
+        end
     end
 
     obj.FitObjects  = fitObj;

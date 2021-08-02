@@ -40,7 +40,7 @@ function varargout = plotQualityControlStatistics(obj,fig)
         for row = 1:spny
             hax = hsp(spi(row,col));
             
-            flagCounts      = zeros(nFlags,3 + obj(oo).FluxParameterN);
+            flagCounts      = zeros(nFlags,3 + obj(oo).NFluxParameters);
             flagGroupLabels = {'u','v','w','O2 1','O2 2'};
             for ff = 1:nFlags
                 flagCounts(ff,1:3)    	= sum(isFlag(obj(oo).FlagVelocity,flagNames{ff}));

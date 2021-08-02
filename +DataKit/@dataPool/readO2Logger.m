@@ -28,7 +28,7 @@ function varargout = readO2Logger(obj,path)
     % extract serial number from filename
     measuringDevice                 = GearKit.measuringDevice();
     measuringDevice.Type            = 'O2Logger';
-    SN                              = regexp(rawHeader{1}{2},'SerNum\s:\s(\d+)$','tokens');
+    SN                              = regexp(rawHeader{1}{2},'SerNum\s:\s?(\d+)\s*$','tokens');
     measuringDevice.SerialNumber  	= SN{:}{:};
 
     variables               = {'Time','Oxygen','Temperature'};

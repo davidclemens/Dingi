@@ -5,6 +5,7 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
     properties (SetObservable)
         Name char = 'BigoFlux' % Analysis name
         Type char = 'Flux' % Analysis type
+        Parent = GearKit.bigoDeployment % Parent
         DeviceDomains GearKit.deviceDomain % The device domain(s) to be analysed
         
         Bigo GearKit.bigoDeployment
@@ -51,15 +52,16 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
         function obj = bigoFluxAnalysis(bigoDeployment,varargin)
                         
             import internal.stats.parseArgs
-            import AnalysisKit.bigoFluxAnalysis.handlePropertyChangeEvents
+            import GearKit.bigoDeployment
             
             % Parse Name-Value pairs
-            optionName          = {'deviceDomains','FitType','FitEvaluationInterval','TimeUnit'}; % valid options (Name)
-            optionDefaultValue  = {GearKit.deviceDomain.fromProperty('Abbreviation',{'Ch1';'Ch2'}),'linear',hours([0,4]),'h'}; % default value (Value)
+            optionName          = {'deviceDomains','FitType','FitEvaluationInterval','TimeUnit','Parent'}; % valid options (Name)
+            optionDefaultValue  = {GearKit.deviceDomain.fromProperty('Abbreviation',{'Ch1';'Ch2'}),'linear',hours([0,4]),'h',bigoDeployment}; % default value (Value)
             [deviceDomains,...
              fitType,...
              fitEvaluationInterval,...
-             timeUnit] = parseArgs(optionName,optionDefaultValue,varargin{:}); % parse function arguments
+             timeUnit,...
+             parent] = parseArgs(optionName,optionDefaultValue,varargin{:}); % parse function arguments
             
             % Input checks
             if ~isscalar(bigoDeployment)
@@ -71,10 +73,12 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
             obj = obj@AnalysisKit.analysis();
             
             % Add property listeners
-            addlistener(obj,'DeviceDomains','PostSet',@handlePropertyChangeEvents);
-            addlistener(obj,'TimeUnit','PostSet',@handlePropertyChangeEvents);
+            addlistener(obj,'DeviceDomains','PostSet',@AnalysisKit.bigoFluxAnalysis.handlePropertyChangeEvents);
+            addlistener(obj,'TimeUnit','PostSet',@AnalysisKit.bigoFluxAnalysis.handlePropertyChangeEvents);
             
             % Populate properties
+            validateattributes(parent,{'GearKit.bigoDeployment'},{});
+            obj.Parent                	= parent;
             obj.Bigo                    = bigoDeployment;
             obj.FitType                 = fitType;
             obj.FitEvaluationInterval  	= fitEvaluationInterval;

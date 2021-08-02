@@ -15,6 +15,9 @@ function obj = calculateFlux(obj)
     fluxes  = NaN(obj.NFits,numel(xq));
     confidenceInterval = NaN(obj.NFits,2);
     for ff = 1:obj.NFits
+        if isempty(obj.FitObjects{ff})
+            continue
+        end
         fluxes(ff,:)	= differentiate(obj.FitObjects{ff},xq); % dUnit/dt
 
         flux(ff,:)      = cellfun(@(func) func(fluxFactorParameter.*fluxFactorSource(ff).*fluxes(ff,:)),statisticalFunctions);

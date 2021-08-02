@@ -19,10 +19,16 @@ function setFitVariables(obj)
                    	 info{:,'WorldDomain'} == 'BenthicWaterColumn';
     end
     mask    = any(mask & ...
-                  info{:,'Type'} == 'Dependant' & ...
+                  info{:,'Type'} == 'Dependent' & ...
                   ismember({info{:,'Variable'}.Unit}','µM'), ...
               	2);
-    info    = info(mask,:);    
+	
+	if sum(mask) == 0
+        warning('Dingi:AnalysisKit:bigoFluxAnalysis:setFitVariables:noVariableFound',...
+            'There was no variable for fitting found.')
+	end
+    
+    info    = info(mask,:);
     
     % Set properties
     obj.NFits               = size(info,1);
