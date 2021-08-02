@@ -1,23 +1,46 @@
-function varargout = plotTracerPath(obj,fig)
+function varargout = plotTracerPath(obj,fig,varargin)
+    
+    import internal.stats.parseArgs
+    
+    % Parse inputs
+    optionName          = {'MovingMeanDuration','MarkerInterval'}; %   valid options (Name)
+    optionDefaultValue  = {seconds(5),minutes(10)}; %   default value (Value)
+    [movingMeanDuration,...
+     markerInterval ...
+    ]	= parseArgs(optionName,optionDefaultValue,varargin{:}); %   parse function arguments
     
     % Define anonymous functions
     makeVectorComplex   = @(vec) complex(vec(:,1),vec(:,2));
     getAngle            = @(vecA,vecB) rad2deg(real(log((vecB./vecA).*(abs(vecA)./abs(vecB)))./1i));
 
+    nObj    = numel(obj);
+    
     hfig    = figure(fig);
     set(hfig,...
         'Visible',      'on');
     clf
     
-    spnx                        = 4;
-    spny                        = numel(obj);
+    spnx                        = 5;
+    spny                        = nObj;
     spi                         = reshape(1:spnx*spny,spnx,spny)';
     
     hsp     = gobjects(spnx*spny,1);
     % Create axes
     for col = 1:spnx
         for row = 1:spny
-            hsp(spi(row,col))   = subplot(spny,spnx,spi(row,col),...
+            if col == 5
+                pax     = polaraxes;
+                hsp(spi(row,col))   = subplot(spny,spnx,spi(row,col),pax,...
+                                    'NextPlot',                 'add',...
+                                    'Layer',                    'top',...
+                                    'Box',                      'off',...
+                                    'TitleFontWeight',          'normal',...
+                                    'TickDir',                  'in',...
+                                    'FontSize',                 12,...
+                                    'ThetaZeroLocation',        'top',...
+                                    'ThetaDir',                 'clockwise');
+            else
+                hsp(spi(row,col))   = subplot(spny,spnx,spi(row,col),...
                                     'NextPlot',                 'add',...
                                     'Layer',                    'top',...
                                     'Box',                      'off',...
@@ -25,6 +48,7 @@ function varargout = plotTracerPath(obj,fig)
                                     'TickDir',                  'in',...
                                     'FontSize',                 12,...
                                     'LabelFontSizeMultiplier',  10/12);
+            end
         end
     end
     
@@ -32,26 +56,31 @@ function varargout = plotTracerPath(obj,fig)
     YLimits = NaN(1,2);
     RLimits = NaN(1,2);
     VLimits = zeros(1,2);
+    dRLimits = zeros(1,2);
+    dirLimits = NaN(1,2);
+    hcb = gobjects(spny,1);
     for row = 1:spny
         oo = row;
         
-        TData       = obj(oo).TimeDS;
-        VData       = movmean(obj(oo).VelocityQC(:,1:2),5*obj(oo).Frequency,1,'omitnan'); % 5 second moving mean velocity (m/s)
+        % TODO: Convert to Himmelsrichtungen
+        
+        TData       = datetime(obj(oo).TimeDS,'ConvertFrom','datenum');
+        VData       = movmean(obj(oo).VelocityQC(:,1:2),seconds(movingMeanDuration)*obj(oo).Frequency,1,'omitnan'); % 5 second moving mean velocity (m/s)
         dist        = makeVectorComplex(VData.*(1/obj(oo).Frequency)); % 5 second moving mean distance in (m)
-        speed       = movmean(abs(makeVectorComplex(obj(oo).VelocityQC(:,1:2))),15*60*obj(oo).Frequency,'omitnan'); % 15 minute moving mean velocity (m/s)
+        direction   = angle(dist); % 5 second moving mean current direction (radians)
+        speed       = movmean(abs(makeVectorComplex(obj(oo).VelocityQC(:,1:2))),seconds(movingMeanDuration)*obj(oo).Frequency,'omitnan'); % 5 second moving mean velocity (m/s)
         speedWarn   = speed < eval([obj(oo).FlagVelocity.EnumerationClassName,'.LowHorizontalVelocity.Threshold']);
         
         AData   = getAngle(dist(1:end - 1),dist(2:end)); % 5 second moving mean change in angle (deg)
-        AData   = movmean(AData,5*60/5,'omitnan'); % 5 minute moving mean change in angle (deg)
+        AData   = movmean(AData,1,'omitnan'); % 5 second moving mean change in angle (deg)
         XData   = cumsum(real(dist),'omitnan'); % 5 second moving mean x-position (m)
         YData   = cumsum(imag(dist),'omitnan'); % 5 second moving mean y-position (m)
 
         % Number of cumulative full rotations
-        RData   = cumsum(AData,'omitnan')./360; % 5 minute moving mean rotation (# full rotations)
-        dRData  = diff(RData).*obj(oo).Frequency*60; % 5 minute moving mean rotation rate (rpm)
+        RData   = cumsum(AData,'omitnan')./360; % 5 second moving mean rotation (# full rotations)
+        dRData  = diff(RData).*obj(oo).Frequency; % 5 second moving mean rotation rate (rpm)
         rotWarn = cat(1,abs(dRData) > eval([obj(oo).FlagVelocity.EnumerationClassName,'.HighCurrentRotationRate.Threshold']),false(2,1));
 
-        markerInterval = minutes(1);
         ind     = 1:obj(oo).Frequency*seconds(markerInterval):numel(XData);
 
         col = 1;
@@ -75,7 +104,13 @@ function varargout = plotTracerPath(obj,fig)
                 'MarkerEdgeColor',      'flat',...
                 'MarkerFaceColor',      'none');
 
-            colorbar(hax);
+            text(hax,XData(ind),YData(ind),cellstr(datestr(TData(ind),'HH:MM:SS')),...
+                'Color',                0.8.*ones(1,3),...
+                'VerticalAlignment',    'middle',...
+                'Clipping',             'on');
+            
+            hcb(row) = colorbar(hax);
+            hcb(row).Label.String = 'rotation rate (rpm)';
 
             title(hax,obj(oo).Parent.gearId,'Interpreter','none')
             xlabel(hax,'X (m)')
@@ -110,27 +145,51 @@ function varargout = plotTracerPath(obj,fig)
             scatter(hax,TData(~rotWarn(1:end - 2)),dRData(~rotWarn(1:end - 2)),'.k')
             scatter(hax,TData(rotWarn(1:end - 2)),dRData(rotWarn(1:end - 2)),'.b');
             
+            dRLimits = [min([dRLimits(1);dRData(:)]),max([dRLimits(2);dRData(:)])];
+            
             xlabel(hax,'time')
             ylabel(hax,'rotation rate (rpm)')
+            
+        col = 5;
+       	hax = hsp(spi(row,col));
+            hph = polarhistogram(hax,direction,36,...
+                'DisplayStyle',         'Stair',...
+                'Normalization',        'probability');
+%             polarscatter(hax,AData,speed(1:end - 1),'.k')
+            
+            dirLimits = [min([dirLimits(1);reshape(hph.BinCounts./sum(hph.BinCounts),[],1)]),max([dirLimits(2);reshape(hph.BinCounts./sum(hph.BinCounts),[],1)])];
     end
     
     set(hsp(spi(1:spny,1)),...
         'XLim',     XLimits,...
-        'YLim',     YLimits)
+        'YLim',     YLimits,...
+        'CLim',     RLimits)
     set(hsp(spi(1:spny,2)),...
         'YLim',     RLimits)
+    set(hcb,...
+        'Limits',  	RLimits)
     set(hsp(spi(1:spny,3)),...
         'YLim',     VLimits)
+    set(hsp(spi(1:spny,4)),...
+        'YLim',     dRLimits)
+    set(hsp(spi(1:spny,5)),...
+        'RLim',     dirLimits)
     
     iilnk = 1;
-    hlnk(iilnk) = linkprop(hsp(spi(1:spny,1)),{'XLim','YLim'});
+    hlnk(iilnk) = linkprop(hsp(spi(1:spny,1)),{'XLim','YLim','CLim'});
+    iilnk = iilnk + 1;
+    hlnk(iilnk) = linkprop(hcb,{'Limits'});
     iilnk = iilnk + 1;
     hlnk(iilnk) = linkprop(hsp(spi(1:spny,2)),{'YLim'});
     iilnk = iilnk + 1;
     hlnk(iilnk) = linkprop(hsp(spi(1:spny,3)),{'YLim'});
     iilnk = iilnk + 1;
+    hlnk(iilnk) = linkprop(hsp(spi(1:spny,4)),{'YLim'});
+    iilnk = iilnk + 1;
+    hlnk(iilnk) = linkprop(hsp(spi(1:spny,5)),{'RLim'});
+    iilnk = iilnk + 1;
     for row = 1:spny
-        hlnk(iilnk) = linkprop(hsp(spi(row,2:3)),{'XLim'});
+        hlnk(iilnk) = linkprop(hsp(spi(row,2:4)),{'XLim'});
         iilnk = iilnk + 1;
     end
     
