@@ -14,8 +14,7 @@ function calibrateMeasuringDevices(obj)
     % loop over all available calibration signals. A signal is a unique
     % calibration time-data pair for which calibration information exists.
     for sig = 1:nuSignals
-        
-        printDebugMessage('Verbose','Reading signal data %u of %u: %s (SN: %s) ...',sig,nuSignals,char(uSignals{sig,'MeasuringDevice'}.Type),char(uSignals{sig,'MeasuringDevice'}.SerialNumber))
+        printDebugMessage('Verbose','Reading signal data %u of %u: %s ...',sig,nuSignals,uSignals{sig,'MeasuringDevice'})
         
         % create logical indecies (LI) and indices (I)
         maskCalibration         = uSignalsInd == sig; % LI calibration table
@@ -41,12 +40,17 @@ function calibrateMeasuringDevices(obj)
         % sensor data first.
         noCalibrationDataAvailable  = isnan(obj.calibration{maskCalibration,'Signal'});
         if any(noCalibrationDataAvailable)
-            
+
             % Loop over the calibrations that need a signal value from the
             % data.
             for ii = 1:numel(noCalibrationDataAvailable)
+                calDataLimits   = obj.calibration{maskCalibrationInd(ii),{'CalibrationStart','CalibrationEnd'}};
+                
+                printDebugMessage('Verbose','Reading signal for calibration period %u [%s] ...',obj.calibration{maskCalibrationInd(ii),'CalibrationTimeId'},strjoin(cellstr(datestr(calDataLimits,'mm.dd.yyyy HH:MM:SS')),', '))
+
                 if ~noCalibrationDataAvailable(ii)
                     % Calibration data is available
+                    printDebugMessage('Verbose','Reading signal for calibration period %u [%s] ... Data already available. Skipped.',obj.calibration{maskCalibrationInd(ii),'CalibrationTimeId'},strjoin(cellstr(datestr(calDataLimits,'mm.dd.yyyy HH:MM:SS')),', '))
                     continue
                 end
                 
@@ -64,14 +68,17 @@ function calibrateMeasuringDevices(obj)
                 % write the mean signal over the calibration period to the calibration table
                 maskTime    = iData >= datenum(obj.calibration{maskCalibrationInd(ii),'CalibrationStart'}) & ...
                               iData <= datenum(obj.calibration{maskCalibrationInd(ii),'CalibrationEnd'});
+                iDataLimits	= datetime([min(iData),max(iData)],'ConvertFrom','datenum');
                 if sum(maskTime) == 0
-                    warning('Dingi:GearKit:gearDeployment:calibrateMeasuringDevices:noCalibrationSignalAvailable',...
-                        'No calibration signal data available for for the specified times.')
+                    printDebugMessage('Dingi:GearKit:gearDeployment:calibrateMeasuringDevices:noCalibrationSignalAvailable',...
+                        'Error','No calibration signal data available for the calibration period %u [%s] and data period [%s].',obj.calibration{maskCalibrationInd(ii),'CalibrationTimeId'},strjoin(cellstr(datestr(calDataLimits,'mm.dd.yyyy HH:MM:SS')),', '),strjoin(cellstr(datestr(iDataLimits,'mm.dd.yyyy HH:MM:SS')),', '))
                 elseif sum(diff(maskTime) == 1) < 1 || sum(diff(maskTime) == -1) < 1
-                    warning('Dingi:GearKit:gearDeployment:calibrateMeasuringDevices:incompleteCalibrationSignalCoverage',...
-                        'The calibration signal available doesn''t cover the entire calibration period.')
+                    printDebugMessage('Dingi:GearKit:gearDeployment:calibrateMeasuringDevices:incompleteCalibrationSignalCoverage',...
+                        'Error','The calibration signal available doesn''t cover the entire calibration period %u [%s]. Data period is [%s].',obj.calibration{maskCalibrationInd(ii),'CalibrationTimeId'},strjoin(cellstr(datestr(calDataLimits,'mm.dd.yyyy HH:MM:SS')),', '),strjoin(cellstr(datestr(iDataLimits,'mm.dd.yyyy HH:MM:SS')),', '))
                 end
                 obj.calibration{maskCalibrationInd(ii),'Signal'}    = nanmean(dData(maskTime));
+                
+                printDebugMessage('Verbose','Reading signal for calibration period %u [%s] ... done',obj.calibration{maskCalibrationInd(ii),'CalibrationTimeId'},strjoin(cellstr(datestr(calDataLimits,'mm.dd.yyyy HH:MM:SS')),', '))
             end
         end
 
@@ -134,6 +141,8 @@ function calibrateMeasuringDevices(obj)
             obj.data.setInfoProperty(pool(v),var(v),'VariableRaw',obj.data.Info(pool(v)).Variable(var(v)));
             obj.data.setInfoProperty(pool(v),var(v),'Variable',valueVariableInfo.EnumerationMemberName);
         end
+        
+        printDebugMessage('Verbose','Reading signal data %u of %u: %s ... done',sig,nuSignals,uSignals{sig,'MeasuringDevice'})
     end
     
     printDebugMessage('Info','Calibrating %s measuring device(s)... done',char(obj.gearType))
