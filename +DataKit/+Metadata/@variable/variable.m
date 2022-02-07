@@ -67,6 +67,10 @@ classdef variable < DataKit.enum
         BeamCorrelation3            (64,    'BC',           'BC',       'Beam correlation',                 '',                 '%',        '',                             NaN,    '')
         SigmaTheta                  (65,    'SigTh',        'σθ',      	'Sigma-Theta',                      'Density',          'kg m⁻³',  	'([Ss]igma[\s\-][Tt]heta)?[\,\s]{0,2}kg(\sm(⁻³|-3)|/m\^3)',      	NaN,    '')
         TimeJulian                  (66,    't',            't',      	'TimeJulian',                       '',                 'julian days',  	'[Jj]ulian\s[Dd]ay(|s)',      	NaN,    '')
+        Pitch                       (67,    'pitch',        'pitch',    'Pitch',                            '',                 '°',        '°|((d|D)eg(ree)?s?)',         	NaN,    '')
+        Roll                        (68,    'roll',         'roll',     'Roll',                             '',                 '°',        '°|((d|D)eg(ree)?s?)',         	NaN,    '')
+        Yaw                         (69,    'yaw',          'yaw',      'Yaw',                              '',                 '°',        '°|((d|D)eg(ree)?s?)',         	NaN,    '')
+        Heading                     (70,    'heading',      'heading',  'Heading',                          '',                 '°',        '°|((d|D)eg(ree)?s?)',         	NaN,    '')
     end
     properties (SetAccess = 'immutable')
         Id uint16

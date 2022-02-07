@@ -54,6 +54,7 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
         CoordinateSystemUnitVectorK (:,3) double
         TimeRS double % Segregated time
         VelocityRS double % Rotated & segregated velocity (m/s)
+        VelocityRSenu double % Rotated & segregated velocity (m/s) in ENU coordinate system
         FluxParameterRS double % Segregated flux parameter
         
         % Stack depth 5 (Detrending)
@@ -86,6 +87,8 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
 
         ObstacleAngles (:,1) double % The anticlockwise angle(s) seen from above the lander starting with 0° on the ADV x-axis, where obstacles (legs, sensors, etc.) are located.
         ObstacleSectorWidth (1,1) double = 5 % Sector width in degrees
+        
+        PitchRollHeading
     end
 
     % Backend
@@ -111,6 +114,7 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
         CoordinateSystemUnitVectorK_ (:,3) double
         TimeRS_ double % Segregated time
         VelocityRS_ double % Rotated & segregated velocity (m/s)
+        VelocityRSenu_ double % Rotated & segregated velocity (m/s) in ENU coordinate system
         FluxParameterRS_ double % Segregated flux parameter
         
         % Stack depth 5
@@ -159,8 +163,8 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
             import GearKit.ecDeployment
 
             % parse Name-Value pairs
-            optionName          = {'SNR','BeamCorrelation','WindowDuration','Downsamples','CoordinateSystemRotationMethod','DetrendingMethod','DespikeMethod','Start','End','ObstacleAngles','Parent'}; % valid options (Name)
-            optionDefaultValue  = {[],[],duration(0,30,0),2,'planar fit','moving mean','none',[],[],[],ecDeployment}; % default value (Value)
+            optionName          = {'SNR','BeamCorrelation','WindowDuration','Downsamples','CoordinateSystemRotationMethod','DetrendingMethod','DespikeMethod','Start','End','ObstacleAngles','Parent','PitchRollHeading'}; % valid options (Name)
+            optionDefaultValue  = {[],[],duration(0,30,0),2,'planar fit','moving mean','none',[],[],[],ecDeployment,zeros(1,3)}; % default value (Value)
             [snr,...
              beamCorrelation,...
              windowDuration,...
@@ -171,7 +175,8 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
              startTime,...
              endTime,...
              obstacleAngles,...
-             parent...
+             parent,...
+             pitchRollHeading,...
              ]	= parseArgs(optionName,optionDefaultValue,varargin{:}); % parse function arguments
 
             % call superclass constructor
@@ -186,6 +191,7 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
             obj.DetrendingMethod                = validatestring(detrendingMethod,obj.ValidDetrendingMethods);
             obj.DespikeMethod                   = validatestring(despikeMethod,obj.ValidDespikingMethods);
             obj.ObstacleAngles                  = obstacleAngles;
+            obj.PitchRollHeading                = pitchRollHeading;
 
             if isempty(startTime)
                 obj.StartTime   = datetime(time(1),'ConvertFrom','datenum');
@@ -265,6 +271,8 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
         [i,j] = csPlanarFitUnitVectorIJ(U1,k)
 
         varargout = plotPhaseSpace(x,dx,d2x,uniCrit,theta)
+        
+        ENU = xyz2enu(XYZ,pitch,roll,heading)
     end
 
     % Get methods
@@ -342,6 +350,11 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
             stackDepth = 4;
             obj.checkUpdateStack(stackDepth)
             velocityRS = obj.VelocityRS_;  
+        end
+        function velocityRSenu = get.VelocityRSenu(obj)
+            stackDepth = 4;
+            obj.checkUpdateStack(stackDepth)
+            velocityRSenu = obj.VelocityRSenu_;  
         end
         function fluxParameterRS = get.FluxParameterRS(obj)
             stackDepth = 4;
@@ -472,6 +485,9 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
         end
         function obj = set.VelocityRS(obj,value)
             obj.VelocityRS_  	= value;
+        end
+        function obj = set.VelocityRSenu(obj,value)
+            obj.VelocityRSenu_ 	= value;
         end
         function obj = set.FluxParameterRS(obj,value)
             obj.FluxParameterRS_  	= value;

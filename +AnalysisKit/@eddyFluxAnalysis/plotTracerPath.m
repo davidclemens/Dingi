@@ -3,10 +3,11 @@ function varargout = plotTracerPath(obj,fig,varargin)
     import internal.stats.parseArgs
     
     % Parse inputs
-    optionName          = {'MovingMeanDuration','MarkerInterval'}; %   valid options (Name)
-    optionDefaultValue  = {seconds(5),minutes(10)}; %   default value (Value)
+    optionName          = {'MovingMeanDuration','MarkerInterval','UseENU'}; %   valid options (Name)
+    optionDefaultValue  = {seconds(5),minutes(10),true}; %   default value (Value)
     [movingMeanDuration,...
-     markerInterval ...
+     markerInterval,...
+     useENU...
     ]	= parseArgs(optionName,optionDefaultValue,varargin{:}); %   parse function arguments
     
     % Define anonymous functions
@@ -65,10 +66,17 @@ function varargout = plotTracerPath(obj,fig,varargin)
         % TODO: Convert to Himmelsrichtungen
         
         TData       = datetime(obj(oo).TimeDS,'ConvertFrom','datenum');
-        VData       = movmean(obj(oo).VelocityQC(:,1:2),seconds(movingMeanDuration)*obj(oo).Frequency,1,'omitnan'); % 5 second moving mean velocity (m/s)
+        if useENU
+            VData    = reshape(obj(oo).VelocityRSenu(:,:,1:2),[],2);
+        else
+            VData    = reshape(obj(oo).VelocityRS(:,:,1:2),[],2);
+%             VData    = obj(oo).VelocityQC(:,1:2);
+        end
+        VData       = VData(1:obj(oo).NSamplesDS,:); % Remove NaN padding if necessary
+        VData       = movmean(VData,seconds(movingMeanDuration)*obj(oo).Frequency,1,'omitnan'); % 5 second moving mean velocity (m/s)
         dist        = makeVectorComplex(VData.*(1/obj(oo).Frequency)); % 5 second moving mean distance in (m)
         direction   = angle(dist); % 5 second moving mean current direction (radians)
-        speed       = movmean(abs(makeVectorComplex(obj(oo).VelocityQC(:,1:2))),seconds(movingMeanDuration)*obj(oo).Frequency,'omitnan'); % 5 second moving mean velocity (m/s)
+        speed       = movmean(abs(makeVectorComplex(VData)),seconds(movingMeanDuration)*obj(oo).Frequency,'omitnan'); % 5 second moving mean velocity (m/s)
         speedWarn   = speed < eval([obj(oo).FlagVelocity.EnumerationClassName,'.LowHorizontalVelocity.Threshold']);
         
         AData   = getAngle(dist(1:end - 1),dist(2:end)); % 5 second moving mean change in angle (deg)
@@ -113,8 +121,13 @@ function varargout = plotTracerPath(obj,fig,varargin)
             hcb(row).Label.String = 'rotation rate (rpm)';
 
             title(hax,obj(oo).Parent.gearId,'Interpreter','none')
-            xlabel(hax,'X (m)')
-            ylabel(hax,'Y (m)')
+            if useENU
+                xlabel(hax,'E (m)')
+                ylabel(hax,'N (m)')
+            else
+                xlabel(hax,'X (m)')
+                ylabel(hax,'Y (m)')
+            end
             
             set(hax,...
                 'DataAspectRatio',          ones(1,3))

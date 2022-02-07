@@ -6,6 +6,11 @@ function [func,varargout] = fitLinear(predictor,response)
     % linear model: Y = beta0 + beta1*X1 + beta2*X2
     %         (depVar = beta0 + beta1*indVar1 + beta2*indVar2)
     %          (valueQ = beta0 + beta1*timeQ + beta2*signalQ)
+    
+    responseIsNaN   = isnan(response);
+    predictor       = predictor(~responseIsNaN,:);
+    response        = response(~responseIsNaN,:);
+    
     linCoeff        = [ones(size(predictor,1),1),predictor]\response;
     func            = @(predictor) [ones(size(predictor,1),1),predictor]*linCoeff;
     varargout{1}	= linCoeff;

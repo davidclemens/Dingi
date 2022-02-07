@@ -27,7 +27,7 @@ function varargout = readNortekVector(obj,path)
         'VariableMeasuringDevice',	variableMeasuringDevice);
 
     % Add slow variables
-    variables               = {'Time','Pitch','Roll','Yaw','Temperature','Voltage'};
+    variables               = {'Time','Pitch','Roll','Heading','Temperature','Voltage'};
     data                    = cat(2,seconds(vec.timeSlow - vec.timeSlow(1)),vec.compass(:,2),vec.compass(:,3),vec.compass(:,1),vec.temperature,vec.batteryVoltage);
     variableType            = {'Independent','Dependent','Dependent','Dependent','Dependent','Dependent'};
     variableOrigin          = {vec.timeSlow(1), 0, 0, 0, 0, 0};
