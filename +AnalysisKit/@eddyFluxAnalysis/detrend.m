@@ -1,41 +1,31 @@
-function obj = detrend(obj,varargin)
+function varargout = detrend(obj,varargin)
 % DETREND
 
-                        
-    % parse Name-Value pairs
-    optionName          = {'DetrendFluxParameter','DetrendVerticalVelocity'}; % valid options (Name)
-    optionDefaultValue  = {true,true}; % default value (Value)
-    [DetrendFluxParameter,...
-     DetrendVerticalVelocity,...
-    ]	= internal.stats.parseArgs(optionName,optionDefaultValue,varargin{:}); % parse function arguments
+	import internal.stats.parseArgs
+    import AnalysisKit.eddyFluxAnalysis.detrendMeanRemoval
+    import AnalysisKit.eddyFluxAnalysis.detrendLinear
+    import AnalysisKit.eddyFluxAnalysis.detrendMovingMean
+    
+    nargoutchk(0,1)
 
-	switch obj.detrendingMethod
-        case 'none'
-            
-        case 'mean removal'
-            if DetrendFluxParameter
-                obj.fluxParameter_ = detrendMeanRemoval(obj.fluxParameter);
-            end
-            if DetrendVerticalVelocity
-                obj.w_ = detrendMeanRemoval(obj.velocity(:,:,3));
-            end
-        case 'linear'
-            if DetrendFluxParameter
-                obj.fluxParameter_ = detrendLinear(obj.fluxParameter);
-            end
-            if DetrendVerticalVelocity
-                obj.w_ = detrendLinear(obj.velocity(:,:,3));
-            end            
-        case 'moving mean'
-            window = round(1*obj.windowN);
-            if DetrendFluxParameter
-                obj.fluxParameter_ = detrendMovingMean(obj.fluxParameter,window);
-            end
-            if DetrendVerticalVelocity
-                obj.w_ = detrendMovingMean(obj.velocity(:,:,3),window);
-            end 
-        otherwise
-            error('Dingi:GearKit:eddyFluxAnalysis:detrend:unknownDetrendingMethod',...
-                '''%s'' is not a valid detrending method.',obj.detrendingMethod)
-	end
+    parameters = {'Velocity','FluxParameter'};
+    nParameters = numel(parameters);
+    
+    for pp = 1:nParameters
+        switch obj.DetrendingMethod
+            case 'mean removal'
+                [x,meanValue] = detrendMeanRemoval(obj.([parameters{pp},'RS']));
+            case 'linear'
+                [x,meanValue] = detrendLinear(obj.([parameters{pp},'RS']));
+            case 'moving mean'
+                window = obj.NSamplesPerWindow/2;
+                [x,meanValue] = detrendMovingMean(obj.([parameters{pp},'RS']),window);
+        end
+        obj.([parameters{pp},'DT']) = x;
+        obj.([parameters{pp},'DTMean']) = meanValue;
+    end
+    
+    if nargout == 1
+        varargout{1} = obj;
+    end
 end

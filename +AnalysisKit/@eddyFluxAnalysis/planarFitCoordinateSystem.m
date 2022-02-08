@@ -1,4 +1,6 @@
-function obj = planarFitCoordinateSystem(obj)
+function varargout = planarFitCoordinateSystem(obj)
+    
+    nargoutchk(0,1)
     
     nObj    = numel(obj);
   	if nObj > 1
@@ -9,9 +11,9 @@ function obj = planarFitCoordinateSystem(obj)
   	fitLinear(obj)
 
     % wilczak’s routine
-    u       = (obj.velocity(:,1))';
-    v       = (obj.velocity(:,2))';
-    w       = (obj.velocity(:,3))';
+    u       = (obj.Velocity(:,1))';
+    v       = (obj.Velocity(:,2))';
+    w       = (obj.Velocity(:,3))';
     flen	= length(u);
     
     su  = sum(u);
@@ -38,5 +40,7 @@ function obj = planarFitCoordinateSystem(obj)
     j = j/(sum(j.*j))^0.5;
     i = cross(j,k);
     
-    
+    if nargout == 1
+        varargout{1} = obj;
+    end
 end

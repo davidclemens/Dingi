@@ -26,8 +26,13 @@ classdef hardwareConfiguration < handle
             DeviceDomains.DeviceDomain      = cat(1,MeasuringDevices.DeviceDomain);
             DeviceDomains.WorldDomain       = cat(1,MeasuringDevices.WorldDomain);
             DeviceDomains.MeasuringDevice   = MeasuringDevices;
-            DeviceDomains   = sortrows(DeviceDomains,{'DeviceDomain'})
+            DeviceDomains                   = sortrows(DeviceDomains,{'DeviceDomain'});
             
+            DeviceDomains   = outerjoin(DeviceDomains,obj.DeviceDomainMetadata,...
+                                'LeftKeys',         {'DeviceDomain'},...
+                                'RightKeys',        {'DeviceDomain'},...
+                                'MergeKeys',        true,...
+                                'Type',             'left');
         end
     end
 end

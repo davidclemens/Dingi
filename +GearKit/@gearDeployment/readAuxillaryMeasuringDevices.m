@@ -7,7 +7,7 @@ function readAuxillaryMeasuringDevices(obj)
     printDebugMessage('Info','Reading auxillary measuring device(s)...')
     
     dirList           	= dir([obj.dataFolderInfo.dataFolder,'/AuxSensor_*']);
-	tmpMetadata       	= regexp({dirList.name},'AuxSensor_(\w+)_(\w+)','tokens');
+	tmpMetadata       	= regexp({dirList.name},'^AuxSensor_(\w+)_(\w+)','tokens');
     tmpMetadata        	= cat(1,tmpMetadata{:});
     tmpMetadata        	= cat(1,tmpMetadata{:});
     measuringUnitTypes	= tmpMetadata(:,1);

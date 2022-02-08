@@ -13,6 +13,7 @@ function varargout = importData(obj,importType,path)
             readHoboLightLogger(obj,path);
         case 'SeabirdCTD'
             readSeabirdCTD(obj,path);
+%             deriveCTDVariables(obj)
         case 'O2Logger'
             readO2Logger(obj,path);
         case 'NortekVector'
@@ -26,4 +27,21 @@ function varargout = importData(obj,importType,path)
     if nargout == 1
         varargout{1} = obj;
     end
+    
+%     function deriveCTDVariables(obj)
+%         for pool = 1:obj.PoolCount
+%             variables = obj.Index{obj.Index{:,'DataPool'} == pool,'Variable'};
+%             varIndPressure = obj.Index{variables == 'Pressure','VariableIndex'};
+%             varIndSalinity = obj.Index{variables == 'Salinity','VariableIndex'};
+%             
+%             
+%             pressure = obj.fetchVariableData(pool,varIndPressure);
+%             salinity = obj.fetchVariableData(pool,varIndSalinity);
+%             
+%             for ii = 1:numel(salinity)
+%                 SA = gsw_SA_from_SP(salinity{ii},pressure)
+%             end
+%         end
+%         gsw_sigma0
+%     end
 end

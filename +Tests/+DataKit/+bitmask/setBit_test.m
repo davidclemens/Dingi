@@ -86,12 +86,26 @@ classdef (SharedTestFixtures = { ...
             
             import DataKit.bitmask
             
+            % Scenario A
             bm = bitmask(1,1,64);
             
-            act = bm.setBit(64,0,1,1);
+            bm = bm.setBit(64,0,1,1);
             exp = zeros(1,'uint64');
+            act = bm.Bits;
             
-            testCase.verifyEqual(act.Bits,exp);
+            testCase.verifyEqual(act,exp);
+            
+            % Scenario B
+            bm = DataKit.bitmask(zeros(10,10));
+            bm = bm.setBit(9,1,1,1);
+            bm = bm.setBit(3,1,2,1);
+            exp = zeros(10,10,'uint16');
+            exp(1,1) = 256;
+            exp(2,1) = 4;
+            
+            act = bm.Bits;
+            
+            testCase.verifyEqual(act,exp);
         end
         function testSetBit(testCase,bit,highlow,dim)
             

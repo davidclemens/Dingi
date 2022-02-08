@@ -1,32 +1,34 @@
-function [i,j,k] = csUnitVectors(obj)
+function varargout = rotateCoordinateSystem(obj)
 % CSUNITVECTORS
 
     import AnalysisKit.eddyFluxAnalysis.csPlanarFitUnitVectorK
     import AnalysisKit.eddyFluxAnalysis.csPlanarFitUnitVectorIJ
     
-    switch obj.coordinateSystemRotationMethod
+    nargoutchk(0,1)
+    
+    switch obj.CoordinateSystemRotationMethod
         case 'none'
-            i   = [1 0 0];
-            j   = [0 1 0];
-            k   = [0 0 1];
+            i   = repmat([1 0 0],obj.NWindows,1);
+            j   = repmat([0 1 0],obj.NWindows,1);
+            k   = repmat([0 0 1],obj.NWindows,1);
         case 'planar fit'            
             % find the mean velocities for each window
-            velocityMean    = shiftdim(nanmean(reshape(shiftdim(cat(1,obj.velocityDownsampled,NaN(obj.windowPaddingLength,3)),-1),obj.windowLength,obj.windowN + 1,[]),1));
+            velocityMean    = shiftdim(nanmean(reshape(shiftdim(cat(1,obj.VelocityQC,NaN(obj.NSamplesWindowsPadding,3)),-1),obj.NSamplesPerWindow,obj.NWindows + 1,[]),1));
             
             % first find the unit vector k (Z-Axis) over all windows of the timeseries
             [k,~]   = csPlanarFitUnitVectorK(velocityMean);
-            k       = repmat(k,obj.windowN + 1,1);
+            k       = repmat(k,obj.NWindows + 1,1);
             
             % now find the unit vectors i (x axis) and j (y axis) which change for each
             % window
-            i       = NaN(obj.windowN,3);
-            j       = NaN(obj.windowN,3);
-            for win = 1:obj.windowN + 1
+            i       = NaN(obj.NWindows + 1,3);
+            j       = NaN(obj.NWindows + 1,3);
+            for win = 1:obj.NWindows + 1
                 [i(win,:),j(win,:)]   = csPlanarFitUnitVectorIJ(velocityMean(win,:),k(win,:));
             end
         otherwise
             error('Dingi:GearKit:eddyFluxAnalysis:csUnitVectors:unknownCoordinateSystemRotationMethod',...
-                'The coordinate system rotation method ''%s'' is not defined.',obj.coordinateSystemRotationMethod)
+                'The coordinate system rotation method ''%s'' is not defined.',obj.CoordinateSystemRotationMethod)
             %{
             figure(3)
             clf
@@ -86,5 +88,13 @@ function [i,j,k] = csUnitVectors(obj)
                     view(3)
             end
             %}
+    end
+    
+    obj.CoordinateSystemUnitVectorI = i;
+    obj.CoordinateSystemUnitVectorJ = j;
+    obj.CoordinateSystemUnitVectorK = k;
+    
+    if nargout == 1
+        varargout{1} = obj;
     end
 end

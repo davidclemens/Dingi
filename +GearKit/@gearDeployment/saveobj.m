@@ -1,4 +1,6 @@
 function s = saveobj(obj)
+    
+    import DebuggerKit.Debugger.printDebugMessage
 
     metadata = eval(['?',class(obj)]);
     
@@ -6,9 +8,11 @@ function s = saveobj(obj)
     needsSaving     = find(~any(cat(2,cat(1,metadata.PropertyList.Transient),...
                                 cat(1,metadata.PropertyList.Constant),...
                                 cat(1,metadata.PropertyList.Dependent)),2));
-    
+    nProperties     = numel(needsSaving);
     s = struct();
-    for pp = 1:numel(needsSaving)
+    for pp = 1:nProperties
+        printDebugMessage('Verbose','Saving property %u of %u: ''%s''...',pp,nProperties,propertyNames{needsLoading(pp)})
+        
         s.(propertyNames{needsSaving(pp)}) = obj.(propertyNames{needsSaving(pp)});
     end
     s.saveDate = datetime('now');

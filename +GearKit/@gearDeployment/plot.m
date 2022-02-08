@@ -84,7 +84,7 @@ function varargout = plot(obj,variables,varargin)
     cmap                        = cmap(2:end,:); % remove red
 
     %   parse Name-Value pairs
-    optionName          = {'FigureNameValue','AxisNameValue','DataDomain','LegendVisible','MarginOuter','MarginInner','RelativeTime','DimOutliers','DeploymentDataOnly','TimeOfInterestDataOnly'}; %   valid options (Name)
+    optionName          = {'FigureNameValue','AxisNameValue','DeviceDomain','LegendVisible','MarginOuter','MarginInner','RelativeTime','DimOutliers','DeploymentDataOnly','TimeOfInterestDataOnly'}; %   valid options (Name)
     optionDefaultValue  = {{'Name',                 'gear deployments',...
                             'Menubar',              Menubar,...
                             'Toolbar',              'auto',...
@@ -109,7 +109,7 @@ function varargout = plot(obj,variables,varargin)
                             false}; %   default value (Value)
     [FigureNameValue,...
      AxesNameValue,...
-     DataDomain,...
+     DeviceDomain,...
      LegendVisible,...
      MarginOuter,...
      MarginInner,...
@@ -140,7 +140,7 @@ function varargout = plot(obj,variables,varargin)
                   'The requested parameter has to be specified as a char, cellstr or numeric vector.')
         end
     end
-    variables   = variableInfo(variableIsValid).EnumerationMemberName;
+    variables   = cat(1,variableInfo(variableIsValid).EnumerationMemberName);
     im          = ismember(cellstr(variables),plotVariablesAvailableInfo{:,'Name'});
     if ~all(im)
         error('Dingi:GearKit:GearDeployment:plot:invalidVariables',...
@@ -163,6 +163,7 @@ function varargout = plot(obj,variables,varargin)
     spi                         = reshape(1:spnx*spny,spnx,spny)';
 
     parameterNotInDeployment    = false(spny,spnx);
+    xLabelString                = repmat({''},spny,spnx);
     yLabelString                = repmat({''},spny,spnx);
     titleString                 = repmat({''},spny,spnx);
     for col = 1:spnx
@@ -170,6 +171,10 @@ function varargout = plot(obj,variables,varargin)
         for row = 1:spny
             v     = row;
             hsp(spi(row,col))   = subplot(spny,spnx,spi(row,col),AxesNameValue{:});
+
+                xLabelString{row,col}	= '';
+                yLabelString{row,col}	= [char(variableInfo(v).Abbreviation),'\color[rgb]{0.6 0.6 0.6} (',char(variableInfo(v).Unit),')'];
+                titleString{row,col} 	= strjoin([cellstr(obj(gear).cruise),cellstr(obj(gear).gear)],' ');
                 try
                     data    = obj(gear).fetchData(variables(v),...
                                 'DeploymentDataOnly',       DeploymentDataOnly,...
@@ -178,20 +183,23 @@ function varargout = plot(obj,variables,varargin)
                                 'GroupBy',                  'MeasuringDevice');
                 catch ME
                     switch ME.identifier
-                        case 'Dingi:GearKit:gearDeployment:gd:invalidParameter'
+                        case 'Dingi:DataKit:dataPool:fetchData:requestedVariableIsUnavailable'
                             parameterNotInDeployment(row,col) = true;
+                            continue
                         otherwise
                             rethrow(ME)
                     end
                 end
+                independentVariable     = unique([data.IndepInfo.Variable{:}]);
+                xLabelString{row,col}	= [char(independentVariable),'\color[rgb]{0.6 0.6 0.6} (',RelativeTime,')'];
 
-
-                if ~isempty(DataDomain)
-                    maskDataDomain  = cat(1,data.DependentInfo.MeasuringDevice.WorldDomain) == DataDomain;
-                    data.IndependentVariables               = data.IndependentVariables(maskDataDomain,:);
-                    data.DependentVariables                 = data.DependentVariables(maskDataDomain,:);
-                    data.IndependentInfo.MeasuringDevice    = data.IndependentInfo.MeasuringDevice(maskDataDomain);
-                    data.DependentInfo.MeasuringDevice      = data.DependentInfo.MeasuringDevice(maskDataDomain);
+                if ~isempty(DeviceDomain)
+                    availableDeviceDomains = cat(1,data.DepInfo.MeasuringDevice.DeviceDomain);
+                    maskDataDomain  = ismember(availableDeviceDomains,DeviceDomain) | ...
+                                      ismember({availableDeviceDomains.Abbreviation}',DeviceDomain);
+                    data.IndepData                  = data.IndepData(maskDataDomain,:);
+                    data.DepData                    = data.DepData(maskDataDomain,:);
+                    data.DepInfo.MeasuringDevice  	= data.DepInfo.MeasuringDevice(maskDataDomain);
                 end
 
                 iihp    = 1;
@@ -239,7 +247,7 @@ function varargout = plot(obj,variables,varargin)
     titleString     = titleString(cumsum(~cellfun(@isempty,titleString),1) == 1);
 
     %   set appearance and labels
-    set([hsp(spi(1,:)).Title],...
+    set(cat(1,hsp(spi(1,:)).Title),...
         {'String'},      titleString(:))
 
     for col = 1:spnx
@@ -276,10 +284,10 @@ function varargout = plot(obj,variables,varargin)
                 text(hsp(spi(row,col)),0.5,0.5,'no data',...
                     'Units',                'normalized',...
                     'HorizontalAlignment',  'center',...
-                    'FontSize',             FontSize*LabelFontSizeMultiplier)
+                    'FontSize',             hsp(spi(row,col)).FontSize*hsp(spi(row,col)).LabelFontSizeMultiplier)
             end
             if row == spny
-                xlabel(hsp(spi(row,col)),['time\color[rgb]{0.6 0.6 0.6} (',RelativeTime,')'])
+                xlabel(hsp(spi(row,col)),xLabelString{row,col})
             end
         end
     end
@@ -288,6 +296,7 @@ function varargout = plot(obj,variables,varargin)
     iilnk   = 1;
     for row = 1:spny
         YLim            = cellfun(@(lim) lim + [-1 1].*0.05.*range(lim),getDataLimits(hp(:,spi(row,:)),'Y'),'un',0);
+        YLim(cellfun(@(x) any(isnan(x)),YLim)) = {[0 1]};
         set(hsp(spi(row,:)),...
             {'YLim'},   repmat(YLim,size(hsp(spi(row,:))))')
 
@@ -296,6 +305,7 @@ function varargout = plot(obj,variables,varargin)
     end
     for col = 1:spnx
         XLim            = cellfun(@(lim) lim + [-1 1].*0.05.*range(lim),getDataLimits(hp(:,spi(:,col)),'X'),'un',0);
+        XLim(cellfun(@(x) any(isnan(x)),XLim)) = {[0 1]};
         set(hsp(spi(:,col)),...
             {'XLim'},   repmat(XLim,size(hsp(spi(:,col))))')
 

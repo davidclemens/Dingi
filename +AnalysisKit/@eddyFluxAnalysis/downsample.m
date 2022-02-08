@@ -3,6 +3,11 @@ function y = downsample(x,N)
 
     validateattributes(N,{'numeric'},{'scalar','integer','nonzero','positive'});
     
+    if N == 1
+        y = x;
+        return
+    end
+    
     n       = size(x,1);
     indEnd  = n - mod(n,N);
     ind     = 1:indEnd;

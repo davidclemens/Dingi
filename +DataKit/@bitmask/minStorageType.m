@@ -5,5 +5,9 @@ function storageType = minStorageType(obj,A)
         'Invalid number of inputs.')
     end
     
-    storageType = obj.validStorageTypeNames{find(nextpow2(max(cat(1,uint64(0),uint64(A(:)))) + 1) <= 2.^(3:6),1)};
+%     currentStorageType  = 2^(uint64(obj.StorageType)) - 1;
+    currentMaxNumber    = uint64(max(obj.Bits(:)));
+    minStorageType      = uint64(0);
+    newDataStorageType  = uint64(A(:));
+    storageType = obj.validStorageTypeNames{find(nextpow2(max(cat(1,minStorageType,currentMaxNumber,newDataStorageType)) + 1) <= 2.^(3:6),1)};
 end

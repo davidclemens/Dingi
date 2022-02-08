@@ -1,5 +1,8 @@
 function obj = loadobj(s)
 
+    import DebuggerKit.Debugger.printDebugMessage
+    
+    
     switch s.gearType
         case 'BIGO'
             obj         = GearKit.bigoDeployment();
@@ -16,8 +19,11 @@ function obj = loadobj(s)
     needsLoading    = find(~any(cat(2,cat(1,metadata.PropertyList.Transient),...
                                 cat(1,metadata.PropertyList.Constant),...
                                 cat(1,metadata.PropertyList.Dependent)),2));
-
-    for pp = 1:numel(needsLoading)
+    nProperties     = numel(needsLoading);
+                            
+    for pp = 1:nProperties
+        printDebugMessage('Verbose','Loading property %u of %u: ''%s''...',pp,nProperties,propertyNames{needsLoading(pp)})
+        
         obj.(propertyNames{needsLoading(pp)}) = s.(propertyNames{needsLoading(pp)});
     end
 
@@ -28,11 +34,11 @@ function obj = loadobj(s)
         % versions are equal
     elseif deltaVersion == 1
         % currentVersion > savedVersion
-        warning('Dingi:GearKit:gearDeployment:loadobj:olderSavedVersion',...
-            'The %s deployment was saved with an older toolbox version (%s) than the current one (%s).',char(obj.gearType),savedVersion,currentVersion)
+        printDebugMessage('Dingi:GearKit:gearDeployment:loadobj:olderSavedVersion',...
+            'Warning','The %s deployment was saved with an older toolbox version (%s) than the current one (%s).',char(obj.gearType),savedVersion,currentVersion)
     elseif deltaVersion == -1
         % currentVersion < savedVersion
-        warning('Dingi:GearKit:gearDeployment:loadobj:newerSavedVersion',...
-            'The %s deployment was saved with a newer toolbox version (%s) than the current one (%s).',char(obj.gearType),savedVersion,currentVersion)
+        printDebugMessage('Dingi:GearKit:gearDeployment:loadobj:newerSavedVersion',...
+            'Warning','The %s deployment was saved with a newer toolbox version (%s) than the current one (%s).',char(obj.gearType),savedVersion,currentVersion)
     end
 end

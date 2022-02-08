@@ -83,12 +83,10 @@ classdef Debugger < handle
             obj.ShowStack = showStack;
             obj.TruncateMultiline = truncateMultiline;
             
-            % Make this instance the global Debugger if none exists
-            global DEBUGGER
-            if isempty(DEBUGGER)
-                evalin('caller','global DEBUGGER')
-                assignin('caller','DEBUGGER',obj)
-            end
+            % Make this instance the global Debugger
+            clearvars -global DEBUGGER
+            evalin('caller','global DEBUGGER')
+            assignin('caller','DEBUGGER',obj)
         end
     end
     
