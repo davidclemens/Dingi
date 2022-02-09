@@ -2,6 +2,11 @@ function obj = loadobj(s)
 
     import DebuggerKit.Debugger.printDebugMessage
     
+    % Check that a struct is loaded
+    if ~isstruct(s)
+        error('Dingi:GearKit:gearDeployment:loadobj:invalidVariableType',...
+            'Invalid variable type.')
+    end
     
     switch s.gearType
         case 'BIGO'
