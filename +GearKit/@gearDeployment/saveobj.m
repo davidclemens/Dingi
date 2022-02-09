@@ -11,7 +11,7 @@ function s = saveobj(obj)
     nProperties     = numel(needsSaving);
     s = struct();
     for pp = 1:nProperties
-        printDebugMessage('Verbose','Saving property %u of %u: ''%s''...',pp,nProperties,propertyNames{needsLoading(pp)})
+        printDebugMessage('Verbose','Saving property %u of %u: ''%s''...',pp,nProperties,propertyNames{needsSaving(pp)})
         
         s.(propertyNames{needsSaving(pp)}) = obj.(propertyNames{needsSaving(pp)});
     end
