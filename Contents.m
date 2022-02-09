@@ -1,5 +1,5 @@
 % DINGI
-% Version 0.1b1 29-Oct-2020
+% Version 0.1.0b1 29-Oct-2020
 %
 % Dingi
 %   AnalysisKit - analyse your data

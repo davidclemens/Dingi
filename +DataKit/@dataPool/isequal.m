@@ -8,7 +8,9 @@ function tf = isequal(A,B)
     
     metadata        = eval(['?',class(A)]);
     propertyNames   = {metadata.PropertyList.Name}';
-    needsComparing  = find(~cat(1,metadata.PropertyList.Dependent));
+    needsComparing  = find(~any(cat(2,cat(1,metadata.PropertyList.Dependent),...
+                                      strcmp(propertyNames,'IndexNeedsUpdating'),...
+                                      strcmp(propertyNames,'Index')),2));
     propertyIsEqual = false(numel(needsComparing),1);
     for ii = 1:numel(needsComparing)
         propertyIsEqual(ii) = isequal(A.(propertyNames{needsComparing(ii)}),B.(propertyNames{needsComparing(ii)}));
