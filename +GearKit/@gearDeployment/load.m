@@ -13,11 +13,11 @@ function obj = load(filename)
     
 	printDebugMessage('Info','Loading ''%s'' from disk ...',[name,ext])
 
-    s   = builtin('load',[name,ext],'-mat');
+    s   = builtin('load',[path,'/',name,ext],'-mat');
     obj = s.obj;
     
     obj.LoadFile    = fullfile(path,[name,ext]);
-    obj.MatFile     = matfile(obj.LoadFile);
+%     obj.MatFile     = matfile(obj.LoadFile);
     
 	printDebugMessage('Info','Loading ''%s'' from disk ... done',[name,ext])
 end

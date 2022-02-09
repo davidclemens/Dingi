@@ -125,11 +125,11 @@ classdef gearDeployment < handle
         varargout = markQualityFlags(obj)
         filenames = save(obj,folder,varargin)
         s = saveobj(obj)
+        obj = reloadobj(obj,s)
         update(obj)
     end
     methods (Static)
         obj = load(filename)
-        obj = loadobj(s)
     end
     methods (Access = protected)
         getGearDeploymentMetadata(obj,pathName)
