@@ -9,18 +9,17 @@ function filenames = save(objIn,folder,varargin)
     
     nGearDeployments    = numel(objIn);
     gearDeploymentExt   = objIn(1).gearType.FileExtension;
-    if ~strcmp(ext,gearDeploymentExt)
+    if ~isempty(ext) && ~strcmp(ext,gearDeploymentExt)
         printDebugMessage('Dingi:GearKit:gearDeployment:save:invalidFileExtension',...
             'Warning','The provided file extension ''%s'' was changed to ''%s''',ext,gearDeploymentExt);
-        ext = gearDeploymentExt;
     end
-    
-    filenames = fullfile(path,strcat({objIn.gearId}',ext));
+    ext         = gearDeploymentExt;
+    filenames   = fullfile(path,strcat({objIn.gearId}',ext));
     
     for ii = 1:nGearDeployments
         printDebugMessage('Info','Saving ''%s'' to disk ...',filenames{ii})
         
-        obj = objIn(ii);
+        obj             = objIn(ii);
         obj.SaveFile    = filenames{ii};
         obj.MatFile     = matfile(filenames{ii});
         builtin('save',filenames{ii},'obj','-v7.3');
