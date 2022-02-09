@@ -27,18 +27,35 @@ function obj = loadobj(s)
         obj.(propertyNames{needsLoading(pp)}) = s.(propertyNames{needsLoading(pp)});
     end
 
-    currentVersion  = getToolboxVersion();
-    savedVersion    = s.toolboxVersion;
-    deltaVersion    = compareSemanticVersion(currentVersion,savedVersion);
+    % Compare toolbox versions of saved instance with current instance
+    toolboxVersionCurrent	= getToolboxVersion();
+    toolboxVersionSaved     = s.toolboxVersion;
+    deltaVersion            = compareSemanticVersion(toolboxVersionCurrent,toolboxVersionSaved);
     if deltaVersion == 0
         % versions are equal
     elseif deltaVersion == 1
         % currentVersion > savedVersion
         printDebugMessage('Dingi:GearKit:gearDeployment:loadobj:olderSavedVersion',...
-            'Warning','The %s deployment was saved with an older toolbox version (%s) than the current one (%s).',char(obj.gearType),savedVersion,currentVersion)
+            'Warning','The %s deployment was saved with an older toolbox version (%s) than the current one (%s).',char(obj.gearType),toolboxVersionSaved,toolboxVersionCurrent)
     elseif deltaVersion == -1
         % currentVersion < savedVersion
         printDebugMessage('Dingi:GearKit:gearDeployment:loadobj:newerSavedVersion',...
-            'Warning','The %s deployment was saved with a newer toolbox version (%s) than the current one (%s).',char(obj.gearType),savedVersion,currentVersion)
+            'Warning','The %s deployment was saved with a newer toolbox version (%s) than the current one (%s).',char(obj.gearType),toolboxVersionSaved,toolboxVersionCurrent)
+    end
+
+    % Compare data structure versions of saved instance with current instance
+    dataStructVersionCurrent	= obj.dataStructureVersion;
+    dataStructVersionSaved      = s.dataStructureVersion;
+    deltaVersion                = compareSemanticVersion(dataStructVersionCurrent,dataStructVersionSaved);
+    if deltaVersion == 0
+        % versions are equal
+    elseif deltaVersion == 1
+        % currentVersion > savedVersion
+        printDebugMessage('Dingi:GearKit:gearDeployment:loadobj:olderSavedVersion',...
+            'Warning','The %s deployment was saved with an older data structure version (%s) than the current one (%s).',char(obj.gearType),dataStructVersionSaved,dataStructVersionCurrent)
+    elseif deltaVersion == -1
+        % currentVersion < savedVersion
+        printDebugMessage('Dingi:GearKit:gearDeployment:loadobj:newerSavedVersion',...
+            'Warning','The %s deployment was saved with a newer data structure version (%s) than the current one (%s).',char(obj.gearType),dataStructVersionSaved,dataStructVersionCurrent)
     end
 end

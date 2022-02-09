@@ -15,6 +15,9 @@ function s = saveobj(obj)
         
         s.(propertyNames{needsSaving(pp)}) = obj.(propertyNames{needsSaving(pp)});
     end
-    s.saveDate = datetime('now');
-    s.toolboxVersion = getToolboxVersion();
+    
+    % Properties only stored in the saved struct, not the gearDeployment instance
+    s.saveDate              = datetime('now');
+    s.toolboxVersion        = getToolboxVersion();
+    s.dataStructureVersion  = obj.dataStructureVersion;
 end

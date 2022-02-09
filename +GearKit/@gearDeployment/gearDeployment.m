@@ -56,10 +56,12 @@ classdef gearDeployment < handle
         gearId % Id string that uniquely identifies a gearDeploment
     end
     properties (Hidden)
-        dataVersion % version of data structure to be used
         MatFile matlab.io.MatFile = ''
         SaveFile char = char.empty
         LoadFile char = char.empty
+    end
+    properties (Constant, Access = 'protected')
+        dataStructureVersion = '0.1.0' % version of data structure to be used        
     end
 
 	methods
