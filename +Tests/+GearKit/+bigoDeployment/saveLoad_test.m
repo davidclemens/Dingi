@@ -57,13 +57,14 @@ classdef (SharedTestFixtures = { ...
     end
 
     methods (TestClassSetup)
+        function setDebuggerLevel(testCase)
+            DebuggerKit.Debugger('Level','FatalError');
+        end
         function createTemporaryDirectory(testCase)
 
             import matlab.unittest.fixtures.TemporaryFolderFixture
 
             testCase.TemporaryFolder = testCase.applyFixture(TemporaryFolderFixture);
-
-%             disp(['The temporary folder is: ' testCase.TemporaryFolder.Folder])
         end
         function createGearDeployment(testCase,Data1,Data2)
             import GearKit.bigoDeployment
@@ -91,7 +92,7 @@ classdef (SharedTestFixtures = { ...
     end
     methods (TestMethodSetup)
         function saveDeployment(testCase)
-            filenames = testCase.GearDeploymentInstance.save([testCase.TemporaryFolder.Folder,'/filename.bigo']);
+            filenames = testCase.GearDeploymentInstance.save(testCase.TemporaryFolder.Folder);
 
             testCase.Filenames = filenames;
         end
@@ -101,20 +102,25 @@ classdef (SharedTestFixtures = { ...
     end
 
     methods (Test)
-        function testLoadedDeployment(testCase)
-            loadStruct = load(testCase.Filenames{1},'-mat');
-            loadedBigoDeployment = loadStruct.obj;
-
+        function testLoadedDeploymentContent(testCase)
+            
+            loadedBigoDeployment	= GearKit.bigoDeployment.load(testCase.Filenames{1});
 
             metadata        = eval(['?',class(loadedBigoDeployment)]);
             propertyNames   = {metadata.PropertyList.Name}';
             needsComparing  = find(~any(cat(2,cat(1,metadata.PropertyList.Transient),...
-                                        cat(1,metadata.PropertyList.Constant),...
-                                        cat(1,metadata.PropertyList.Dependent)),2));
-            propertyIsEqual = false(numel(needsComparing),1);
-            for ii = 1:numel(propertyNames)
-                propertyIsEqual(ii)     = isequal(loadedBigoDeployment.(propertyNames{ii}),testCase.GearDeploymentInstance.(propertyNames{ii}));
-
+                                              cat(1,metadata.PropertyList.Constant),...
+                                              cat(1,metadata.PropertyList.Dependent),...
+                                              strcmp(propertyNames,'MatFile'),...
+                                              strcmp(propertyNames,'LoadFile'),...
+                                              strcmp(propertyNames,'SaveFile'),...
+                                              strcmp(propertyNames,'DataStructureVersion')),2));
+                                    
+            nProperties     = numel(needsComparing);
+            propertyIsEqual = false(nProperties,1);
+            for ii = 1:nProperties
+                propertyIsEqual(ii)     = isequal(loadedBigoDeployment.(propertyNames{needsComparing(ii)}),testCase.GearDeploymentInstance.(propertyNames{needsComparing(ii)}));
+                
                 testCase.verifyTrue(propertyIsEqual(ii),sprintf('''%s'' is not equal.',propertyNames{ii}));
             end
         end
