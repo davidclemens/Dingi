@@ -56,12 +56,13 @@ classdef gearDeployment < handle
         gearId % Id string that uniquely identifies a gearDeploment
     end
     properties (Hidden)
+        dataVersion % version of protocol data structure to be used
         MatFile = '' % This is only set, when a class instance is loaded from disk
         SaveFile char = char.empty
         LoadFile char = char.empty
     end
     properties (Constant, Access = 'protected')
-        DataStructureVersion = '0.1.0' % version of data structure to be used        
+        DataStructureVersion = '0.1.0' % version of class property data structure to be used        
     end
 
 	methods
