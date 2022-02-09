@@ -1,8 +1,8 @@
-function filenames = save(objIn,filename,varargin)
+function filenames = save(objIn,folder,varargin)
     
     import DebuggerKit.Debugger.printDebugMessage
 
-    [path,~,ext] = fileparts(filename);
+    [path,~,ext] = fileparts(folder);
     if isempty(path)
         path = pwd;
     end

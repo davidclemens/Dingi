@@ -120,7 +120,7 @@ classdef gearDeployment < handle
         varargout = plot(obj,varargin)
         varargout = plotCalibrations(obj)
         varargout = markQualityFlags(obj)
-        filenames = save(obj,filename,varargin)
+        filenames = save(obj,folder,varargin)
         s = saveobj(obj)
         update(obj)
     end
