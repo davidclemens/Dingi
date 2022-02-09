@@ -21,7 +21,6 @@ function filenames = save(objIn,folder,varargin)
         
         obj             = objIn(ii);
         obj.SaveFile    = filenames{ii};
-        obj.MatFile     = matfile(filenames{ii});
         builtin('save',filenames{ii},'obj','-v7.3');
         
         printDebugMessage('Info','Saving ''%s'' to disk ... done',filenames{ii})
