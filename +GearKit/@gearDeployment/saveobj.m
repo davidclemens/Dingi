@@ -19,5 +19,5 @@ function s = saveobj(obj)
     % Properties only stored in the saved struct, not the gearDeployment instance
     s.saveDate              = datetime('now');
     s.toolboxVersion        = getToolboxVersion();
-    s.dataStructureVersion  = obj.dataStructureVersion;
+    s.DataStructureVersion  = obj.DataStructureVersion;
 end

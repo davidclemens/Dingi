@@ -44,8 +44,8 @@ function obj = loadobj(s)
     end
 
     % Compare data structure versions of saved instance with current instance
-    dataStructVersionCurrent	= obj.dataStructureVersion;
-    dataStructVersionSaved      = s.dataStructureVersion;
+    dataStructVersionCurrent	= obj.DataStructureVersion;
+    dataStructVersionSaved      = s.DataStructureVersion;
     deltaVersion                = compareSemanticVersion(dataStructVersionCurrent,dataStructVersionSaved);
     if deltaVersion == 0
         % versions are equal

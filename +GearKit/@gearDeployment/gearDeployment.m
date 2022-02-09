@@ -61,7 +61,7 @@ classdef gearDeployment < handle
         LoadFile char = char.empty
     end
     properties (Constant, Access = 'protected')
-        dataStructureVersion = '0.1.0' % version of data structure to be used        
+        DataStructureVersion = '0.1.0' % version of data structure to be used        
     end
 
 	methods
