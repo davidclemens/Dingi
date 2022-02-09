@@ -56,7 +56,7 @@ classdef gearDeployment < handle
         gearId % Id string that uniquely identifies a gearDeploment
     end
     properties (Hidden)
-        MatFile matlab.io.MatFile = ''
+        MatFile = '' % This is only set, when a class instance is loaded from disk
         SaveFile char = char.empty
         LoadFile char = char.empty
     end
