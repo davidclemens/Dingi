@@ -21,8 +21,19 @@ function obj = loadobj(s)
                                 cat(1,metadata.PropertyList.Dependent)),2));
     nProperties     = numel(needsLoading);
                             
+    % Determine if called from matlab.io.MatFile to avoid duplicate log 
+    % output.
+    % As the file is read again, when the matfile function is called in 
+    % GearKit.gearDeployment.load, the GearKit.gearDeployment.loadobj
+    % method is called again, resulting in outputting the verbose debug
+    % messages twice.
+    dbs             = dbstack;
+    showVerboseLog  = ~strcmp(dbs(2).name,'MatFile.genericWho');
+    
     for pp = 1:nProperties
-        printDebugMessage('Verbose','Loading property %u of %u: ''%s''...',pp,nProperties,propertyNames{needsLoading(pp)})
+        if showVerboseLog
+            printDebugMessage('Verbose','Loading property %u of %u: ''%s''...',pp,nProperties,propertyNames{needsLoading(pp)})
+        end
         
         obj.(propertyNames{needsLoading(pp)}) = s.(propertyNames{needsLoading(pp)});
     end
