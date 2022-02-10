@@ -52,6 +52,11 @@ classdef bigoDeployment < GearKit.gearDeployment
        	runAnalysis(obj)
         varargout = exportProtocol(obj,varargin)
         tbl = getFlux(obj,variable)
+        s = saveobj(obj)
+        obj = reloadobj(obj,s)
+    end
+    methods (Static)
+        obj = loadobj(s)
     end
 
     methods (Access = protected)

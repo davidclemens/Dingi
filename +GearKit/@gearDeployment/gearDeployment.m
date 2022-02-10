@@ -56,10 +56,12 @@ classdef gearDeployment < handle
         gearId % Id string that uniquely identifies a gearDeploment
     end
     properties (Hidden)
-        dataVersion % version of data structure to be used
-        MatFile matlab.io.MatFile = ''
+        dataVersion % version of protocol data structure to be used
         SaveFile char = char.empty
         LoadFile char = char.empty
+    end
+    properties (Constant, Access = 'protected')
+        DataStructureVersion = '0.1.0' % version of class property data structure to be used        
     end
 
 	methods
@@ -120,13 +122,13 @@ classdef gearDeployment < handle
         varargout = plot(obj,varargin)
         varargout = plotCalibrations(obj)
         varargout = markQualityFlags(obj)
-        filenames = save(obj,filename,varargin)
+        filenames = save(obj,varargin)
         s = saveobj(obj)
+        obj = reloadobj(obj,s)
         update(obj)
     end
     methods (Static)
-        obj = load(filename)
-        obj = loadobj(s)
+        obj = load(varargin)
     end
     methods (Access = protected)
         getGearDeploymentMetadata(obj,pathName)

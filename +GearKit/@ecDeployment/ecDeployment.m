@@ -49,6 +49,11 @@ classdef ecDeployment < GearKit.gearDeployment
 	% methods in seperate files
     methods (Access = public)
        	runAnalysis(obj,varargin)
+        s = saveobj(obj)
+        obj = reloadobj(obj,s)
+    end
+    methods (Static)
+        obj = loadobj(s)
     end
 
     methods (Access = protected)
