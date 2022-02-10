@@ -33,7 +33,7 @@ function varargout = applyCalibrationFunction(obj,poolIdx,variableIdx)
 %
 %   See also DATAPOOL
 %
-%   Copyright (c) 2020-2021 David Clemens (dclemens@geomar.de)
+%   Copyright (c) 2020-2022 David Clemens (dclemens@geomar.de)
 %
     nargoutchk(0,1)
     

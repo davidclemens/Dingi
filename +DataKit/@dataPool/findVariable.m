@@ -81,7 +81,7 @@ function [poolIdx,variableIdx] = findVariable(obj,varargin)
 %
 %   See also DATAPOOL, FETCHVARIABLEDATA
 %
-%   Copyright (c) 2020-2021 David Clemens (dclemens@geomar.de)
+%   Copyright (c) 2020-2022 David Clemens (dclemens@geomar.de)
 %
 
     validOperators = {'-and','-or','-xor','-not','-regexp'};

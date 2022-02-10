@@ -27,7 +27,7 @@ classdef gearDeployment < handle
     %	plot -
     %	runAnalysis -
     %
-    % Copyright (c) 2020-2021 David Clemens (dclemens@geomar.de)
+    % Copyright (c) 2020-2022 David Clemens (dclemens@geomar.de)
     %
 
 	properties

@@ -16,7 +16,7 @@ classdef bitmask
     %   isBit - Test if a bit is set
     %   disp - Display a bitmask instance in the command line
     %
-    % Copyright (c) 2021 David Clemens (dclemens@geomar.de)
+    % Copyright (c) 2021-2022 David Clemens (dclemens@geomar.de)
     %
 
     % Frontend
@@ -118,7 +118,7 @@ classdef bitmask
             %
             %   See also SETBIT, SETNUM
             %
-            %   Copyright (c) 2021 David Clemens (dclemens@geomar.de)
+            %   Copyright (c) 2021-2022 David Clemens (dclemens@geomar.de)
             %
 
             switch nargin

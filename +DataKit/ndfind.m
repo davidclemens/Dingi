@@ -38,7 +38,7 @@ function varargout = ndfind(X)
 %
 %   See also FIND
 %
-%   Copyright (c) 2021 David Clemens (dclemens@geomar.de)
+%   Copyright (c) 2021-2022 David Clemens (dclemens@geomar.de)
 %
 
     if isempty(X)

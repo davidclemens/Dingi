@@ -12,7 +12,7 @@ classdef axesGroup < handle
 % AXESGROUP Methods:
 %    axesGroup - Constructs an axesGroup instance from existing axes handles.
 %
-% Copyright (c) 2020-2021 David Clemens (dclemens@geomar.de)
+% Copyright (c) 2020-2022 David Clemens (dclemens@geomar.de)
 
 % TODO:     [] handle reversed individual axes
 %           [] handle DatetimeRuler, DurationRuler, CategoricalRuler &
@@ -102,7 +102,7 @@ classdef axesGroup < handle
         % 
         % See also AXES
         %
-        % Copyright (c) 2020-2021 David Clemens (dclemens@geomar.de)
+        % Copyright (c) 2020-2022 David Clemens (dclemens@geomar.de)
 
             % parse Name-Value pairs
             optionName          = {'CommonAxis'}; % valid options (Name)
