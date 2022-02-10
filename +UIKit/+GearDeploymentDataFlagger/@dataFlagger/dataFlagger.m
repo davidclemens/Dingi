@@ -11,7 +11,7 @@ classdef dataFlagger < handle
         HeaderHeight double = 40
         FooterHeight double = 100
         Units char = 'pixel'
-        FigurePosition double = [0 0 1920 1080]
+        FigurePosition double = [1 1 1680 1050]
         InnerMargin double = 5
         OuterMargin double = 10
         PanelLineWidth double = 1
@@ -47,6 +47,9 @@ classdef dataFlagger < handle
         DeploymentIsSelected logical = true
         VariableIsSelected logical = true
         FlagIsSelected logical = true
+    end
+    properties (Constant)
+        FigureSafeZoneHeight double = 96
     end
     
     methods
