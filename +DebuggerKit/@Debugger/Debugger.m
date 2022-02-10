@@ -2,7 +2,7 @@ classdef Debugger < handle
 % DEBUGGER A debugger object
 %   The DEBUGGER class holds debugging settings.
 %
-% Copyright (c) 2020-2021 David Clemens (dclemens@geomar.de)
+% Copyright (c) 2020-2022 David Clemens (dclemens@geomar.de)
 
     properties
         Level DebuggerKit.debugLevel = DebuggerKit.debugLevel.Info % Set debugging level
@@ -63,7 +63,7 @@ classdef Debugger < handle
         % 
         % See also
         %
-        % Copyright (c) 2020-2021 David Clemens (dclemens@geomar.de)
+        % Copyright (c) 2020-2022 David Clemens (dclemens@geomar.de)
         
             import internal.stats.parseArgs
             

@@ -14,7 +14,7 @@ classdef bitflag < DataKit.bitmask
     %   isFlag - Test if a flag is set
     %   disp - Display a bitflag instance in the command line
     %
-    % Copyright (c) 2021 David Clemens (dclemens@geomar.de)
+    % Copyright (c) 2021-2022 David Clemens (dclemens@geomar.de)
     %
     
     % Frontend properties
@@ -126,7 +126,7 @@ classdef bitflag < DataKit.bitmask
             %
             %   See also SETFLAG, BITMASK
             %
-            %   Copyright (c) 2021 David Clemens (dclemens@geomar.de)
+            %   Copyright (c) 2021-2022 David Clemens (dclemens@geomar.de)
             %
             
             import DataKit.bitflag.validateEnumerationClassName

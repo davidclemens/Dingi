@@ -55,7 +55,7 @@ function result = runTestForPackage(package,varargin)
 %
 %   See also RUNTESTSLOCALLY
 %
-%   Copyright (c) 2021 David Clemens (dclemens@geomar.de)
+%   Copyright (c) 2021-2022 David Clemens (dclemens@geomar.de)
 %
 
     import internal.stats.parseArgs

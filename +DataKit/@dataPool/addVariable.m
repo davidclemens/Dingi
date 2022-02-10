@@ -79,7 +79,7 @@ function varargout = addVariable(obj,variable,data,varargin)
 %
 %   See also DATAPOOL, DATAFLAG
 %
-%   Copyright (c) 2020-2021 David Clemens (dclemens@geomar.de)
+%   Copyright (c) 2020-2022 David Clemens (dclemens@geomar.de)
 %
 
     import DataKit.arrayhom
