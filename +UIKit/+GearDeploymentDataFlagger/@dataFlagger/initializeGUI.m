@@ -2,7 +2,7 @@ function initializeGUI(obj)
     
     % Extract properties from the data flagger
     units           = obj.Units;
-    figurePosition  = obj.FigurePosition;
+    figurePosition  = obj.FigurePosition - [0 0 0 obj.FigureSafeZoneHeight];
     innerMargin     = obj.InnerMargin;
     outerMargin     = obj.OuterMargin;
     panelLineWidth  = obj.PanelLineWidth;
@@ -189,7 +189,6 @@ function initializeGUI(obj)
     
     % Set the GUIIsInitialized flag
 	obj.GUIIsInitialized    = true;
-    
 
     function createFcn(src,~,df)
   	% Executes after GUI element object creation, after setting all properties.
