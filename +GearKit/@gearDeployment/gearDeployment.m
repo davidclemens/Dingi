@@ -57,7 +57,6 @@ classdef gearDeployment < handle
     end
     properties (Hidden)
         dataVersion % version of protocol data structure to be used
-        MatFile = '' % This is only set, when a class instance is loaded from disk
         SaveFile char = char.empty
         LoadFile char = char.empty
     end

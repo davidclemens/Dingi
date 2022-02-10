@@ -17,7 +17,6 @@ function obj = load(filename)
     obj = s.obj;
     
     obj.LoadFile    = fullfile(path,[name,ext]);
-%     obj.MatFile     = matfile(obj.LoadFile);
     
 	printDebugMessage('Info','Loading ''%s'' from disk ... done',[name,ext])
 end
