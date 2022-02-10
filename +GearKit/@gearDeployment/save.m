@@ -1,20 +1,29 @@
-function filenames = save(objIn,folder,varargin)
+function filenames = save(objIn,varargin)
     
     import DebuggerKit.Debugger.printDebugMessage
-
-    [path,~,ext] = fileparts(folder);
-    if isempty(path)
-        path = pwd;
+    
+    narginchk(1,2)
+    
+    if nargin == 1
+        folder = {objIn.LoadFile}';
+    elseif nargin == 2
+        folder = varargin{1};
+    end
+    
+    if ischar(folder)
+        folder = {folder};
+    end
+    
+    [folder,~,~]    = cellfun(@fileparts,folder,'un',0);
+    isEmptyFolder   = cellfun(@isempty,folder);
+    if any(isEmptyFolder)
+        folderForEmptyFolders = uigetdir;
+        folder(isEmptyFolder) = {folderForEmptyFolders};
     end
     
     nGearDeployments    = numel(objIn);
     gearDeploymentExt   = objIn(1).gearType.FileExtension;
-    if ~isempty(ext) && ~strcmp(ext,gearDeploymentExt)
-        printDebugMessage('Dingi:GearKit:gearDeployment:save:invalidFileExtension',...
-            'Warning','The provided file extension ''%s'' was changed to ''%s''',ext,gearDeploymentExt);
-    end
-    ext         = gearDeploymentExt;
-    filenames   = fullfile(path,strcat({objIn.gearId}',ext));
+    filenames           = fullfile(folder,strcat({objIn.gearId}',gearDeploymentExt));
     
     for ii = 1:nGearDeployments
         printDebugMessage('Info','Saving ''%s'' to disk ...',filenames{ii})

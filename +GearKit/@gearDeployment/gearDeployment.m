@@ -122,13 +122,13 @@ classdef gearDeployment < handle
         varargout = plot(obj,varargin)
         varargout = plotCalibrations(obj)
         varargout = markQualityFlags(obj)
-        filenames = save(obj,folder,varargin)
+        filenames = save(obj,varargin)
         s = saveobj(obj)
         obj = reloadobj(obj,s)
         update(obj)
     end
     methods (Static)
-        obj = load(filename)
+        obj = load(varargin)
     end
     methods (Access = protected)
         getGearDeploymentMetadata(obj,pathName)
