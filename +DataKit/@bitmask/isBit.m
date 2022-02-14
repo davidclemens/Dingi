@@ -27,8 +27,9 @@ function tf = isBit(obj,bit)
 %       integer | integer array
 %         Bit position which should be tested, specified as an integer or 
 %         integer array. The values of bit must be between 1 (the least 
-%         significant bit) and 64. If bit is not scalar, all elements in
-%         bit are tested and combined with the logical OR operator.
+%         significant bit) and 64. If it exceeds this limit, it is ignored.
+%         If bit is not scalar, all elements in bit are tested and combined
+%         with the logical OR operator.
 %
 %
 %   Output Arguments
@@ -46,7 +47,7 @@ function tf = isBit(obj,bit)
 %   Copyright (c) 2021-2022 David Clemens (dclemens@geomar.de)
 %
 
-
+    import DebuggerKit.Debugger.printDebugMessage
     import DataKit.ndfind
     
     if isempty(bit)
@@ -57,6 +58,14 @@ function tf = isBit(obj,bit)
     sz      = obj.Size;
     nDims   = ndims(obj.Bits);
     
+    bitExceedingStorageType     = bit > obj.StorageType;
+    bitExceedingMaxStorageType  = bit > max(obj.validStorageTypes);
+    
+    if any(bitExceedingMaxStorageType)
+        printDebugMessage('Dingi:DataKit:bitmask:isBit:bitExceedsMaxStorageType',...
+            'Warning','A requested bit index (%u) exceeds the maximum storage type (%u). It is ignored.',bit(find(bitExceedingMaxStorageType,1)),max(obj.validStorageTypes))
+    end
+    
     % Find elements with set flags
     subs            = cell(1,nDims);
     [v,subs{:}]     = ndfind(obj.Bits);
@@ -65,6 +74,8 @@ function tf = isBit(obj,bit)
     tf                       = false(sz);
     
     for bb = 1:numel(bit)
-        tf(sub2ind(sz,subs{:}))  = tf(sub2ind(sz,subs{:})) | logical(bitget(v,bit(bb)));
+        if ~bitExceedingStorageType(bb)
+            tf(sub2ind(sz,subs{:}))  = tf(sub2ind(sz,subs{:})) | logical(bitget(v,bit(bb)));
+        end
     end
 end
