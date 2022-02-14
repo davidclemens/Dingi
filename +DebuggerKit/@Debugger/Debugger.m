@@ -93,6 +93,7 @@ classdef Debugger < handle
     methods (Static)
         printDebugMessage(varargin)
         varargout = colorPrint(style,format,varargin)
+        setDebugLevel(level)
     end
     
     % Get methods
