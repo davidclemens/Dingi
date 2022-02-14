@@ -45,12 +45,17 @@ function calibrateMeasuringDevices(obj)
             % data.
             for ii = 1:numel(noCalibrationDataAvailable)
                 calDataLimits   = obj.calibration{maskCalibrationInd(ii),{'CalibrationStart','CalibrationEnd'}};
+                if any(isnat(calDataLimits))
+                    calDataLimitsStr   = 'NaT, NaT';
+                else
+                    calDataLimitsStr = strjoin(cellstr(datestr(calDataLimits,'mm.dd.yyyy HH:MM:SS')),', ');
+                end
                 
-                printDebugMessage('Verbose','Reading signal for calibration period %u [%s] ...',obj.calibration{maskCalibrationInd(ii),'CalibrationTimeId'},strjoin(cellstr(datestr(calDataLimits,'mm.dd.yyyy HH:MM:SS')),', '))
+                printDebugMessage('Verbose','Reading signal for calibration period %u [%s] ...',obj.calibration{maskCalibrationInd(ii),'CalibrationTimeId'},calDataLimitsStr)
 
                 if ~noCalibrationDataAvailable(ii)
                     % Calibration data is available
-                    printDebugMessage('Verbose','Reading signal for calibration period %u [%s] ... Data already available. Skipped.',obj.calibration{maskCalibrationInd(ii),'CalibrationTimeId'},strjoin(cellstr(datestr(calDataLimits,'mm.dd.yyyy HH:MM:SS')),', '))
+                    printDebugMessage('Verbose','Reading signal for calibration period %u [%s] ... Data already available. Skipped.',obj.calibration{maskCalibrationInd(ii),'CalibrationTimeId'},calDataLimitsStr)
                     continue
                 end
                 
@@ -71,14 +76,14 @@ function calibrateMeasuringDevices(obj)
                 iDataLimits	= datetime([min(iData),max(iData)],'ConvertFrom','datenum');
                 if sum(maskTime) == 0
                     printDebugMessage('Dingi:GearKit:gearDeployment:calibrateMeasuringDevices:noCalibrationSignalAvailable',...
-                        'Error','No calibration signal data available for the calibration period %u [%s] and data period [%s].',obj.calibration{maskCalibrationInd(ii),'CalibrationTimeId'},strjoin(cellstr(datestr(calDataLimits,'mm.dd.yyyy HH:MM:SS')),', '),strjoin(cellstr(datestr(iDataLimits,'mm.dd.yyyy HH:MM:SS')),', '))
+                        'Error','No calibration signal data available for the calibration period %u [%s] and data period [%s].',obj.calibration{maskCalibrationInd(ii),'CalibrationTimeId'},calDataLimitsStr,strjoin(cellstr(datestr(iDataLimits,'mm.dd.yyyy HH:MM:SS')),', '))
                 elseif sum(diff(maskTime) == 1) < 1 || sum(diff(maskTime) == -1) < 1
                     printDebugMessage('Dingi:GearKit:gearDeployment:calibrateMeasuringDevices:incompleteCalibrationSignalCoverage',...
-                        'Error','The calibration signal available doesn''t cover the entire calibration period %u [%s]. Data period is [%s].',obj.calibration{maskCalibrationInd(ii),'CalibrationTimeId'},strjoin(cellstr(datestr(calDataLimits,'mm.dd.yyyy HH:MM:SS')),', '),strjoin(cellstr(datestr(iDataLimits,'mm.dd.yyyy HH:MM:SS')),', '))
+                        'Error','The calibration signal available doesn''t cover the entire calibration period %u [%s]. Data period is [%s].',obj.calibration{maskCalibrationInd(ii),'CalibrationTimeId'},calDataLimitsStr,strjoin(cellstr(datestr(iDataLimits,'mm.dd.yyyy HH:MM:SS')),', '))
                 end
                 obj.calibration{maskCalibrationInd(ii),'Signal'}    = nanmean(dData(maskTime));
                 
-                printDebugMessage('Verbose','Reading signal for calibration period %u [%s] ... done',obj.calibration{maskCalibrationInd(ii),'CalibrationTimeId'},strjoin(cellstr(datestr(calDataLimits,'mm.dd.yyyy HH:MM:SS')),', '))
+                printDebugMessage('Verbose','Reading signal for calibration period %u [%s] ... done',obj.calibration{maskCalibrationInd(ii),'CalibrationTimeId'},calDataLimitsStr)
             end
         end
 
