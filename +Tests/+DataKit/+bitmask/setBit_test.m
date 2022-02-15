@@ -1,16 +1,18 @@
-classdef (SharedTestFixtures = { ...
-            matlab.unittest.fixtures.PathFixture(subsref(strsplit(mfilename('fullpath'),'/+'),substruct('{}',{':'})))
-        }) setBit_test < matlab.unittest.TestCase
-    
-% run and stop if verification fails:
-%     tests     = matlab.unittest.TestSuite.fromClass(?Tests.DataKit.bitmask.setBit_test);
-%     runner    = matlab.unittest.TestRunner.withTextOutput;
-%     runner.addPlugin(matlab.unittest.plugins.StopOnFailuresPlugin);
-%     runner.run(tests)
-% run :
-%     tests     = matlab.unittest.TestSuite.fromClass(?Tests.DataKit.bitmask.setBit_test);
-%     run(tests)
-    
+classdef (SharedTestFixtures = { matlab.unittest.fixtures.PathFixture(subsref(strsplit(mfilename('fullpath'),'/+'),substruct('{}',{':'}))) }) setBit_test < matlab.unittest.TestCase
+	% setBit_test  Tests bitmask.setBit behaviour
+    % The SETBIT_TEST test class tests the functionality of the
+    % DataKit.bitmask.setBit method.
+    %
+    % Run the tests: 
+    %   Run and stop if verification fails:
+    %     tests     = matlab.unittest.TestSuite.fromClass(?Tests.DataKit.bitmask.setBit_test);
+    %     runner    = matlab.unittest.TestRunner.withTextOutput;
+    %     runner.addPlugin(matlab.unittest.plugins.StopOnFailuresPlugin);
+    %     runner.run(tests)
+    %   Run:
+    %     tests     = matlab.unittest.TestSuite.fromClass(?Tests.DataKit.bitmask.setBit_test);
+    %     run(tests)
+
     properties
         obj
     end

@@ -1,10 +1,17 @@
-classdef (SharedTestFixtures = { ...
-            matlab.unittest.fixtures.PathFixture(subsref(strsplit(mfilename('fullpath'),'/+'),substruct('{}',{':'})))
-        }) saveLoad_test < matlab.unittest.TestCase
-
-    % run:
-    % tests = matlab.unittest.TestSuite.fromClass(?Tests.GearKit.gearDeployment.saveLoad_test);
-    % run(tests)
+classdef (SharedTestFixtures = { matlab.unittest.fixtures.PathFixture(subsref(strsplit(mfilename('fullpath'),'/+'),substruct('{}',{':'}))) }) saveLoad_test < matlab.unittest.TestCase
+    % saveLoad_test  Tests saving/loading
+    % The SAVELOAD_TEST test class tests saving/loading of all
+    % GearKit.geardeployment subclasses.
+    %
+    % Run the tests: 
+    %   Run and stop if verification fails:
+    %     tests     = matlab.unittest.TestSuite.fromClass(?Tests.GearKit.gearDeployment.saveLoad_test);
+    %     runner    = matlab.unittest.TestRunner.withTextOutput;
+    %     runner.addPlugin(matlab.unittest.plugins.StopOnFailuresPlugin);
+    %     runner.run(tests)
+    %   Run:
+    %     tests     = matlab.unittest.TestSuite.fromClass(?Tests.GearKit.gearDeployment.saveLoad_test);
+    %     run(tests)
 
     properties
         GearDeploymentInstances

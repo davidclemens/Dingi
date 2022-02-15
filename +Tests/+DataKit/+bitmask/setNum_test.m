@@ -1,15 +1,17 @@
-classdef (SharedTestFixtures = { ...
-            matlab.unittest.fixtures.PathFixture(subsref(strsplit(mfilename('fullpath'),'/+'),substruct('{}',{':'})))
-        }) setNum_test < matlab.unittest.TestCase
-    
-% run and stop if verification fails:
-%     tests     = matlab.unittest.TestSuite.fromClass(?Tests.DataKit.bitmask.setNum_test);
-%     runner    = matlab.unittest.TestRunner.withTextOutput;
-%     runner.addPlugin(matlab.unittest.plugins.StopOnFailuresPlugin);
-%     runner.run(tests)
-% run :
-%     tests     = matlab.unittest.TestSuite.fromClass(?Tests.DataKit.bitmask.setNum_test);
-%     run(tests)
+classdef (SharedTestFixtures = { matlab.unittest.fixtures.PathFixture(subsref(strsplit(mfilename('fullpath'),'/+'),substruct('{}',{':'}))) }) setNum_test < matlab.unittest.TestCase
+	% setNum_test  Tests bitmask.setNum behaviour
+    % The SETNUM_TEST test class tests the functionality of the
+    % DataKit.bitmask.setNum method.
+    %
+    % Run the tests: 
+    %   Run and stop if verification fails:
+    %     tests     = matlab.unittest.TestSuite.fromClass(?Tests.DataKit.bitmask.setNum_test);
+    %     runner    = matlab.unittest.TestRunner.withTextOutput;
+    %     runner.addPlugin(matlab.unittest.plugins.StopOnFailuresPlugin);
+    %     runner.run(tests)
+    %   Run:
+    %     tests     = matlab.unittest.TestSuite.fromClass(?Tests.DataKit.bitmask.setNum_test);
+    %     run(tests)
     
     properties
         obj

@@ -1,15 +1,17 @@
-classdef (SharedTestFixtures = { ...
-            matlab.unittest.fixtures.PathFixture(subsref(strsplit(mfilename('fullpath'),'/+'),substruct('{}',{':'})))
-        }) bitmask_test < matlab.unittest.TestCase
-    
-% run and stop if verification fails:
-%     tests     = matlab.unittest.TestSuite.fromClass(?Tests.DataKit.bitmask.bitmask_test);
-%     runner    = matlab.unittest.TestRunner.withTextOutput;
-%     runner.addPlugin(matlab.unittest.plugins.StopOnFailuresPlugin);
-%     runner.run(tests)
-% run :
-%     tests     = matlab.unittest.TestSuite.fromClass(?Tests.DataKit.bitmask.bitmask_test);
-%     run(tests)
+classdef (SharedTestFixtures = { matlab.unittest.fixtures.PathFixture(subsref(strsplit(mfilename('fullpath'),'/+'),substruct('{}',{':'}))) }) bitmask_test < matlab.unittest.TestCase
+ 	% bitmask_test  Tests bitmask constructor behaviour
+    % The BITMASK_TEST test class tests the functionality of the
+    % DataKit.bitmask constructor.
+    %
+    % Run the tests: 
+    %   Run and stop if verification fails:
+    %     tests     = matlab.unittest.TestSuite.fromClass(?Tests.DataKit.bitmask.bitmask_test);
+    %     runner    = matlab.unittest.TestRunner.withTextOutput;
+    %     runner.addPlugin(matlab.unittest.plugins.StopOnFailuresPlugin);
+    %     runner.run(tests)
+    %   Run:
+    %     tests     = matlab.unittest.TestSuite.fromClass(?Tests.DataKit.bitmask.bitmask_test);
+    %     run(tests)
     
     properties
         Bitmask
