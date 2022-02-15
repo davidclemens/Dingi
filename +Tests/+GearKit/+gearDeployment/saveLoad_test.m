@@ -3,7 +3,7 @@ classdef (SharedTestFixtures = { ...
         }) saveLoad_test < matlab.unittest.TestCase
 
     % run:
-    % tests = matlab.unittest.TestSuite.fromClass(?Tests.GearKit.bigoDeployment.saveLoad_test);
+    % tests = matlab.unittest.TestSuite.fromClass(?Tests.GearKit.gearDeployment.saveLoad_test);
     % run(tests)
 
     properties
