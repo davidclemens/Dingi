@@ -117,6 +117,7 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
     methods (Access = private)
         setFitVariables(obj)
         setRelativeTimeFunction(obj)
+        setRawData(obj)
     end
     methods (Static)
         function handlePropertyChangeEvents(src,evnt)
