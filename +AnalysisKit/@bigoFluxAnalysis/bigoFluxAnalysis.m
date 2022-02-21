@@ -15,6 +15,12 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
         FitEvaluationInterval duration = hours([0,4]) % The interval in which the fit statistics should be evaluated
         TimeUnit char = 'h'
     end
+  	properties (Dependent) %Access = 'private', 
+        UpdateStack
+    end
+    properties (Access = 'private')
+        UpdateStack_ = 2.*ones(2,1) % Initialize as update required
+    end
     properties
         NFits double
         
@@ -112,6 +118,30 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
             NDeviceDomains = numel(obj.DeviceDomains);
         end
     end
+    
+    % Get methods
+    methods
+        % Frontend/Backend interface
+        function updateStack = get.UpdateStack(obj)
+            updateStack = obj.UpdateStack_;
+        end
+    end
+    
+    % Set methods
+    methods
+        % If frontend properties are set, update the backend and set any necessary
+        % flags.
+        function obj = set.UpdateStack(obj,value)
+            if ~isequal(obj.UpdateStack,value)
+                % If the UpdateStack is set (modified), set all stackDepths below the first change to 'UpdateRequired'
+                updateStackDepth           	= find(diff(cat(2,obj.UpdateStack_,value),1,2) == 2,1); % Status changes from Updated to UpdateRequired
+                value(updateStackDepth:end) = 2; % Set all stati downstream to UpdateRequired
+                obj.UpdateStack_            = value;
+            end
+        end
+    end
+    
+    
     
     % Event handler methods
     methods (Access = private)
