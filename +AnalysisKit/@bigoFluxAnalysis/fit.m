@@ -1,10 +1,16 @@
 function obj = fit(obj,varargin)
 % FIT
 
+    import DebuggerKit.Debugger.printDebugMessage
+    
+    printDebugMessage('Info','%s: Fitting %u variable(s) ...',obj.Parent.gearId,obj.NFits)
+
     fitObj      = cell(obj.NFits,1);
     FitGOF      = cell(obj.NFits,1);
     FitOutput   = cell(obj.NFits,1);
     for ff = 1:obj.NFits
+        printDebugMessage('Verbose','%s: Fitting variable %u of %u (%s) ...',obj.Parent.gearId,ff,obj.NFits,obj.FitVariables(ff))
+        
         % Get data pool & variable indices
         dp      = obj.PoolIndex(ff);
         var     = obj.VariableIndex(ff);
@@ -89,8 +95,10 @@ function obj = fit(obj,varargin)
             end
         end
     end
-
+    
     obj.FitObjects  = fitObj;
     obj.FitGOF      = FitGOF;
     obj.FitOutput   = FitOutput;
+    
+    printDebugMessage('Info','%s: Fitting %u variables ... done',obj.Parent.gearId,obj.NFits)
 end

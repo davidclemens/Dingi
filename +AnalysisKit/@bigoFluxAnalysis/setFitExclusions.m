@@ -1,6 +1,12 @@
 function setFitExclusions(obj)
 
+    import DebuggerKit.Debugger.printDebugMessage
+    
+    printDebugMessage('Info','%s: Setting %u fit exclusion(s) ...',obj.Parent.gearId,obj.NFits)
+    
     for ff = 1:obj.NFits
+        printDebugMessage('Verbose','%s: Setting fit exclusions for variable %u of %u (%s) ...',obj.Parent.gearId,ff,obj.NFits,obj.FitVariables(ff))
+        
         % Get data pool & variable indices
         dp      = obj.PoolIndex(ff);
         var     = obj.VariableIndex(ff);
@@ -33,4 +39,6 @@ function setFitExclusions(obj)
             obj.Bigo.data = obj.Bigo.data.setFlag(dp,find(exclude),var,DataKit.Metadata.validators.validFlag.ExcludeFromFit.Id,1);
         end
     end
+    
+    printDebugMessage('Info','%s: Setting fit exclusions ... done',obj.Parent.gearId)
 end

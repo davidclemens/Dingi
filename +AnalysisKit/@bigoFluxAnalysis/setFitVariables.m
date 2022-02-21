@@ -1,6 +1,10 @@
 function setFitVariables(obj)
 
     info                = obj.Bigo.data.info;
+    import DebuggerKit.Debugger.printDebugMessage
+
+    printDebugMessage('Dingi:AnalysisKit:bigoFluxAnalysis:setFitVariables:settingFitVariables',...
+        'Verbose','Setting fit variables ...')
     info.DeviceDomain   = cat(1,info{:,'MeasuringDevice'}.DeviceDomain);
     info.WorldDomain    = cat(1,info{:,'MeasuringDevice'}.WorldDomain);
     info                = outerjoin(info,obj.Bigo.HardwareConfiguration.DeviceDomainMetadata,...
@@ -22,6 +26,8 @@ function setFitVariables(obj)
                   info{:,'Type'} == 'Dependent' & ...
                   ismember({info{:,'Variable'}.Unit}','µM'), ...
               	2);
+	warning('Dingi:AnalysisKit:bigoFluxAnalysis:setFitVariables:onlyMuConcentrationsUsed',...
+            'Only variables with concentrations in µM are implemented to be fit right now.')
 	
 	if sum(mask) == 0
         warning('Dingi:AnalysisKit:bigoFluxAnalysis:setFitVariables:noVariableFound',...
@@ -41,4 +47,7 @@ function setFitVariables(obj)
     obj.FitStartTime        = info{:,'ExperimentStart'} - obj.FitOriginTime;
     obj.FitEndTime          = info{:,'ExperimentEnd'} - obj.FitOriginTime;
     obj.FitVariables        = info{:,'Variable'};
+    
+    printDebugMessage('Dingi:AnalysisKit:bigoFluxAnalysis:setFitVariables:settingFitVariables',...
+        'Verbose','Setting fit variables ... done')
 end

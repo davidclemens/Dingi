@@ -1,6 +1,10 @@
 function obj = calculateFlux(obj)
 % CALCULATEFLUX
 
+    import DebuggerKit.Debugger.printDebugMessage
+
+    printDebugMessage('Info','%s: Calculating fluxes for %u variable(s) ...',obj.Parent.gearId,obj.NFits)
+    
     n       = 100;
 
     fluxFactorSource        = obj.FluxVolume./obj.FluxCrossSection; % L/m2
@@ -15,7 +19,9 @@ function obj = calculateFlux(obj)
     fluxes  = NaN(obj.NFits,numel(xq));
     confidenceInterval = NaN(obj.NFits,2);
     for ff = 1:obj.NFits
+        printDebugMessage('Verbose','%s: Calculating flux for variable %u of %u (%s) ...',obj.Parent.gearId,ff,obj.NFits,obj.FitVariables(ff))
         if isempty(obj.FitObjects{ff})
+            printDebugMessage('Verbose','%s: Calculating flux for variable %u of %u (%s) ... no fit found',obj.Parent.gearId,ff,obj.NFits,obj.FitVariables(ff))
             continue
         end
         fluxes(ff,:)	= differentiate(obj.FitObjects{ff},xq); % dUnit/dt
@@ -37,7 +43,10 @@ function obj = calculateFlux(obj)
                   'TODO: ''%s'' is not implemented yet.',obj.FitType)
         end
     end
+    
     obj.Flux            = fluxes;
     obj.FluxConfInt     = confidenceInterval;
     obj.FluxStatistics  = flux;
+    
+    printDebugMessage('Info','%s: Calculating fluxes for %u variable(s) ... done',obj.Parent.gearId,obj.NFits)
 end
