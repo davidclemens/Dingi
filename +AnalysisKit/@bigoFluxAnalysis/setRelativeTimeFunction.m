@@ -9,13 +9,13 @@ function setRelativeTimeFunction(obj)
         case 'ms'
             TimeFunc   	= @milliseconds;
             newVariable = DataKit.Metadata.variable.DurationMs;
-        case 's'
+        case {'s','sec'}
             TimeFunc   	= @seconds;
             newVariable = DataKit.Metadata.variable.DurationS;
-        case 'm'
+        case {'m','min'}
             TimeFunc   	= @minutes;
             newVariable = DataKit.Metadata.variable.DurationMin;
-        case 'h'
+        case {'h','hr'}
             TimeFunc   	= @hours;
             newVariable = DataKit.Metadata.variable.DurationH;
         case 'd'
