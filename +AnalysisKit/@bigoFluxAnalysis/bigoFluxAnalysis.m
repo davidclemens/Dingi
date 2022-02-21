@@ -8,13 +8,34 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
         Parent = GearKit.bigoDeployment % Parent
         DeviceDomains GearKit.deviceDomain % The device domain(s) to be analysed
         
-        Bigo GearKit.bigoDeployment
-        
         FitType char = 'linear' % Fit method
         FitInterval duration = hours([0,5]) % The interval that should be fitted to
         FitEvaluationInterval duration = hours([0,4]) % The interval in which the fit statistics should be evaluated
         TimeUnit char = 'h'
     end
+    
+    % Frontend
+    properties (Dependent)
+        % Stack depth 1 (Data)
+        Time double % Time
+        FluxParameter double % Flux parameters
+        Exclusions logical % Exclusions
+        
+        % Stack depth 2 (Quality control)
+        FluxParameterQC double
+    end
+    
+    % Backend
+    properties (Access = 'private')
+        % Stack depth 1 (Data)
+        Time_ datetime
+        FluxParameter_ double
+        Exclusions_ logical % Exclusions
+        
+        % Stack depth 2 (Quality control)
+        FluxParameterQC_ double
+    end
+    
   	properties (Dependent) %Access = 'private', 
         UpdateStack
     end
@@ -60,11 +81,15 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
             import internal.stats.parseArgs
             import GearKit.bigoDeployment
             
+            % Check for at least 1 input argument
+            narginchk(1,Inf)
+            
             % Parse Name-Value pairs
-            optionName          = {'deviceDomains','FitType','FitEvaluationInterval','TimeUnit','Parent'}; % valid options (Name)
-            optionDefaultValue  = {GearKit.deviceDomain.fromProperty('Abbreviation',{'Ch1';'Ch2'}),'linear',hours([0,4]),'h',bigoDeployment}; % default value (Value)
+            optionName          = {'DeviceDomains','FitType','FitInterval','FitEvaluationInterval','TimeUnit','Parent'}; % valid options (Name)
+            optionDefaultValue  = {GearKit.deviceDomain.fromProperty('Abbreviation',{'Ch1';'Ch2'}),'linear',hours(NaN(1,2)),hours([0,4]),'h',bigoDeployment}; % default value (Value)
             [deviceDomains,...
              fitType,...
+             fitInterval,...
              fitEvaluationInterval,...
              timeUnit,...
              parent] = parseArgs(optionName,optionDefaultValue,varargin{:}); % parse function arguments
@@ -81,18 +106,22 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
             % Add property listeners
             addlistener(obj,'DeviceDomains','PostSet',@AnalysisKit.bigoFluxAnalysis.handlePropertyChangeEvents);
             addlistener(obj,'TimeUnit','PostSet',@AnalysisKit.bigoFluxAnalysis.handlePropertyChangeEvents);
+            addlistener(obj,'Parent','PostSet',@AnalysisKit.bigoFluxAnalysis.handlePropertyChangeEvents);
             
             % Populate properties
+            % Update stack depth 1
             validateattributes(parent,{'GearKit.bigoDeployment'},{});
             obj.Parent                	= parent;
-            obj.Bigo                    = bigoDeployment;
-            obj.FitType                 = fitType;
-            obj.FitEvaluationInterval  	= fitEvaluationInterval;
-            obj.TimeUnit                = timeUnit;
             obj.DeviceDomains           = deviceDomains;
             
+            % Update stack depth 2
+            obj.FitType                 = fitType;
+            obj.FitInterval          	= fitInterval;
+            obj.FitEvaluationInterval  	= fitEvaluationInterval;
+            obj.TimeUnit                = timeUnit;
+            
             % Calculate
-            obj.calculate;
+%             obj.calculate;
         end
     end
     
@@ -125,12 +154,61 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
         function updateStack = get.UpdateStack(obj)
             updateStack = obj.UpdateStack_;
         end
+        
+        function time = get.Time(obj)
+            stackDepth = 1;
+            obj.checkUpdateStack(stackDepth)
+            time = obj.TimeUnitFunction(obj.Time_ - repmat(reshape(obj.FitOriginTime,1,[]),size(obj.Time_,1),1)); % Return time depending on 
+        end
+        function fluxParameter = get.FluxParameter(obj)
+            stackDepth = 1;
+            obj.checkUpdateStack(stackDepth)
+            fluxParameter = obj.FluxParameter_;
+        end
+        function exclusions = get.Exclusions(obj)
+            stackDepth = 1;
+            obj.checkUpdateStack(stackDepth)
+            exclusions = obj.Exclusions_;
+        end
+        
+        
+        function fluxParameterQC = get.FluxParameterQC(obj)
+            stackDepth = 2;
+            obj.checkUpdateStack(stackDepth)
+            fluxParameterQC = obj.FluxParameterQC_;
+        end
     end
     
     % Set methods
     methods
         % If frontend properties are set, update the backend and set any necessary
         % flags.
+        function obj = set.Time(obj,value)
+            stackDepth                  = 1;
+            obj.UpdateStack(stackDepth) = 1; % Set to 'Updating'
+            obj.Time_                   = value;
+            obj.UpdateStack(stackDepth) = 0; % Set to 'Updated'
+        end
+        function obj = set.FluxParameter(obj,value)
+            stackDepth                  = 1;
+            obj.UpdateStack(stackDepth) = 1; % Set to 'Updating'
+            obj.FluxParameter_        	= value;
+            obj.UpdateStack(stackDepth) = 0; % Set to 'Updated'
+        end
+        function obj = set.Exclusions(obj,value)
+            stackDepth                  = 1;
+            obj.UpdateStack(stackDepth) = 1; % Set to 'Updating'
+            obj.Exclusions_             = value;
+            obj.UpdateStack(stackDepth) = 0; % Set to 'Updated'
+        end
+        
+        function obj = set.FluxParameterQC_(obj,value)
+            stackDepth                  = 2;
+            obj.UpdateStack(stackDepth) = 1; % Set to 'Updating'
+            obj.FluxParameterQC_      	= value;
+            obj.UpdateStack(stackDepth) = 0; % Set to 'Updated'
+        end
+        
         function obj = set.UpdateStack(obj,value)
             if ~isequal(obj.UpdateStack,value)
                 % If the UpdateStack is set (modified), set all stackDepths below the first change to 'UpdateRequired'
@@ -152,8 +230,16 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
     methods (Static)
         function handlePropertyChangeEvents(src,evnt)
             switch src.Name
+                case 'Parent'
+                    % The parent bigoDeployment object has been set. The raw data needs to be
+                    % extracted again.
+                    stackDepth  = 1;
+                    evnt.AffectedObject.UpdateStack(stackDepth) = 2; % Set to 'UpdateRequired'
                 case 'DeviceDomains'
-                    setFitVariables(evnt.AffectedObject)
+                    % The device domains have been set. The raw data needs to be extracted
+                    % again.
+                    stackDepth  = 1;
+                    evnt.AffectedObject.UpdateStack(stackDepth) = 2; % Set to 'UpdateRequired'
                 case 'TimeUnit'
                     setRelativeTimeFunction(evnt.AffectedObject)
             end
