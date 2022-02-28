@@ -46,7 +46,7 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
         UpdateStack
     end
     properties (Access = 'private')
-        UpdateStack_ = 3.*ones(2,1) % Initialize as update required
+        UpdateStack_ (3,1) double = 2.*ones(3,1) % Initialize as update required
     end
     properties
         NFits double
