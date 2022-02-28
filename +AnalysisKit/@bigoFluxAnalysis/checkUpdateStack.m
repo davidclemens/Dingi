@@ -19,12 +19,12 @@ function varargout = checkUpdateStack(obj,stackDepth)
             'Verbose','Updating stack depth %u ...',updateIndex)
         
         switch updateIndex
-            case 1
+            case 1 % The raw data needs to be set again from the parent object
               	setFitVariables(obj)
                 setRawData(obj)
-                
-            case 2
-                
+            case 2 % The fits must be recalculated from the data
+                calculateFits(obj)
+            case 3 % Fluxes need to be recalculated from the fits
         end
         
         % Set the current update index to 'Updated'
