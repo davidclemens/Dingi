@@ -51,12 +51,11 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
     properties
         NFits double
         
-        FluxStatistics
-        Flux
-        FluxConfInt
-        
         FluxVolume double
         FluxCrossSection double
+        
+        FlagDataset DataKit.bitflag = DataKit.bitflag('AnalysisKit.Metadata.bigoFluxAnalysisDatasetFlag')
+        FlagData DataKit.bitflag = DataKit.bitflag('AnalysisKit.Metadata.bigoFluxAnalysisDataFlag')
     end
     properties %(Hidden)
         PoolIndex double
