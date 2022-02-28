@@ -7,6 +7,13 @@ function calculateFits(obj)
     
     switch obj.FitType
         case 'linear'
+            xData = obj.Time;
+            yData = obj.FluxParameter;
+            exData = obj.Exclusions;
+            
+            for ff = 1:obj.NFits
+                [p,S,mu] = polyfit(xData(exData(:,ff),ff),yData(exData(:,ff),ff),1);
+            end
         otherwise
             printDebugMessage('Dingi:AnalysisKit:bigoFluxAnalysis:calculateFits:unknown',...
                 'Error','Calculating fits ... done')    
