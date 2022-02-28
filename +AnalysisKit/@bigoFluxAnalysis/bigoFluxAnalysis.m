@@ -26,7 +26,7 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
         ExcludeFluxParameter logical
         
         % Stack depth 3 (Fits)
-        Fits
+        Fits struct
         
         % Stack depth 4 (QC)
         
