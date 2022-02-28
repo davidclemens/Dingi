@@ -49,9 +49,11 @@ function setRawData(obj)
         excludeData(1:nSamples(ff),ff)	= exclude;        
     end
     
+    isNaN   = isnat(timeData) | isnan(fluxData);
+    
     obj.Time_ = timeData;
     obj.FluxParameter_ = fluxData;
-    obj.Exclusions_ = excludeData;
+    obj.Exclusions_ = excludeData | isNaN;
     
     printDebugMessage('Dingi:AnalysisKit:bigoFluxAnalysis:setFitVariables:settingRawData',...
         'Verbose','Setting raw data ... done')
