@@ -8,10 +8,10 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
         Parent = GearKit.bigoDeployment % Parent
         DeviceDomains GearKit.deviceDomain % The device domain(s) to be analysed
         
-        FitType char = 'linear' % Fit method
-        FitInterval duration = hours([0,5]) % The interval that should be fitted to
-        FitEvaluationInterval duration = hours([0,4]) % The interval in which the fit statistics should be evaluated
-        TimeUnit char = 'h'
+        FitType (1,:) char {mustBeMember(FitType,{'linear'})} = 'linear' % Fit method
+        FitInterval (1,2) duration = hours([0,5]) % The interval that should be fitted to
+        FitEvaluationInterval (1,2) duration = hours([0,4]) % The interval in which the fit statistics should be evaluated
+        TimeUnit (1,:) char = 'h'
     end
     
     % Frontend
@@ -76,9 +76,6 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
     end
     properties (Dependent)
         NDeviceDomains
-    end
-    properties (Hidden, Constant)
-        ValidFitTypes = {'linear','sigmoidal'};
     end
     
     methods

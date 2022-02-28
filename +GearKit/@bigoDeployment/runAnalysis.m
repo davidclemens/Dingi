@@ -7,7 +7,7 @@ function runAnalysis(obj)
     
     relativeTimeUnit	= 'h';
     fitInterval         = hours([0,4]);
-    fitType             = 'sigmoidal';
+    fitType             = 'linear';
     
     nObj    = numel(obj);
     

@@ -23,8 +23,8 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
 
     % Frontend
     properties
-        Name char = 'eddyFlux' % Analysis name
-        Type char = 'flux' % Analysis type
+        Name char = 'EddyFlux' % Analysis name
+        Type char = 'Flux' % Analysis type
         Parent = GearKit.ecDeployment % Parent
     end
 
