@@ -22,9 +22,13 @@ function varargout = checkUpdateStack(obj,stackDepth)
             case 1 % The raw data needs to be set again from the parent object
               	setFitVariables(obj)
                 setRawData(obj)
-            case 2 % The fits must be recalculated from the data
+            case 2 % The fit exclusions have to be reevaluated
+                setExclusions(obj)
+            case 3 % The fits must be recalculated from the data
                 calculateFits(obj)
-            case 3 % Fluxes need to be recalculated from the fits
+            case 4 % The fits have to be quality controlled
+                
+            case 5 % Fluxes need to be recalculated from the fits
         end
         
         % Set the current update index to 'Updated'

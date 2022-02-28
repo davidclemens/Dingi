@@ -2,16 +2,17 @@ function setRawData(obj)
 
     import DebuggerKit.Debugger.printDebugMessage
 
-    printDebugMessage('Dingi:AnalysisKit:bigoFluxAnalysis:setFitVariables:settingRawData',...
+    printDebugMessage('Dingi:AnalysisKit:bigoFluxAnalysis:setRawData:settingRawData',...
         'Verbose','Setting raw data ...')
     
     timeData    = NaT(0,obj.NFits);
     fluxData    = NaN(0,obj.NFits);
     excludeData = false(0,obj.NFits);
     nSamples    = zeros(1,obj.NFits);
+    isSample    = false(0,obj.NFits);
     for ff = 1:obj.NFits
         
-        printDebugMessage('Dingi:AnalysisKit:bigoFluxAnalysis:setFitVariables:settingRawDataVariable',...
+        printDebugMessage('Dingi:AnalysisKit:bigoFluxAnalysis:setRawData:settingRawDataVariable',...
             'Verbose','Setting raw data %u of %u: %s %s ...',ff,obj.NFits,obj.FitDeviceDomains(ff),obj.FitVariables(ff))
         
         % Set current maximum number of samples
@@ -26,8 +27,6 @@ function setRawData(obj)
                     'ForceCellOutput',  false,...
                     'GroupBy',          'Variable');
 
-        % Convert from duration to the set 'TimeUnit' for the fit
-%         xData   = obj.TimeUnitFunction(data.IndepData{1} - obj.FitOriginTime(ff));
         xData   = data.IndepData{1};
         yData   = data.DepData;
 
@@ -36,6 +35,7 @@ function setRawData(obj)
         exclude     = isFlag(data.Flags,'ExcludeFromFit');        
         
         nSamples(ff)  	= numel(xData);
+        isSample(1:nSamples(ff),ff) = true;
         
         % Grow matrix if necessary
         dN = nSamples(ff) - nSamplesMax;
@@ -49,12 +49,27 @@ function setRawData(obj)
         excludeData(1:nSamples(ff),ff)	= exclude;        
     end
     
-    isNaN   = isnat(timeData) | isnan(fluxData);
-    
+    % Write to backend property
     obj.Time_ = timeData;
     obj.FluxParameter_ = fluxData;
-    obj.Exclusions_ = excludeData | isNaN;
     
-    printDebugMessage('Dingi:AnalysisKit:bigoFluxAnalysis:setFitVariables:settingRawData',...
+    printDebugMessage('Dingi:AnalysisKit:bigoFluxAnalysis:setRawData:settingExclusionFlags',...
+        'Verbose','Setting raw data exclusion flags ...')
+    
+    % Initialize flags
+    obj.FlagData    = DataKit.bitflag('AnalysisKit.Metadata.bigoFluxAnalysisDataFlag',size(timeData,1),obj.NFits);
+    
+    % Flag samples
+    [flagIsSamplei,flagIsSamplej] = find(isSample);
+    obj.FlagData            = obj.FlagData.setFlag('IsSample',1,flagIsSamplei,flagIsSamplej);
+    
+    % Find manual exclusions
+    [flagIsManuallyExcludedFromFiti,flagIsManuallyExcludedFromFitj] = find(excludeData);
+    obj.FlagData            = obj.FlagData.setFlag('IsManuallyExcludedFromFit',1,flagIsManuallyExcludedFromFiti,flagIsManuallyExcludedFromFitj);
+    
+    printDebugMessage('Dingi:AnalysisKit:bigoFluxAnalysis:setRawData:settingExclusionFlags',...
+        'Verbose','Setting raw data exclusion flags ... done')
+    
+    printDebugMessage('Dingi:AnalysisKit:bigoFluxAnalysis:setRawData:settingRawData',...
         'Verbose','Setting raw data ... done')
 end
