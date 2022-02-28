@@ -61,7 +61,7 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
     properties %(Hidden)
         PoolIndex double
         VariableIndex double
-        TimeUnitFunction function_handle = @(x) x
+        TimeUnitFunction function_handle = @hours % Note: This must correspond to the TimeUnit property, as TimeUnit has the property attribute 'AbortSet' set.
         TimeVariable DataKit.Metadata.variable = DataKit.Metadata.variable.Time
         
         FitOriginTime datetime % The absolute time origin
