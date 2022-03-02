@@ -196,13 +196,13 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
         end
         
         function fits = get.Fits(obj)
-            stackDepth = 2;
+            stackDepth = 3;
             obj.checkUpdateStack(stackDepth)
             fits = obj.Fits_;
         end
         
         function fluxes = get.Fluxes(obj)
-            stackDepth = 3;
+            stackDepth = 5;
             obj.checkUpdateStack(stackDepth)
             fluxes = obj.Fluxes_;
         end
