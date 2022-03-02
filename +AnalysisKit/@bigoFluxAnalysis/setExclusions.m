@@ -42,10 +42,8 @@ function setExclusions(obj)
     rIsNaN                  = sum(flagIsNaN & isInFittingInterval,1)./nSamplesInFitInterval;
     flagIsNaNThresholdExceeded  = rIsNaN > eval([obj.FlagDataset.EnumerationClassName,'.MissingDataThresholdExceeded.Threshold']);
     flagInsufficientFittingData = nSamplesInFitInterval - sum((flagIsNaN | excludeData) & isInFittingInterval,1) < obj.FitMinimumSamples;
-    for ff = 1:obj.NFits
-        obj.FlagDataset = obj.FlagDataset.setFlag('MissingDataThresholdExceeded',flagIsNaNThresholdExceeded(ff),1,ff);
-        obj.FlagDataset = obj.FlagDataset.setFlag('InsufficientFittingData',flagInsufficientFittingData(ff),1,ff);
-    end
+    obj.FlagDataset         = obj.FlagDataset.setFlag('MissingDataThresholdExceeded',flagIsNaNThresholdExceeded,1,1:obj.NFits);
+   	obj.FlagDataset         = obj.FlagDataset.setFlag('InsufficientFittingData',flagInsufficientFittingData,1,1:obj.NFits);
     
     obj.Exclude                 = ~isSample | flagIsNaN | excludeData | ~isInFittingInterval;
     obj.ExcludeFluxParameter    = flagInsufficientFittingData;
