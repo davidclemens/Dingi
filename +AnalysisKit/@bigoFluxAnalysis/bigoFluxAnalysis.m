@@ -31,7 +31,8 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
         % Stack depth 4 (QC)
         
         % Stack depth 5 (Fluxes)
-        Fluxes
+        Fluxes double
+        FluxStatistics double
     end
     
     % Backend
@@ -45,12 +46,13 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
         ExcludeFluxParameter_ logical
         
         % Stack depth 3 (Fits)
-        Fits_
+        Fits_ struct
         
         % Stack depth 4 (QC)
         
         % Stack depth 5 (Fluxes)
-        Fluxes_
+        Fluxes_ double
+        FluxStatistics_ double
     end
     
   	properties (Dependent) %Access = 'private', 
@@ -214,6 +216,11 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
             obj.checkUpdateStack(stackDepth)
             fluxes = obj.Fluxes_;
         end
+        function fluxeStatistics = get.FluxStatistics(obj)
+            stackDepth = 5;
+            obj.checkUpdateStack(stackDepth)
+            fluxeStatistics = obj.FluxeStatistics_;
+        end
     end
     
     % Set methods
@@ -256,7 +263,13 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
         function obj = set.Fluxes_(obj,value)
             stackDepth                  = 5;
             obj.setUpdateStackToUpdating(stackDepth)
-            obj.Fluxes_      	= value;
+            obj.Fluxes_                 = value;
+            obj.setUpdateStackToUpdated(stackDepth)
+        end
+        function obj = set.FluxStatistics_(obj,value)
+            stackDepth                  = 5;
+            obj.setUpdateStackToUpdating(stackDepth)
+            obj.FluxStatistics_      	= value;
             obj.setUpdateStackToUpdated(stackDepth)
         end
         
