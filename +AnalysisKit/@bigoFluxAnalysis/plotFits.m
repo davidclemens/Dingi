@@ -20,7 +20,7 @@ function varargout = plotFits(obj,variable,axesProperties)
             var = row;
             hsp(spi(row,col))   = subplot(spny,spnx,spi(row,col),axesProperties{:});
                 maskFitsInd     = find(obj(oo).FitVariables == variable(var));
-                [~,maskRateInd] = ismember(maskFitsInd,obj(oo).RateIndex);
+                [hasRate,maskRateInd] = ismember(maskFitsInd,obj(oo).RateIndex);
                 nFits       = numel(maskFitsInd);
                 if isempty(maskFitsInd)
                     text(0.5,0.5,'no data','Units','normalized')
@@ -50,8 +50,10 @@ function varargout = plotFits(obj,variable,axesProperties)
                         'Marker',           marker,...
                         'MarkerEdgeColor',  hsp(spi(row,col)).ColorOrder(ff,:))
 
-                    xFitData        = obj(oo).TimeUnitFunction(linspace(obj(oo).FitStartTime(ff),obj(oo).FitEndTime(ff),n))';
-                    yFitData(:,ff)  = polyval(obj(oo).Fits(maskRateInd(ff)).Coeff,xFitData,[],obj(oo).Fits(maskRateInd(ff)).Scaling);
+                    if hasRate(ff)
+                        xFitData        = obj(oo).TimeUnitFunction(linspace(obj(oo).FitStartTime(ff),obj(oo).FitEndTime(ff),n))';
+                        yFitData(:,ff)  = polyval(obj(oo).Fits(maskRateInd(ff)).Coeff,xFitData,obj(oo).Fits(maskRateInd(ff)).ErrEst);
+                    end
                 end
                 hp(spi(row,col),1:nFits) = plot(xFitData,yFitData);
                 set(hp(spi(row,col),1:nFits),...

@@ -21,11 +21,10 @@ function calculateFits(obj)
                 printDebugMessage('Dingi:AnalysisKit:bigoFluxAnalysis:calculateFits:fitting',...
                     'Verbose','Fitting flux parameter %u of %u: %s %s ...',rr,nRates,obj.FitDeviceDomains(fi),obj.FitVariables(fi))
                 
-                [p,S,mu] = polyfit(xData(~exData(:,fi),fi),yData(~exData(:,fi),fi),1);
+                [p,S] = polyfit(xData(~exData(:,fi),fi),yData(~exData(:,fi),fi),1);
                 
                 fits(rr).Coeff = p;
                 fits(rr).ErrEst = S;
-                fits(rr).Scaling = mu;
             end
     end
     
