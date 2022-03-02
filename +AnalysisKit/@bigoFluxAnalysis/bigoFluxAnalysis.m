@@ -101,7 +101,7 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
             
             % Parse Name-Value pairs
             optionName          = {'DeviceDomains','FitType','FitInterval','FitEvaluationInterval','TimeUnit','Parent'}; % valid options (Name)
-            optionDefaultValue  = {GearKit.deviceDomain.fromProperty('Abbreviation',{'Ch1';'Ch2'}),'linear',hours(NaN(1,2)),hours([0,4]),'h',bigoDeployment}; % default value (Value)
+            optionDefaultValue  = {GearKit.deviceDomain.fromProperty('Abbreviation',{'Ch1';'Ch2'}),'linear',[hours(0),bigoDeployment.timeRecovery - bigoDeployment.timeDeployment],hours([0,4]),'h',bigoDeployment}; % default value (Value)
             [deviceDomains,...
              fitType,...
              fitInterval,...
@@ -322,11 +322,12 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
                     stackDepth  = 1;
                     evnt.AffectedObject.setUpdateStackToUpdateRequired(stackDepth)
                     
-                case 'FitType'
-                    % A fitting parameter has been set. The fits need to be calculated again.
-                    stackDepth  = 3;
-                    evnt.AffectedObject.setUpdateStackToUpdateRequired(stackDepth)
                 case 'FitInterval'
+                    % A fitting parameter has been set. The exclusions need to be set again.
+                    stackDepth  = 2;
+                    evnt.AffectedObject.setUpdateStackToUpdateRequired(stackDepth)
+                    
+                case 'FitType'
                     % A fitting parameter has been set. The fits need to be calculated again.
                     stackDepth  = 3;
                     evnt.AffectedObject.setUpdateStackToUpdateRequired(stackDepth)

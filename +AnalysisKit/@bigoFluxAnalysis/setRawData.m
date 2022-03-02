@@ -7,7 +7,8 @@ function setRawData(obj)
     
     timeData    = NaT(0,obj.NFits);
     fluxData    = NaN(0,obj.NFits);
-    excludeData = false(0,obj.NFits);
+    excludeDataMarkedRejected = false(0,obj.NFits);
+    excludeDataExcludeFromFit = false(0,obj.NFits);
     nSamples    = zeros(1,obj.NFits);
     isSample    = false(0,obj.NFits);
     for ff = 1:obj.NFits
@@ -32,7 +33,8 @@ function setRawData(obj)
 
         % Data is excluded from fitting if it has manually been marked as
         % rejected or if it falls outside the FitInterval.
-        exclude     = isFlag(data.Flags,'ExcludeFromFit');        
+        flagMarkedRejected 	= isFlag(data.Flags,'MarkedRejected');
+        flagExcludeFromFit 	= isFlag(data.Flags,'ExcludeFromFit');
         
         nSamples(ff)  	= numel(xData);
         isSample(1:nSamples(ff),ff) = true;
@@ -42,11 +44,13 @@ function setRawData(obj)
         if dN > 0
             timeData    = cat(1,timeData,NaT(dN,obj.NFits));
             fluxData    = cat(1,fluxData,NaN(dN,obj.NFits));
-            excludeData = cat(1,excludeData,false(dN,obj.NFits));
+            excludeDataMarkedRejected = cat(1,excludeDataMarkedRejected,false(dN,obj.NFits));
+            excludeDataExcludeFromFit = cat(1,excludeDataExcludeFromFit,false(dN,obj.NFits));
         end
         timeData(1:nSamples(ff),ff)     = xData;
         fluxData(1:nSamples(ff),ff)     = yData;
-        excludeData(1:nSamples(ff),ff)	= exclude;        
+        excludeDataMarkedRejected(1:nSamples(ff),ff)	= flagMarkedRejected;     
+        excludeDataExcludeFromFit(1:nSamples(ff),ff)	= flagExcludeFromFit;        
     end
     
     % Write to backend property
@@ -63,9 +67,13 @@ function setRawData(obj)
     [flagIsSamplei,flagIsSamplej] = find(isSample);
     obj.FlagData            = obj.FlagData.setFlag('IsSample',1,flagIsSamplei,flagIsSamplej);
     
-    % Find manual exclusions
-    [flagIsManuallyExcludedFromFiti,flagIsManuallyExcludedFromFitj] = find(excludeData);
-    obj.FlagData            = obj.FlagData.setFlag('IsManuallyExcludedFromFit',1,flagIsManuallyExcludedFromFiti,flagIsManuallyExcludedFromFitj);
+    % Find marked rejections
+    [flagIsMarkedRejectedi,flagIsMarkedRejectedj] = find(excludeDataMarkedRejected);
+    obj.FlagData            = obj.FlagData.setFlag('IsManuallyExcludedFromFit',1,flagIsMarkedRejectedi,flagIsMarkedRejectedj);
+    
+    % Find fit exclusions
+    [flagIsExcludedFromFiti,flagIsExcludedFromFitj] = find(excludeDataExcludeFromFit);
+    obj.FlagData            = obj.FlagData.setFlag('IsManuallyExcludedFromFit',1,flagIsExcludedFromFiti,flagIsExcludedFromFitj);
     
     printDebugMessage('Dingi:AnalysisKit:bigoFluxAnalysis:setRawData:settingExclusionFlags',...
         'Verbose','Setting raw data exclusion flags ... done')

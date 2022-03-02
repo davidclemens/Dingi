@@ -10,7 +10,12 @@ function setExclusions(obj)
     % are set in the setRawData method.
     isSample        = isFlag(obj.FlagData,'IsSample'); 
     excludeData     = isFlag(obj.FlagData,'IsManuallyExcludedFromFit');
-    nSamples        = sum(isSample,1);
+    
+    % Define the fit interval
+    fitInterval             = obj.TimeUnitFunction(obj.FitInterval);
+    isInFittingInterval     = obj.Time >= fitInterval(1) & obj.Time <= fitInterval(2);
+    
+    nSamplesInFitInterval	= sum(isSample & isInFittingInterval,1);
     
     % Initialize flags
     obj.FlagDataset = DataKit.bitflag('AnalysisKit.Metadata.bigoFluxAnalysisDatasetFlag',1,obj.NFits);
@@ -28,17 +33,21 @@ function setExclusions(obj)
     flagIsNaN               = (isnat(obj.Time_) | isnan(obj.FluxParameter_)) & isSample;
     [flagIsNaNi,flagIsNaNj] = find(flagIsNaN);
     obj.FlagData            = obj.FlagData.setFlag('IsNaN',1,flagIsNaNi,flagIsNaNj);
+    
+    % Flag samples outside the fitting interval
+    [flagIsNotInFittingIntervali,flagIsNotInFittingIntervalj]     = find(~isInFittingInterval);
+    obj.FlagData                = obj.FlagData.setFlag('IsNotInFitInterval',1,flagIsNotInFittingIntervali,flagIsNotInFittingIntervalj);
 
     % Also set the dataset flag, if too many flags were raised.
-    rIsNaN                  = sum(flagIsNaN,1)./nSamples;
+    rIsNaN                  = sum(flagIsNaN & isInFittingInterval,1)./nSamplesInFitInterval;
     flagIsNaNThresholdExceeded  = rIsNaN > eval([obj.FlagDataset.EnumerationClassName,'.MissingDataThresholdExceeded.Threshold']);
-    flagInsufficientFittingData = nSamples - sum(flagIsNaN | excludeData,1) < obj.FitMinimumSamples;
+    flagInsufficientFittingData = nSamplesInFitInterval - sum((flagIsNaN | excludeData) & isInFittingInterval,1) < obj.FitMinimumSamples;
     for ff = 1:obj.NFits
         obj.FlagDataset = obj.FlagDataset.setFlag('MissingDataThresholdExceeded',flagIsNaNThresholdExceeded(ff),1,ff);
         obj.FlagDataset = obj.FlagDataset.setFlag('InsufficientFittingData',flagInsufficientFittingData(ff),1,ff);
     end
     
-    obj.Exclude                 = ~isSample | flagIsNaN | excludeData;
+    obj.Exclude                 = ~isSample | flagIsNaN | excludeData | ~isInFittingInterval;
     obj.ExcludeFluxParameter    = flagInsufficientFittingData;
     
     printDebugMessage('Dingi:AnalysisKit:bigoFluxAnalysis:setExclusions:settingExclusions',...
