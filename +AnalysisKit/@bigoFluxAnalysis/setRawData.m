@@ -3,7 +3,7 @@ function setRawData(obj)
     import DebuggerKit.Debugger.printDebugMessage
 
     printDebugMessage('Dingi:AnalysisKit:bigoFluxAnalysis:setRawData:settingRawData',...
-        'Verbose','Setting raw data ...')
+        'Info','Setting raw data ...')
     
     timeData    = NaT(0,obj.NFits);
     fluxData    = NaN(0,obj.NFits);
@@ -71,5 +71,5 @@ function setRawData(obj)
         'Verbose','Setting raw data exclusion flags ... done')
     
     printDebugMessage('Dingi:AnalysisKit:bigoFluxAnalysis:setRawData:settingRawData',...
-        'Verbose','Setting raw data ... done')
+        'Info','Setting raw data ... done')
 end

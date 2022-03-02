@@ -16,7 +16,7 @@ function varargout = checkUpdateStack(obj,stackDepth)
         updateIndex = find(obj.UpdateStack(1:stackDepth) == 2,1);
         
         printDebugMessage('Dingi:AnalysisKit:bigoFluxAnalysis:checkUpdateStack:updating',...
-            'Verbose','Updating stack depth %u ...',updateIndex)
+            'Info','Updating stack depth %u ...',updateIndex)
         
         switch updateIndex
             case 1 % The raw data needs to be set again from the parent object
@@ -35,7 +35,7 @@ function varargout = checkUpdateStack(obj,stackDepth)
         obj.UpdateStack(updateIndex) = 0;
         
         printDebugMessage('Dingi:AnalysisKit:bigoFluxAnalysis:checkUpdateStack:updating',...
-            'Verbose','Updating stack depth %u ... done',updateIndex)
+            'Info','Updating stack depth %u ... done',updateIndex)
         
         updateRequired	= any(obj.UpdateStack(1:stackDepth) == 2);
     end

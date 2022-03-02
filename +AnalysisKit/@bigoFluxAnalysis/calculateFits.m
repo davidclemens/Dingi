@@ -3,7 +3,7 @@ function calculateFits(obj)
     import DebuggerKit.Debugger.printDebugMessage
 
     printDebugMessage('Dingi:AnalysisKit:bigoFluxAnalysis:calculateFits:calculatingFits',...
-        'Verbose','Calculating fits ...')
+        'Info','Calculating fits ...')
     
     fitIndex	= find(~obj.ExcludeFluxParameter);
     nFits       = numel(fitIndex);
@@ -32,5 +32,5 @@ function calculateFits(obj)
     obj.Fits_ = fits;
     
     printDebugMessage('Dingi:AnalysisKit:bigoFluxAnalysis:calculateFits:calculatingFits',...
-        'Verbose','Calculating fits ... done')    
+        'Info','Calculating fits ... done')    
 end

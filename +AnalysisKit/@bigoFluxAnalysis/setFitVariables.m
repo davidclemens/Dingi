@@ -3,7 +3,7 @@ function setFitVariables(obj)
     import DebuggerKit.Debugger.printDebugMessage
 
     printDebugMessage('Dingi:AnalysisKit:bigoFluxAnalysis:setFitVariables:settingFitVariables',...
-        'Verbose','Setting fit variables ...')
+        'Info','Setting fit variables ...')
     
     info                = obj.Parent.data.info;
     info.DeviceDomain   = cat(1,info{:,'MeasuringDevice'}.DeviceDomain);
@@ -50,5 +50,5 @@ function setFitVariables(obj)
     obj.FitVariables        = info{:,'Variable'};
     
     printDebugMessage('Dingi:AnalysisKit:bigoFluxAnalysis:setFitVariables:settingFitVariables',...
-        'Verbose','Setting fit variables ... done')
+        'Info','Setting fit variables ... done')
 end

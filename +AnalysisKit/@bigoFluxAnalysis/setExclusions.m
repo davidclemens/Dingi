@@ -3,7 +3,7 @@ function setExclusions(obj)
     import DebuggerKit.Debugger.printDebugMessage
 
     printDebugMessage('Dingi:AnalysisKit:bigoFluxAnalysis:setExclusions:settingExclusions',...
-        'Verbose','Setting exclusions ...')
+        'Info','Setting exclusions ...')
     
     
     % Get the isSample & manual exclusions that are dependent only on the raw data and
@@ -29,9 +29,6 @@ function setExclusions(obj)
     [flagIsNaNi,flagIsNaNj] = find(flagIsNaN);
     obj.FlagData            = obj.FlagData.setFlag('IsNaN',1,flagIsNaNi,flagIsNaNj);
 
-    
-    
-    
     % Also set the dataset flag, if too many flags were raised.
     rIsNaN                  = sum(flagIsNaN,1)./nSamples;
     flagIsNaNThresholdExceeded  = rIsNaN > eval([obj.FlagDataset.EnumerationClassName,'.MissingDataThresholdExceeded.Threshold']);
@@ -43,7 +40,7 @@ function setExclusions(obj)
     
     obj.Exclude                 = ~isSample | flagIsNaN | excludeData;
     obj.ExcludeFluxParameter    = flagInsufficientFittingData;
-        
+    
     printDebugMessage('Dingi:AnalysisKit:bigoFluxAnalysis:setExclusions:settingExclusions',...
-        'Verbose','Setting exclusions ... done')
+        'Info','Setting exclusions ... done')
 end
