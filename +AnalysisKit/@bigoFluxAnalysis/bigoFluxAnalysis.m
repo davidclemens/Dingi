@@ -308,9 +308,6 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
     methods (Static)
         function handlePropertyChangeEvents(src,evnt)
             switch src.Name
-                case 'TimeUnit'
-                    setRelativeTimeFunction(evnt.AffectedObject)
-                    
                 case 'Parent'
                     % The parent bigoDeployment object has been set. The raw data needs to be
                     % extracted again.
@@ -331,6 +328,13 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
                     % A fitting parameter has been set. The fits need to be calculated again.
                     stackDepth  = 3;
                     evnt.AffectedObject.setUpdateStackToUpdateRequired(stackDepth)
+                case 'TimeUnit'
+                    % The fit & flux are normalized to the time unit. The fits need to be
+                    % recalculated.
+                    stackDepth  = 3;
+                    setRelativeTimeFunction(evnt.AffectedObject)
+                    evnt.AffectedObject.setUpdateStackToUpdateRequired(stackDepth)
+                    
                 case 'FitEvaluationInterval'
                     % A fitting evaluation parameter has been set. The fluxes need to be
                     % recalculated.
