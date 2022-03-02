@@ -1,8 +1,6 @@
-function varargout = checkUpdateStack(obj,stackDepth)
+function checkUpdateStack(obj,stackDepth)
 
     import DebuggerKit.Debugger.printDebugMessage
-    
-    nargoutchk(0,1)
     
     updating        = any(obj.UpdateStack(1:stackDepth) == 1);
     if updating
@@ -32,15 +30,11 @@ function varargout = checkUpdateStack(obj,stackDepth)
         end
         
         % Set the current update index to 'Updated'
-        obj.UpdateStack(updateIndex) = 0;
+        obj.setUpdateStackToUpdated(updateIndex)
         
         printDebugMessage('Dingi:AnalysisKit:bigoFluxAnalysis:checkUpdateStack:updating',...
             'Info','Updating stack depth %u ... done',updateIndex)
         
         updateRequired	= any(obj.UpdateStack(1:stackDepth) == 2);
-    end
-    
-    if nargout == 1
-        varargout{1} = obj;
     end
 end

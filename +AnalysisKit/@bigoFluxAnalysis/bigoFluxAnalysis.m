@@ -143,6 +143,8 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
         varargout   = plot(obj,varargin)
         func        = fitLinear(x,y,varargin)
         tbl         = getFlux(obj,variables)
+        
+        checkUpdateStack(obj,stackDepth)
     end
     methods (Access = private)
         varargout = plotFits(obj,variable,axesProperties)
@@ -212,42 +214,42 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
         % flags.
         function obj = set.Time(obj,value)
             stackDepth                  = 1;
-            obj.UpdateStack(stackDepth) = 1; % Set to 'Updating'
+            obj.setUpdateStackToUpdating(stackDepth)
             obj.Time_                   = value;
-            obj.UpdateStack(stackDepth) = 0; % Set to 'Updated'
+            obj.setUpdateStackToUpdated(stackDepth)
         end
         function obj = set.FluxParameter(obj,value)
             stackDepth                  = 1;
-            obj.UpdateStack(stackDepth) = 1; % Set to 'Updating'
+            obj.setUpdateStackToUpdating(stackDepth)
             obj.FluxParameter_        	= value;
-            obj.UpdateStack(stackDepth) = 0; % Set to 'Updated'
+            obj.setUpdateStackToUpdated(stackDepth)
         end
         
         function obj = set.Exclude(obj,value)
             stackDepth                  = 2;
-            obj.UpdateStack(stackDepth) = 1; % Set to 'Updating'
+            obj.setUpdateStackToUpdating(stackDepth)
             obj.Exclude_                = value;
-            obj.UpdateStack(stackDepth) = 0; % Set to 'Updated'
+            obj.setUpdateStackToUpdated(stackDepth)
         end
         function obj = set.ExcludeFluxParameter(obj,value)
             stackDepth                  = 2;
-            obj.UpdateStack(stackDepth) = 1; % Set to 'Updating'
+            obj.setUpdateStackToUpdating(stackDepth)
             obj.ExcludeFluxParameter_   = value;
-            obj.UpdateStack(stackDepth) = 0; % Set to 'Updated'
+            obj.setUpdateStackToUpdated(stackDepth)
         end
         
         function obj = set.Fits_(obj,value)
             stackDepth                  = 3;
-            obj.UpdateStack(stackDepth) = 1; % Set to 'Updating'
+            obj.setUpdateStackToUpdating(stackDepth)
             obj.Fits_      	= value;
-            obj.UpdateStack(stackDepth) = 0; % Set to 'Updated'
+            obj.setUpdateStackToUpdated(stackDepth)
         end
         
         function obj = set.Fluxes_(obj,value)
             stackDepth                  = 5;
-            obj.UpdateStack(stackDepth) = 1; % Set to 'Updating'
+            obj.setUpdateStackToUpdating(stackDepth)
             obj.Fluxes_      	= value;
-            obj.UpdateStack(stackDepth) = 0; % Set to 'Updated'
+            obj.setUpdateStackToUpdated(stackDepth)
         end
         
         function obj = set.UpdateStack(obj,value)
@@ -292,26 +294,26 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
                     % The parent bigoDeployment object has been set. The raw data needs to be
                     % extracted again.
                     stackDepth  = 1;
-                    evnt.AffectedObject.UpdateStack(stackDepth) = 2; % Set to 'UpdateRequired'
+                    evnt.AffectedObject.setUpdateStackToUpdateRequired(stackDepth)
                 case 'DeviceDomains'
                     % The device domains have been set. The raw data needs to be extracted
                     % again.
                     stackDepth  = 1;
-                    evnt.AffectedObject.UpdateStack(stackDepth) = 2; % Set to 'UpdateRequired'
+                    evnt.AffectedObject.setUpdateStackToUpdateRequired(stackDepth)
                     
                 case 'FitType'
                     % A fitting parameter has been set. The fits need to be calculated again.
                     stackDepth  = 3;
-                    evnt.AffectedObject.UpdateStack(stackDepth) = 2; % Set to 'UpdateRequired'
+                    evnt.AffectedObject.setUpdateStackToUpdateRequired(stackDepth)
                 case 'FitInterval'
                     % A fitting parameter has been set. The fits need to be calculated again.
                     stackDepth  = 3;
-                    evnt.AffectedObject.UpdateStack(stackDepth) = 2; % Set to 'UpdateRequired'
+                    evnt.AffectedObject.setUpdateStackToUpdateRequired(stackDepth)
                 case 'FitEvaluationInterval'
                     % A fitting evaluation parameter has been set. The fluxes need to be
                     % recalculated.
                     stackDepth  = 5;
-                    evnt.AffectedObject.UpdateStack(stackDepth) = 2; % Set to 'UpdateRequired'
+                    evnt.AffectedObject.setUpdateStackToUpdateRequired(stackDepth)
             end
         end
     end
