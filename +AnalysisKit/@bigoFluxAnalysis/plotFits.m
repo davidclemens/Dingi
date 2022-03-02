@@ -24,7 +24,7 @@ function varargout = plotFits(obj,variable,axesProperties)
                 nFits       = numel(maskFitsInd);
                 if isempty(maskFitsInd)
                     text(0.5,0.5,'no data','Units','normalized')
-                    return
+                    continue
                 end
                 deviceDomains   = obj(oo).FitDeviceDomains(maskFitsInd);
 
@@ -61,7 +61,7 @@ function varargout = plotFits(obj,variable,axesProperties)
                 legendLabels = strcat({deviceDomains.Abbreviation}');
                 legend(hp(spi(row,col),1:nFits),legendLabels)
                 
-                yLabelString{row}   = obj(oo).FitVariables(find(maskFitsInd,1)).Abbreviation;
+                yLabelString{row}   = obj(oo).FitVariables(maskFitsInd(ff)).Abbreviation;
         end
      	xLabelString{col}   = ['t (',obj(oo).TimeUnit,')'];
     end
