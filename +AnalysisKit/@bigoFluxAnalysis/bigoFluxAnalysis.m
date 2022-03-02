@@ -84,6 +84,8 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
     properties (Dependent)
         NDeviceDomains
         FitMinimumSamples
+        NRates
+        RateIndex
     end
     
     methods
@@ -163,6 +165,12 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
                 otherwise
                     error('''FitMinimumSamples'' is not defined for FitType ''%s'' yet.',obj.FitType)
             end
+        end
+        function nRates = get.NRates(obj)
+            nRates = sum(~obj.ExcludeFluxParameter);
+        end
+        function rateIndex = get.RateIndex(obj)
+            rateIndex = find(~obj.ExcludeFluxParameter);
         end
     end
     

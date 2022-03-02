@@ -5,28 +5,28 @@ function calculateFits(obj)
     printDebugMessage('Dingi:AnalysisKit:bigoFluxAnalysis:calculateFits:calculatingFits',...
         'Info','Calculating fits ...')
     
-    fitIndex	= find(~obj.ExcludeFluxParameter);
-    nFits       = numel(fitIndex);
+    rateIndex 	= obj.RateIndex;
+    nRates    	= obj.NRates;
     
-    fits        = struct('Index',num2cell(fitIndex'));
+    fits        = struct('Index',num2cell(obj.RateIndex'));
     switch obj.FitType
         case 'linear'
             xData = obj.Time;
             yData = obj.FluxParameter;
             exData = obj.Exclude;
             
-            for ff = 1:nFits
-                fi = fitIndex(ff);
+            for rr = 1:nRates
+                fi = rateIndex(rr);
+                
+                printDebugMessage('Dingi:AnalysisKit:bigoFluxAnalysis:calculateFits:fitting',...
+                    'Verbose','Fitting flux parameter %u of %u: %s %s ...',rr,nRates,obj.FitDeviceDomains(fi),obj.FitVariables(fi))
                 
                 [p,S,mu] = polyfit(xData(~exData(:,fi),fi),yData(~exData(:,fi),fi),1);
                 
-                fits(ff).Coeff = p;
-                fits(ff).ErrEst = S;
-                fits(ff).Scaling = mu;
+                fits(rr).Coeff = p;
+                fits(rr).ErrEst = S;
+                fits(rr).Scaling = mu;
             end
-        otherwise
-            printDebugMessage('Dingi:AnalysisKit:bigoFluxAnalysis:calculateFits:unknown',...
-                'Error','Calculating fits ... done')    
     end
     
     obj.Fits_ = fits;

@@ -27,6 +27,7 @@ function checkUpdateStack(obj,stackDepth)
             case 4 % The fits have to be quality controlled
                 
             case 5 % Fluxes need to be recalculated from the fits
+                calculateFluxes(obj)
         end
         
         % Set the current update index to 'Updated'

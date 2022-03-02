@@ -3,7 +3,8 @@ function obj = calculateFluxes(obj)
 
     import DebuggerKit.Debugger.printDebugMessage
 
-    printDebugMessage('Info','%s: Calculating fluxes for %u variable(s) ...',obj.Parent.gearId,obj.NFits)
+    printDebugMessage('Dingi:AnalysisKit:bigoFluxAnalysis:calculateFluxes:calculatingFluxes',...
+        'Info','Calculating fluxes ...')
     
     n       = 100;
 
@@ -14,39 +15,24 @@ function obj = calculateFluxes(obj)
     statisticalFunctions   	= {@(x) nanmean(x), @(x) nanmedian(x),	@(x) prctile(x,25),	@(x) prctile(x,75),	@(x) nanmin(x), @(x) nanmax(x), @(x) nanstd(x), @(x) iqr(x)};
     nStatisticalParameters  = numel(statisticalParameters);
 
-    flux    = NaN(obj.NFits,nStatisticalParameters);
+    flux    = NaN(obj.NRates,nStatisticalParameters);
     xq      = obj.TimeUnitFunction(linspace(obj.FitEvaluationInterval(1),obj.FitEvaluationInterval(2),n)');
-    fluxes  = NaN(obj.NFits,numel(xq));
-    confidenceInterval = NaN(obj.NFits,2);
-    for ff = 1:obj.NFits
-        printDebugMessage('Verbose','%s: Calculating flux for variable %u of %u (%s) ...',obj.Parent.gearId,ff,obj.NFits,obj.FitVariables(ff))
-        if isempty(obj.FitObjects{ff})
-            printDebugMessage('Verbose','%s: Calculating flux for variable %u of %u (%s) ... no fit found',obj.Parent.gearId,ff,obj.NFits,obj.FitVariables(ff))
-            continue
-        end
-        fluxes(ff,:)	= differentiate(obj.FitObjects{ff},xq); % dUnit/dt
-
-        flux(ff,:)      = cellfun(@(func) func(fluxFactorParameter.*fluxFactorSource(ff).*fluxes(ff,:)),statisticalFunctions);
+    fluxes  = NaN(obj.NRates,numel(xq));
+    for rr = 1:obj.NRates
+        fi = obj.RateIndex(rr);
         
-        fluxes(ff,:)    = fluxFactorParameter.*fluxFactorSource(ff).*fluxes(ff,:);
-        switch obj.FitType
-            case 'linear'
-                tmp = confint(obj.FitObjects{ff},0.68);
-                confidenceInterval(ff,:) = fluxFactorParameter.*fluxFactorSource(ff).*tmp(:,2)';
-            case 'sigmoidal'
-%                 tmp = confint(obj.FitObjects{ff},0.68);
-%                 confidenceInterval(ff,:) = fluxFactorParameter.*fluxFactorSource(ff).*tmp(:,2)';
-            case 'polynomial4'
-                
-            otherwise
-                error('Dingi:AnalysisKit:bigoFluxAnalysis:calculateFlux:TODO',...
-                  'TODO: ''%s'' is not implemented yet.',obj.FitType)
-        end
+        printDebugMessage('Dingi:AnalysisKit:bigoFluxAnalysis:calculateFluxes:calculatingFlux',...
+            'Verbose','%s: Calculating flux for variable %u of %u (%s) ...',obj.Parent.gearId,rr,obj.NRates,obj.FitVariables(fi))
+
+        fluxes(rr,:)	= polyval(polyder(obj.Fits(rr).Coeff),xq); % dUnit/dt
+        
+        flux(rr,:)      = cellfun(@(func) func(fluxFactorParameter.*fluxFactorSource(fi).*fluxes(rr,:)),statisticalFunctions);
+        
+        fluxes(rr,:)    = fluxFactorParameter.*fluxFactorSource(fi).*fluxes(rr,:);
     end
     
-    obj.Flux            = fluxes;
-    obj.FluxConfInt     = confidenceInterval;
-    obj.FluxStatistics  = flux;
+    obj.Fluxes_        	= fluxes;
     
-    printDebugMessage('Info','%s: Calculating fluxes for %u variable(s) ... done',obj.Parent.gearId,obj.NFits)
+    printDebugMessage('Dingi:AnalysisKit:bigoFluxAnalysis:calculateFluxes:calculatingFluxes',...
+        'Info','Calculating fluxes ... done')
 end
