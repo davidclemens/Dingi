@@ -35,7 +35,7 @@ function varargout = plotFits(obj,variable,axesProperties)
                     exclude	= obj(oo).Exclude(:,maskFitsInd(ff));
 
                     % Extract limits
-                    xLimits(spi(row,col),:) = [nanmin([xLimits(spi(row,col),1);xData(~exclude)]), nanmax([xLimits(spi(row,col),2);xData(~exclude)])];
+                    xLimits(spi(row,col),:) = [nanmin([xLimits(spi(row,col),1);xData]), nanmax([xLimits(spi(row,col),2);xData])];
                     yLimits(spi(row,col),:) = [nanmin([yLimits(spi(row,col),1);yData(~exclude)]), nanmax([yLimits(spi(row,col),2);yData(~exclude)])];
                     
                     if sum(~exclude) > 20
@@ -58,7 +58,6 @@ function varargout = plotFits(obj,variable,axesProperties)
                 hp(spi(row,col),1:nFits) = plot(xFitData,yFitData);
                 set(hp(spi(row,col),1:nFits),...
                     {'Color'},    num2cell(hsp(spi(row,col)).ColorOrder(1:nFits,:),2))
-
                 legendLabels = strcat({deviceDomains.Abbreviation}');
                 legend(hp(spi(row,col),1:nFits),legendLabels)
                 

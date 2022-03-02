@@ -36,7 +36,7 @@ function setExclusions(obj)
     
     % Flag samples outside the fitting interval
     [flagIsNotInFittingIntervali,flagIsNotInFittingIntervalj]     = find(~isInFittingInterval);
-    obj.FlagData                = obj.FlagData.setFlag('IsNotInFitInterval',1,flagIsNotInFittingIntervali,flagIsNotInFittingIntervalj);
+    obj.FlagData         	= obj.FlagData.setFlag('IsNotInFitInterval',1,flagIsNotInFittingIntervali,flagIsNotInFittingIntervalj);
 
     % Also set the dataset flag, if too many flags were raised.
     rIsNaN                  = sum(flagIsNaN & isInFittingInterval,1)./nSamplesInFitInterval;
