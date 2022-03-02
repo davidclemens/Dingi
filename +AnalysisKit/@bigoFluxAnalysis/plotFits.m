@@ -19,7 +19,8 @@ function varargout = plotFits(obj,variable,axesProperties)
         for row = 1:spny
             var = row;
             hsp(spi(row,col))   = subplot(spny,spnx,spi(row,col),axesProperties{:});
-                maskFitsInd	= find(obj(oo).FitVariables == variable(var));
+                maskFitsInd     = find(obj(oo).FitVariables == variable(var));
+                [~,maskRateInd] = ismember(maskFitsInd,obj(oo).RateIndex);
                 nFits       = numel(maskFitsInd);
                 if isempty(maskFitsInd)
                     text(0.5,0.5,'no data','Units','normalized')
@@ -29,11 +30,6 @@ function varargout = plotFits(obj,variable,axesProperties)
 
                 yFitData    = NaN(n,nFits);
                 for ff = 1:nFits
-%                     dp      = obj(oo).PoolIndex(maskFitsInd(ff));
-%                     var     = obj(oo).VariableIndex(maskFitsInd(ff));
-%                     data    = fetchData(obj(oo).Bigo.data,[],[],[],[],dp,var,...
-%                                 'ForceCellOutput',  false);
-
                     xData  	= obj(oo).Time(:,maskFitsInd(ff));
                     yData   = obj(oo).FluxParameter(:,maskFitsInd(ff));
                     exclude	= obj(oo).Exclude(:,maskFitsInd(ff));
@@ -55,7 +51,7 @@ function varargout = plotFits(obj,variable,axesProperties)
                         'MarkerEdgeColor',  hsp(spi(row,col)).ColorOrder(ff,:))
 
                     xFitData        = obj(oo).TimeUnitFunction(linspace(obj(oo).FitStartTime(ff),obj(oo).FitEndTime(ff),n))';
-                    yFitData(:,ff)  = polyval(obj(oo).Fits(ff).Coeff,xFitData,obj(oo).Fits(ff).ErrEst);
+                    yFitData(:,ff)  = polyval(obj(oo).Fits(maskRateInd(ff)).Coeff,xFitData,[],obj(oo).Fits(maskRateInd(ff)).Scaling);
                 end
                 hp(spi(row,col),1:nFits) = plot(xFitData,yFitData);
                 set(hp(spi(row,col),1:nFits),...
