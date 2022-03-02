@@ -29,14 +29,14 @@ function varargout = plotFits(obj,variable,axesProperties)
 
                 yFitData    = NaN(n,nFits);
                 for ff = 1:nFits
-                    dp      = obj(oo).PoolIndex(maskFitsInd(ff));
-                    var     = obj(oo).VariableIndex(maskFitsInd(ff));
-                    data    = fetchData(obj(oo).Bigo.data,[],[],[],[],dp,var,...
-                                'ForceCellOutput',  false);
+%                     dp      = obj(oo).PoolIndex(maskFitsInd(ff));
+%                     var     = obj(oo).VariableIndex(maskFitsInd(ff));
+%                     data    = fetchData(obj(oo).Bigo.data,[],[],[],[],dp,var,...
+%                                 'ForceCellOutput',  false);
 
-                    xData  	= obj(oo).TimeUnitFunction(data.IndepData{:} - obj(oo).FitOriginTime(maskFitsInd(ff)));
-                    yData   = data.DepData;
-                    exclude	= isFlag(data.Flags,'ExcludeFromFit');
+                    xData  	= obj(oo).Time(:,maskFitsInd(ff));
+                    yData   = obj(oo).FluxParameter(:,maskFitsInd(ff));
+                    exclude	= obj(oo).Exclude(:,maskFitsInd(ff));
 
                     % Extract limits
                     xLimits(spi(row,col),:) = [nanmin([xLimits(spi(row,col),1);xData(~exclude)]), nanmax([xLimits(spi(row,col),2);xData(~exclude)])];
@@ -55,7 +55,7 @@ function varargout = plotFits(obj,variable,axesProperties)
                         'MarkerEdgeColor',  hsp(spi(row,col)).ColorOrder(ff,:))
 
                     xFitData        = obj(oo).TimeUnitFunction(linspace(obj(oo).FitStartTime(ff),obj(oo).FitEndTime(ff),n))';
-                    yFitData(:,ff)  = feval(obj(oo).FitObjects{maskFitsInd(ff)},xFitData);
+                    yFitData(:,ff)  = polyval(obj(oo).Fits(ff).Coeff,xFitData,obj(oo).Fits(ff).ErrEst);
                 end
                 hp(spi(row,col),1:nFits) = plot(xFitData,yFitData);
                 set(hp(spi(row,col),1:nFits),...
@@ -64,9 +64,9 @@ function varargout = plotFits(obj,variable,axesProperties)
                 legendLabels = strcat({deviceDomains.Abbreviation}');
                 legend(hp(spi(row,col),1:nFits),legendLabels)
                 
-                yLabelString{row}   = data.DepInfo.Variable.Abbreviation;
+                yLabelString{row}   = obj(oo).FitVariables(find(maskFitsInd,1)).Abbreviation;
         end
-     	xLabelString{col}   = data.IndepInfo.Variable{1}.Abbreviation;
+     	xLabelString{col}   = ['t (',obj(oo).TimeUnit,')'];
     end
     hfig    = hsp(spi(1,1)).Parent;
     

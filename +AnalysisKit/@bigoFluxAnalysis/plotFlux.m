@@ -27,12 +27,14 @@ function varargout = plotFlux(obj,variable,axesProperties)
                 grouping    = [];
                 for oo = 1:nObj
                     maskFitsInd	= obj(oo).FitVariables == variable(var);
-                    grouping    = cat(1,grouping,repmat(obj(oo).Bigo.areaId,sum(maskFitsInd),1));
-                    flux    = cat(1,flux,obj(oo).Flux(maskFitsInd,:));
+                    grouping    = cat(1,grouping,repmat(obj(oo).Parent.areaId,sum(maskFitsInd),1));
+                    flux    = cat(1,flux,obj(oo).Fluxes(maskFitsInd,:));
                 end
                 grouping = repmat(grouping,1,size(flux,2));
                 hv(spi(row,col)) = violin(flux(:),grouping(:));
 
+                xLimits(spi(row,col),:) = [min(hv(spi(row,col)).Vertices(:,1)),max(hv(spi(row,col)).Vertices(:,1))];
+                yLimits(spi(row,col),:) = [min(hv(spi(row,col)).Vertices(:,2)),max(hv(spi(row,col)).Vertices(:,2))];
         end
     end
     hfig    = hsp(spi(1,1)).Parent;
@@ -60,5 +62,4 @@ function varargout = plotFlux(obj,variable,axesProperties)
     tmp     = [hsp(spi(1:spny,1)).YAxis];
     set([tmp.Label],...
         {'String'},     yLabelString)
-        
 end
