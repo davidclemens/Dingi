@@ -166,14 +166,13 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
             narginchk(1,Inf)
             
             % Parse Name-Value pairs
-            optionName          = {'DeviceDomains','FitType','FitInterval','FitEvaluationInterval','TimeUnit','Parent'}; % valid options (Name)
-            optionDefaultValue  = {GearKit.deviceDomain.fromProperty('Abbreviation',{'Ch1';'Ch2'}),'linear',[hours(0),bigoDeployment.timeRecovery - bigoDeployment.timeDeployment],hours([0,4]),'h',bigoDeployment}; % default value (Value)
+            optionName          = {'DeviceDomains','FitType','FitInterval','FitEvaluationInterval','TimeUnit'}; % valid options (Name)
+            optionDefaultValue  = {GearKit.deviceDomain.fromProperty('Abbreviation',{'Ch1';'Ch2'}),'linear',[hours(0),bigoDeployment.timeRecovery - bigoDeployment.timeDeployment],hours([0,4]),'h'}; % default value (Value)
             [deviceDomains,...
              fitType,...
              fitInterval,...
              fitEvaluationInterval,...
-             timeUnit,...
-             parent] = parseArgs(optionName,optionDefaultValue,varargin{:}); % parse function arguments
+             timeUnit] = parseArgs(optionName,optionDefaultValue,varargin{:}); % parse function arguments
             
             % Input checks
             if ~isscalar(bigoDeployment)
@@ -192,8 +191,8 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
             % Update stack depth 1
             addlistener(obj,'Parent','PostSet',@AnalysisKit.bigoFluxAnalysis.handlePropertyChangeEvents);
             addlistener(obj,'DeviceDomains','PostSet',@AnalysisKit.bigoFluxAnalysis.handlePropertyChangeEvents);
-            validateattributes(parent,{'GearKit.bigoDeployment'},{});
-            obj.Parent                	= parent;
+            validateattributes(bigoDeployment,{'GearKit.bigoDeployment'},{});
+            obj.Parent                	= bigoDeployment;
             obj.DeviceDomains           = deviceDomains;
             
             % Update stack depth 2
