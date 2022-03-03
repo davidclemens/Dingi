@@ -91,16 +91,20 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
     end
     
     methods
-        function obj = bigoFluxAnalysis(bigoDeployment,varargin)
+        function obj = bigoFluxAnalysis(varargin)
         % bigoFluxAnalysis  Short description of the function/method
         %   BIGOFLUXANALYSIS long description goes here. It can hold multiple lines as it can
         %   go into lots of detail.
         %
         %   Syntax
+        %     obj = BIGOFLUXANALYSIS()
         %     obj = BIGOFLUXANALYSIS(bigoDeployment)
         %     obj = BIGOFLUXANALYSIS(__,Name,Value)
         %
         %   Description
+        %     obj = BIGOFLUXANALYSIS() Creates an empty bigoFluxAnalysis
+        %       instance based on an empty bigoDeployment instance.
+        %
         %     obj = BIGOFLUXANALYSIS(bigoDeployment) Creates a bigoFluxAnalysis
         %       instance based on the bigoDeployment instance.
         %
@@ -159,11 +163,25 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
         %   Copyright (c) 2021-2022 David Clemens (dclemens@geomar.de)
         %
         
+            import DebuggerKit.Debugger.printDebugMessage
             import internal.stats.parseArgs
-            import GearKit.bigoDeployment
             
-            % Check for at least 1 input argument
-            narginchk(1,Inf)
+            if nargin == 0
+                bigoDeployment = GearKit.bigoDeployment();
+            elseif nargin >= 1
+                bigoDeployment = varargin{1};
+                varargin(1) = [];
+            end
+            
+            % Input checks
+            if ~isa(bigoDeployment,'GearKit.bigoDeployment')
+                printDebugMessage('Dingi:AnalysisKit:bigoFluxAnalysis:bigoFluxAnalysis:invalidType',...
+                    'Error','The first input has to be a GearKit.bigoDeployment instance.')
+            end
+            if ~isscalar(bigoDeployment)
+                printDebugMessage('Dingi:AnalysisKit:bigoFluxAnalysis:bigoFluxAnalysis:nonScalarContext',...
+                    'Error','The analysis can only be run on a single bigoDeployment instance.')
+            end
             
             % Parse Name-Value pairs
             optionName          = {'DeviceDomains','FitType','FitInterval','FitEvaluationInterval','TimeUnit'}; % valid options (Name)
@@ -174,11 +192,6 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
              fitEvaluationInterval,...
              timeUnit] = parseArgs(optionName,optionDefaultValue,varargin{:}); % parse function arguments
             
-            % Input checks
-            if ~isscalar(bigoDeployment)
-                error('Dingi:AnalysisKit:bigoFluxAnalysis:bigoFluxAnalysis:nonScalarContext',...
-                    'The analysis can only be run on a single bigoDeployment instance.')
-            end
 
             % Call superclass constructor
             obj = obj@AnalysisKit.analysis();
