@@ -92,7 +92,73 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
     
     methods
         function obj = bigoFluxAnalysis(bigoDeployment,varargin)
-                        
+        % bigoFluxAnalysis  Short description of the function/method
+        %   BIGOFLUXANALYSIS long description goes here. It can hold multiple lines as it can
+        %   go into lots of detail.
+        %
+        %   Syntax
+        %     obj = BIGOFLUXANALYSIS(bigoDeployment)
+        %     obj = BIGOFLUXANALYSIS(__,Name,Value)
+        %
+        %   Description
+        %     obj = BIGOFLUXANALYSIS(bigoDeployment) Creates a bigoFluxAnalysis
+        %       instance based on the bigoDeployment instance.
+        %
+        %     obj = BIGOFLUXANALYSIS(__,Name,Value) Additionally define Name-Value
+        %       pairs.
+        %
+        %   Example(s)
+        %     obj = BIGOFLUXANALYSIS(bigoDeployment)
+        %     obj = BIGOFLUXANALYSIS(bigoDeployment,'FitInterval',hours([0,7]))
+        %     obj = BIGOFLUXANALYSIS(bigoDeployment,'TimeUnit','d')
+        %
+        %
+        %   Input Arguments
+        %     bigoDeployment - parent BIGO deployment
+        %       GearKit.bigoDeployment
+        %         BigoDeployment instance that the flux analysis is based on.
+        %
+        %
+        %   Output Arguments
+        %     obj - Constructed bigoFluxAnalysis instance
+        %       AnalysisKit.bigoFluxAnalysis
+        %         Handle to the constructed AnalysisKit.bigoFluxAnalysis instance.
+        %
+        %
+        %   Name-Value Pair Arguments
+        %     DeviceDomains - Device domains included in the flux analysis
+        %       [Chamber1, Chamber2] (default) | GearKit.deviceDomain
+        %         The device domain(s) of the parent bigoDeployment instance that
+        %         are included in the flux analyis.
+        %
+        %     FitType - Type of fit
+        %       'linear' (default)
+        %         The fit type or method that is used to fit the incubation data.
+        %
+        %     FitInterval - Fit interval 
+        %       [0 hr, <deploymentDuration>] | 1x2 duration vector
+        %         Only data points within the relative time interval FitInterval
+        %         are included in the fitting. FitInterval(2) has to be greater
+        %         than FitInterval(1).
+        %
+        %     FitEvaluationInterval - Fit statistics evaluation interval 
+        %       [0 hr, 4 hr] | 1x2 duration vector
+        %         Only data points within the relative time interval FitInterval
+        %         are included in the fitting. FitEvaluationInterval(2) has to 
+        %         be greater than FitEvaluationInterval(1).
+        %
+        %     TimeUnit - Relative time unit
+        %       'h' (default') | 'ms' | 's' or 'sec' | 'm' or 'min' | 'd' | 'y'
+        %         The duration unit used to normalize the fluxes to. The unit of
+        %         the calculated fluxes corresponds to this: µmol/(m2 * d) or
+        %         µmol/(m2 * h), etc..
+        %
+        %
+        %   See also GEARKIT.BIGODEPLOYMENT, ANALYSISKIT.ANALYSIS
+        %
+        %   Copyright (c) 2021-2022 David Clemens (dclemens@geomar.de)
+        %
+        
             import internal.stats.parseArgs
             import GearKit.bigoDeployment
             
