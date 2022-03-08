@@ -294,10 +294,10 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
             obj.checkUpdateStack(stackDepth)
             fluxes = obj.Fluxes_;
         end
-        function fluxeStatistics = get.FluxStatistics(obj)
+        function fluxStatistics = get.FluxStatistics(obj)
             stackDepth = 5;
             obj.checkUpdateStack(stackDepth)
-            fluxeStatistics = obj.FluxeStatistics_;
+            fluxStatistics = obj.FluxStatistics_;
         end
     end
     
