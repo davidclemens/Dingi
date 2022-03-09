@@ -5,10 +5,10 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
     properties (SetObservable, AbortSet)
         Name char = 'BigoFlux' % Analysis name
         Type char = 'Flux' % Analysis type
-        Parent = GearKit.bigoDeployment % Parent
+        Parent = GearKit.bigoDeployment % Parent bigoDeployment instance
         DeviceDomains GearKit.deviceDomain % The device domain(s) to be analysed
         
-        TimeUnit (1,:) char = 'h'
+        TimeUnit (1,:) char = 'h' % The relative time unit
         
         FitType (1,:) char {mustBeMember(FitType,{'linear'})} = 'linear' % Fit method
         FitInterval (1,2) duration = hours([0,5]) % The interval that should be fitted to
@@ -18,6 +18,9 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
     % Frontend
     properties (Dependent)
         % Stack depth 1 (Data)
+        FitVariables DataKit.Metadata.variable
+        FitDeviceDomains GearKit.deviceDomain
+        FitOriginTime datetime % The absolute time origin
         Time double % Time
         FluxParameter double % Flux parameters
         
@@ -38,6 +41,9 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
     % Backend
     properties (Access = 'private')
         % Stack depth 1 (Data)
+        FitVariables_ DataKit.Metadata.variable
+        FitDeviceDomains_ GearKit.deviceDomain
+        FitOriginTime_ datetime
         Time_ datetime
         FluxParameter_ double
         
@@ -55,15 +61,13 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
         FluxStatistics_ double
     end
     
-  	properties (Dependent) %Access = 'private', 
-        UpdateStack
+  	properties (Hidden, Dependent) 
+        UpdateStack double
     end
     properties (Access = 'private')
         UpdateStack_ (5,1) double = 2.*ones(5,1) % Initialize as update required
     end
     properties
-        NFits double
-        
         FluxVolume double
         FluxCrossSection double
         
@@ -75,19 +79,13 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
         VariableIndex double
         TimeUnitFunction function_handle = @hours % Note: This must correspond to the TimeUnit property, as TimeUnit has the property attribute 'AbortSet' set.
         TimeVariable DataKit.Metadata.variable = DataKit.Metadata.variable.Time
-        
-        FitOriginTime datetime % The absolute time origin
-        FitStartTime duration % The relative time offset of the fit start from the FitOriginTime
-        FitEndTime duration % The relative time offset of the fit end from the FitOriginTime
-        
-        FitDeviceDomains GearKit.deviceDomain
-        FitVariables DataKit.Metadata.variable
     end
     properties (Dependent)
-        NDeviceDomains
+        NFits double
+        NDeviceDomains double
         FitMinimumSamples
-        NRates
-        RateIndex
+        NRates double
+        RateIndex double
     end
     
     methods
@@ -235,6 +233,9 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
         
   	% Get methods
 	methods
+        function nFits = get.NFits(obj)
+            nFits = numel(obj.FitVariables);
+        end
         function nDeviceDomains = get.NDeviceDomains(obj)
             nDeviceDomains = numel(obj.DeviceDomains);
         end
@@ -261,6 +262,21 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
             updateStack = obj.UpdateStack_;
         end
         
+        function fitVariables = get.FitVariables(obj)
+            stackDepth = 1;
+            obj.checkUpdateStack(stackDepth)
+            fitVariables = obj.FitVariables_;
+        end
+        function fitDeviceDomains = get.FitDeviceDomains(obj)
+            stackDepth = 1;
+            obj.checkUpdateStack(stackDepth)
+            fitDeviceDomains = obj.FitDeviceDomains_;
+        end
+        function fitOriginTime = get.FitOriginTime(obj)
+            stackDepth = 1;
+            obj.checkUpdateStack(stackDepth)
+            fitOriginTime = obj.FitOriginTime_;
+        end
         function time = get.Time(obj)
             stackDepth = 1;
             obj.checkUpdateStack(stackDepth)
@@ -305,6 +321,24 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
     methods
         % If frontend properties are set, update the backend and set any necessary
         % flags.
+        function obj = set.FitVariables(obj,value)
+            stackDepth                  = 1;
+            obj.setUpdateStackToUpdating(stackDepth)
+            obj.FitVariables_           = value;
+            obj.setUpdateStackToUpdated(stackDepth)
+        end
+        function obj = set.FitDeviceDomains(obj,value)
+            stackDepth                  = 1;
+            obj.setUpdateStackToUpdating(stackDepth)
+            obj.FitDeviceDomains_      	= value;
+            obj.setUpdateStackToUpdated(stackDepth)
+        end
+        function obj = set.FitOriginTime(obj,value)
+            stackDepth                  = 1;
+            obj.setUpdateStackToUpdating(stackDepth)
+            obj.FitOriginTime_      	= value;
+            obj.setUpdateStackToUpdated(stackDepth)
+        end
         function obj = set.Time(obj,value)
             stackDepth                  = 1;
             obj.setUpdateStackToUpdating(stackDepth)

@@ -51,7 +51,7 @@ function varargout = plotFits(obj,variable,axesProperties)
                         'MarkerEdgeColor',  hsp(spi(row,col)).ColorOrder(ff,:))
 
                     if hasRate(ff)
-                        xFitData        = obj(oo).TimeUnitFunction(linspace(obj(oo).FitStartTime(ff),obj(oo).FitEndTime(ff),n))';
+                        xFitData        = linspace(xLimits(spi(row,col),1),xLimits(spi(row,col),2),n)';
                         yFitData(:,ff)  = polyval(obj(oo).Fits(maskRateInd(ff)).Coeff,xFitData,obj(oo).Fits(maskRateInd(ff)).ErrEst);
                     end
                 end
