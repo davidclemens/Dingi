@@ -182,9 +182,18 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
 
             % call superclass constructor
             obj = obj@AnalysisKit.analysis();
-
-            % populate properties
-            validateattributes(parent,{'GearKit.ecDeployment'},{});
+            
+            % Validate inputs
+            validateattributes(time,{'numeric'},{'vector','nonempty','increasing'},'eddyFluxAnalysis','time',1);
+            validateattributes(velocity,{'numeric'},{'size',[NaN,3,1],'nonempty'},'eddyFluxAnalysis','velocity',2);
+            validateattributes(fluxParameter,{'numeric'},{'size',[NaN,NaN,1],'nonempty'},'eddyFluxAnalysis','fluxParameter',3);
+            
+            validateattributes(parent,{'GearKit.ecDeployment'},{},'eddyFluxAnalysis','Parent');
+            validateattributes(windowDuration,{'duration'},{'scalar','nonempty'},'eddyFluxAnalysis','WindowDuration');
+            validateattributes(downsamples,{'numeric'},{'scalar','nonempty','integer','positive'},'eddyFluxAnalysis','Downsamples');
+            validateattributes(obstacleAngles,{'numeric'},{'vector','nonempty','integer','>=',0,'<',360},'eddyFluxAnalysis','ObstacleAngles');
+            
+            % Populate properties
             obj.Parent                          = parent;
             obj.WindowDuration                  = windowDuration;
             obj.Downsamples                     = downsamples;
