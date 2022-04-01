@@ -252,6 +252,7 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
         varargout = plotQualityControlStatistics(obj,fig)
         varargout = plotQualityControl(obj,fig,datasetName,varargin)
         varargout = plotTracerPath(obj,fig,varargin)
+        varargout = plotFluxes(obj,fig,varargin)
     end
     methods (Access = 'private')
         varargout = qualityControlRawData(obj)
