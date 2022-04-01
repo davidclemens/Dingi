@@ -524,6 +524,22 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
                 obj.UpdateStack(stackDepth) = 2; % Set to UpdateRequired
             end
         end
+        function obj = set.ReplaceMethod(obj,value)
+            value = validatestring(value,obj.ValidReplaceMethods);
+            if ~isequal(obj.ReplaceMethod,value)
+                obj.ReplaceMethod = value;
+                stackDepth = 3;
+                obj.UpdateStack(stackDepth) = 2; % Set to UpdateRequired
+            end
+        end
+        function obj = set.DespikeMethod(obj,value)
+            value = validatestring(value,obj.ValidDespikingMethods);
+            if ~isequal(obj.DespikeMethod,value)
+                obj.DespikeMethod = value;
+                stackDepth = 3;
+                obj.UpdateStack(stackDepth) = 2; % Set to UpdateRequired
+            end
+        end
         function obj = set.CoordinateSystemRotationMethod(obj,value)
             obj.CoordinateSystemRotationMethod = validatestring(value,obj.ValidCoordinateSystemRotationMethods);
             if ~isequal(obj.CoordinateSystemRotationMethod,value)
