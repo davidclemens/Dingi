@@ -153,6 +153,7 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
     end
     properties (Hidden, Constant)
         ValidCoordinateSystemRotationMethods = {'planar fit'};
+        ValidReplaceMethods = {'none','linear'};
         ValidDetrendingMethods = {'mean removal','linear','moving mean'};
         ValidDespikingMethods = {'none','phase-space thresholding'};
     end
@@ -541,14 +542,14 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
             end
         end
         function obj = set.CoordinateSystemRotationMethod(obj,value)
-            obj.CoordinateSystemRotationMethod = validatestring(value,obj.ValidCoordinateSystemRotationMethods);
+            value = validatestring(value,obj.ValidCoordinateSystemRotationMethods);
             if ~isequal(obj.CoordinateSystemRotationMethod,value)
                 stackDepth = 4;
                 obj.UpdateStack(stackDepth) = 2; % Set to UpdateRequired
             end
         end
         function obj = set.DetrendingMethod(obj,value)
-            obj.DetrendingMethod = validatestring(value,obj.ValidDetrendingMethods);
+            value = validatestring(value,obj.ValidDetrendingMethods);
             if ~isequal(obj.DetrendingMethod,value)
                 stackDepth = 5;
                 obj.UpdateStack(stackDepth) = 2; % Set to UpdateRequired
