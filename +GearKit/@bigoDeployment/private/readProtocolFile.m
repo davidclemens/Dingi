@@ -264,7 +264,7 @@ function t = readProtocolFile(filename,version,controlUnit)
             if nNis > 1
                 t(indNis(2:end),:)	= [];           % delete Nis for 2nd control unit
             end
-        case {'v4','v5'}
+        case {'v4','v5','v6'}
             % process internal syringes
             t.Subgear(maskSyr)  	= {controlUnit};
             t.SampleId(maskSyr)   	= strcat({'Syr'},num2str(t.Syr(maskSyr,1),'%02d'));
