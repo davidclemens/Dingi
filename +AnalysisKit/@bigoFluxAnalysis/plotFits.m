@@ -61,7 +61,12 @@ function varargout = plotFits(obj,variable,axesProperties)
                 legendLabels = strcat({deviceDomains.Abbreviation}');
                 legend(hp(spi(row,col),1:nFits),legendLabels)
                 
-                yLabelString{row}   = obj(oo).FitVariables(maskFitsInd(ff)).Abbreviation;
+                yLabelString{row}   = [obj(oo).FitVariables(maskFitsInd(ff)).Abbreviation,' (µM)'];
+                
+            if row == 1
+                title(hsp(spi(row,col)),obj(oo).Parent.gearId,...
+                    'Interpreter',  'none')
+            end
         end
      	xLabelString{col}   = ['t (',obj(oo).TimeUnit,')'];
     end
@@ -90,5 +95,8 @@ function varargout = plotFits(obj,variable,axesProperties)
     tmp     = [hsp(spi(1:spny,1)).YAxis];
     set([tmp.Label],...
         {'String'},     yLabelString)
+    tmp     = [hsp(spi(spny,1:spnx)).XAxis];
+    set([tmp.Label],...
+        {'String'},     xLabelString)
         
 end
