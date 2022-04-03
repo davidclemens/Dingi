@@ -10,7 +10,7 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
         
         TimeUnit (1,:) char = 'h' % The relative time unit
         
-        FitType (1,:) char {mustBeMember(FitType,{'linear'})} = 'linear' % Fit method
+        FitType (1,:) char {mustBeMember(FitType,{'linear','poly1','poly2','poly3'})} = 'linear' % Fit method
         FitInterval (1,2) duration = hours([0,5]) % The interval that should be fitted to
         FitEvaluationInterval (1,2) duration = hours([0,4]) % The interval in which the fit statistics should be evaluated
     end
