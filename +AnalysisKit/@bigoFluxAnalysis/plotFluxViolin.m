@@ -1,41 +1,40 @@
-function varargout = plotFlux(obj,variable,axesProperties)
+function varargout = plotFluxViolin(obj,variable,axesProperties)
 
     hsp     = gobjects();
-    hsc    	= gobjects();
-    heb     = gobjects();
+    hv      = gobjects();
     
     nVariables  = numel(variable);
     nObj        = numel(obj);
     
-    spnx                        = nObj;
-    spny                        = nVariables;
+    spnx                        = ceil(sqrt(nVariables));
+    spny                        = ceil(nVariables/spnx);
     spi                         = reshape(1:spnx*spny,spnx,spny)';
     
-    deviceDomains   = {'Ch1','Ch2'};
-    
+    n = 100;
     xLimits         = NaN(spnx*spny,2);
     yLimits         = NaN(spnx*spny,2);
     yLabelString 	= cell(spny,1);
     xLabelString 	= cell(spnx,1);
     for col = 1:spnx
-        oo = col;
         for row = 1:spny
-            var = row;
-            
+            var = spi(row,col);
+            if var > nVariables
+                continue
+            end
             hsp(spi(row,col))   = subplot(spny,spnx,spi(row,col),axesProperties{:});
                     
-                maskVariable    = obj(oo).Rates{:,'Variable'} == variable(var);
-                XData = categorical(cellstr(obj(oo).Rates{maskVariable,'DeviceDomain'}));
-                YData = obj(oo).Rates{maskVariable,'FluxMean'};
-                YDataPos = obj(oo).Rates{maskVariable,'FluxErrPos'};
-                YDataNeg = obj(oo).Rates{maskVariable,'FluxErrNeg'};
-                
-                heb(spi(row,col)) = errorbar(XData,YData,YDataNeg,YDataPos,'o');
-                
-%                 hsc(spi(row,col)) = scatter(XData,YData);
+                flux        = [];
+                grouping    = [];
+                for oo = 1:nObj
+                    maskFitsInd	= obj(oo).FitVariables == variable(var);
+                    grouping    = cat(1,grouping,repmat(obj(oo).Parent.areaId,sum(maskFitsInd),1));
+                    flux    = cat(1,flux,obj(oo).Fluxes(maskFitsInd,:));
+                end
+                grouping = repmat(grouping,1,size(flux,2));
+                hv(spi(row,col)) = violin(flux(:),grouping(:));
 
-                xLimits(spi(row,col),:) = [min(heb(spi(row,col)).XData(:)),max(heb(spi(row,col)).XData(:))];
-                yLimits(spi(row,col),:) = [min(heb(spi(row,col)).YData(:) - heb(spi(row,col)).YNegativeDelta(:)),max(heb(spi(row,col)).YData(:) + heb(spi(row,col)).YPositiveDelta(:))];
+                xLimits(spi(row,col),:) = [min(hv(spi(row,col)).Vertices(:,1)),max(hv(spi(row,col)).Vertices(:,1))];
+                yLimits(spi(row,col),:) = [min(hv(spi(row,col)).Vertices(:,2)),max(hv(spi(row,col)).Vertices(:,2))];
         end
     end
     hfig    = hsp(spi(1,1)).Parent;
@@ -62,5 +61,5 @@ function varargout = plotFlux(obj,variable,axesProperties)
     % Set axis labels
     tmp     = [hsp(spi(1:spny,1)).YAxis];
     set([tmp.Label],...
-        {'String'},     {cellstr(variable)})
+        {'String'},     yLabelString)
 end

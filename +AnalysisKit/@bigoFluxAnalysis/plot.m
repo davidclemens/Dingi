@@ -7,7 +7,7 @@ function varargout = plot(obj,varargin)
         variable,...
         plotType,...
         figureProperties,...
-        axesProperties] = parseInputs(obj,varargin{:});  
+        axesProperties] = parseInputs(obj,varargin{:});
     
     % Call the plot method of the superclass
     superInputs = {};
@@ -48,7 +48,9 @@ function varargout = plot(obj,varargin)
         case 'fits'
             plotFits(obj,variable,axesProperties)
         case 'flux'
-            plotFlux(obj,variable,axesProperties)
+            plotFlux(obj,variable,axesProperties)            
+        case 'fluxViolin'
+            plotFluxViolin(obj,variable,axesProperties)
     end
     
 %     TightFig(hfig,hsp,spi,PaperPos,MarginOuter,MarginInner);
@@ -59,11 +61,11 @@ end
 function varargout = parseInputs(obj,varargin)
 
     % Define valid values
-    validPlotTypes  = {'fits','flux'};
+    validPlotTypes  = {'fits','flux','fluxViolin'};
     
     % Define default values
     defaultVariable = [];
-    defaultPlotType = 'fits';
+    defaultPlotType = 'flux';
     defaultFigureProperties = {};
     defaultAxesProperties = {};
     
