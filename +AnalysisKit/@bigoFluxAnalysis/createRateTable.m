@@ -8,10 +8,10 @@ function createRateTable(obj)
     deviceDomains	= obj.FitDeviceDomains(maskInd);
     variables       = obj.FitVariables(maskInd);
     fluxMean        = obj.FluxStatistics(:,1);
-    fluxErrPos      = obj.FluxStatistics(:,3) - fluxMean;
-    fluxErrNeg      = obj.FluxStatistics(:,4) - fluxMean;
+    fluxErrNeg      = obj.FluxStatistics(:,3) - fluxMean;
+    fluxErrPos      = obj.FluxStatistics(:,4) - fluxMean;
     fluxUnit        = repmat(categorical({['mmol m⁻² ',obj.TimeUnit,'⁻¹']}),nRows,1);
 
-    obj.Rates_ = table(cruise,gear,areaId,deviceDomains,variables,fluxMean,fluxErrPos,fluxErrNeg,fluxUnit,...
-        'VariableNames', {'Cruise','Gear','AreaId','DeviceDomain','Variable','FluxMean','FluxErrPos','FluxErrNeg','FluxUnit'});
+    obj.Rates_ = table(cruise,gear,areaId,deviceDomains,variables,fluxMean,fluxErrNeg,fluxErrPos,fluxUnit,...
+        'VariableNames', {'Cruise','Gear','AreaId','DeviceDomain','Variable','FluxMean','FluxErrNeg','FluxErrPos','FluxUnit'});
 end
