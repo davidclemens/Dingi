@@ -224,7 +224,6 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
     methods        
         varargout   = plot(obj,varargin)
         func        = fitLinear(x,y,varargin)
-        tbl         = getFlux(obj,variables)
         
         checkUpdateStack(obj,stackDepth)
     end
