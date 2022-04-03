@@ -222,9 +222,7 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
     
     % Methods in other files
     methods        
-        varargout   = plot(obj,varargin)
-        func        = fitLinear(x,y,varargin)
-        
+        varargout   = plot(obj,varargin)        
         checkUpdateStack(obj,stackDepth)
     end
     methods (Access = private)
