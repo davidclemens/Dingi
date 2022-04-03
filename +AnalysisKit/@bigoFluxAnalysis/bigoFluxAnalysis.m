@@ -36,6 +36,7 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
         % Stack depth 5 (Fluxes)
         Fluxes double
         FluxStatistics double
+        Rates table
     end
     
     % Backend
@@ -59,6 +60,7 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
         % Stack depth 5 (Fluxes)
         Fluxes_ double
         FluxStatistics_ double
+        Rates_ table
     end
     
   	properties (Hidden, Dependent) 
@@ -315,6 +317,11 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
             obj.checkUpdateStack(stackDepth)
             fluxStatistics = obj.FluxStatistics_;
         end
+        function rates = get.Rates(obj)
+            stackDepth = 5;
+            obj.checkUpdateStack(stackDepth)
+            rates = obj.Rates_;
+        end
     end
     
     % Set methods
@@ -384,6 +391,12 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
             obj.FluxStatistics_      	= value;
             obj.setUpdateStackToUpdated(stackDepth)
         end
+        function obj = set.Rates_(obj,value)
+            stackDepth                  = 5;
+            obj.setUpdateStackToUpdating(stackDepth)
+            obj.Rates_      	= value;
+            obj.setUpdateStackToUpdated(stackDepth)
+        end
         
         function obj = set.UpdateStack(obj,value)
             if ~isequal(obj.UpdateStack,value)
@@ -411,6 +424,7 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
         
         % Stack depth 5
         calculateFluxes(obj)
+        createRateTable(obj)
     end
     
     % Event handler methods
