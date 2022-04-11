@@ -10,7 +10,7 @@ function determineHardwareConfiguration(obj)
     
     % Get chamber data
     indRecoveryTable    = find(all(RecoveryTable{:,{'Cruise','Gear'}} == [obj.cruise,obj.gear],2));
-    maskChamberHeights 	= ~cellfun(@isempty,regexp(RecoveryTable.Properties.VariableNames,'ChH\d+'));
+    maskChamberHeights 	= ~cellfun(@isempty,regexp(RecoveryTable.Properties.VariableNames,'ChH(\d+|SZ)'));
     
     chamberArea       	= pi.*(RecoveryTable{indRecoveryTable,'ChDia'}./2.*1e-2).^2; % m^2
     chamberHeight       = nanmean(RecoveryTable{indRecoveryTable,maskChamberHeights},2); % cm

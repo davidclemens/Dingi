@@ -47,7 +47,7 @@ function varargout = replaceData(obj,flag)
         replacedData    = data;
         isInterpolated  = false(size(data));
         isSetToNaN      = false(size(data));
-        if sum(flag) == 0
+        if sum(flag) == 0 || strcmp(obj.ReplaceMethod,'none')
             return
         end
         threshold   = 3;
