@@ -153,6 +153,7 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
     end
     properties (Hidden, Constant)
         ValidCoordinateSystemRotationMethods = {'planar fit'};
+        ValidReplaceMethods = {'none','linear'};
         ValidDetrendingMethods = {'mean removal','linear','moving mean'};
         ValidDespikingMethods = {'none','phase-space thresholding'};
     end
@@ -181,9 +182,18 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
 
             % call superclass constructor
             obj = obj@AnalysisKit.analysis();
-
-            % populate properties
-            validateattributes(parent,{'GearKit.ecDeployment'},{});
+            
+            % Validate inputs
+            validateattributes(time,{'numeric'},{'vector','nonempty','increasing'},'eddyFluxAnalysis','time',1);
+            validateattributes(velocity,{'numeric'},{'size',[NaN,3,1],'nonempty'},'eddyFluxAnalysis','velocity',2);
+            validateattributes(fluxParameter,{'numeric'},{'size',[NaN,NaN,1],'nonempty'},'eddyFluxAnalysis','fluxParameter',3);
+            
+            validateattributes(parent,{'GearKit.ecDeployment'},{},'eddyFluxAnalysis','Parent');
+            validateattributes(windowDuration,{'duration'},{'scalar','nonempty'},'eddyFluxAnalysis','WindowDuration');
+            validateattributes(downsamples,{'numeric'},{'scalar','nonempty','integer','positive'},'eddyFluxAnalysis','Downsamples');
+            validateattributes(obstacleAngles,{'numeric'},{'vector','nonempty','integer','>=',0,'<',360},'eddyFluxAnalysis','ObstacleAngles');
+            
+            % Populate properties
             obj.Parent                          = parent;
             obj.WindowDuration                  = windowDuration;
             obj.Downsamples                     = downsamples;
@@ -242,6 +252,7 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
         varargout = plotQualityControlStatistics(obj,fig)
         varargout = plotQualityControl(obj,fig,datasetName,varargin)
         varargout = plotTracerPath(obj,fig,varargin)
+        varargout = plotFluxes(obj,fig,varargin)
     end
     methods (Access = 'private')
         varargout = qualityControlRawData(obj)
@@ -524,15 +535,31 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
                 obj.UpdateStack(stackDepth) = 2; % Set to UpdateRequired
             end
         end
+        function obj = set.ReplaceMethod(obj,value)
+            value = validatestring(value,obj.ValidReplaceMethods);
+            if ~isequal(obj.ReplaceMethod,value)
+                obj.ReplaceMethod = value;
+                stackDepth = 3;
+                obj.UpdateStack(stackDepth) = 2; % Set to UpdateRequired
+            end
+        end
+        function obj = set.DespikeMethod(obj,value)
+            value = validatestring(value,obj.ValidDespikingMethods);
+            if ~isequal(obj.DespikeMethod,value)
+                obj.DespikeMethod = value;
+                stackDepth = 3;
+                obj.UpdateStack(stackDepth) = 2; % Set to UpdateRequired
+            end
+        end
         function obj = set.CoordinateSystemRotationMethod(obj,value)
-            obj.CoordinateSystemRotationMethod = validatestring(value,obj.ValidCoordinateSystemRotationMethods);
+            value = validatestring(value,obj.ValidCoordinateSystemRotationMethods);
             if ~isequal(obj.CoordinateSystemRotationMethod,value)
                 stackDepth = 4;
                 obj.UpdateStack(stackDepth) = 2; % Set to UpdateRequired
             end
         end
         function obj = set.DetrendingMethod(obj,value)
-            obj.DetrendingMethod = validatestring(value,obj.ValidDetrendingMethods);
+            value = validatestring(value,obj.ValidDetrendingMethods);
             if ~isequal(obj.DetrendingMethod,value)
                 stackDepth = 5;
                 obj.UpdateStack(stackDepth) = 2; % Set to UpdateRequired

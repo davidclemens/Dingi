@@ -21,6 +21,7 @@ function varargout = checkUpdateStack(obj,stackDepth)
             case 4
                 obj.runCoordinateSystemRotation
             case 5
+                obj.runDetrending
         end
         updateRequired	= any(obj.UpdateStack(1:stackDepth) == 2);
     end

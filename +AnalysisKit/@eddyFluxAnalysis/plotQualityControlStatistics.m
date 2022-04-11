@@ -68,6 +68,9 @@ function varargout = plotQualityControlStatistics(obj,fig)
     lnk = 1;
     hlnk(lnk) = linkprop(hsp(spi(1:spny,1:spnx)),'XLim');
     
+    hsp(1).XLim(2) = 100;
+        
+    
     hfig.UserData   = hlnk;
     if nargout == 1
         varargout{1} = hfig;
