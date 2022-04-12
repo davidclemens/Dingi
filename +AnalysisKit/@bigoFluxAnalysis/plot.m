@@ -6,6 +6,7 @@ function varargout = plot(obj,varargin)
         obj,...
         variable,...
         plotType,...
+        groupingParameter,...
         figureProperties,...
         axesProperties] = parseInputs(obj,varargin{:});
     
@@ -48,7 +49,7 @@ function varargout = plot(obj,varargin)
         case 'fits'
             plotFits(obj,variable,axesProperties)
         case 'flux'
-            plotFlux(obj,variable,axesProperties)            
+            plotFlux(obj,variable,groupingParameter,axesProperties)            
         case 'fluxViolin'
             plotFluxViolin(obj,variable,axesProperties)
     end
@@ -62,10 +63,12 @@ function varargout = parseInputs(obj,varargin)
 
     % Define valid values
     validPlotTypes  = {'fits','flux','fluxViolin'};
+    validGroupingParameters = {'Cruise','Gear','AreaId'};
     
     % Define default values
     defaultVariable = [];
     defaultPlotType = 'flux';
+    defaultGroupingParameter = 'Gear';
     defaultFigureProperties = {};
     defaultAxesProperties = {};
     
@@ -79,6 +82,7 @@ function varargout = parseInputs(obj,varargin)
     addRequired(p,'obj',validateObj)
     addOptional(p,'variable',defaultVariable,validateVariable)
     addOptional(p,'plotType',defaultPlotType,validatePlotType)
+    addParameter(p,'GroupingParameter',defaultGroupingParameter)
     addParameter(p,'FigureProperties',defaultFigureProperties)
     addParameter(p,'AxesProperties',defaultAxesProperties)
 
@@ -87,12 +91,14 @@ function varargout = parseInputs(obj,varargin)
     obj                 = p.Results.obj;
     variable            = p.Results.variable;
     plotType            = validatestring(p.Results.plotType,validPlotTypes);
+    groupingParameter   = validatestring(p.Results.GroupingParameter,validGroupingParameters);
     figureProperties   	= p.Results.FigureProperties;
     axesProperties   	= p.Results.AxesProperties;
     varargout   = {...
         obj,...
         variable,...
         plotType,...
+        groupingParameter,...
         figureProperties,...
         axesProperties};
               

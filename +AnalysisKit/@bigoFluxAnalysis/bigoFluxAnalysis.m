@@ -227,7 +227,7 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
     end
     methods (Access = private)
         varargout = plotFits(obj,variable,axesProperties)
-        varargout = plotFlux(obj,variable,axesProperties)
+        varargout = plotFlux(obj,variable,groupingParameter,axesProperties)
         varargout = plotFluxViolin(obj,variable,axesProperties)
     end
         
