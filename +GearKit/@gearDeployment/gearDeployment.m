@@ -126,6 +126,7 @@ classdef gearDeployment < handle
         s = saveobj(obj)
         obj = reloadobj(obj,s)
         update(obj)
+        varargout = sort(obj,varargin)
     end
     methods (Static)
         obj = load(varargin)
