@@ -243,6 +243,10 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
             switch obj.FitType
                 case 'linear'
                     fitMinimumSamples = 2;
+                case 'poly2'
+                    fitMinimumSamples = 3;
+                case 'poly3'
+                    fitMinimumSamples = 4;
                 otherwise
                     error('''FitMinimumSamples'' is not defined for FitType ''%s'' yet.',obj.FitType)
             end
