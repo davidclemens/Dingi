@@ -11,7 +11,7 @@ classdef ClassName
     %   method1 - Short description of method method1
     %   method2 - Short description of method method2
     %
-    % Copyright (c) 2021 David Clemens (dclemens@geomar.de)
+    % Copyright (c) 2021-2022 David Clemens (dclemens@geomar.de)
     %
 
 

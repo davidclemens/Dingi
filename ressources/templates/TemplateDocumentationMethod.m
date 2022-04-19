@@ -60,7 +60,7 @@ function varargout = methodName(input1,input2,varargin)
 %
 %   See also OTHERMETHOD, OTHERCLASS
 %
-%   Copyright (c) 2021 David Clemens (dclemens@geomar.de)
+%   Copyright (c) 2021-2022 David Clemens (dclemens@geomar.de)
 %
 
 
