@@ -1,5 +1,7 @@
 function varargout = plotFits(obj,variable,axesProperties)
-
+    
+    nargoutchk(0,2)
+    
     hsp     = gobjects();
     hp      = gobjects();
     
@@ -99,4 +101,11 @@ function varargout = plotFits(obj,variable,axesProperties)
     set([tmp.Label],...
         {'String'},     xLabelString)
         
+    
+    if nargout == 1
+        varargout{1} = hsp;
+    elseif nargout == 2
+        varargout{1} = hsp;
+        varargout{2} = spi;
+    end
 end

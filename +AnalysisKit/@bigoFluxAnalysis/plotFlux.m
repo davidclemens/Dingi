@@ -1,5 +1,7 @@
 function varargout = plotFlux(obj,variable,groupingParameter,axesProperties)
-
+    
+    nargoutchk(0,2)
+    
     hsp     = gobjects();
     heb     = gobjects();
     
@@ -91,5 +93,12 @@ function varargout = plotFlux(obj,variable,groupingParameter,axesProperties)
     for row = 1:spny
         plot(hsp(spi(row,1)),reshape(cat(1,repmat(double(uGroups)',2,1) - 0.5,NaN(1,nuGroups)),[],1),repmat(cat(1,yLim{row}',NaN),nuGroups,1),...
             'Color',        0.8.*ones(1,3))
+    end
+    
+    if nargout == 1
+        varargout{1} = hsp;
+    elseif nargout == 2
+        varargout{1} = hsp;
+        varargout{2} = spi;
     end
 end

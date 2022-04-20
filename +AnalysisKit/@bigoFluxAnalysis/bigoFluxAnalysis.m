@@ -1,20 +1,20 @@
 classdef bigoFluxAnalysis < AnalysisKit.analysis
 % BIGOFLUXANALYSIS
-    
-    
+
+
     properties (SetObservable, AbortSet)
         Name char = 'BigoFlux' % Analysis name
         Type char = 'Flux' % Analysis type
         Parent = GearKit.bigoDeployment % Parent bigoDeployment instance
         DeviceDomains GearKit.deviceDomain % The device domain(s) to be analysed
-        
+
         TimeUnit (1,:) char = 'h' % The relative time unit
-        
+
         FitType (1,:) char {mustBeMember(FitType,{'linear','poly1','poly2','poly3'})} = 'linear' % Fit method
         FitInterval (1,2) duration = hours([0,5]) % The interval that should be fitted to
         FitEvaluationInterval (1,2) duration = hours([0,4]) % The interval in which the fit statistics should be evaluated
     end
-    
+
     % Frontend
     properties (Dependent)
         % Stack depth 1 (Data)
@@ -23,22 +23,22 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
         FitOriginTime datetime % The absolute time origin
         Time double % Time
         FluxParameter double % Flux parameters
-        
+
         % Stack depth 2 (Exclusion evaluation)
         Exclude logical % Exclusions
         ExcludeFluxParameter logical
-        
+
         % Stack depth 3 (Fits)
         Fits struct
-        
+
         % Stack depth 4 (QC)
-        
+
         % Stack depth 5 (Fluxes)
         Fluxes double
         FluxStatistics double
         Rates table
     end
-    
+
     % Backend
     properties (Access = 'private')
         % Stack depth 1 (Data)
@@ -47,23 +47,23 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
         FitOriginTime_ datetime
         Time_ datetime
         FluxParameter_ double
-        
+
         % Stack depth 2 (Exclusion evaluation)
         Exclude_ logical % Exclusions
         ExcludeFluxParameter_ logical
-        
+
         % Stack depth 3 (Fits)
         Fits_ struct
-        
+
         % Stack depth 4 (QC)
-        
+
         % Stack depth 5 (Fluxes)
         Fluxes_ double
         FluxStatistics_ double
         Rates_ table
     end
-    
-  	properties (Hidden, Dependent) 
+
+  	properties (Hidden, Dependent)
         UpdateStack double
     end
     properties (Access = 'private')
@@ -72,7 +72,7 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
     properties
         FluxVolume double
         FluxCrossSection double
-        
+
         FlagDataset DataKit.bitflag = DataKit.bitflag('AnalysisKit.Metadata.bigoFluxAnalysisDatasetFlag')
         FlagData DataKit.bitflag = DataKit.bitflag('AnalysisKit.Metadata.bigoFluxAnalysisDataFlag')
     end
@@ -89,7 +89,7 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
         NRates double
         RateIndex double
     end
-    
+
     methods
         function obj = bigoFluxAnalysis(varargin)
         % bigoFluxAnalysis  Short description of the function/method
@@ -139,16 +139,16 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
         %       'linear' (default)
         %         The fit type or method that is used to fit the incubation data.
         %
-        %     FitInterval - Fit interval 
+        %     FitInterval - Fit interval
         %       [0 hr, <deploymentDuration>] | 1x2 duration vector
         %         Only data points within the relative time interval FitInterval
         %         are included in the fitting. FitInterval(2) has to be greater
         %         than FitInterval(1).
         %
-        %     FitEvaluationInterval - Fit statistics evaluation interval 
+        %     FitEvaluationInterval - Fit statistics evaluation interval
         %       [0 hr, 4 hr] | 1x2 duration vector
         %         Only data points within the relative time interval FitInterval
-        %         are included in the fitting. FitEvaluationInterval(2) has to 
+        %         are included in the fitting. FitEvaluationInterval(2) has to
         %         be greater than FitEvaluationInterval(1).
         %
         %     TimeUnit - Relative time unit
@@ -162,17 +162,17 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
         %
         %   Copyright (c) 2021-2022 David Clemens (dclemens@geomar.de)
         %
-        
+
             import DebuggerKit.Debugger.printDebugMessage
             import internal.stats.parseArgs
-            
+
             if nargin == 0
                 bigoDeployment = GearKit.bigoDeployment();
             elseif nargin >= 1
                 bigoDeployment = varargin{1};
                 varargin(1) = [];
             end
-            
+
             % Input checks
             if ~isa(bigoDeployment,'GearKit.bigoDeployment')
                 printDebugMessage('Dingi:AnalysisKit:bigoFluxAnalysis:bigoFluxAnalysis:invalidType',...
@@ -182,7 +182,7 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
                 printDebugMessage('Dingi:AnalysisKit:bigoFluxAnalysis:bigoFluxAnalysis:nonScalarContext',...
                     'Error','The analysis can only be run on a single bigoDeployment instance.')
             end
-            
+
             % Parse Name-Value pairs
             optionName          = {'DeviceDomains','FitType','FitInterval','FitEvaluationInterval','TimeUnit'}; % valid options (Name)
             optionDefaultValue  = {GearKit.deviceDomain.fromProperty('Abbreviation',{'Ch1';'Ch2'}),'linear',[hours(0),bigoDeployment.timeRecovery - bigoDeployment.timeDeployment],hours([0,4]),'h'}; % default value (Value)
@@ -191,15 +191,15 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
              fitInterval,...
              fitEvaluationInterval,...
              timeUnit] = parseArgs(optionName,optionDefaultValue,varargin{:}); % parse function arguments
-            
+
 
             % Call superclass constructor
             obj = obj@AnalysisKit.analysis();
-            
+
             % Add property listeners
             addlistener(obj,'TimeUnit','PostSet',@AnalysisKit.bigoFluxAnalysis.handlePropertyChangeEvents);
             obj.TimeUnit                = timeUnit;
-            
+
             % Populate properties
             % Update stack depth 1
             addlistener(obj,'Parent','PostSet',@AnalysisKit.bigoFluxAnalysis.handlePropertyChangeEvents);
@@ -207,30 +207,30 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
             validateattributes(bigoDeployment,{'GearKit.bigoDeployment'},{});
             obj.Parent                	= bigoDeployment;
             obj.DeviceDomains           = deviceDomains;
-            
+
             % Update stack depth 2
             addlistener(obj,'FitType','PostSet',@AnalysisKit.bigoFluxAnalysis.handlePropertyChangeEvents);
             addlistener(obj,'FitInterval','PostSet',@AnalysisKit.bigoFluxAnalysis.handlePropertyChangeEvents);
             obj.FitType                 = fitType;
             obj.FitInterval          	= fitInterval;
-            
+
             % Update stack depth 3
             addlistener(obj,'FitEvaluationInterval','PostSet',@AnalysisKit.bigoFluxAnalysis.handlePropertyChangeEvents);
             obj.FitEvaluationInterval  	= fitEvaluationInterval;
         end
     end
-    
+
     % Methods in other files
-    methods        
-        varargout   = plot(obj,varargin)        
+    methods
+        varargout   = plot(obj,varargin)
         checkUpdateStack(obj,stackDepth)
     end
     methods (Access = private)
         varargout = plotFits(obj,variable,axesProperties)
         varargout = plotFlux(obj,variable,groupingParameter,axesProperties)
-        varargout = plotFluxViolin(obj,variable,axesProperties)
+        varargout = plotFluxViolin(obj,variable,groupingParameter,axesProperties)
     end
-        
+
   	% Get methods
 	methods
         function nFits = get.NFits(obj)
@@ -258,14 +258,14 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
             rateIndex = find(~obj.ExcludeFluxParameter);
         end
     end
-    
+
     % Get methods
     methods
         % Frontend/Backend interface
         function updateStack = get.UpdateStack(obj)
             updateStack = obj.UpdateStack_;
         end
-        
+
         function fitVariables = get.FitVariables(obj)
             stackDepth = 1;
             obj.checkUpdateStack(stackDepth)
@@ -284,14 +284,14 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
         function time = get.Time(obj)
             stackDepth = 1;
             obj.checkUpdateStack(stackDepth)
-            time = obj.TimeUnitFunction(obj.Time_ - repmat(reshape(obj.FitOriginTime,1,[]),size(obj.Time_,1),1)); % Return time depending on 
+            time = obj.TimeUnitFunction(obj.Time_ - repmat(reshape(obj.FitOriginTime,1,[]),size(obj.Time_,1),1)); % Return time depending on
         end
         function fluxParameter = get.FluxParameter(obj)
             stackDepth = 1;
             obj.checkUpdateStack(stackDepth)
             fluxParameter = obj.FluxParameter_;
         end
-        
+
         function exclude = get.Exclude(obj)
             stackDepth = 2;
             obj.checkUpdateStack(stackDepth)
@@ -302,13 +302,13 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
             obj.checkUpdateStack(stackDepth)
             excludeFluxParameter = obj.ExcludeFluxParameter_;
         end
-        
+
         function fits = get.Fits(obj)
             stackDepth = 3;
             obj.checkUpdateStack(stackDepth)
             fits = obj.Fits_;
         end
-        
+
         function fluxes = get.Fluxes(obj)
             stackDepth = 5;
             obj.checkUpdateStack(stackDepth)
@@ -325,7 +325,7 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
             rates = obj.Rates_;
         end
     end
-    
+
     % Set methods
     methods
         % If frontend properties are set, update the backend and set any necessary
@@ -360,7 +360,7 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
             obj.FluxParameter_        	= value;
             obj.setUpdateStackToUpdated(stackDepth)
         end
-        
+
         function obj = set.Exclude(obj,value)
             stackDepth                  = 2;
             obj.setUpdateStackToUpdating(stackDepth)
@@ -373,14 +373,14 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
             obj.ExcludeFluxParameter_   = value;
             obj.setUpdateStackToUpdated(stackDepth)
         end
-        
+
         function obj = set.Fits_(obj,value)
             stackDepth                  = 3;
             obj.setUpdateStackToUpdating(stackDepth)
             obj.Fits_      	= value;
             obj.setUpdateStackToUpdated(stackDepth)
         end
-        
+
         function obj = set.Fluxes_(obj,value)
             stackDepth                  = 5;
             obj.setUpdateStackToUpdating(stackDepth)
@@ -399,7 +399,7 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
             obj.Rates_      	= value;
             obj.setUpdateStackToUpdated(stackDepth)
         end
-        
+
         function obj = set.UpdateStack(obj,value)
             if ~isequal(obj.UpdateStack,value)
                 % If the UpdateStack is set (modified), set all stackDepths below the first change to 'UpdateRequired'
@@ -409,26 +409,26 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
             end
         end
     end
-    
+
     % Methods called from checkUpdateStack
     methods (Access = private)
         % Stack depth 1
         setFitVariables(obj)
         setRawData(obj)
-        
+
         % Stack depth 2
         setExclusions(obj)
-        
+
         % Stack depth 3
         calculateFits(obj)
-        
+
         % Stack depth 4
-        
+
         % Stack depth 5
         calculateFluxes(obj)
         createRateTable(obj)
     end
-    
+
     % Event handler methods
     methods (Access = private)
         setRelativeTimeFunction(obj)
@@ -446,12 +446,12 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
                     % again.
                     stackDepth  = 1;
                     evnt.AffectedObject.setUpdateStackToUpdateRequired(stackDepth)
-                    
+
                 case 'FitInterval'
                     % A fitting parameter has been set. The exclusions need to be set again.
                     stackDepth  = 2;
                     evnt.AffectedObject.setUpdateStackToUpdateRequired(stackDepth)
-                    
+
                 case 'FitType'
                     % A fitting parameter has been set. The fits need to be calculated again.
                     stackDepth  = 3;
@@ -462,7 +462,7 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
                     stackDepth  = 3;
                     setRelativeTimeFunction(evnt.AffectedObject)
                     evnt.AffectedObject.setUpdateStackToUpdateRequired(stackDepth)
-                    
+
                 case 'FitEvaluationInterval'
                     % A fitting evaluation parameter has been set. The fluxes need to be
                     % recalculated.

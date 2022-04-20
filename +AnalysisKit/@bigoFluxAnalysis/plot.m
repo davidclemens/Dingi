@@ -9,7 +9,7 @@ function varargout = plot(obj,varargin)
         groupingParameter,...
         figureProperties,...
         axesProperties] = parseInputs(obj,varargin{:});
-    
+
     % Call the plot method of the superclass
     superInputs = {};
     if ~isempty(figureProperties)
@@ -21,11 +21,13 @@ function varargout = plot(obj,varargin)
     [...
         hfig,...
         axesProperties] = plot@AnalysisKit.analysis(obj,superInputs{:});
-    
+
     % Add figure handle to axes properties
-    axesProperties  = [axesProperties,'Parent',{hfig}];
-    
-    
+    axesProperties  = [axesProperties,...
+        'Parent',   {hfig},...
+        'NextPlot', 'add'];
+
+
     % Validate variable(s)
     if isempty(variable)
         error('TODO')
@@ -43,18 +45,25 @@ function varargout = plot(obj,varargin)
         error('Dingi:AnalysisKit:bigoFluxAnalysis:plot:unavailableVariables',...
             'None of the requested variables are part of the flux analysis.')
     end
-    
+
     % Do the plotting
     switch plotType
         case 'fits'
-            plotFits(obj,variable,axesProperties)
+            if ~isequal(groupingParameter,'none')
+                error('For PlotType ''fits'', the grouping parameter needs to be set to ''none''.')
+            end
+            [hsp,spi] = plotFits(obj,variable,axesProperties);
         case 'flux'
-            plotFlux(obj,variable,groupingParameter,axesProperties)            
+            [hsp,spi] = plotFlux(obj,variable,groupingParameter,axesProperties);
         case 'fluxViolin'
             plotFluxViolin(obj,variable,axesProperties)
     end
-    
-%     TightFig(hfig,hsp,spi,PaperPos,MarginOuter,MarginInner);
+
+    MarginOuter     = 0.2;
+    MarginInner     = 0.2;
+    PaperPos        = [10 29];
+
+    TightFig(hfig,hsp,spi,PaperPos,MarginOuter,MarginInner);
     set(hfig,...
         'Visible',      'on');
 end
@@ -64,14 +73,14 @@ function varargout = parseInputs(obj,varargin)
     % Define valid values
     validPlotTypes  = {'fits','flux','fluxViolin'};
     validGroupingParameters = {'Cruise','Gear','AreaId'};
-    
+
     % Define default values
     defaultVariable = [];
     defaultPlotType = 'flux';
     defaultGroupingParameter = 'Gear';
     defaultFigureProperties = {};
     defaultAxesProperties = {};
-    
+
     % Define validationFunctions
     validateObj = @(x) isa(x,'AnalysisKit.bigoFluxAnalysis');
     validatePlotType = @(x) ~isempty(validatestring(x,validPlotTypes));
@@ -87,7 +96,7 @@ function varargout = parseInputs(obj,varargin)
     addParameter(p,'AxesProperties',defaultAxesProperties)
 
     parse(p,obj,varargin{:})
-    
+
     obj                 = p.Results.obj;
     variable            = p.Results.variable;
     plotType            = validatestring(p.Results.plotType,validPlotTypes);
@@ -101,7 +110,7 @@ function varargout = parseInputs(obj,varargin)
         groupingParameter,...
         figureProperties,...
         axesProperties};
-              
+
     % sanity check
 	if numel(fieldnames(p.Results)) ~= numel(varargout)
         error('Dingi:AnalysisKit:analysis:plot:parseInputs:invalidNumberOfOutputs',...
