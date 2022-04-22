@@ -1,6 +1,6 @@
 function varargout = plotCalibrations(obj)
 
-    import GraphKit.Colormaps.cmocean.cmocean
+    import GraphKit.Colormaps.cm
 
     if numel(obj) > 1
         error('Dingi:GearKit:gearDeployment:plotCalibrations:invalidShape',...
@@ -82,7 +82,7 @@ function varargout = plotCalibrations(obj)
                     surf(XDataGrid,YDataGrid,ZData2,ZData2)
                     shading interp
                     caxis([min(datenum(ZData2(:))),max(datenum(ZData2(:)))])
-                    cmocean('thermal');
+                    cm('thermal');
                 end
         end
     end
