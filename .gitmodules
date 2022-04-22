@@ -1,0 +1,4 @@
+[submodule "+GraphKit/+Colormaps"]
+	path = +GraphKit/+Colormaps
+	url = https://github.com/davidclemens/Colormaps.git
+	branch = release
