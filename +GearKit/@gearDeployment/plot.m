@@ -70,7 +70,7 @@ function varargout = plot(obj,variables,varargin)
 
     import GraphKit.getMaxFigureSize
     import GraphKit.getDataLimits
-    import GraphKit.Colormaps.cbrewer.cbrewer
+    import GraphKit.Colormaps.cm
 
     %   Figure settings
 	Menubar                     = 'figure';
@@ -80,7 +80,7 @@ function varargout = plot(obj,variables,varargin)
     PaperPos                    = [PaperWidth PaperHeight];
 
     %   Axis settings
-    cmap                        = cbrewer('qual','Set1',7);
+    cmap                        = cm('Set1',7);
     cmap                        = cmap(2:end,:); % remove red
 
     %   parse Name-Value pairs

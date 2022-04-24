@@ -1,6 +1,6 @@
 function varargout = plotPhaseSpace(data,dData,d2Data,uniCrit,theta)
     %%
-    import GraphKit.Colormaps.cmocean.cmocean
+    import GraphKit.Colormaps.cm
     
     ind     = 1;
     nbins   = 100;
@@ -14,7 +14,7 @@ function varargout = plotPhaseSpace(data,dData,d2Data,uniCrit,theta)
     markerHistogram = 'k';
     markerScatter   = '.k';
     
-	cmap = cat(1,ones(1,3),cmocean('deep',255));
+	cmap = cat(1,ones(1,3),cm('deep',255));
         
     %%
     hsp = gobjects();

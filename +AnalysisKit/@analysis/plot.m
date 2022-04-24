@@ -27,7 +27,7 @@ end
 function varargout = parseInputs(varargin)
 
     import GraphKit.getMaxFigureSize
-    import GraphKit.Colormaps.cbrewer.cbrewer
+    import GraphKit.Colormaps.cm
     
     % Define default values
     maxFigureSize	= getMaxFigureSize;
@@ -35,7 +35,7 @@ function varargout = parseInputs(varargin)
     paperWidth  	= paperHeight/2;
     paperPos       	= [paperWidth paperHeight];
 
-    cMap            = cbrewer('qual','Set1',7);
+    cMap            = cm('Set1',7);
 
     defaultFigureProperties = {...
         'Visible',              'on',...
