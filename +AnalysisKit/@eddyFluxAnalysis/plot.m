@@ -3,7 +3,7 @@ function varargout = plot(obj,type,varargin)
 
 
     import GraphKit.getMaxFigureSize
-    import GraphKit.Colormaps.cbrewer.cbrewer
+    import GraphKit.Colormaps.cm
     import internal.stats.parseArgs
 
     nvarargin   = numel(varargin);
@@ -25,7 +25,7 @@ function varargout = plot(obj,type,varargin)
     hlgnd                       = gobjects();
     hp                          = gobjects();
 
-    cmap                        = cbrewer('qual','Set1',7);
+    cmap                        = cm('Set1',7);
     fOutFigName                 = [type];
     Menubar                     = 'figure';
     Toolbar                     = 'auto';
@@ -324,7 +324,7 @@ function varargout = plot(obj,type,varargin)
                         'Marker',       'none',...
                         'LineWidth',    LineWidth(dat));
                     
-                    colormap(cbrewer('qual','Paired',obj.WindowN));
+                    colormap(cm('Paired',obj.WindowN));
                     
                     xlabel(XLabel{dat})
                     ylabel(YLabel{dat})
