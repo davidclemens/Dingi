@@ -3,7 +3,7 @@ function varargout = plot(obj,varargin)
 
     import DebuggerKit.Debugger.printDebugMessage
     import GraphKit.GraphTools.tightFig
-    
+
     % Parse inputs
     [...
         obj,...

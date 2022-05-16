@@ -71,6 +71,7 @@ function varargout = plot(obj,variables,varargin)
     import GraphKit.getMaxFigureSize
     import GraphKit.getDataLimits
     import GraphKit.Colormaps.cm
+    import GraphKit.GraphTools.tightFig
 
     %   Figure settings
 	Menubar                     = 'figure';
@@ -316,7 +317,7 @@ function varargout = plot(obj,variables,varargin)
     varargout{1}    = hfig;
     varargout{2}    = hsp;
 
-    TightFig(hfig,hsp(1:spnx*spny),spi,FigureNameValue{find(strcmp('PaperSize',FigureNameValue)) + 1},MarginOuter,MarginInner);
+    tightFig(hfig,hsp(1:spnx*spny),spi,FigureNameValue{find(strcmp('PaperSize',FigureNameValue)) + 1},MarginOuter,MarginInner);
 
     hfig.Visible    = 'on';
 end

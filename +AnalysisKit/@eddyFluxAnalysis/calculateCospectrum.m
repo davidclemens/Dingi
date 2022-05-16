@@ -1,5 +1,7 @@
 function varargout = calculateCospectrum(obj)
 
+    import GraphKit.GraphTools.tightFig
+
     nargoutchk(0,1)
 
     wins    = 1:15;
@@ -42,12 +44,12 @@ function varargout = calculateCospectrum(obj)
         'TickDir',  'out',...
         'TitleFontSizeMultiplier', 1,...
         'LabelFontSizeMultiplier', 10/12)
-    TightFig(hfig,hax,1,PaperPos,0.5,0.1);
+    tightFig(hfig,hax,1,PaperPos,0.5,0.1);
     legend('Pico1','Pico2','location','best')
 
 
     print(hfig,'~/Desktop/flux.pdf','-dpdf')
-    
+
     if nargout == 1
         varargout{1} = obj;
     end
