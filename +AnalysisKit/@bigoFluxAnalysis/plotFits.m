@@ -1,4 +1,4 @@
-function varargout = plotFits(obj,variable,axesProperties)
+function varargout = plotFits(obj,variable,showConfidenceInterval,axesProperties)
     
     nargoutchk(0,2)
     
@@ -30,7 +30,9 @@ function varargout = plotFits(obj,variable,axesProperties)
                 end
                 deviceDomains   = obj(oo).FitDeviceDomains(maskFitsInd);
 
-                yFitData    = NaN(n,nFits);
+                xFitData        = NaN(n,nFits);
+                yFitData        = NaN(n,nFits);
+                yFitDataDelta   = NaN(n,nFits);
                 for ff = 1:nFits
                     xData  	= obj(oo).Time(:,maskFitsInd(ff));
                     yData   = obj(oo).FluxParameter(:,maskFitsInd(ff));
@@ -57,10 +59,24 @@ function varargout = plotFits(obj,variable,axesProperties)
 
                     % Evaluate fits, if available
                     if hasRate(ff)
-                        xFitData        = linspace(xLimits(spi(row,col),1),xLimits(spi(row,col),2),n)';
-                        yFitData(:,ff)  = polyval(obj(oo).Fits(maskRateInd(ff)).Coeff,xFitData,obj(oo).Fits(maskRateInd(ff)).ErrEst);
+                        xFitPlotRange   = [nanmin(xData(~exclude)),nanmax(xData(~exclude))];
+                        xFitPlotRange   = 0.1.*range(xFitPlotRange).*[-1 1] + xFitPlotRange;
+                        xFitData(:,ff)  = linspace(xFitPlotRange(1),xFitPlotRange(2),n)';
+                        [yFitData(:,ff),yFitDataDelta(:,ff)] = polyval(obj(oo).Fits(maskRateInd(ff)).Coeff,xFitData(:,ff),obj(oo).Fits(maskRateInd(ff)).ErrEst);
+                        
+                        % Plot fit confidence interval
+                        if showConfidenceInterval
+                            patch(...
+                                'XData',        cat(1,xFitData(:,ff),flipud(xFitData(:,ff))),...
+                                'YData',        cat(1,yFitData(:,ff),flipud(yFitData(:,ff))) + cat(1,-yFitDataDelta(:,ff),flipud(yFitDataDelta(:,ff))),...
+                                'FaceColor',    hsp(spi(row,col)).ColorOrder(ff,:),...
+                                'FaceAlpha',    0.2,...
+                                'EdgeColor',    'none')
+                        end
                     end
                 end
+                
+                % Plot fits, set colors and legend entries
                 hp(spi(row,col),1:nFits) = plot(hsp(spi(row,col)),xFitData,yFitData);
                 set(hp(spi(row,col),1:nFits),...
                     {'Color'},    num2cell(hsp(spi(row,col)).ColorOrder(1:nFits,:),2))

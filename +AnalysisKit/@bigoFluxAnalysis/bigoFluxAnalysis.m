@@ -226,7 +226,7 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
         checkUpdateStack(obj,stackDepth)
     end
     methods (Access = private)
-        varargout = plotFits(obj,variable,axesProperties)
+        varargout = plotFits(obj,variable,showConfidenceInterval,axesProperties)
         varargout = plotFlux(obj,variable,groupingParameter,axesProperties)
         varargout = plotFluxViolin(obj,variable,groupingParameter,axesProperties)
     end

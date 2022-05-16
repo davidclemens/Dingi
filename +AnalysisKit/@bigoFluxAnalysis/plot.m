@@ -10,6 +10,7 @@ function varargout = plot(obj,varargin)
         variable,...
         plotType,...
         groupingParameter,...
+        showConfidenceInterval,...
         figureProperties,...
         axesProperties] = parseInputs(obj,varargin{:});
 
@@ -56,7 +57,7 @@ function varargout = plot(obj,varargin)
                 printDebugMessage('Dingi:AnalysisKit:bigoFluxAnalysis:plot',...
                     'Verbose','For PlotType ''fits'', the grouping parameter is ignored. It was set to ''%s''.',groupingParameter)
             end
-            [hsp,spi] = plotFits(obj,variable,axesProperties);
+            [hsp,spi] = plotFits(obj,variable,showConfidenceInterval,axesProperties);
         case 'flux'
             [hsp,spi] = plotFlux(obj,variable,groupingParameter,axesProperties);
         case 'fluxViolin'
@@ -83,6 +84,7 @@ function varargout = parseInputs(obj,varargin)
     defaultVariable = [];
     defaultPlotType = 'flux';
     defaultGroupingParameter = 'Gear';
+    defaultShowConfidenceInterval = true;
     defaultFigureProperties = {};
     defaultAxesProperties = {};
 
@@ -90,6 +92,7 @@ function varargout = parseInputs(obj,varargin)
     validateObj = @(x) isa(x,'AnalysisKit.bigoFluxAnalysis');
     validatePlotType = @(x) ~isempty(validatestring(x,validPlotTypes));
     validateVariable = @(x) true;
+    validateShowConfidenceInterval = @(x) validateattributes(x,{'logical'},{'scalar','nonempty'});
 
     % Create input parser
     p = inputParser;
@@ -97,22 +100,25 @@ function varargout = parseInputs(obj,varargin)
     addOptional(p,'variable',defaultVariable,validateVariable)
     addOptional(p,'plotType',defaultPlotType,validatePlotType)
     addParameter(p,'GroupingParameter',defaultGroupingParameter)
+    addParameter(p,'ShowConfidenceInterval',defaultShowConfidenceInterval,validateShowConfidenceInterval)
     addParameter(p,'FigureProperties',defaultFigureProperties)
     addParameter(p,'AxesProperties',defaultAxesProperties)
 
     parse(p,obj,varargin{:})
 
-    obj                 = p.Results.obj;
-    variable            = p.Results.variable;
-    plotType            = validatestring(p.Results.plotType,validPlotTypes);
-    groupingParameter   = validatestring(p.Results.GroupingParameter,validGroupingParameters);
-    figureProperties   	= p.Results.FigureProperties;
-    axesProperties   	= p.Results.AxesProperties;
+    obj                     = p.Results.obj;
+    variable                = p.Results.variable;
+    plotType                = validatestring(p.Results.plotType,validPlotTypes);
+    groupingParameter       = validatestring(p.Results.GroupingParameter,validGroupingParameters);
+    showConfidenceInterval	= p.Results.ShowConfidenceInterval;
+    figureProperties        = p.Results.FigureProperties;
+    axesProperties          = p.Results.AxesProperties;
     varargout   = {...
         obj,...
         variable,...
         plotType,...
         groupingParameter,...
+        showConfidenceInterval,...
         figureProperties,...
         axesProperties};
 
