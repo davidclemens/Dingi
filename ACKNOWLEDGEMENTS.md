@@ -37,3 +37,5 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ## Submodules
  **Colormaps**: Please refer to the [Acknowledgements](./+GraphKit/+Colormaps/ACKNOWLEDGEMENTS.md) of the submodule.
+
+  **Graph Tools**: Please refer to the [Acknowledgements](./+GraphKit/+GraphTools/ACKNOWLEDGEMENTS.md) of the submodule.
