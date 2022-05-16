@@ -2,3 +2,7 @@
 	path = +GraphKit/+Colormaps
 	url = https://github.com/davidclemens/Colormaps.git
 	branch = release
+[submodule "+GraphKit/+GraphTools"]
+	path = +GraphKit/+GraphTools
+	url = https://github.com/davidclemens/GraphTools.git
+	branch = release
