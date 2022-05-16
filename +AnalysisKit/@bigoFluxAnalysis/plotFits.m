@@ -45,13 +45,17 @@ function varargout = plotFits(obj,variable,axesProperties)
                     else
                         marker = 'o';
                     end
+                    
+                    % Plot excluded values
                     scatter(hsp(spi(row,col)),xData(exclude),yData(exclude),...
                         'Marker',           '+',...
                         'MarkerEdgeColor',  0.8.*ones(1,3))
+                    % Plot included values
                     scatter(hsp(spi(row,col)),xData(~exclude),yData(~exclude),...
                         'Marker',           marker,...
                         'MarkerEdgeColor',  hsp(spi(row,col)).ColorOrder(ff,:))
 
+                    % Evaluate fits, if available
                     if hasRate(ff)
                         xFitData        = linspace(xLimits(spi(row,col),1),xLimits(spi(row,col),2),n)';
                         yFitData(:,ff)  = polyval(obj(oo).Fits(maskRateInd(ff)).Coeff,xFitData,obj(oo).Fits(maskRateInd(ff)).ErrEst);
@@ -61,7 +65,8 @@ function varargout = plotFits(obj,variable,axesProperties)
                 set(hp(spi(row,col),1:nFits),...
                     {'Color'},    num2cell(hsp(spi(row,col)).ColorOrder(1:nFits,:),2))
                 legendLabels = strcat({deviceDomains.Abbreviation}');
-                legend(hp(spi(row,col),1:nFits),legendLabels)
+                legend(hp(spi(row,col),1:nFits),legendLabels,...
+                    'Location',     'best')
                 
                 yLabelString{row}   = [obj(oo).FitVariables(maskFitsInd(ff)).Abbreviation,' (µM)'];
                 
@@ -100,6 +105,14 @@ function varargout = plotFits(obj,variable,axesProperties)
     tmp     = [hsp(spi(spny,1:spnx)).XAxis];
     set([tmp.Label],...
         {'String'},     xLabelString)
+    
+    % Remove redundant tick labels
+    for col = 2:spnx
+        set(hsp(spi(1:spny,col)),'YTickLabel',{''})
+    end
+    for row = 1:spny - 1
+        set(hsp(spi(row,1:spnx)),'XTickLabel',{''})
+    end
         
     
     if nargout == 1

@@ -54,7 +54,7 @@ function varargout = plot(obj,varargin)
         case 'fits'
             if ~isequal(groupingParameter,'none')
                 printDebugMessage('Dingi:AnalysisKit:bigoFluxAnalysis:plot',...
-                    'Info','For PlotType ''fits'', the grouping parameter is ignored. It was set to ''%s''.',groupingParameter)
+                    'Verbose','For PlotType ''fits'', the grouping parameter is ignored. It was set to ''%s''.',groupingParameter)
             end
             [hsp,spi] = plotFits(obj,variable,axesProperties);
         case 'flux'
