@@ -1,6 +1,9 @@
 function varargout = plot(obj,varargin)
 % PLOT
 
+    import DebuggerKit.Debugger.printDebugMessage
+    import GraphKit.GraphTools.tightFig
+    
     % Parse inputs
     [...
         obj,...
@@ -50,7 +53,8 @@ function varargout = plot(obj,varargin)
     switch plotType
         case 'fits'
             if ~isequal(groupingParameter,'none')
-                error('For PlotType ''fits'', the grouping parameter needs to be set to ''none''.')
+                printDebugMessage('Dingi:AnalysisKit:bigoFluxAnalysis:plot',...
+                    'Info','For PlotType ''fits'', the grouping parameter is ignored. It was set to ''%s''.',groupingParameter)
             end
             [hsp,spi] = plotFits(obj,variable,axesProperties);
         case 'flux'
@@ -61,9 +65,8 @@ function varargout = plot(obj,varargin)
 
     MarginOuter     = 0.2;
     MarginInner     = 0.2;
-    PaperPos        = [10 29];
 
-    TightFig(hfig,hsp,spi,PaperPos,MarginOuter,MarginInner);
+    tightFig(hfig,hsp,spi,hfig.PaperPosition(3:4),MarginOuter,MarginInner);
     set(hfig,...
         'Visible',      'on');
 end
