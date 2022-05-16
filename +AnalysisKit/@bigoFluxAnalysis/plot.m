@@ -63,12 +63,14 @@ function varargout = plot(obj,varargin)
             plotFluxViolin(obj,variable,axesProperties)
     end
 
-    MarginOuter     = 0.2;
-    MarginInner     = 0.2;
-
-    tightFig(hfig,hsp,spi,hfig.PaperPosition(3:4),MarginOuter,MarginInner);
+    marginOuter     = 0.2;
+    marginInner     = 0.2;
+    figUnits        = hfig.Units;
+    set(hfig,'Units','centimeters')
+    tightFig(hfig,hsp,spi,hfig.PaperPosition(3:4),marginOuter,marginInner);
     set(hfig,...
-        'Visible',      'on');
+        'Visible',      'on',...
+        'Units',        figUnits);
 end
 
 function varargout = parseInputs(obj,varargin)
