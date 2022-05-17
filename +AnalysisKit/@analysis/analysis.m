@@ -1,4 +1,4 @@
-classdef analysis < handle
+classdef analysis < matlab.mixin.SetGet
     properties (Abstract)
         Name char
         Type char
