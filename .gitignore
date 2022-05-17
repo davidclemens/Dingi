@@ -1,5 +1,16 @@
+# Ignore temporary MATLAB files
 *.m~
 
-+DataKit/+DespikeKit/
-+DataKit/+Metadata/
+# Ignore trial MATLAB files
+*.trial.m
 
+# Ignore the DespikeKit
++DataKit/+DespikeKit/
++DataKit/@despiker/
+
+# Ignore any 'gitignore' subfolder
+gitignore/
+
+# Ignore local test reports
++Tests/reports/
++Tests/coverage/

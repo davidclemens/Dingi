@@ -1,12 +1,13 @@
-function tbl = getFlux(obj,parameters)
+function tbl = getFlux(obj,variables)
 % GETFLUX
-
-    [parameterIsValid,parameterInfo]   = DataKit.validateParameter(parameters);
-    im              = ismember(parameterInfo{:,'ParameterId'},obj.fluxParameterId);
-    maskParameter   = parameterIsValid & im;
+    import DataKit.Metadata.variable.validate
     
-    tbl     = table(cat(1,obj.meta(obj.indSource).dataSourceDomain),cat(1,obj.meta(obj.indSource).dataSourceId),obj.fluxParameterId(obj.indParameter)',obj.fluxStatistics,obj.fitGOF,obj.fluxConfInt,obj.flux,strcat(obj.fluxParameterUnit(obj.indParameter)',{' L m⁻² d⁻¹'}),obj.fitObjects,...
-                'VariableNames',    {'DataSourceDomain','DataSourceId','ParameterId','FluxStatistics','FluxGOF','FluxConfidenceInterval','Flux','FluxUnit','FitObject'});
-	[rowIm] = ismember(tbl{:,'ParameterId'},parameterInfo{maskParameter,'ParameterId'});
+    [variableIsValid,variableInfo]   = validate('Variable',variables(:));
+    im              = ismember(cat(1,variableInfo.EnumerationMemberName),obj.FitVariables);
+    maskVariable    = variableIsValid & im;
+    
+    tbl     = table(obj.FitDeviceDomains,obj.FitVariables,obj.FluxStatistics,obj.FitGOF,obj.FluxConfInt,obj.Flux,obj.FitObjects,...
+                'VariableNames',    {'DeviceDomain','Variable','FluxStatistics','FluxGOF','FluxConfidenceInterval','Flux','FitObject'});
+	[rowIm] = ismember(tbl{:,'Variable'},cat(1,variableInfo(maskVariable).EnumerationMemberName));
     tbl     = tbl(rowIm,:);     
 end

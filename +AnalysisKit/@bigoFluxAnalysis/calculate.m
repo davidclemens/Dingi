@@ -1,6 +1,7 @@
-function obj = calculate(obj,varargin)
+function calculate(obj,varargin)
 % CALCULATE
 
-    obj = fit(obj);
-    obj = calculateFlux(obj);
+    setFitExclusions(obj);
+    fit(obj);
+    calculateFlux(obj);
 end

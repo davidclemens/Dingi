@@ -16,12 +16,18 @@ function charts = getBrushData(obj)
     charts.indChild = chartIndexChild;
     charts.chart    = cat(1,obj.Axes.Children);
     
-    charts.tags         = get(charts.chart,'Tag');
-    charts.userData     = get(charts.chart,'UserData');
-    charts.brushData    = cellfun(@logical,get(charts.chart,'BrushData'),'un',0);
-    dataSize            = cellfun(@size,get(charts.chart,'XData'),'un',0);
+    % dismiss non data holding children
+    isChart         = strncmp('matlab.graphics.chart.',arrayfun(@(o) class(o),charts.chart,'un',0),numel('matlab.graphics.chart.'));
+    charts          = charts(isChart,:);
+    
+    charts.tags         = get(charts.chart,{'Tag'});
+    charts.userData     = get(charts.chart,{'UserData'});
+    charts.brushData    = cellfun(@logical,get(charts.chart,{'BrushData'}),'un',0);
+    dataSize            = cellfun(@size,get(charts.chart,{'XData'}),'un',0);
     maskBrushDataEmpty  = cellfun(@isempty,charts.brushData);
-    charts{maskBrushDataEmpty,'brushData'}  = cellfun(@(s) false(s(1),s(2)),dataSize(maskBrushDataEmpty),'un',0);
+    if any(maskBrushDataEmpty)
+        charts{maskBrushDataEmpty,'brushData'}  = cellfun(@(s) false(s(1),s(2)),dataSize(maskBrushDataEmpty),'un',0);
+    end
     
     charts      = sortrows(charts,{'indAxis','indChild'});
 end

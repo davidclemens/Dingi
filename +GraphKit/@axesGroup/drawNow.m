@@ -24,7 +24,7 @@ function drawNow(obj)
         iiter = iiter + 1;
     end
     if iiter == maxIterations + 1
-        warning('GraphKit:axesGroup:drawNow:maxIterationReached',...
+        warning('Dingi:GraphKit:axesGroup:drawNow:maxIterationReached',...
             'The axesGroup layout did not converge after the maximum iterations of %g.',maxIterations)
     end
     

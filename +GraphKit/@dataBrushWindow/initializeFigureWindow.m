@@ -1,11 +1,13 @@
 function obj = initializeFigureWindow(obj)
 
+    import GraphKit.Colormaps.cm
+    
     hsp                         = gobjects();
     hlgnd                       = gobjects();
     hp                          = gobjects();
     Menubar                     = 'figure';
     Toolbar                     = 'auto';
-    cmap                        = cbrewer('qual','Set1',7);
+    cmap                        = cm('Set1',7);
     cMapAlternating             = [  7 170 188;...
                                    127 127 127]./255;
     FontSize                    = 16;
@@ -41,7 +43,7 @@ function obj = initializeFigureWindow(obj)
     spi     	= reshape(1:spnx*spny,spnx,spny)';
 
     for col = 1:spnx
-        
+
         for row = 1:spny
             par = row;
             hsp(spi(row,col))   = subplot(spny,spnx,spi(row,col),...
@@ -56,7 +58,7 @@ function obj = initializeFigureWindow(obj)
                                     'XMinorTick',               'on',...
                                     'YMinorTick',               'on');
                 [time,data,info] = obj(oo).getData(parameterList{par});
-                
+
         end
     end
 

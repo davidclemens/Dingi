@@ -1,90 +1,91 @@
-function varargout = plot(obj,parameter,varargin)
-% PLOT plots sensor data from gearDeployment object(s)
-% Plot the timeseries of selected/all parameters of a gearDeployment
-% object.
+function varargout = plot(obj,variables,varargin)
+% plot  plots sensor data from gearDeployment object(s)
+%   PLOT the timeseries of selected/all parameters of a gearDeployment
+%   object. Overloads the builtin plot function.
 %
-% Syntax
-%   PLOT(obj)
+%   Syntax
+%     PLOT(obj)
+%     PLOT(obj,parameter)
+%     PLOT(__,Name,Value)
+%     [hfig] = PLOT(__)
+%     [hfig,hsp] = PLOT(__)
 %
-%   PLOT(obj,parameter)
-%
-%   PLOT(__,Name,Value)
-%
-%   [hfig] = PLOT(__)
-%
-%   [hfig,hsp] = PLOT(__)
-%
-% Description
-%   PLOT(obj) plots the timeseries of all available parameters of all the
+%   Description
+%     PLOT(obj) plots the timeseries of all available parameters of all the
 %       gearDeployment instances obj.
 %
-%   PLOT(obj,parameter) plots the timeseries of all provided parameters
+%     PLOT(obj,parameter) plots the timeseries of all provided parameters
 %       parameter of all the gearDeployment instances obj.
 %
-%   PLOT(__,Name,Value) specifies additional properties using one or more
+%     PLOT(__,Name,Value) specifies additional properties using one or more
 %       Name,Value pair arguments.
 %
-%   [hfig] = PLOT(__) additionally returns the figure handle.
+%     [hfig] = PLOT(__) additionally returns the figure handle.
 %
-%   [hfig,hsp] = PLOT(__) additionally returns the figure handle and the
+%     [hfig,hsp] = PLOT(__) additionally returns the figure handle and the
 %       subplot handle(s).
 %
 %
-% Example(s) 
+%   Example(s)
 %
 %
-% Input Arguments
-%   obj - gearDeployment instance
+%   Input Arguments
+%     obj - gearDeployment instance
 %       gearDeployment
-%           An instance of the gearDeployment (super)class
-%   parameter - list of parameters to plot
+%         An instance of the gearDeployment (super)class
+%
+%     parameter - list of parameters to plot
 %       cellstr
-%           List of parameters to plot.
+%         List of parameters to plot.
 %
 %
-% Output Arguments
-%   hfig - figure handle
+%   Output Arguments
+%     hfig - figure handle
 %       figure handle
-%           Handle to the figure.
-%   hsp - subplot handle(s)
+%         Handle to the figure.
+%
+%     hsp - subplot handle(s)
 %       axes handle
-%           Array of axes handles to all subplots
+%         Array of axes handles to all subplots
 %
 %
-% Name-Value Pair Arguments
-%   FontSize - font size
+%   Name-Value Pair Arguments
+%     FontSize - font size
 %       10 (default) | numeric
-%           Font size for the figure.
-%   TitleFontSizeMultiplier - title font size multiplier
-%       1 (default) | numeric
-%           The font size for the titles are multiplied by this factor.
-%   LabelFontSizeMultiplier - label font size multiplier
-%       1 (default) | numeric
-%           The font size for the labels are multiplied by this factor.
+%         Font size for the figure.
 %
-% 
-% See also
+%     TitleFontSizeMultiplier - title font size multiplier
+%       1 (default) | numeric
+%         The font size for the titles are multiplied by this factor.
 %
-% Copyright 2020 David Clemens (dclemens@geomar.de)
-        
+%     LabelFontSizeMultiplier - label font size multiplier
+%       1 (default) | numeric
+%         The font size for the labels are multiplied by this factor.
+%
+%
+%   See also
+%
+%   Copyright (c) 2020-2022 David Clemens (dclemens@geomar.de)
+%
+
     import GraphKit.getMaxFigureSize
     import GraphKit.getDataLimits
-    
-    nvarargin   = numel(varargin);
-    
-    
-    % Figure settings
+    import GraphKit.Colormaps.cm
+    import GraphKit.GraphTools.tightFig
+
+    %   Figure settings
 	Menubar                     = 'figure';
     maxFigureSize               = getMaxFigureSize('Menubar',Menubar);
     PaperWidth                  = maxFigureSize(1);
     PaperHeight                 = maxFigureSize(2);
     PaperPos                    = [PaperWidth PaperHeight];
-    
-    % Axis settings
-    cmap                        = cbrewer('qual','Set1',7);
-    
-    % parse Name-Value pairs
-    optionName          = {'FigureNameValue','AxisNameValue','DataDomain','LegendVisible','MarginOuter','MarginInner','RelativeTime'}; % valid options (Name)
+
+    %   Axis settings
+    cmap                        = cm('Set1',7);
+    cmap                        = cmap(2:end,:); % remove red
+
+    %   parse Name-Value pairs
+    optionName          = {'FigureNameValue','AxisNameValue','DeviceDomain','LegendVisible','MarginOuter','MarginInner','RelativeTime','DimOutliers','DeploymentDataOnly','TimeOfInterestDataOnly'}; %   valid options (Name)
     optionDefaultValue  = {{'Name',                 'gear deployments',...
                             'Menubar',              Menubar,...
                             'Toolbar',              'auto',...
@@ -103,125 +104,157 @@ function varargout = plot(obj,parameter,varargin)
                             'show',...
                             0.5,...
                             0.2,...
-                            'h'}; % default value (Value)
+                            'h',...
+                            true,...
+                            true,...
+                            false}; %   default value (Value)
     [FigureNameValue,...
      AxesNameValue,...
-     DataDomain,...
+     DeviceDomain,...
      LegendVisible,...
      MarginOuter,...
      MarginInner,...
      RelativeTime,...
-    ]	= internal.stats.parseArgs(optionName,optionDefaultValue,varargin{:}); % parse function arguments   
-    
-    % parse parameter input
-    plotParametersAvailableInfo     = cat(1,obj.parameters);
-    [~,uInd]                        = unique(plotParametersAvailableInfo{:,'ParameterId'});
-    plotParametersAvailableInfo     = plotParametersAvailableInfo(uInd,:);
-    
-    plotParametersAvailableInfo     = outerjoin(plotParametersAvailableInfo,DataKit.importTableFile([getToolboxRessources('DataKit'),'/validParameters.xlsx']),...
-                                        'Keys',         {'ParameterId','Parameter'},...
-                                        'MergeKeys',    true,...
-                                        'Type',         'left');
-    plotParametersAvailable         = plotParametersAvailableInfo{:,'Parameter'};
-    if nargin - nvarargin == 1
-        plotParameterY      = plotParametersAvailable;
-        error('TODO: implement a selection of all available parameters. All is too much.')
-    elseif nargin - nvarargin == 2
-        if ischar(parameter)
-            parameter	= cellstr(parameter);
-        elseif ~iscellstr(parameter)
-            error('GearKit:gearDeployment:plot:invalidParameterType',...
-                  'The requested parameter has to be specified as a char or cellstr.')
-        end
-        plotParameterY      = parameter;
-        im                  = ismember(plotParameterY,plotParametersAvailable);
-        if ~all(im)
-            error('GearKit:GearDeployment:plot:invalidParameter',...
-                  'One or more specified parameters are invalid:\n\t%s\nValid parameters are:\n\t%s\n',strjoin(plotParameterY(~im),', '),strjoin(plotParametersAvailable,', '))
+     DimOutliers,...
+     DeploymentDataOnly,...
+     TimeOfInterestDataOnly...
+    ]	= internal.stats.parseArgs(optionName,optionDefaultValue,varargin{:}); %   parse function arguments
+
+    %   parse parameter input
+    plotVariablesAvailableInfo	= cat(1,obj.variables);
+    if exist('variables','var') ~= 1
+        [variableIsValid,variableInfo]    = DataKit.Metadata.variable.validate('Id',plotVariablesAvailableInfo{:,'Id'});
+         error('Dingi:GearKit:gearDeployment:plot:TODO',...
+          'TODO: implement a selection of all available variables. All is too many.')
+    else
+        if ischar(variables) || iscellstr(variables)
+            if ischar(variables)
+                variables   = cellstr(variables);
+            end
+            variables	= variables(:);
+            [variableIsValid,variableInfo]    = DataKit.Metadata.variable.validate('Variable',variables);
+        elseif isnumeric(variables)
+            variables	= variables(:);
+            [variableIsValid,variableInfo]    = DataKit.Metadata.variable.validate('Id',variables);
+        else
+            error('Dingi:GearKit:gearDeployment:plot:invalidVariableType',...
+                  'The requested parameter has to be specified as a char, cellstr or numeric vector.')
         end
     end
- 	nParameter      	= numel(plotParameterY);
-    [~,parameterInfo]  = DataKit.validateParameter(plotParameterY);
-    
-    % initialize figure
+    variables   = cat(1,variableInfo(variableIsValid).EnumerationMemberName);
+    im          = ismember(cellstr(variables),plotVariablesAvailableInfo{:,'Name'});
+    if ~all(im)
+        error('Dingi:GearKit:GearDeployment:plot:invalidVariables',...
+              'One or more specified variables are invalid:\n\t%s\nValid variables are:\n\t%s\n',strjoin(cellstr(variables(~im)),', '),strjoin(cellstr(plotVariablesAvailableInfo{:,'Name'}),', '))
+    end
+ 	nVariables          = numel(variables);
+
+    %   initialize figure
     hfig        = figure(99);
     set(hfig,...
        	'Visible',      'on');
     clf
     set(hfig,FigureNameValue{:})
-    
-    
-    
+
     hsp                         = gobjects();
     hlgnd                       = gobjects();
     hp                          = gobjects();
     spnx                        = numel(obj);
-    spny                        = nParameter;
+    spny                        = nVariables;
     spi                         = reshape(1:spnx*spny,spnx,spny)';
-        
+
     parameterNotInDeployment    = false(spny,spnx);
+    xLabelString                = repmat({''},spny,spnx);
     yLabelString                = repmat({''},spny,spnx);
     titleString                 = repmat({''},spny,spnx);
     for col = 1:spnx
         gear	= col;
         for row = 1:spny
-            par     = row;
+            v     = row;
             hsp(spi(row,col))   = subplot(spny,spnx,spi(row,col),AxesNameValue{:});
+
+                xLabelString{row,col}	= '';
+                yLabelString{row,col}	= [char(variableInfo(v).Abbreviation),'\color[rgb]{0.6 0.6 0.6} (',char(variableInfo(v).Unit),')'];
+                titleString{row,col} 	= strjoin([cellstr(obj(gear).cruise),cellstr(obj(gear).gear)],' ');
                 try
-                    [time,data,info]    = obj(gear).getData(plotParameterY{par},...
-                                            'timeOfInterestDataOnly', 	true,...
-                                            'RelativeTime',             RelativeTime);
+                    data    = obj(gear).fetchData(variables(v),...
+                                'DeploymentDataOnly',       DeploymentDataOnly,...
+                                'TimeOfInterestDataOnly',   TimeOfInterestDataOnly,...
+                                'RelativeTime',             RelativeTime,...
+                                'GroupBy',                  'MeasuringDevice');
                 catch ME
                     switch ME.identifier
-                        case 'GearKit:gearDeployment:gd:invalidParameter'
+                        case 'Dingi:DataKit:dataPool:fetchData:requestedVariableIsUnavailable'
                             parameterNotInDeployment(row,col) = true;
+                            continue
                         otherwise
                             rethrow(ME)
                     end
                 end
-                
-                if ~isempty(DataDomain)
-                    maskDataDomain  = any(DataDomain == cat(1,info.dataSourceDomain),2);
-                    time    = time(maskDataDomain,:);
-                    data    = data(maskDataDomain,:);
-                    info    = info(maskDataDomain);
+                independentVariable     = unique([data.IndepInfo.Variable{:}]);
+                xLabelString{row,col}	= [char(independentVariable),'\color[rgb]{0.6 0.6 0.6} (',RelativeTime,')'];
+
+                if ~isempty(DeviceDomain)
+                    availableDeviceDomains = cat(1,data.DepInfo.MeasuringDevice.DeviceDomain);
+                    maskDataDomain  = ismember(availableDeviceDomains,DeviceDomain) | ...
+                                      ismember({availableDeviceDomains.Abbreviation}',DeviceDomain);
+                    data.IndepData                  = data.IndepData(maskDataDomain,:);
+                    data.DepData                    = data.DepData(maskDataDomain,:);
+                    data.DepInfo.MeasuringDevice  	= data.DepInfo.MeasuringDevice(maskDataDomain);
                 end
-                
+
                 iihp    = 1;
-                if isempty(time)
-                    hp(1,spi(row,col)) = plot(NaT,NaN);
-                elseif parameterNotInDeployment(row,col)
+                if isempty(data.IndepData)
                     hp(1,spi(row,col)) = plot(NaT,NaN);
                 else
-                    for sens = 1:numel(time)
-                        XData  	= time{sens};
-                        YData	= movmean(data{sens},10/60,...
-                                          'SamplePoints',     XData);
-                        hptmp   = plot(XData,YData,...
+                    legendStr   = cell.empty;
+                    for gr = 1:size(data.IndepData,1)
+                        XData  	= data.IndepData{gr}{:};
+                        [XData,sortInd] = sort(XData);
+                        YData	= data.DepData{gr}(sortInd);
+                        FData   = data.Flags{gr}(sortInd);
+                        maskRejected    = isFlag(FData,'MarkedRejected');
+
+                        % plot rejected data
+                        plot(XData(maskRejected),YData(maskRejected),...
+                                    'LineStyle',    'none',...
+                                    'Marker',       'o',...
+                                    'Color',        0.8.*ones(1,3));
+                        % plot data
+                        hptmp   = plot(XData(~maskRejected),YData(~maskRejected),...
                                     'LineWidth',    1.5);
+
+                        legendStr   = cat(1,legendStr,{[char(data.DepInfo.MeasuringDevice(gr).Type),', ',...
+                                                        char(data.DepInfo.MeasuringDevice(gr).DeviceDomain.Abbreviation),' (',...
+                                                        char(data.DepInfo.MeasuringDevice(gr).WorldDomain.Abbreviation),')']});
+
                         nhp     = numel(hptmp);
                         hp(iihp:iihp + nhp - 1,spi(row,col))	= hptmp;
                         iihp    = iihp + nhp;
                     end
-                    hlgnd(spi(row,col))	= legend(regexprep([info.name],[' ',parameterInfo{par,'Symbol'}{:}],''),...
+                    target  = hp(:,spi(row,col));
+                    hlgnd(spi(row,col))	= legend(target(isgraphics(target)),legendStr,...
                                                  'Location',        'best',...
                                                  'Interpreter',     'none');
                     legend(LegendVisible)
-                    yLabelString{row,col}	= [char(parameterInfo{par,'Abbreviation'}),'\color[rgb]{0.6 0.6 0.6} (',char(parameterInfo{par,'Unit'}),')'];
+                    yLabelString{row,col}	= [char(variableInfo(v).Abbreviation),'\color[rgb]{0.6 0.6 0.6} (',char(variableInfo(v).Unit),')'];
                     titleString{row,col} 	= strjoin([cellstr(obj(gear).cruise),cellstr(obj(gear).gear)],' ');
                 end
         end
     end
-    
-    % only keep the first occurance of the labels that is non-empty
+
+    %   only keep the first occurance of the labels that is non-empty
     yLabelString    = yLabelString(cumsum(~cellfun(@isempty,yLabelString),2) == 1);
     titleString     = titleString(cumsum(~cellfun(@isempty,titleString),1) == 1);
-    
-    % set appearance and labels
+
+    %   set appearance and labels
+    set(cat(1,hsp(spi(1,:)).Title),...
+        {'String'},      titleString(:))
+
     for col = 1:spnx
         gear	= col;
         for row = 1:spny
-            par     = row;      
+            v     = row;
             if col == 1
                 ylabel(hsp(spi(row,col)),yLabelString{row});
                 set(hsp(spi(row,col)).YAxis,...
@@ -246,43 +279,45 @@ function varargout = plot(obj,parameter,varargin)
                     'Visible',          'off');
             end
             if row == 1
-%                 title(hsp(spi(row,col)),titleString{col})
+%               title(hsp(spi(row,col)),titleString{col})
             end
             if parameterNotInDeployment(row,col)
                 text(hsp(spi(row,col)),0.5,0.5,'no data',...
                     'Units',                'normalized',...
                     'HorizontalAlignment',  'center',...
-                    'FontSize',             FontSize*LabelFontSizeMultiplier)
+                    'FontSize',             hsp(spi(row,col)).FontSize*hsp(spi(row,col)).LabelFontSizeMultiplier)
             end
             if row == spny
-                xlabel(hsp(spi(row,col)),['time\color[rgb]{0.6 0.6 0.6} (',RelativeTime,')'])
+                xlabel(hsp(spi(row,col)),xLabelString{row,col})
             end
         end
     end
-    
-    
+
+
     iilnk   = 1;
     for row = 1:spny
-        YLim            = getDataLimits(hp(:,spi(row,:)),'Y');
+        YLim            = cellfun(@(lim) lim + [-1 1].*0.05.*range(lim),getDataLimits(hp(:,spi(row,:)),'Y'),'un',0);
+        YLim(cellfun(@(x) any(isnan(x)),YLim)) = {[0 1]};
         set(hsp(spi(row,:)),...
             {'YLim'},   repmat(YLim,size(hsp(spi(row,:))))')
-        
+
         hlnk(iilnk)     = linkprop(hsp(spi(row,:)),'YLim');
         iilnk           = iilnk + 1;
     end
     for col = 1:spnx
-        XLim            = getDataLimits(hp(:,spi(:,col)),'X');
+        XLim            = cellfun(@(lim) lim + [-1 1].*0.05.*range(lim),getDataLimits(hp(:,spi(:,col)),'X'),'un',0);
+        XLim(cellfun(@(x) any(isnan(x)),XLim)) = {[0 1]};
         set(hsp(spi(:,col)),...
             {'XLim'},   repmat(XLim,size(hsp(spi(:,col))))')
-        
+
         hlnk(iilnk)     = linkprop(hsp(spi(:,col)),'XLim');
         iilnk           = iilnk + 1;
     end
     hfig.UserData   = hlnk;
     varargout{1}    = hfig;
     varargout{2}    = hsp;
-    
-    TightFig(hfig,hsp(1:spnx*spny),spi,FigureNameValue{find(strcmp('PaperSize',FigureNameValue)) + 1},MarginOuter,MarginInner);
-    
+
+    tightFig(hfig,hsp(1:spnx*spny),spi,FigureNameValue{find(strcmp('PaperSize',FigureNameValue)) + 1},MarginOuter,MarginInner);
+
     hfig.Visible    = 'on';
 end

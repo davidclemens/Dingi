@@ -12,18 +12,21 @@ function uuid = uuid(varargin)
     else
         s = cat(2,varargin{:});
     end
-    
+
     % base function
     uuidFunc    = @() char(java.util.UUID.randomUUID);
-    
+
     n           = prod(s);
-    
+
     if n > 1e5
-        error('too many requested UUIDs')
+        error('Dingi:DataKit:uuid:invalidNumberOfRequestedUUIDs',...
+          'Too many requested UUIDs')
     end
-    
+
    	uuid    = repmat(' ',n,36);
     for ii = 1:n
         uuid(ii,:) = uuidFunc();
     end
+    
+    uuid    = reshape(cellstr(uuid),s);
 end

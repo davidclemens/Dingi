@@ -46,7 +46,7 @@ switch ext
     case {'.xlsx'}
         [~,~,rawWithHeader]       = xlsread(filename,'','','basic');
     otherwise
-        error('DataKit:importTableFile:unknownFiletype',...
+        error('Dingi:DataKit:importTableFile:unknownFiletype',...
             'The import of tables from files with file extension ''%s'' is not defined yet.',ext)
 end
 
@@ -89,7 +89,7 @@ end
 
 indUnknownFormatSpec    = find(sum(maskFormatSpec) ~= 1,1);
 if ~isempty(indUnknownFormatSpec)
-    error('DataKit:importTableFile:noValidFormatSpecFound',...
+    error('Dingi:DataKit:importTableFile:noValidFormatSpecFound',...
         '''%s'' is not a valid formatSpec in file:\n\t%s\nValid formatSpecs are:\n\t%s',VarFormat{indUnknownFormatSpec},filename,strjoin(validFormatSpec,'\n\t'))
 end
 
@@ -147,11 +147,11 @@ maskColContainsNoData   = all(maskNoData);
 for col = 1:nColumns
     columnClassInd	= indU2(maskFormatSpec(:,col));
     columnClass     = validClasses{columnClassInd};
-    
+
     if maskColContainsNoData(col)
         continue
     end
-    
+
     try
         if validClassesIsNumeric(columnClassInd)
             data = cat(1,raw{~maskNoData(:,col),col});
@@ -165,11 +165,13 @@ for col = 1:nColumns
                         if isnumeric(data)
                             data = arrayfun(@(x) num2str(x,'%g'),data,'un',0);
                         else
-                        	error('implement this!')
+                        	error('Dingi:DataKit:importTableFile:TODO',...
+                            'TODO: implement this!')
                         end
                     else
                         if ~all(cellfun(@ischar,data)) % no reshaping needed, since we always look at a single column
-                            error('implement this!')
+                            error('Dingi:DataKit:importTableFile:TODO',...
+                              'TODO: implement this!')
                         end
                     end
                 case 'datetime'
@@ -182,7 +184,8 @@ for col = 1:nColumns
                         data = categorical(data);
                     end
                 otherwise
-                    error('''%s'' needs implementing',columnClass)
+                    error('Dingi:DataKit:importTableFile:TODO',...
+                      'TODO: ''%s'' needs implementing',columnClass)
             end
         end
     catch ME
@@ -191,14 +194,14 @@ for col = 1:nColumns
                 rethrow(ME)
         end
     end
-    
+
     try
         tbl{~maskNoData(:,col),col}     = data;
     catch ME
         switch ME.identifier
             otherwise
                 rethrow(ME)
-        end        
+        end
     end
 end
 end

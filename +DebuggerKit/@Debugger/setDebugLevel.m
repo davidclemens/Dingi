@@ -1,42 +1,62 @@
-function obj = setDebugLevel(obj,debugLevel)
-% SETDEBUGLEVEL Sets the debug level of the debugger object.
-% Sets the debugger object's debugging level.
+function setDebugLevel(level)
+% setDebugLevel  Sets the debug level
+%   SETDEBUGLEVEL Sets the debug level of the current debugger instance or
+%     creates a new instance with that debug level.
 %
-% Syntax
-%   Debugger = SETDEBUGLEVEL(Debugger,debugLevel)
+%   Syntax
+%     SETDEBUGLEVEL(level)
 %
-% Description
-%   Debugger = SETDEBUGLEVEL(Debugger,debugLevel) sets the debug level of 
-%       the Debugger to debugLevel and returns the Debugger object.
+%   Description
+%     SETDEBUGLEVEL(level) sets the debug level to level
 %
-% Example(s) 
-%
-%
-% Input Arguments
-%   Debugger - Debugger object
-%           The Debugger object of which the level should be set.
-%
-%   debugLevel - Level of debug information
-%       'Info' (default) | 'Error' | 'Warning' | 'Verbose'
-%           Sets the debug level which controls the level of information
-%           that is output to the command window.
+%   Example(s)
+%     SETDEBUGLEVEL('Verbose')
+%     SETDEBUGLEVEL('v')
+%     SETDEBUGLEVEL('err')
+%     SETDEBUGLEVEL('e')
+%     SETDEBUGLEVEL('Error')
 %
 %
-% Name-Value Pair Arguments
+%   Input Arguments
+%     level - debug level
+%       char
+%         The name of the debug level. It must be an unambiguous reference
+%         to the available debug levels.
 %
-% 
-% See also
 %
-% Copyright 2020 David Clemens (dclemens@geomar.de)
-
-    [im,imInd]       = ismember(debugLevel,obj.debugLevels);
-    if ~im
-        error('%s is not a valid debug level.\n\tValid levels are: %s.',strjoin(obj.debugLevels,', '))
+%   Output Arguments
+%
+%
+%   Name-Value Pair Arguments
+%
+%
+%   See also Debugger
+%
+%   Copyright (c) 2021-2022 David Clemens (dclemens@geomar.de)
+%
+    
+    import DebuggerKit.Debugger.printDebugMessage
+    
+    global DEBUGGER
+    
+    % If no global debugger instance is defined yet. Define it now.
+    if isempty(DEBUGGER)
+        DebuggerKit.Debugger(...
+            'Level',        level);
+        
+        newLevel = char(DEBUGGER.Level);
+        
+        printDebugMessage('Dingi:DebuggerKit:Debugger:setDebugLevel:newLevel',...
+            'Info','Debug level is set to ''%s''.',newLevel)
+    else
+        oldLevel = char(DEBUGGER.Level);
+        
+        DEBUGGER.Level = level;
+        
+        newLevel = char(DEBUGGER.Level);
+        
+        printDebugMessage('Dingi:DebuggerKit:Debugger:setDebugLevel:newLevel',...
+            'Info','Debug level is set to ''%s''. Was ''%s''.',newLevel,oldLevel)
     end
     
-    obj.debugLevel  = categorical(imInd,1:obj.debugLevelsN,obj.debugLevels,'Ordinal',true);
-
-%     if obj.debugLevel >= 'Info'
-%         fprintf('INFO: Debug Level is set to ''%s''\n',obj.debugLevel);
-%     end
 end

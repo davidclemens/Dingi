@@ -1,18 +1,22 @@
-function obj = getGearDeploymentMetadata(obj,pathName)
+function getGearDeploymentMetadata(obj,pathName)
 % GETGEARDEPLOYMENTMETADATA
 
     import DataKit.importTableFile
+    import DebuggerKit.Debugger.printDebugMessage
     
-	if obj.debugger.debugLevel >= 'Info'
-        fprintf('INFO: extracting %s deployment metadata... \n',obj.gearType);
-	end
-    
+ 	printDebugMessage('Info','Extracting %s deployment metadata...',char(obj.gearType))
+
+    % support empty initializeation of gearDeployment subclasses
+    if isempty(pathName)
+        return
+    end
+
     [~,obj.dataFolderInfo.gearName,~]  	= fileparts(pathName);
     obj.dataFolderInfo.dataFolder       = pathName;
-    tmpRootFolder                       = strsplit(pathName,'/');           
+    tmpRootFolder                       = strsplit(pathName,'/');
     obj.dataFolderInfo.rootFolder       = strjoin(tmpRootFolder(1:end - 2),'/');
-    
-    ids	= regexp(pathName,['(?<cruise>[A-Z]+\d+)_',obj.gearType,'_data(_)?(?<version>v\d+)?/(?<gear>',obj.gearType,'.+)$'],'names');
+
+    ids	= regexp(pathName,['(?<cruise>[A-Z]+\d+)_',char(obj.gearType),'_data(_)?(?<version>v\d+)?/(?<gear>',char(obj.gearType),'.+)$'],'names');
 
     obj.dataVersion = ids.version;
     obj.cruise      = categorical({ids.cruise});
@@ -21,19 +25,16 @@ function obj = getGearDeploymentMetadata(obj,pathName)
             obj.gear	= categorical({regexprep(ids.gear,'^BIGO\-(I{1,2})','BIGO${num2str(numel($1))}','once')});
         case 'EC'
             obj.gear    = categorical({ids.gear});
-        otherwise
-            error('GearKit:GearDeployment:getGearDeploymentMetadata:undefinedGearType',...
-                'The gear type ''%s'' is not defined yet. Valid gear types are:\n\t%s.',obj.gearType,strjoin(obj.validGearTypes,', '))
     end
-    
-    deploymentMetadataFile  = [obj.dataFolderInfo.rootFolder,'/',char(obj.cruise),'_',obj.gearType,'_deployments.xlsx'];
+
+    deploymentMetadataFile  = [obj.dataFolderInfo.rootFolder,'/',char(obj.cruise),'_',char(obj.gearType),'_deployments.xlsx'];
     try
         deploymentMetadata     	= importTableFile(deploymentMetadataFile);
         deploymentMetadata      = deploymentMetadata(deploymentMetadata{:,'Cruise'} == obj.cruise & ...
                                                      deploymentMetadata{:,'Gear'} == obj.gear,:);
         if size(deploymentMetadata,1) ~= 1
-            error('GearKit:gearDeployment:getGearDeploymentMetadata:multipleDeploymentMatches',...
-                  'multiple deployment metadata matches for ')
+            printDebugMessage('Dingi:GearKit:gearDeployment:getGearDeploymentMetadata:multipleDeploymentMatches',...
+                'FatalError','Multiple deployment metadata matches for %s %s',char(obj.cruise),char(obj.gear)')
         end
         obj.areaId              = deploymentMetadata{1,'TransectID'};
         obj.station             = deploymentMetadata{1,'StationDepl'};
@@ -47,14 +48,12 @@ function obj = getGearDeploymentMetadata(obj,pathName)
     catch ME
         switch ME.identifier
             case 'MATLAB:xlsread:FileNotFound'
-                warning('GearKit:gearDeployment:getGearDeploymentMetadata:missingDeploymentMetadataFile',...
-                        'no deployment metadata file found for %s %s',char(obj.cruise),char(obj.gear))
+                printDebugMessage('Dingi:GearKit:gearDeployment:getGearDeploymentMetadata:missingDeploymentMetadataFile',...
+                  	'Warning','No deployment metadata file found for %s %s',char(obj.cruise),char(obj.gear))
             otherwise
                 rethrow(ME);
         end
     end
-    
-	if obj.debugger.debugLevel >= 'Info'
-        fprintf('INFO: extracting %s deployment metadata... done\n',obj.gearType);
-	end
+
+    printDebugMessage('Info','Extracting %s deployment metadata... done',char(obj.gearType));
 end

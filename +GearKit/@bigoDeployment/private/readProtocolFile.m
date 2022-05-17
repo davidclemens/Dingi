@@ -1,37 +1,38 @@
 function t = readProtocolFile(filename,version,controlUnit)
 % READPROTOCOLFILE
-    
+
     import DataKit.importTableFile
-    
+    import DebuggerKit.Debugger.printDebugMessage
+
     pathRessources  = getToolboxRessources('GearKit');
-    
+
     % read raw text first
     rawText     = fileread(filename);
-    
+
     % remove empty lines
     endOfLine   = '\r\n';
     rawText  	= regexprep(rawText,['(',endOfLine,'){2,}'],endOfLine);
     rawText  	= regexprep(rawText,[endOfLine,'$'],'');
-    
+
     % read data
     formatSpec  = '%{MM-dd-yyyy}D%{HH:mm:ss}D%s';
     raw         = textscan(rawText,formatSpec,...
                     'Delimiter',        '\t',...
                     'EndOfLine',        endOfLine);
-                
+
 	rawData     = table(raw{:},...
                     'VariableNames',    {'Date','Time','Event'});
 	tmpTime         = [datevec(rawData{:,'Date'}),datevec(rawData{:,'Time'})];
     rawData.Time  	= datetime(tmpTime(:,[1,2,3,10,11,12]));
     rawData.Date    = [];
-    
+
     % load ressource table
     bigoEventRE	= importTableFile([pathRessources '/_BIGO_data_RE.xlsx']);
   	% get appropriate event dictionary version
     if ismember(version,bigoEventRE.Version)
         EventDict   = bigoEventRE(bigoEventRE.Version == version,:);  % extract relevant regular expression dictionary
     else
-        error('GearKit:bigoDeployment:readProtocolFile:unknownDataVersion',...
+        error('Dingi:GearKit:bigoDeployment:readProtocolFile:unknownDataVersion',...
             'The data version ''%s'' is unknown.',version);
     end
 
@@ -99,10 +100,11 @@ function t = readProtocolFile(filename,version,controlUnit)
     % remove rows that did not match
     maskNoMatch     = all(cellfun(@isempty,MatchTable.EventMatch),2);
     if sum(maskNoMatch) > 0
-        warning('GearKit:bigoDeployment:readProtocolFile:unmatchedEvents',...
-            'There were %g unmatched events in the following protocol file:\n\t%s\n',sum(maskNoMatch),filename);
+        printDebugMessage('Warning','There were %g unmatched events in the following protocol file:\n\t%s',sum(maskNoMatch),filename)
+%         warning('Dingi:GearKit:bigoDeployment:readProtocolFile:unmatchedEvents',...
+%             'There were %g unmatched events in the following protocol file:\n\t%s\n',sum(maskNoMatch),filename);
     end
-    
+
     MatchTable(maskNoMatch,:) = [];
     % deal with rows that match multiple events
     MultiMatchMask    = sum(cellfun(@numel,MatchTable.EventMatch),2)./size(MatchTable.EventMatch,2) > 1;
@@ -115,7 +117,7 @@ function t = readProtocolFile(filename,version,controlUnit)
                 MatchTable(end + 1,:)             	= MatchTable(MultiMatchMask(ii),:);                  	% append copy of row to end of MatchTable
                 MatchTable{end,'EventMatch'}{1}    = MatchTable{MultiMatchMask(ii),'EventMatch'}{1}(ss);  % alter the start entry to the current one
                 MatchTable{end,'EventMatch'}{2}    = MatchTable{MultiMatchMask(ii),'EventMatch'}{2}(ss);  % alter the end entry to the current one
-            end     
+            end
         end
     end
     MatchTable(MultiMatchMask,:)                                            = [];                               % remove double entries
@@ -159,18 +161,22 @@ function t = readProtocolFile(filename,version,controlUnit)
         for ev = 1:EventOpenN
             ErrorEvent(ev,1)   = EventDict.Event(EventDict.EventId == EventOpen.EventId(ev));
         end
-        warning('\nOne or more events for\n\t%s\nhave no end time:\n\t%s\n',filename,strjoin(cellstr(ErrorEvent),'\n\t'))
+        
+        printDebugMessage('Warning','One or more events for\n\t%s\nhave no end time:\n\t%s',filename,strjoin(cellstr(ErrorEvent),'\n\t'))
+%         warning('Dingi:GearKit:bigoDeployment:readProtocolFile:missingEndTime',...
+%           '\nOne or more events for\n\t%s\nhave no end time:\n\t%s\n',filename,strjoin(cellstr(ErrorEvent),'\n\t'))
 
         % #####################################################
         % # TO-TO: deal with cases, where end time is missing #
         % #####################################################
         %BIGOtime                    = [BIGOtime;EventOpen(:,:)]; 	% assign closed events to BIGOtime
     end
-    
+
 
     % POSTPROCESS BIGOtime TABLE
     % assign several values from match table to BIGOtime    % get ControlUnit ID
     t.Subgear             	= cell(size(t,1),1);                     % initialize Subgear column
+    t{:,'MeasuringDeviceType'} 	= GearKit.measuringDeviceType.undefined;                     % initialize MeasuringDevice column
     t.SampleId             	= cell(size(t,1),1);                     % initialize SampleId column
 
     t.StartTime           	= MatchTable.Time(t.RowStart);       % get event StartTime
@@ -194,23 +200,31 @@ function t = readProtocolFile(filename,version,controlUnit)
         t{:,uTok{tok}}(:,1)              = MatchTable{t.RowStart,uTok{tok}}(:,1); % add token start value
         t{:,uTok{tok}}(:,2)              = MatchTable{t.RowEnd,uTok{tok}}(:,2);   % add token end value
     end
-    
-    
+
+
     % compute token meanings
     ExtraCapRows 	= table();
-    
-    
+
+
     maskSyr     = t.Event == 'Syr';
     maskSyrExt  = t.Event == 'SyrExt';
+    maskSyrRes  = t.Event == 'SyrRes';
     maskCap     = t.Event == 'Cap';
     maskInj     = t.Event == 'Inj';
     indNis      = find(t.Event == 'Nis');
     nSyr        = sum(maskSyr);
     nSyrExt     = sum(maskSyrExt);
+    nSyrRes     = sum(maskSyrRes);
     nCap        = sum(maskCap);
     nInj        = sum(maskInj);
     nNis        = numel(indNis);
-    
+
+    % define measuringDevice
+    t{maskSyr | maskSyrExt | maskSyrRes,'MeasuringDeviceType'}  = GearKit.measuringDeviceType.BigoSyringeSampler;
+    t{maskCap,'MeasuringDeviceType'}                            = GearKit.measuringDeviceType.BigoCapillarySampler;
+    t{maskInj,'MeasuringDeviceType'}                            = GearKit.measuringDeviceType.BigoInjector;
+    t{indNis,'MeasuringDeviceType'}                             = GearKit.measuringDeviceType.BigoNiskinBottle;
+
     % switch on the version of regular expression table
     switch version
         case 'v1'
@@ -250,7 +264,7 @@ function t = readProtocolFile(filename,version,controlUnit)
             if nNis > 1
                 t(indNis(2:end),:)	= [];           % delete Nis for 2nd control unit
             end
-        case {'v4','v5'}
+        case {'v4','v5','v6'}
             % process internal syringes
             t.Subgear(maskSyr)  	= {controlUnit};
             t.SampleId(maskSyr)   	= strcat({'Syr'},num2str(t.Syr(maskSyr,1),'%02d'));
@@ -294,12 +308,12 @@ function t = readProtocolFile(filename,version,controlUnit)
 %                 end
             end
     end
-            
+
     % append additional injection events
    	t             	= [t;ExtraCapRows];
     t             	= sortrows(t,{'Subgear','SampleId','Time'});    % sort BIGOtime
-    
-    
+
+
     t.Subgear   	= categorical(t.Subgear);
     t.SampleId      = categorical(t.SampleId);
 

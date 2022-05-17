@@ -4,9 +4,15 @@ function lim = getDataLimits(h,xy)
     h               = h(:);
     tmpData         = cell(nax,1);
     lim             = cell(nax,1);
+    isPlaceholder  = arrayfun(@(o) isa(o,'matlab.graphics.GraphicsPlaceholder'),h);
     for iiax = 1:nax
-        tmpData{iiax}	= get(h(~strcmp('matlab.graphics.GraphicsPlaceholder',arrayfun(@class,h,'un',0))),...
+        % Extract axis data
+        tmpData{iiax}	= get(h(~isPlaceholder),...
                             {[ax{iiax},'Data']});
+        % Append NaN to make sure that data is not empty
+        tmpData{iiax}(end + 1) = {NaN};
+        
+        % Calculate limits
         lim{iiax}   	= [nanmin([tmpData{iiax}{:}]),nanmax([tmpData{iiax}{:}])];
     end
 end
