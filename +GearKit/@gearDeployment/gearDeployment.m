@@ -1,4 +1,4 @@
-classdef gearDeployment < handle
+classdef gearDeployment < matlab.mixin.SetGet
     % gearDeployment  The superclass to all gear deployments
     % The GEARDEPLOYMENT class defines basic metadata on a gear deployment
     % and reads it upon construction.
