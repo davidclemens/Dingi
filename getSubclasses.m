@@ -3,6 +3,14 @@ function L = getSubclasses(ofClass,withinScope)
     global classes
     classes = struct('Class',char.empty,'Path',char.empty,'Superclasses',cell.empty);
     
+    narginchk(2,2)
+    
+    % Check that the scope is a valid folder
+    if exist(withinScope,'dir') ~= 7
+        error('Dingi:getSubclasses:invalidScope',...
+            '''%s'' is not a valid folder.',withinScope)
+    end
+    
     listClasses(withinScope);
 
     maskClasses = cellfun(@(cl) ismember({ofClass},cl),cat(1,classes.Superclasses));
