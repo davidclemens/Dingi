@@ -26,6 +26,7 @@ The Dingi toolbox is written for MATLAB and is developed and tested with `MATLAB
 1. Download the latest release (0.1.0b1) [here](https://github.com/davidclemens/Dingi/archive/refs/heads/release.zip).
 2. Unzip the archive.
 3. Rename the unzipped folder from `Dingi-release` to `Dingi` and move it to your desired location `<DingiFolder>`.
+4. Add that location to your MATLAB search path by running `run <DingiFolder>/setupMATLABPath.m` in the MATLAB command line.
 
 ## Citing
 Please cite as:
