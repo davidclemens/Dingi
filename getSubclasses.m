@@ -1,4 +1,44 @@
 function L = getSubclasses(ofClass,withinScope)
+% getSubclasses  List subclasses of a class
+%   GETSUBCLASSES lists all subclasses of a class.
+%
+%   Syntax
+%     L = GETSUBCLASSES(ofClass,withinScope)
+%
+%   Description
+%     L = GETSUBCLASSES(ofClass,withinScope) lists all subclasses of class
+%       ofClass limiting the search to the folder 'withinScope' and its
+%       subfolders.
+%
+%   Example(s)
+%     L = GETSUBCLASSES('GearKit.gearDeployment','~/Toolboxes/Dingi')
+%
+%
+%   Input Arguments
+%     ofClass - superclass name
+%       char
+%         Superclass name in dot notation (e.g. '<PackageName>.<ClassName>').
+%
+%     withinScope - folder to limit search to
+%       char
+%         Limits the search for subclasses to folder 'withinScope' and all
+%         subfolders.
+%
+%
+%   Output Arguments
+%     L - list of subclasses
+%       struct
+%         Struct listing all subclasses with fields class name 'Class', full
+%         path 'Path' and superclass name 'Superclasses'.
+%
+%
+%   Name-Value Pair Arguments
+%
+%
+%   See also 
+%
+%   Copyright (c) 2021-2022 David Clemens (dclemens@geomar.de)
+%
     
     global classes
     classes = struct('Class',char.empty,'Path',char.empty,'Superclasses',cell.empty);
