@@ -1,16 +1,21 @@
 function setRelativeTimeFunction(obj)
 
+    import DebuggerKit.Debugger.printDebugMessage
+
+    printDebugMessage('Dingi:AnalysisKit:bigoFluxAnalysis:setFitVariables:settingRelativeTimeFunc',...
+        'Verbose','Setting relative time function ...')
+    
     switch obj.TimeUnit
         case 'ms'
             TimeFunc   	= @milliseconds;
             newVariable = DataKit.Metadata.variable.DurationMs;
-        case 's'
+        case {'s','sec'}
             TimeFunc   	= @seconds;
             newVariable = DataKit.Metadata.variable.DurationS;
-        case 'm'
+        case {'m','min'}
             TimeFunc   	= @minutes;
             newVariable = DataKit.Metadata.variable.DurationMin;
-        case 'h'
+        case {'h','hr'}
             TimeFunc   	= @hours;
             newVariable = DataKit.Metadata.variable.DurationH;
         case 'd'
@@ -27,9 +32,12 @@ function setRelativeTimeFunction(obj)
             TimeFunc   	= @datenum;
             newVariable = DataKit.Metadata.variable.Time;
         otherwise
-            error('Dingi:AnalysisKit:bigoFluxAnalysis:setRelativeTimeFunction:unknownTimeUnitIdentifier',...
-                '''%s'' is an unknown time unit identifier.',obj.TimeUnit)
+            printDebugMessage('Dingi:AnalysisKit:bigoFluxAnalysis:setRelativeTimeFunction:unknownTimeUnitIdentifier',...
+                'Error','''%s'' is an unknown time unit identifier.',obj.TimeUnit)
     end
     obj.TimeUnitFunction    = TimeFunc;
     obj.TimeVariable        = newVariable;
+    
+    printDebugMessage('Dingi:AnalysisKit:bigoFluxAnalysis:setFitVariables:settingRelativeTimeFunc',...
+        'Verbose','Setting relative time function ... done')
 end

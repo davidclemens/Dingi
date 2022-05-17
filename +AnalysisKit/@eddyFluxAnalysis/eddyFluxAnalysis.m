@@ -23,8 +23,8 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
 
     % Frontend
     properties
-        Name char = 'eddyFlux' % Analysis name
-        Type char = 'flux' % Analysis type
+        Name char = 'EddyFlux' % Analysis name
+        Type char = 'Flux' % Analysis type
         Parent = GearKit.ecDeployment % Parent
     end
 
@@ -442,21 +442,21 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
         % flags.
         function obj = set.TimeRaw(obj,value)
             stackDepth                  = 1;
-            obj.UpdateStack(stackDepth) = 1; % Set to 'Updating'
+            obj.setUpdateStackToUpdating(stackDepth)
             obj.TimeRaw_                = value;
-            obj.UpdateStack(stackDepth) = 0; % Set to 'Updated'
+            obj.setUpdateStackToUpdated(stackDepth)
         end
         function obj = set.VelocityRaw(obj,value)
             stackDepth                  = 1;
-            obj.UpdateStack(stackDepth) = 1; % Set to 'Updating'
+            obj.setUpdateStackToUpdating(stackDepth)
             obj.VelocityRaw_            = value;
-            obj.UpdateStack(stackDepth) = 0; % Set to 'Updated'
+            obj.setUpdateStackToUpdated(stackDepth)
         end
         function obj = set.FluxParameterRaw(obj,value)
             stackDepth                  = 1;
-            obj.UpdateStack(stackDepth) = 1; % Set to 'Updating'
+            obj.setUpdateStackToUpdating(stackDepth)
             obj.FluxParameterRaw_       = value;
-            obj.UpdateStack(stackDepth) = 0; % Set to 'Updated'
+            obj.setUpdateStackToUpdated(stackDepth)
         end
 
         function obj = set.TimeDS(obj,value)
@@ -532,7 +532,7 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
             if ~isequal(obj.Downsamples,value)
                 obj.Downsamples = value;
                 stackDepth = 2;
-                obj.UpdateStack(stackDepth) = 2; % Set to UpdateRequired
+                obj.setUpdateStackToUpdateRequired(stackDepth)
             end
         end
         function obj = set.ReplaceMethod(obj,value)
@@ -555,14 +555,14 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
             value = validatestring(value,obj.ValidCoordinateSystemRotationMethods);
             if ~isequal(obj.CoordinateSystemRotationMethod,value)
                 stackDepth = 4;
-                obj.UpdateStack(stackDepth) = 2; % Set to UpdateRequired
+                obj.setUpdateStackToUpdateRequired(stackDepth)
             end
         end
         function obj = set.DetrendingMethod(obj,value)
             value = validatestring(value,obj.ValidDetrendingMethods);
             if ~isequal(obj.DetrendingMethod,value)
                 stackDepth = 5;
-                obj.UpdateStack(stackDepth) = 2; % Set to UpdateRequired
+                obj.setUpdateStackToUpdateRequired(stackDepth)
             end
         end
         function obj = set.WindowDuration(obj,value)
@@ -571,7 +571,7 @@ classdef eddyFluxAnalysis < AnalysisKit.analysis
             if ~isequal(obj.WindowDuration,value)
                 obj.WindowDuration = value;
                 stackDepth = 4;
-                obj.UpdateStack(stackDepth) = 2; % Set to UpdateRequired
+                obj.setUpdateStackToUpdateRequired(stackDepth)
             end
         end
     end

@@ -17,7 +17,8 @@ function varargout = plot(obj,varargin)
     hfig    = figure(fig);
     clf
 
-    set(hfig,figureProperties{:})
+    set(hfig,figureProperties{:},...
+        'Visible',  'off')
     
     varargout = {...
         hfig,...
