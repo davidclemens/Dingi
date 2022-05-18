@@ -180,7 +180,7 @@ function varargout = parseInputs(obj,varargin)
     % Define validationFunctions
     validateObj = @(x) isa(x,'AnalysisKit.bigoFluxAnalysis');
     validatePlotType = @(x) ~isempty(validatestring(x,validPlotTypes));
-    validateVariable = @(x) true;
+    validateVariable = @(x) validateattributes(x,{'char','cell'});
     validateShowConfidenceInterval = @(x) validateattributes(x,{'logical'},{'scalar','nonempty'});
 
     % Create input parser
