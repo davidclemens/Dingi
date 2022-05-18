@@ -19,12 +19,9 @@ function varargout = plotFlux(obj,variable,groupingParameter,axesProperties)
     [uGroups,~,uGroupsInd]     = unique(groups,'stable');
     nuGroups    = numel(uGroups);
     
-    
     spnx	= 1;
     spny	= nVariables;
     spi     = reshape(1:spnx*spny,spnx,spny)';
-    
-    deviceDomains   = {'Ch1','Ch2'};
     
     xLimits         = NaN(spnx*spny,2);
     yLimits         = NaN(spnx*spny,2);
@@ -36,7 +33,7 @@ function varargout = plotFlux(obj,variable,groupingParameter,axesProperties)
         hsp(spi(row,col))   = subplot(spny,spnx,spi(row,col),axesProperties{:});
             
             % Plot zero line
-            plot([0,nuGroups + 1],zeros(1,2),'k')
+            plot(hsp(spi(row,col)),[0,nuGroups + 1],zeros(1,2),'k')
             
             % Assemble data
             maskVariable    = fluxData{:,'Variable'} == variable(var);
@@ -46,7 +43,7 @@ function varargout = plotFlux(obj,variable,groupingParameter,axesProperties)
             YDataNeg        = fluxData{maskVariable,'FluxErrNeg'};
             
             % Plot data
-            heb(spi(row,col)) = errorbar(XData,YData,YDataNeg,YDataPos,'o');
+            heb(spi(row,col)) = errorbar(hsp(spi(row,col)),XData,YData,YDataNeg,YDataPos,'o');
 
             % Calculate limits
             xLimits(spi(row,col),:) = [min(heb(spi(row,col)).XData(:)),max(heb(spi(row,col)).XData(:))];

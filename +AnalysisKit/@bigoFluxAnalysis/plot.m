@@ -4,6 +4,8 @@ function varargout = plot(obj,varargin)
     import DebuggerKit.Debugger.printDebugMessage
     import GraphKit.GraphTools.tightFig
 
+    nargoutchk(0,1)
+    
     % Parse inputs
     [...
         obj,...
@@ -30,7 +32,6 @@ function varargout = plot(obj,varargin)
     axesProperties  = [axesProperties,...
         'Parent',   {hfig},...
         'NextPlot', 'add'];
-
 
     % Validate variable(s)
     if isempty(variable)
@@ -72,6 +73,10 @@ function varargout = plot(obj,varargin)
     set(hfig,...
         'Visible',      'on',...
         'Units',        figUnits);
+    
+    if nargout == 1
+        varargout{1} = hfig;
+    end
 end
 
 function varargout = parseInputs(obj,varargin)
