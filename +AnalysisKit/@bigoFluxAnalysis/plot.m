@@ -95,7 +95,7 @@ function varargout = plot(obj,varargin)
         axesProperties] = parseInputs(obj,varargin{:});
 
     % Call the plot method of the superclass
-    superInputs = {};
+    superInputs = {plotType};
     if ~isempty(figureProperties)
         superInputs     = [superInputs,{'FigureProperties',figureProperties}];
     end
