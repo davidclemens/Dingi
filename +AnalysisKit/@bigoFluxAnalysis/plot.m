@@ -11,7 +11,8 @@ function varargout = plot(obj,varargin)
 %     hfig = PLOT(__)
 %
 %   Description
-%     PLOT(A) plots the fluxes of the top 10 variables grouped by gear.
+%     PLOT(A) plots the fluxes of 5 default variables (oxygen, ammonium,
+%       nitrate, nitrite, phosphate) grouped by gear.
 %     PLOT(A,variables) plots the fluxes of variables variables grouped by
 %       gear.
 %     PLOT(A,variables,plotType) additionally specifies the plot type.
@@ -19,6 +20,7 @@ function varargout = plot(obj,varargin)
 %     hfig = PLOT(__) returns the figure handle of the resulting figure
 %
 %   Example(s)
+%     plot(A)
 %     plot(A,{'Ox','Silicate'},'GroupingParameter','AreaId')
 %     plot(A,{'Ammonium','Nitrate'},'fits')
 %
@@ -113,7 +115,11 @@ function varargout = plot(obj,varargin)
 
     % Validate variable(s)
     if isempty(variable)
-        error('TODO')
+        % If no variables are provided, use these default variables
+        printDebugMessage('Dingi:AnalysisKit:bigoFluxAnalysis:plot:showingDefaultVariables',...
+            'Info','No variables were provided. Default variables are shown.')
+        defaultVariables = {'Oxygen','Ammonium','Nitrate','Nitrite','Phosphate'};
+        variable = DataKit.Metadata.variable.fromProperty('Variable',defaultVariables);
     else
         if isnumeric(variable)
             variable = DataKit.Metadata.variable.fromProperty('Id',variable);
@@ -133,7 +139,7 @@ function varargout = plot(obj,varargin)
     switch plotType
         case 'fits'
             if ~isequal(groupingParameter,'none')
-                printDebugMessage('Dingi:AnalysisKit:bigoFluxAnalysis:plot',...
+                printDebugMessage('Dingi:AnalysisKit:bigoFluxAnalysis:plot:ignoredGroupingParameter',...
                     'Verbose','For PlotType ''fits'', the grouping parameter is ignored. It was set to ''%s''.',groupingParameter)
             end
             [hsp,spi] = plotFits(obj,variable,showConfidenceInterval,axesProperties);
