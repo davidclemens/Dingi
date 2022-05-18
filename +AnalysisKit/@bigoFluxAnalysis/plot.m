@@ -1,5 +1,83 @@
 function varargout = plot(obj,varargin)
-% PLOT
+% plot  Plot a bigoFluxAnalysis instance
+%   PLOT creates plots for bigoFluxAnalysis instance(s) to show the fits or the
+%   fluxes.
+%
+%   Syntax
+%     PLOT(A)
+%     PLOT(A,variables)
+%     PLOT(A,variables,plotType)
+%     PLOT(__,Name,Value)
+%     hfig = PLOT(__)
+%
+%   Description
+%     PLOT(A) plots the fluxes of the top 10 variables grouped by gear.
+%     PLOT(A,variables) plots the fluxes of variables variables grouped by
+%       gear.
+%     PLOT(A,variables,plotType) additionally specifies the plot type.
+%     PLOT(__,Name,Value) additionally specifies Name-Value pairs.
+%     hfig = PLOT(__) returns the figure handle of the resulting figure
+%
+%   Example(s)
+%     plot(A,{'Ox','Silicate'},'GroupingParameter','AreaId')
+%     plot(A,{'Ammonium','Nitrate'},'fits')
+%
+%
+%   Input Arguments
+%     A - bigoFluxAnalyis instance
+%       scalar or array of bigoFluxAnalysis instances
+%         The bigoFluxAnalysis instances to include in the plots.
+%
+%     variables - variables
+%       char | cellstr
+%         A list of valid variables of which the fits/fluxes should be shown.
+%
+%     plotType - plot type
+%       'flux' (default) | 'fits' | 'fluxViolin'
+%         The plot type.
+%           - fits:         Shows the raw incubation data together with the
+%                           calculated fits. Use to evaluate the quality of
+%                           fits.
+%           - flux:         Shows the calculated fluxes resulting from the fits. 
+%                           The fluxes are calculated by evaluating the fits 
+%                           within the 'FitEvaluationInterval' and normalized to
+%                           the time unit set in 'TimeUnit'.
+%           - fluxViolin:   Same as 'flux', but showing the fluxes as violin
+%                           plots.
+%
+%
+%   Output Arguments
+%     hfig - figure handle
+%       figure handle
+%         The handle of the resulting figure.
+%
+%
+%   Name-Value Pair Arguments
+%     GroupingParameter - The parameter to group fluxes by
+%       'Gear' (default) | 'Cruise' | 'AreaId'
+%         The parameter to group fluxes by, if plotType is set to flux or
+%         fluxViolin.
+%
+%     ShowConfidenceInterval - Also show the confidence interval
+%       true (default) | false
+%         Determines if the confidence interval of the fits should also be
+%         shown, if the plotType is set to fits.
+%
+%     FigureProperties - Figure properties
+%       cell array
+%         Name-Value pairs in form of a cell array that should be set as figure 
+%         properties.
+%
+%     AxesProperties - Axes properties
+%       cell array
+%         Name-Value pairs in form of a cell array that should be set as axes 
+%         properties.
+%
+%
+%   See also 
+%
+%   Copyright (c) 2021-2022 David Clemens (dclemens@geomar.de)
+%
 
     import DebuggerKit.Debugger.printDebugMessage
     import GraphKit.GraphTools.tightFig
