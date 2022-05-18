@@ -1,13 +1,13 @@
 function obj = initializeFigureWindow(obj)
 
-    import GraphKit.Colormaps.cbrewer.cbrewer
+    import GraphKit.Colormaps.cm
     
     hsp                         = gobjects();
     hlgnd                       = gobjects();
     hp                          = gobjects();
     Menubar                     = 'figure';
     Toolbar                     = 'auto';
-    cmap                        = cbrewer('qual','Set1',7);
+    cmap                        = cm('Set1',7);
     cMapAlternating             = [  7 170 188;...
                                    127 127 127]./255;
     FontSize                    = 16;

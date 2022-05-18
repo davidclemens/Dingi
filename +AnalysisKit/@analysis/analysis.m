@@ -1,4 +1,4 @@
-classdef analysis < handle
+classdef analysis < matlab.mixin.SetGet
     properties (Abstract)
         Name char
         Type char
@@ -13,5 +13,11 @@ classdef analysis < handle
     % Methods in other files
     methods
         varargout = plot(obj,varargin)
+        setUpdateStackToUpdated(obj,stackDepth)
+        setUpdateStackToUpdating(obj,stackDepth)
+        setUpdateStackToUpdateRequired(obj,stackDepth)
+    end
+    methods (Abstract)
+        checkUpdateStack(obj,stackDepth)
     end
 end

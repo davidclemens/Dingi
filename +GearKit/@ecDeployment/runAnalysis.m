@@ -6,7 +6,7 @@ function runAnalysis(obj,varargin)
 
     % parse Name-Value pairs
     optionName          = {'Start','End'}; % valid options (Name)
-    optionDefaultValue  = {[],[]}; % default value (Value)
+    optionDefaultValue  = {obj.timeOfInterestStart,obj.timeOfInterestEnd}; % default value (Value)
     [startTime,...
      endTime...
      ]	= parseArgs(optionName,optionDefaultValue,varargin{:}); % parse function arguments

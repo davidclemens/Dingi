@@ -1,9 +1,14 @@
 function setFitVariables(obj)
 
-    info                = obj.Bigo.data.info;
+    import DebuggerKit.Debugger.printDebugMessage
+
+    printDebugMessage('Dingi:AnalysisKit:bigoFluxAnalysis:setFitVariables:settingFitVariables',...
+        'Info','Setting fit variables ...')
+    
+    info                = obj.Parent.data.info;
     info.DeviceDomain   = cat(1,info{:,'MeasuringDevice'}.DeviceDomain);
     info.WorldDomain    = cat(1,info{:,'MeasuringDevice'}.WorldDomain);
-    info                = outerjoin(info,obj.Bigo.HardwareConfiguration.DeviceDomainMetadata,...
+    info                = outerjoin(info,obj.Parent.HardwareConfiguration.DeviceDomainMetadata,...
                             'LeftKeys',         'DeviceDomain',...
                             'RightKeys',        'DeviceDomain',...
                             'MergeKeys',        true,...
@@ -22,23 +27,25 @@ function setFitVariables(obj)
                   info{:,'Type'} == 'Dependent' & ...
                   ismember({info{:,'Variable'}.Unit}','µM'), ...
               	2);
+	printDebugMessage('Dingi:AnalysisKit:bigoFluxAnalysis:setFitVariables:onlyMuConcentrationsUsed',...
+            'Warning','Only variables with concentrations in µM are implemented to be fit right now.')
 	
 	if sum(mask) == 0
-        warning('Dingi:AnalysisKit:bigoFluxAnalysis:setFitVariables:noVariableFound',...
-            'There was no variable for fitting found.')
+        printDebugMessage('Dingi:AnalysisKit:bigoFluxAnalysis:setFitVariables:noVariableFound',...
+            'Warning','There was no variable for fitting found.')
 	end
     
     info    = info(mask,:);
     
     % Set properties
-    obj.NFits               = size(info,1);
     obj.PoolIndex           = info{:,'DataPoolIndex'};
     obj.VariableIndex       = info{:,'VariableIndex'};
     obj.FitDeviceDomains    = info{:,'DeviceDomain'};
     obj.FluxVolume          = info{:,'VolumeViaHeight'};
     obj.FluxCrossSection    = info{:,'Area'};
     obj.FitOriginTime       = info{:,'ExperimentStart'};
-    obj.FitStartTime        = info{:,'ExperimentStart'} - obj.FitOriginTime;
-    obj.FitEndTime          = info{:,'ExperimentEnd'} - obj.FitOriginTime;
     obj.FitVariables        = info{:,'Variable'};
+    
+    printDebugMessage('Dingi:AnalysisKit:bigoFluxAnalysis:setFitVariables:settingFitVariables',...
+        'Info','Setting fit variables ... done')
 end

@@ -14,11 +14,10 @@ Before opening a new issue, please make sure that we do not have any duplicates 
 -->
 
 ## System information
-<!-- Describe the system configuration you are running on. -->
-- OS:
-- OS locale/language:
-- MATLAB version:
-- Dingi version:
+<!-- Describe the system configuration you are running on. In MATLAB run `ver` and paste the output here.-->
+```
+ver
+```
 
 ## Bug description
 <!-- Describe the bug you found. -->

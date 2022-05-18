@@ -5,9 +5,9 @@ function runAnalysis(obj)
     
     printDebugMessage('Info','Running BIGO analysis...')
     
-    relativeTimeUnit	= 'h';
+    relativeTimeUnit	= 'd';
     fitInterval         = hours([0,4]);
-    fitType             = 'sigmoidal';
+    fitType             = 'linear';
     
     nObj    = numel(obj);
     

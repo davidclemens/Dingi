@@ -3,7 +3,7 @@ function varargout = plotSpectra(obj,window)
     nargoutchk(0,1)
 
     if nargin == 1
-        window = 1:obj.WindowN;
+        window = 1:obj.NWindows;
     end
 
     C1m         = 2.5e-3;
@@ -28,11 +28,11 @@ function varargout = plotSpectra(obj,window)
     spi                         = reshape(1:spnx*spny,spnx,spny)';
 
     for win = 1:numel(window)
-        [f,vpsW(:,win)]    = vps(obj.Velocity(:,win,3),obj.Frequency);
-        [f,vpsFP1(:,win)]  = vps(obj.FluxParameter(:,win,1),obj.Frequency);
-        [f,vpsFP2(:,win)]  = vps(obj.FluxParameter(:,win,2),obj.Frequency);
-        [f,csWFP1(:,win)]  = cs(obj.W_(:,win),obj.FluxParameter_(:,win,1),obj.Frequency);
-        [f,csWFP2(:,win)]  = cs(obj.W_(:,win),obj.FluxParameter_(:,win,2),obj.Frequency);
+        [f,vpsW(:,win)]    = vps(obj.VelocityRSenu(:,win,3),obj.Frequency);
+        [f,vpsFP1(:,win)]  = vps(obj.FluxParameterRS(:,win,1),obj.Frequency);
+        [f,vpsFP2(:,win)]  = vps(obj.FluxParameterRS(:,win,2),obj.Frequency);
+        [f,csWFP1(:,win)]  = cs(obj.VelocityDT(:,win,3),obj.FluxParameterDT(:,win,1),obj.Frequency);
+        [f,csWFP2(:,win)]  = cs(obj.VelocityDT(:,win,3),obj.FluxParameterDT(:,win,2),obj.Frequency);
     end
 
     for col = 1:spnx

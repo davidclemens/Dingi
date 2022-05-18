@@ -1,7 +1,9 @@
 function varargout = plotPhaseSpace(data,dData,d2Data,uniCrit,theta)
     %%
-    import GraphKit.Colormaps.cmocean.cmocean
-    
+
+    import GraphKit.Colormaps.cm
+    import GraphKit.GraphTools.tightFig
+
     ind     = 1;
     nbins   = 100;
     [dataN,dataEdges]       = histcounts(data,nbins);
@@ -10,12 +12,12 @@ function varargout = plotPhaseSpace(data,dData,d2Data,uniCrit,theta)
     dDataEdges              = mean([dDataEdges(1:end - 1);dDataEdges(2:end)]);
     [d2DataN,d2DataEdges]	= histcounts(d2Data,nbins);
     d2DataEdges          	= mean([d2DataEdges(1:end - 1);d2DataEdges(2:end)]);
-        
+
     markerHistogram = 'k';
     markerScatter   = '.k';
-    
-	cmap = cat(1,ones(1,3),cmocean('deep',255));
-        
+
+	cmap = cat(1,ones(1,3),cm('deep',255));
+
     %%
     hsp = gobjects();
 
@@ -35,8 +37,8 @@ function varargout = plotPhaseSpace(data,dData,d2Data,uniCrit,theta)
         'PaperPosition',        [0,0,PaperWidth,PaperHeight],...
         'PaperSize',            [PaperWidth,PaperHeight]);
     clf
-    
-    
+
+
     %             scatter3(Data.Data(:,ind),dData.Data(:,ind)./g,d2Data.Data(:,ind)./g,'.k')
     %             xlabel('u (m/s)')
     %             ylabel('g^{-1} du/dt (s^{-1})')
@@ -58,32 +60,32 @@ function varargout = plotPhaseSpace(data,dData,d2Data,uniCrit,theta)
         scatter(XData,YData,markerScatter)
         drawPointDensity(XData,YData,nbins)
         drawEllipse(uniCrit(1),uniCrit(2),theta(1))
-        
+
         colormap(cmap);
-%         
+%
 %         maskOutlier = (cos(theta).*(XData - x0) + sin(theta).*(YData - y0)).^2./a.^2 + ...
 %                       (sin(theta).*(XData - x0) - cos(theta).*(YData - y0)).^2./b.^2 > 1;
 %         scatter(XData(maskOutlier),YData(maskOutlier),'.r')
-        
+
         ylabel('dx')
 
     row     = 3;
     col     = 1;
     hsp(spi(row,col)) = subplot(spny,spnx,spi(row,col),...
-                          	'NextPlot',         'add');                        
+                          	'NextPlot',         'add');
         XData   = data;
         YData   = d2Data;
-        
+
         scatter(XData,YData,markerScatter)
         drawPointDensity(XData,YData,nbins)
         drawEllipse(uniCrit(1),uniCrit(3),theta(2))
-        
+
         colormap(cmap);
-%         
+%
 %         maskOutlier = (cos(theta).*(XData - x0) + sin(theta).*(YData - y0)).^2./a.^2 + ...
 %                       (sin(theta).*(XData - x0) - cos(theta).*(YData - y0)).^2./b.^2 > 1;
 %         scatter(XData(maskOutlier),YData(maskOutlier),'.r')
-        
+
         xlabel('x')
         ylabel('d^2x')
 
@@ -91,19 +93,19 @@ function varargout = plotPhaseSpace(data,dData,d2Data,uniCrit,theta)
     col     = 1;
     hsp(spi(row,col)) = subplot(spny,spnx,spi(row,col),...
                          	'NextPlot',         'add');
-                        
+
         XData = dData;
         YData = d2Data;
         scatter(XData,YData,markerScatter)
-        drawPointDensity(XData,YData,nbins)        
+        drawPointDensity(XData,YData,nbins)
         drawEllipse(uniCrit(2),uniCrit(3),theta(3))
-        
+
         colormap(cmap);
-%         
+%
 %         maskOutlier = (cos(theta).*(XData - x0) + sin(theta).*(YData - y0)).^2./a.^2 + ...
 %                       (sin(theta).*(XData - x0) - cos(theta).*(YData - y0)).^2./b.^2 > 1;
 %         scatter(XData(maskOutlier),YData(maskOutlier),'.r')
-        
+
         xlabel('dx')
         ylabel('d^2x')
 
@@ -131,7 +133,7 @@ function varargout = plotPhaseSpace(data,dData,d2Data,uniCrit,theta)
                             'NextPlot',         'add',...
                             'XScale',           'log',...
                             'YTickLabel',       {});
-        barh(d2DataEdges,d2DataN,markerHistogram)       
+        barh(d2DataEdges,d2DataN,markerHistogram)
         xlabel('#')
 
     row     = 5;
@@ -151,19 +153,19 @@ function varargout = plotPhaseSpace(data,dData,d2Data,uniCrit,theta)
                             'XTickLabel',       {});
         bar(dDataEdges,dDataN,markerHistogram)
         ylabel('#')
-        
+
 	row     = 1;
     col     = 2;
 	hsp(spi(row,col)) = subplot(spny,spnx,spi(row,col),...
                             'Visible',          'off');
-        
+
 	row     = 4;
     col     = 2;
 	hsp(spi(row,col)) = subplot(spny,spnx,spi(row,col),...
                             'Visible',          'off');
-        
-        
-        
+
+
+
     ii          = 1;
     hlnk(ii)    = linkprop(hsp([1,3,5]),'XLim');
     ii          = ii + 1;
@@ -177,10 +179,10 @@ function varargout = plotPhaseSpace(data,dData,d2Data,uniCrit,theta)
     ii          = ii + 1;
     hlnk(ii)    = linkprop(hsp([9,10]),'YLim');
     ii          = ii + 1;
-            
+
     hfig.UserData = hlnk;
-    
-    TightFig(hfig,hsp(1:spnx*spny),spi,[PaperWidth PaperHeight],MarginOuter,MarginInner);
+
+    tightFig(hfig,hsp(1:spnx*spny),spi,[PaperWidth PaperHeight],MarginOuter,MarginInner);
 
     function drawEllipse(a,b,theta)
         t       = linspace(0,2*pi,100);

@@ -66,7 +66,7 @@ function varargout = despikePST(obj,datasetName)
             nDespiked   = sum(mask(:));
             run         = nDespiked ~= 0 && ...
                           maskChanged && ...
-                          iter <= 10;
+                          iter <= 50;
             iter = iter + 1;
 
             printDebugMessage('Verbose','%d spikes replaced',nDespiked)
