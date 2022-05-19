@@ -1,4 +1,7 @@
 function validateSetId(obj,setId)
+% validateSetId  tests if setId(s) exist
+%   VALIDATESETID tests if setId(s) exist(s) and is(are) valid in a dataStore
+%   instance.
 
     validateattributes(setId,{'numeric'},{'vector','nonempty','positive','integer'},mfilename,'setId',2);
     

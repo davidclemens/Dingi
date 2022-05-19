@@ -1,4 +1,7 @@
 function validateVariableId(obj,setId,variableId)
+% validateVariableId  tests if setId-variableId combination(s) exist
+%   VALIDATESETID tests if setId-variableId combination(s) exist(s) and is(are)
+%   valid in a dataStore instance.
 
     import DataKit.arrayhom
     

@@ -1,4 +1,71 @@
 function data = getData(obj,setId,variableId,groupMode)
+% getData  Retrieve data from dataStore
+%   GETDATA retrieves data form a dataStore instance
+%
+%   Syntax
+%     data = GETDATA(obj,setId,variableId,groupMode)
+%
+%   Description
+%     data = GETDATA(obj,setId,variableId,groupMode) retrieves the data of
+%       variable(s) variableId in set(s) setId of dataStore instance obj and
+%       returns it according to groupMode either as a NaN-seperated vector or as
+%       a cell array with each cell containing the data of one variable.
+%
+%   Example(s)
+%     data = GETDATA(ds,2,1,'NaNSeperated')
+%     data = GETDATA(ds,2,1,'Cell')
+%     data = GETDATA(ds,2,1:3,'NaNSeperated')
+%     data = GETDATA(ds,2:4,1:3,'NaNSeperated')
+%     data = GETDATA(ds,1,[5,8:10],'NaNSeperated')
+%     data = GETDATA(ds,[2,4],3,'NaNSeperated')
+%     data = GETDATA(ds,[2,4,4,4],[3,7:9],'NaNSeperated')
+%
+%
+%   Input Arguments
+%     obj - dataStore instance
+%       DataKit.dataStore
+%         The dataStore instance from which to retrieve the data.
+%
+%     setId - set Id
+%       positive integer scalar | positive integer vector
+%         Defines the data to be retrieved from the dataStore instance together
+%         with the corresponding variableId. Each (setId,variableId)-pair
+%         uniquely identifies data in the dataStore. Scalar setId/variableId
+%         inputs are repeated to match the shape of non-scalar
+%         setId/variableId inputs. All non-scalar setId/variableId inputs
+%         have to have the same shape.
+%
+%     variableId - variable Id
+%       positive integer scalar | positive integer vector
+%         Defines the data to be retrieved from the dataStore instance together
+%         with the corresponding setId. Each (setId,variableId)-pair
+%         uniquely identifies data in the dataStore. Scalar setId/variableId
+%         inputs are repeated to match the shape of non-scalar
+%         setId/variableId inputs. All non-scalar setId/variableId inputs
+%         have to have the same shape.
+%
+%     groupMode - group mode
+%       'NaNSeperated' | 'Cell'
+%         Sets the data return strategy:
+%         - NaNSeperated:   Returns all requested variable data in a column
+%                           vector in sequence, seperated by NaNs.
+%         - Cell:           Returns each requested variable data as a column
+%                           vector within a cell.
+%
+%
+%   Output Arguments
+%     data - output data
+%       numeric column vector | cell
+%         Output data. The type depends on the groupMode input argument.
+%
+%
+%   Name-Value Pair Arguments
+%
+%
+%   See also DATASTORE
+%
+%   Copyright (c) 2022-2022 David Clemens (dclemens@geomar.de)
+%
 
     import DataKit.arrayhom
 
