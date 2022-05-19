@@ -3,9 +3,10 @@ function addDataToExistingSet(obj,setId,data)
     validateSetId(obj,setId)
     validateattributes(data,{'numeric'},{'2d','nonempty'},mfilename,'data',3)
     
-    rawStoreSizeBefore      = numel(obj.Data);
-    [dataLength,nVariables] = size(data);
-    setLength               = getSetLength(obj,setId);
+    % Set sizes
+    nSamplesBefore          = obj.NSamples; % The number of samples in the dataStore before data addition
+    [dataLength,nVariables] = size(data); % The length and number of variables in the data to be added
+    setLength               = getSetLength(obj,setId); % The length of the existing set
     
     if dataLength ~= setLength
         error('Dingi:DataKit:dataStore:addDataToExistingSet:invalidDataLength',...
@@ -22,8 +23,8 @@ function addDataToExistingSet(obj,setId,data)
     % Update IndexVariables
     tSetId      = repmat(setId,nVariables,1);
     tVariableId = setNVariablesBefore + (1:nVariables)';
-    tStart      = rawStoreSizeBefore + (1:setLength:nVariables*setLength)';
-    tEnd        = rawStoreSizeBefore + (setLength:setLength:nVariables*setLength)';
+    tStart      = nSamplesBefore + (1:setLength:nVariables*setLength)';
+    tEnd        = nSamplesBefore + (setLength:setLength:nVariables*setLength)';
     newIndexVariables   = table(tSetId,tVariableId,tStart,tEnd,'VariableNames',{'SetId','VariableId','Start','End'});
     obj.IndexVariables  = cat(1,obj.IndexVariables,newIndexVariables);
     

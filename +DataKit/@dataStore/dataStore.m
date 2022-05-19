@@ -6,6 +6,9 @@ classdef dataStore < handle
         IndexVariables table = table([],[],[],[],'VariableNames',{'SetId','VariableId','Start','End'})
         IndexSets table = table([],[],[],'VariableNames',{'SetId','Length','NVariables'})
     end
+    properties (Dependent)
+        NSamples
+    end
     
     % Constructor method
     methods
@@ -24,5 +27,12 @@ classdef dataStore < handle
         validateSetId(obj,setId)
         validateVariableId(obj,setId,variableId)
         setId = getNewSetId(obj)
+    end
+    
+    % GET methods
+    methods
+        function nSamples = get.NSamples(obj)
+            nSamples = numel(obj.Data);
+        end
     end
 end
