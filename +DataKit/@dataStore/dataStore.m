@@ -1,10 +1,12 @@
 classdef dataStore < handle
     
-    properties
-        Data
-        Type
+    properties (SetAccess = 'private')
+        Type char = 'single'
         IndexVariables table = table([],[],[],[],'VariableNames',{'SetId','VariableId','Start','End'})
         IndexSets table = table([],[],[],'VariableNames',{'SetId','Length','NVariables'})
+    end
+    properties (Access = 'protected')
+        Data = single.empty
     end
     properties (Dependent)
         NSamples
@@ -23,6 +25,7 @@ classdef dataStore < handle
         data = getData(obj,setId,variableId,groupMode)
     end
     methods (Access = 'private')
+        setType(obj,type)
         length = getSetLength(obj,setId)
         validateSetId(obj,setId)
         validateVariableId(obj,setId,variableId)

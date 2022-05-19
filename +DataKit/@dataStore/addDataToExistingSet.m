@@ -59,7 +59,8 @@ function addDataToExistingSet(obj,setId,data)
     end
     
     % Append data
-    obj.Data = cat(1,obj.Data,reshape(data,[],1));
+    data        = cast(data,obj.Type);
+    obj.Data    = cat(1,obj.Data,reshape(data,[],1));
     
     % Get before values
     maskIndexSets      	= obj.IndexSets{:,'SetId'} == setId;

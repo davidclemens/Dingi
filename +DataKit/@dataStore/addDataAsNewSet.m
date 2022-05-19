@@ -47,7 +47,8 @@ function addDataAsNewSet(obj,data)
     setLength               = dataLength; % The length of the new set is equal to the length of the new data
 
     % Append data
-    obj.Data = cat(1,obj.Data,reshape(data,[],1));
+    data        = cast(data,obj.Type);
+    obj.Data    = cat(1,obj.Data,reshape(data,[],1));
 
     % Update IndexVariables
     tSetId      = repmat(setId,nVariables,1);
