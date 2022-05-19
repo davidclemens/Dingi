@@ -43,6 +43,8 @@ function addDataToExistingSet(obj,setId,data)
 %   Copyright (c) 2022-2022 David Clemens (dclemens@geomar.de)
 %
     
+    narginchk(3,3)
+    
     % Validate inputs
     validateSetId(obj,setId)
     validateattributes(data,{'numeric'},{'2d','nonempty'},mfilename,'data',3)

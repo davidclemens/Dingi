@@ -35,6 +35,8 @@ function addDataAsNewSet(obj,data)
 %   Copyright (c) 2022-2022 David Clemens (dclemens@geomar.de)
 %
 
+    narginchk(2,2)
+    
     % Validate input
     validateattributes(data,{'numeric'},{'2d','nonempty'},mfilename,'data',3)
 
