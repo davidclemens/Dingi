@@ -67,6 +67,11 @@ classdef (SharedTestFixtures = { ...
 
             testCase.verifyError(@() testCase.DataStoreInstance.addDataToExistingSet([],1),'MATLAB:validateSetId:expectedVector');
         end
+        function testInvalidSetIdInput(testCase)
+        % Test addDataToExistingSet with invalid setId but valid data
+
+            testCase.verifyError(@() testCase.DataStoreInstance.addDataToExistingSet(33,1),'Dingi:DataKit:dataStore:validateSetId:invalidSetId');
+        end
         function testValidDataInput(testCase,NewData)
 
             ds = testCase.DataStoreInstance;
