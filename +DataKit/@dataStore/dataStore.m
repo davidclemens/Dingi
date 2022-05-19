@@ -48,7 +48,7 @@ classdef dataStore < handle
         %         array, yields a set with 100 samples and 3 variables.
         %
         %     type - datatype
-        %       'single' (default) | 'double' | 'int8' | 'uint8' | 'int16' | 'uint16' | 'int32' | 'uint32' | 'int64' | 'uint64'
+        %       'single' (default) | 'double'
         %         Sets the datatype of the dataStore. If the class of data differes from
         %         type, it is cast to class type.
         %

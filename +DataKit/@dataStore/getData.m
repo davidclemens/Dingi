@@ -68,7 +68,9 @@ function data = getData(obj,setId,variableId,groupMode)
 %
 
     import DataKit.arrayhom
-
+    
+    narginchk(4,4)
+    
     % Validate inputs
     validateVariableId(obj,setId,variableId)
     validGroupModes	= {'NaNSeperated','Cell'};
@@ -95,7 +97,7 @@ function data = getData(obj,setId,variableId,groupMode)
             dataSubs        = cat(2,dataSubs{:})';
 
             % Assign data
-            data            = NaN(sum(dataLengths) + nVariables - 1,1); % Initialize
+            data            = NaN(sum(dataLengths) + nVariables - 1,1,obj.Type); % Initialize
             data(dataSubs)  = obj.Data(dataSetSubs); % Assign
         case 'Cell'
             data = cell(nVariables,1);
