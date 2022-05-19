@@ -17,7 +17,7 @@ classdef dataStore < handle
     methods
         varargout = addDataToExistingStore(obj,storeId,data)
         varargout = addDataToNewStore(obj,data)
-        data = getData(obj,storeId,variableId,groupBy)
+        data = getData(obj,storeId,variableId,groupMode)
     end
     methods (Access = 'private')
         length = getStoreLength(obj,storeId)
