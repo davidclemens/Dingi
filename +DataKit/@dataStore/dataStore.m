@@ -10,6 +10,9 @@ classdef dataStore < handle
     end
     properties (Dependent)
         NSamples
+        NSets
+        NVariables
+        Bytes
     end
     
     % Constructor method
@@ -24,7 +27,7 @@ classdef dataStore < handle
         addDataAsNewSet(obj,data)
         data = getData(obj,setId,variableId,groupMode)
     end
-    methods (Access = 'private')
+    methods (Access = 'protected')
         setType(obj,type)
         length = getSetLength(obj,setId)
         validateSetId(obj,setId)
@@ -36,6 +39,17 @@ classdef dataStore < handle
     methods
         function nSamples = get.NSamples(obj)
             nSamples = numel(obj.Data);
+        end
+        function nSets = get.NSets(obj)
+            nSets = size(obj.IndexSets,1);
+        end
+        function nVariables = get.NVariables(obj)
+            nVariables = sum(obj.IndexSets{:,'NVariables'});
+        end
+        function bytes = get.Bytes(obj)
+            prop    = obj.Data;
+            s       = whos('prop');
+            bytes   = s.bytes;
         end
     end
 end
