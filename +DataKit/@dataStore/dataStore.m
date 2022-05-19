@@ -3,8 +3,8 @@ classdef dataStore < handle
     properties
         Data
         Type
-        IndexVariables table = table([],[],[],[],'VariableNames',{'StoreId','VariableId','Start','End'})
-        IndexStores table = table([],[],[],'VariableNames',{'StoreId','Length','NVariables'})
+        IndexVariables table = table([],[],[],[],'VariableNames',{'SetId','VariableId','Start','End'})
+        IndexSets table = table([],[],[],'VariableNames',{'SetId','Length','NVariables'})
     end
     
     % Constructor method
@@ -15,14 +15,14 @@ classdef dataStore < handle
     end
     
     methods
-        varargout = addDataToExistingStore(obj,storeId,data)
-        varargout = addDataToNewStore(obj,data)
-        data = getData(obj,storeId,variableId,groupMode)
+        varargout = addDataToExistingSet(obj,setId,data)
+        varargout = addDataAsNewSet(obj,data)
+        data = getData(obj,setId,variableId,groupMode)
     end
     methods (Access = 'private')
-        length = getStoreLength(obj,storeId)
-        validateStoreId(obj,storeId)
-        validateVariableId(obj,storeId,variableId)
-        storeId = getNewStoreId(obj)
+        length = getSetLength(obj,setId)
+        validateSetId(obj,setId)
+        validateVariableId(obj,setId,variableId)
+        setId = getNewSetId(obj)
     end
 end
