@@ -1,6 +1,4 @@
-function varargout = addDataAsNewSet(obj,data)
-
-    nargoutchk(0,1)
+function addDataAsNewSet(obj,data)
 
     validateattributes(data,{'numeric'},{'2d','nonempty'},mfilename,'data',3)
 
@@ -24,8 +22,4 @@ function varargout = addDataAsNewSet(obj,data)
     % Update IndexSets
     newIndexSets	= table(setId,setLength,nVariables,'VariableNames',{'SetId','Length','NVariables'});
     obj.IndexSets   = cat(1,obj.IndexSets,newIndexSets);
-
-    if nargout == 1
-        varargout{1} = obj;
-    end
 end

@@ -1,6 +1,4 @@
-function varargout = addDataToExistingSet(obj,setId,data)
-
-    nargoutchk(0,1)
+function addDataToExistingSet(obj,setId,data)
     
     validateSetId(obj,setId)
     validateattributes(data,{'numeric'},{'2d','nonempty'},mfilename,'data',3)
@@ -31,8 +29,4 @@ function varargout = addDataToExistingSet(obj,setId,data)
     
     % Update IndexSets
     obj.IndexSets{maskIndexSets,{'NVariables'}} = setNVariablesBefore + nVariables;
-    
-    if nargout == 1
-        varargout{1} = obj;
-    end
 end

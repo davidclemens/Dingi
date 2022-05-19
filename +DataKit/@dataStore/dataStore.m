@@ -15,8 +15,8 @@ classdef dataStore < handle
     end
     
     methods
-        varargout = addDataToExistingSet(obj,setId,data)
-        varargout = addDataAsNewSet(obj,data)
+        addDataToExistingSet(obj,setId,data)
+        addDataAsNewSet(obj,data)
         data = getData(obj,setId,variableId,groupMode)
     end
     methods (Access = 'private')
