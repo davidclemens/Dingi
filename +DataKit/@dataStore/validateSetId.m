@@ -5,8 +5,9 @@ function validateSetId(obj,setId)
     im = ismember(setId,obj.IndexSets{:,'SetId'});
     
     if any(~im)
-        invalidSet = find(~im,1);
+        invalidSet  = find(~im,1);
+        validSets   = strjoin(cellstr(num2str(obj.IndexSets{:,'SetId'},'%u')),', ');
         error('Dingi:DataKit:dataStore:validateSetId:invalidSetId',...
-            '%u is not a valid SetId.',setId(invalidSet));
+            '%u is not a valid set Id. Valid set Ids are:\n\t%s',setId(invalidSet),validSets);
     end
 end

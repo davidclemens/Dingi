@@ -11,7 +11,8 @@ function validateVariableId(obj,setId,variableId)
     
     if any(~im)
         invalidVariable = find(~im,1);
+        validVariables  = strjoin(strcat({'('},cellstr(num2str(obj.IndexVariables{:,'SetId'},'%u')),{','},cellstr(num2str(obj.IndexVariables{:,'VariableId'},'%u')),{')'}),', ');
         error('Dingi:DataKit:dataStore:validateVariableId:invalidVariableId',...
-            '(%u, %u) is not a valid SetId-VariableId combination.',setId(invalidVariable),variableId(invalidVariable));
+            '(%u,%u) is not a valid SetId-VariableId combination. Valid SetId-VariableId combinations are:\n\t%s',setId(invalidVariable),variableId(invalidVariable),validVariables);
     end
 end
