@@ -20,7 +20,11 @@ Maintained by David Clemens (dclemens@geomar.de)
 
 ## Installation
 ### Dependencies
-The Dingi toolbox is written for MATLAB and is developed and tested with `MATLAB R2017b`.
+- `MATLAB`: The Dingi toolbox is written for [MATLAB by MathWorks](https://www.mathworks.com/products/matlab.html) and is developed and tested with `MATLAB R2017b`.
+
+- `Physical Units Toolbox` (v5.0): The toolbox supports physical units throughout. This functionality is provided by the `Physical Units Toolbox` by Sky Sartorius.
+  1. Clone the [repository](https://github.com/sky-s/physical-units-for-matlab.git) with `git clone https://github.com/sky-s/physical-units-for-matlab.git <destinationDirectory>`.
+  2. Add `<destinationDirectory>` to your MATLAB path.
 
 ### Setup
 1. Download the latest release (0.1.0b1) [here](https://github.com/davidclemens/Dingi/archive/refs/heads/release.zip).
