@@ -13,6 +13,8 @@ classdef dataStore < handle
         NSets
         NVariables
         Bytes
+        GBytes
+        BytesPerSample
     end
     
     % Constructor method
@@ -113,6 +115,12 @@ classdef dataStore < handle
             prop    = obj.Data;
             s       = whos('prop');
             bytes   = s.bytes;
+        end
+        function gBytes = get.GBytes(obj)
+            gBytes	= round(obj.Bytes.*1e-6,3);
+        end
+        function bytesPerSample = get.BytesPerSample(obj)
+            bytesPerSample = round(obj.Bytes/obj.NSamples,1);
         end
     end
 end
