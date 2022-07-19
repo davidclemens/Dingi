@@ -72,6 +72,9 @@ function varargout = plot(obj,varargin)
     set(hfig,...
         'Visible',      'on',...
         'Units',        figUnits);
+    if nargout == 1
+        varargout{1} = hfig;
+    end
 end
 
 function varargout = parseInputs(obj,varargin)
