@@ -1,5 +1,6 @@
-# Ignore temporary MATLAB files
+# Ignore temporary files
 *.m~
+~$*.xlsx
 
 # Ignore trial MATLAB files
 *.trial.m
