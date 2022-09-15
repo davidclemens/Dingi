@@ -146,4 +146,7 @@ classdef gearDeployment < matlab.mixin.SetGet
     methods (Abstract)
         runAnalysis(obj)
     end
+    methods (Access = protected, Static)
+        tbl = readAnalyticalSampleFiles(folder,expression)
+    end
 end
