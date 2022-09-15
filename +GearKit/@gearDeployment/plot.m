@@ -72,6 +72,7 @@ function varargout = plot(obj,variables,varargin)
     import GraphKit.getDataLimits
     import GraphKit.Colormaps.cm
     import GraphKit.GraphTools.tightFig
+    import Colormaps.cm
 
     %   Figure settings
 	Menubar                     = 'figure';
@@ -155,6 +156,8 @@ function varargout = plot(obj,variables,varargin)
        	'Visible',      'on');
     clf
     set(hfig,FigureNameValue{:})
+    
+    cmap    = cm('Dark2',8);
 
     hsp                         = gobjects();
     hlgnd                       = gobjects();
@@ -167,11 +170,12 @@ function varargout = plot(obj,variables,varargin)
     xLabelString                = repmat({''},spny,spnx);
     yLabelString                = repmat({''},spny,spnx);
     titleString                 = repmat({''},spny,spnx);
+    occurredDeviceDomains       = [];
     for col = 1:spnx
         gear	= col;
         for row = 1:spny
             v     = row;
-            hsp(spi(row,col))   = subplot(spny,spnx,spi(row,col),AxesNameValue{:});
+            hsp(spi(row,col))   = subplot(spny,spnx,spi(row,col),AxesNameValue{:},'NextPlot','add');
 
                 xLabelString{row,col}	= '';
                 yLabelString{row,col}	= [char(variableInfo(v).Abbreviation),'\color[rgb]{0.6 0.6 0.6} (',char(variableInfo(v).Unit),')'];
@@ -214,15 +218,28 @@ function varargout = plot(obj,variables,varargin)
                         YData	= data.DepData{gr}(sortInd);
                         FData   = data.Flags{gr}(sortInd);
                         maskRejected    = isFlag(FData,'MarkedRejected');
-
+                        
                         % plot rejected data
                         plot(XData(maskRejected),YData(maskRejected),...
                                     'LineStyle',    'none',...
                                     'Marker',       'o',...
                                     'Color',        0.8.*ones(1,3));
+                                
+                        % Get color for device domain
+                        [clrOcc,clrIdx] = ismember(data.DepInfo.MeasuringDevice(gr).DeviceDomain,occurredDeviceDomains); % Test if device domain occurred yet
+                        if clrOcc
+                            % Device domain occurred before, reuse that color
+                            clr = cmap(mod(clrIdx - 1,size(cmap,1)) + 1,:);
+                        else
+                            % Device domain did not occurr before use the next color
+                            clr = cmap(mod(numel(occurredDeviceDomains) + 1 - 1,size(cmap,1)) + 1,:);
+                            occurredDeviceDomains = cat(1,occurredDeviceDomains,data.DepInfo.MeasuringDevice(gr).DeviceDomain);
+                        end
+                        
                         % plot data
                         hptmp   = plot(XData(~maskRejected),YData(~maskRejected),...
-                                    'LineWidth',    1.5);
+                                    'LineWidth',    1.5,...
+                                    'Color',        clr);
 
                         legendStr   = cat(1,legendStr,{[char(data.DepInfo.MeasuringDevice(gr).Type),', ',...
                                                         char(data.DepInfo.MeasuringDevice(gr).DeviceDomain.Abbreviation),' (',...
