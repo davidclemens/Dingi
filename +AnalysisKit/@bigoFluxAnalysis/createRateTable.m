@@ -12,7 +12,8 @@ function createRateTable(obj)
     fluxErrPos      = obj.FluxStatistics(:,4) - fluxMean;
     fluxUnit        = repmat(categorical({['mmol m⁻² ',obj.TimeUnit,'⁻¹']}),nRows,1);
     fitR2           = cat(1,obj.Fits.R2);
+    fluxes          = obj.Fluxes;
 
-    obj.Rates_ = table(cruise,gear,areaId,deviceDomains,variables,fluxMean,fluxErrNeg,fluxErrPos,fluxUnit,fitR2,...
-        'VariableNames', {'Cruise','Gear','AreaId','DeviceDomain','Variable','FluxMean','FluxErrNeg','FluxErrPos','FluxUnit','FitR2'});
+    obj.Rates_ = table(cruise,gear,areaId,deviceDomains,variables,fluxMean,fluxErrNeg,fluxErrPos,fluxUnit,fitR2,fluxes,...
+        'VariableNames', {'Cruise','Gear','AreaId','DeviceDomain','Variable','FluxMean','FluxErrNeg','FluxErrPos','FluxUnit','FitR2','Fluxes'});
 end
