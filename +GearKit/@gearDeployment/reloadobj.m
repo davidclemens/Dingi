@@ -1,6 +1,7 @@
 function obj = reloadobj(obj,s)
 
     import DebuggerKit.Debugger.printDebugMessage
+    import UtilityKit.Utilities.toolbox.*
     
     propertyNames   = {...
         'data',...
@@ -33,7 +34,7 @@ function obj = reloadobj(obj,s)
     end
 
     % Compare toolbox versions of saved instance with current instance
-    toolboxVersionCurrent	= getToolboxVersion();
+    toolboxVersionCurrent	= toolbox.version('Dingi');
     toolboxVersionSaved     = s.toolboxVersion;
     deltaVersion            = compareSemanticVersion(toolboxVersionCurrent,toolboxVersionSaved);
     if deltaVersion == 0

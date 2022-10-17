@@ -9,10 +9,9 @@
 %   GraphKit - Graphing tools
 %   Tests - Unit tests
 %   UIKit - User interfaces
+%   UtilityKit - General utility functions
 %
 % Files
 %   compareSemanticVersion - Compares two semantic version strings
 %   getSubclasses - List subclasses of a class
-%   getToolboxRessources - Return the path to the specified toolbox
-%   getToolboxVersion - Return the Dingi version number
 %   setupMATLABPath - Adds Dingi to the MATLAB path

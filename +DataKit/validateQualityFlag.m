@@ -1,13 +1,13 @@
 function [qualityFlagIsValid,varargout] = validateQualityFlag(qualityFlag)
 % VALIDATEQUALITYFLAG
     
-    nargoutchk(0,2)
+    import UtilityKit.Utilities.toolbox.*
     
+    nargoutchk(0,2)
    
     nRequestedQualityFlags	= numel(qualityFlag);
     
-    
-    validQualityFlags         = DataKit.importTableFile([getToolboxRessources('DataKit'),'/validQualityFlags.xlsx']);
+    validQualityFlags         = DataKit.importTableFile([toolbox.ressources('DataKit'),'/validQualityFlags.xlsx']);
      
     [qualityFlagIsValid,qualtiyFlagInfoIndex] = ismember(qualityFlag,validQualityFlags{:,'QualityFlag'});
 
