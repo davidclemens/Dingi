@@ -9,6 +9,7 @@
 %   GraphKit - Graphing tools
 %   Tests - Unit tests
 %   UIKit - User interfaces
+%   UtilityKit - General utility functions
 %
 % Files
 %   compareSemanticVersion - Compares two semantic version strings
