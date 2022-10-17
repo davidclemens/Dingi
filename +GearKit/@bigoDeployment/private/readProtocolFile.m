@@ -3,8 +3,9 @@ function t = readProtocolFile(filename,version,controlUnit)
 
     import DataKit.importTableFile
     import DebuggerKit.Debugger.printDebugMessage
+    import UtilityKit.Utilities.toolbox.*
 
-    pathRessources  = getToolboxRessources('GearKit');
+    pathRessources  = toolbox.ressources('GearKit');
 
     % read raw text first
     rawText     = fileread(filename);

@@ -1,6 +1,7 @@
 function s = saveobj(obj)
     
     import DebuggerKit.Debugger.printDebugMessage
+    import UtilityKit.Utilities.toolbox.*
 
     propertyNames   = {...
         'data',...
@@ -35,6 +36,6 @@ function s = saveobj(obj)
     
     % Properties only stored in the saved struct, not the gearDeployment instance
     s.saveDate              = datetime('now');
-    s.toolboxVersion        = getToolboxVersion();
+    s.toolboxVersion        = toolbox.version('Dingi');
     s.DataStructureVersion  = obj.DataStructureVersion;
 end
