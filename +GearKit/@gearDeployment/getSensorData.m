@@ -67,8 +67,7 @@ function [time,varargout] = getSensorData(obj,parameter,varargin)
 % See also
 %
 % Copyright (c) 2020-2022 David Clemens (dclemens@geomar.de)
-        
-    import DataKit.importTableFile
+%
 
     % parse Name-Value pairs
     optionName          = {'SensorIndex','SensorId','Raw'}; % valid options (Name)

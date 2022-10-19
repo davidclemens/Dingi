@@ -1,19 +1,19 @@
 function assignMeasuringDeviceMountingData(obj)
 % ASSIGNMEASURINGDEVICEMOUNTINGDATA
 
-    import DataKit.importTableFile
     import DebuggerKit.Debugger.printDebugMessage
+    import UtilityKit.Utilities.table.readTableFile
 
     printDebugMessage('Info','Assigning %s measuring device(s) mounting locations...',char(obj.gearType))
 
     measuringDeviceDataFile  = [obj.dataFolderInfo.rootFolder,'/',char(obj.cruise),'_',char(obj.gearType),'_measuringDevices.xlsx'];
     try
-        measuringDeviceData	= importTableFile(measuringDeviceDataFile);
+        measuringDeviceData	= readTableFile(measuringDeviceDataFile);
         measuringDeviceData	= measuringDeviceData(measuringDeviceData{:,'Cruise'} == obj.cruise & ...
                                                   measuringDeviceData{:,'Gear'} == obj.gear,:);
     catch ME
         switch ME.identifier
-            case 'MATLAB:xlsread:FileNotFound'
+            case 'Utilities:table:readTableFile:InvalidFile'
                 warning('Dingi:GearKit:gearDeployment:assignMeasuringDeviceMountingData:missingMeasuringDevicesMetadata',...
                     'no measuring devices metadata file found for %s %s',char(obj.cruise),char(obj.gear))
             otherwise

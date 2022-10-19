@@ -1,15 +1,16 @@
 function obj = applyMeasuringDeviceConfiguration(obj)
 
     import DebuggerKit.Debugger.printDebugMessage
+    import UtilityKit.Utilities.table.readTableFile
     
     printDebugMessage('Info','Applying %s measuring device(s) configuration...',char(obj.gearType))
     
     fName = [obj.dataFolderInfo.rootFolder,'/',char(obj.cruise),'_',char(obj.gearType),'_measuringDevicesConfiguration.xlsx'];
     try
-        tbl = DataKit.importTableFile(fName);
+        tbl = readTableFile(fName);
     catch ME
         switch ME.identifier
-            case 'MATLAB:xlsread:FileNotFound'
+            case 'Utilities:table:readTableFile:InvalidFile'
                 % Do nothing as the existance of the file is optional
                 return
             otherwise

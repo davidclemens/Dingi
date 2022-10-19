@@ -1,6 +1,7 @@
 function [parameterIsValid,varargout] = validateParameter(parameter,varargin)
 % VALIDATEPARAMETER
     
+    import UtilityKit.Utilities.table.readTableFile
     import UtilityKit.Utilities.toolbox.*
 
     nargoutchk(0,2)
@@ -33,7 +34,7 @@ function [parameterIsValid,varargout] = validateParameter(parameter,varargin)
     unitsProvided   = ~all(ismember(Unit,'<unspecified>'));
     
     % load remote table
-    validParameters	= DataKit.importTableFile([toolbox.ressources('DataKit'),'/validParameters.xlsx']);
+    validParameters	= readTableFile([toolbox.ressources('DataKit'),'/validParameters.xlsx']);
  
     maskRequestedParameters         = false(size(validParameters,1),nRequestedParameters);
     maskRequestedParametersUnits    = false(size(validParameters,1),nRequestedParameters);
