@@ -39,13 +39,13 @@ function tbl = readAnalyticalSampleFiles(folder,expression)
 %   Name-Value Pair Arguments
 %
 %
-%   See also DATAKIT.IMPORTTABLEFILE, REGEXP
+%   See also UTILITYKIT.UTILITES.TABLE.READTABLEFILE, REGEXP
 %
 %   Copyright (c) 2022-2022 David Clemens (dclemens@geomar.de)
 %
 
-    import DataKit.importTableFile
     import DebuggerKit.Debugger.printDebugMessage
+    import UtilityKit.Utilities.table.readTableFile
     
     expression  = [expression,'_analyticalSamples.*\.xlsx$'];
     fileList    = struct2table(dir(folder));
@@ -64,10 +64,10 @@ function tbl = readAnalyticalSampleFiles(folder,expression)
         % Read new data
         try
             filename    = [fileList{ff,'folder'}{:},filesep,fileList{ff,'name'}{:}];
-            tblNew      = importTableFile(filename);
+            tblNew      = readTableFile(filename);
         catch ME
             switch ME.identifier
-                case 'MATLAB:xlsread:FileNotFound'
+                case 'Utilities:table:readTableFile:InvalidFile'
                     printDebugMessage('Dingi:GearKit:gearDeployment:readAnalyticalSampleFiles:ColumnMismatch','Error',...
                         'No analytical samples file with name ''%s'' found.',filename)
                 otherwise

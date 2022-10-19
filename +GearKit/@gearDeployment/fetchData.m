@@ -4,8 +4,6 @@ function data = fetchData(obj,variable,varargin)
 %
 %   Copyright (c) 2020-2022 David Clemens (dclemens@geomar.de)
 %
-        
-    import DataKit.importTableFile
     
     % parse Name-Value pairs
     optionName          = {'Raw','DeploymentDataOnly','TimeOfInterestDataOnly','RelativeTime','GroupBy'}; % valid options (Name)

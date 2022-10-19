@@ -1,8 +1,7 @@
 function varargout = exportProtocol(obj,varargin)
 % COMPILEPROTOCOL
         
-
-    import DataKit.writeTableAndHeader
+    import UtilityKit.Utilities.table.writeTableFile
     
     if nargin == 1
         filename	= '';
@@ -32,7 +31,7 @@ function varargout = exportProtocol(obj,varargin)
         switch ext
             case '.xlsx'
                 try
-                    writeTableAndHeader(tbl,filename);
+                    writeTableFile(tbl,filename);
                 catch ME
                     rethrow(ME);
                 end

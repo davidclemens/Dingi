@@ -1,8 +1,8 @@
 function getGearDeploymentMetadata(obj,pathName)
 % GETGEARDEPLOYMENTMETADATA
 
-    import DataKit.importTableFile
     import DebuggerKit.Debugger.printDebugMessage
+    import UtilityKit.Utilities.table.readTableFile
     
  	printDebugMessage('Info','Extracting %s deployment metadata...',char(obj.gearType))
 
@@ -29,7 +29,7 @@ function getGearDeploymentMetadata(obj,pathName)
 
     deploymentMetadataFile  = [obj.dataFolderInfo.rootFolder,'/',char(obj.cruise),'_',char(obj.gearType),'_deployments.xlsx'];
     try
-        deploymentMetadata     	= importTableFile(deploymentMetadataFile);
+        deploymentMetadata     	= readTableFile(deploymentMetadataFile);
         deploymentMetadata      = deploymentMetadata(deploymentMetadata{:,'Cruise'} == obj.cruise & ...
                                                      deploymentMetadata{:,'Gear'} == obj.gear,:);
         if size(deploymentMetadata,1) ~= 1
@@ -47,7 +47,7 @@ function getGearDeploymentMetadata(obj,pathName)
         obj.timeOfInterestEnd  	= obj.timeRecovery;
     catch ME
         switch ME.identifier
-            case 'MATLAB:xlsread:FileNotFound'
+            case 'Utilities:table:readTableFile:InvalidFile'
                 printDebugMessage('Dingi:GearKit:gearDeployment:getGearDeploymentMetadata:missingDeploymentMetadataFile',...
                   	'Warning','No deployment metadata file found for %s %s',char(obj.cruise),char(obj.gear))
             otherwise
