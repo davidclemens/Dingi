@@ -1,7 +1,6 @@
 function [time,varargout] = getAnalyticalData(obj,parameter,varargin)
 % GETANALYTICALDATA
-        
-    import DataKit.importTableFile
+
  
     if numel(obj) > 1
         error('Dingi:GearKit:gearDeployment:getAnalyticalData:objSize',...
