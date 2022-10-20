@@ -71,6 +71,7 @@ classdef variable < DataKit.enum
         Roll                        (68,    'roll',         'roll',     'Roll',                             '',                 '°',        '°|((d|D)eg(ree)?s?)',         	NaN,    '')
         Yaw                         (69,    'yaw',          'yaw',      'Yaw',                              '',                 '°',        '°|((d|D)eg(ree)?s?)',         	NaN,    '')
         Heading                     (70,    'heading',      'heading',  'Heading',                          '',                 '°',        '°|((d|D)eg(ree)?s?)',         	NaN,    '')
+        TotalAlkalinity             (71,    'TA',           'TA',       'Total Alkalinity',                 'Concentration',    'µM',       '(µ|u)mol(\sL(⁻¹|-1)|/L)',     	NaN,    '')
     end
     properties (SetAccess = 'immutable')
         Id uint16
