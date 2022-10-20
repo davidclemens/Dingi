@@ -10,7 +10,6 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
 
         TimeUnit (1,:) char = 'h' % The relative time unit
 
-        FitType (1,:) char {mustBeMember(FitType,{'linear','poly1','poly2','poly3'})} = 'linear' % Fit method
         FitInterval (1,2) duration = hours([0,5]) % The interval that should be fitted to
         FitEvaluationInterval (1,2) duration = hours([0,4]) % The interval in which the fit statistics should be evaluated
     end
@@ -18,6 +17,7 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
     % Frontend
     properties (Dependent)
         % Stack independent
+        FitTypes % Fit methods
         
         % Stack depth 1 (Data)
         FitVariables DataKit.Metadata.variable
@@ -44,6 +44,7 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
     % Backend
     properties (Access = 'private')
         % Stack independent
+        FitTypes_ cell
         
         % Stack depth 1 (Data)
         FitVariables_ DataKit.Metadata.variable
@@ -74,6 +75,7 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
         UpdateStack_ (5,1) double = 2.*ones(5,1) % Initialize as update required
     end
     properties
+        FitTypeInitial char = 'linear'
         FluxVolume double
         FluxCrossSection double
 
@@ -92,6 +94,9 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
         FitMinimumSamples
         NRates double
         RateIndex double
+    end
+    properties (Constant)
+        ValidFitTypes = {'linear','poly1','poly2','poly3'};
     end
 
     methods
@@ -141,7 +146,10 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
         %
         %     FitType - Type of fit
         %       'linear' (default)
-        %         The fit type or method that is used to fit the incubation data.
+        %         The initial fit type or method that is used to fit all the incubation
+        %         data. After a class instance is created, this can be set more
+        %         granularly in the FitTypes property. To get an overview of all fit
+        %         types, use the dispFitTypes method.
         %
         %     FitInterval - Fit interval
         %       [0 hr, <deploymentDuration>] | 1x2 duration vector
@@ -200,6 +208,9 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
             % Call superclass constructor
             obj = obj@AnalysisKit.analysis();
 
+            % Input validation
+            fitType = validatestring(fitType,obj.ValidFitTypes,mfilename,'FitType');
+
             % Add property listeners
             addlistener(obj,'TimeUnit','PostSet',@AnalysisKit.bigoFluxAnalysis.handlePropertyChangeEvents);
             obj.TimeUnit                = timeUnit;
@@ -213,9 +224,8 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
             obj.DeviceDomains           = deviceDomains;
 
             % Update stack depth 2
-            addlistener(obj,'FitType','PostSet',@AnalysisKit.bigoFluxAnalysis.handlePropertyChangeEvents);
             addlistener(obj,'FitInterval','PostSet',@AnalysisKit.bigoFluxAnalysis.handlePropertyChangeEvents);
-            obj.FitType                 = fitType;
+            obj.FitTypeInitial          = fitType;
             obj.FitInterval          	= fitInterval;
 
             % Update stack depth 3
@@ -226,13 +236,15 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
 
     % Methods in other files
     methods
-        varargout   = plot(obj,varargin)
         checkUpdateStack(obj,stackDepth)
+        dispFitTypes(obj)
+        varargout   = plot(obj,varargin)
     end
     methods (Access = private)
         varargout = plotFits(obj,variable,showConfidenceInterval,axesProperties)
         varargout = plotFlux(obj,variable,groupingParameter,axesProperties)
         varargout = plotFluxViolin(obj,variable,groupingParameter,axesProperties)
+        fitTypes = validateFitTypes(obj,C)
     end
 
   	% Get methods
@@ -244,15 +256,18 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
             nDeviceDomains = numel(obj.DeviceDomains);
         end
         function fitMinimumSamples = get.FitMinimumSamples(obj)
-            switch obj.FitType
+            fitMinimumSamples = NaN(1,obj.NFits);
+            for ff = 1:obj.NFits
+                switch obj.FitTypes{ff}
                 case 'linear'
-                    fitMinimumSamples = 2;
+                        fitMinimumSamples(ff) = 2;
                 case 'poly2'
-                    fitMinimumSamples = 3;
+                        fitMinimumSamples(ff) = 3;
                 case 'poly3'
-                    fitMinimumSamples = 4;
+                        fitMinimumSamples(ff) = 4;
                 otherwise
-                    error('''FitMinimumSamples'' is not defined for FitType ''%s'' yet.',obj.FitType)
+                        error('''FitMinimumSamples'' is not defined for FitType ''%s'' yet.',obj.FitTypes{ff})
+                end
             end
         end
         function nRates = get.NRates(obj)
@@ -265,6 +280,7 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
 
     % Set methods
     methods
+        
     end
 
     % Frontend/Backend interface: Get methods
@@ -272,6 +288,9 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
         % Stack independent
         function updateStack = get.UpdateStack(obj)
             updateStack = obj.UpdateStack_;
+        end
+        function fitTypes = get.FitTypes(obj)
+            fitTypes = obj.FitTypes_;
         end
 
         % Stack depth 1
@@ -386,6 +405,21 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
             obj.FluxParameter_        	= value;
             obj.setUpdateStackToUpdated(stackDepth)
         end
+        function obj = set.FitTypes(obj,value)
+            stackDepth	= 1;
+            obj.setUpdateStackToUpdating(stackDepth)
+            value = validateFitTypes(obj,value);
+            if ~isequaln(value,obj.FitTypes)
+                % Only update if value changed
+                obj.FitTypes_   = validateFitTypes(obj,value);
+            
+                % The fit types have been set. The fits need to be recalculated.
+                stackDepth  = 3;
+                obj.setUpdateStackToUpdateRequired(stackDepth)
+            end
+            stackDepth	= 1;
+            obj.setUpdateStackToUpdated(stackDepth)
+        end
 
         % Stack depth 2
         function obj = set.Exclude(obj,value)
@@ -474,10 +508,6 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
                     stackDepth  = 2;
                     evnt.AffectedObject.setUpdateStackToUpdateRequired(stackDepth)
 
-                case 'FitType'
-                    % A fitting parameter has been set. The fits need to be calculated again.
-                    stackDepth  = 3;
-                    evnt.AffectedObject.setUpdateStackToUpdateRequired(stackDepth)
                 case 'TimeUnit'
                     % The fit & flux are normalized to the time unit. The fits need to be
                     % recalculated.
