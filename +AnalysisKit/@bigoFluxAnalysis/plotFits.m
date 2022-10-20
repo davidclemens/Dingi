@@ -109,8 +109,10 @@ function varargout = plotFits(obj,variable,showConfidenceInterval,axesProperties
     
     % Set axis limits (as links are set, only one axis in each link set
     % must have its limits set).
+    yLimits = arrayfun(@(r) [nanmin(yLimits(spi(r,1:spnx),1)),nanmax(yLimits(spi(r,1:spnx),2))],1:spny,'un',0)';
+    yLimits(cellfun(@(x) any(isnan(x)),yLimits)) = {[0,1]};
     set(hsp(spi(1:spny,1)),...
-        {'YLim'},   arrayfun(@(r) [nanmin(yLimits(spi(r,1:spnx),1)),nanmax(yLimits(spi(r,1:spnx),2))],1:spny,'un',0)')
+        {'YLim'},   yLimits)
     set(hsp(spi(1:spny,1:spnx)),...
         'XLim',   [nanmin([0;xLimits(:,1)]),nanmax(xLimits(:,2))])
     
