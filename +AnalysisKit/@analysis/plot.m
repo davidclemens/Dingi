@@ -102,7 +102,7 @@ end
 function merged = mergeWithDefaults(in,default)
 
     tmp     = reshape(cat(2,in,default),2,[])';
-    [u,ind] = unique(tmp(:,1),'first');
+    [u,ind] = unique(tmp(:,1),'stable');
     merged	= cat(2,u,tmp(ind,2));
     merged  = reshape(merged',1,[]);
 end
