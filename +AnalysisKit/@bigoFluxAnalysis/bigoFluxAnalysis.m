@@ -237,7 +237,8 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
     % Methods in other files
     methods
         checkUpdateStack(obj,stackDepth)
-        dispFitTypes(obj)
+        dispFitTypesSummary(obj)
+        T = fitTypesSummary(obj)
         varargout   = plot(obj,varargin)
     end
     methods (Access = private)
