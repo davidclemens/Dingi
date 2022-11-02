@@ -238,7 +238,7 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
     methods
         checkUpdateStack(obj,stackDepth)
         dispFitTypesSummary(obj)
-        T = fitTypesSummary(obj)
+        T = createFitTypesSummaryTable(obj)
         varargout   = plot(obj,varargin)
         T = createRateTablePerFit(obj) % make private
         T = createRateTablePerDeviceDomain(obj) % make private

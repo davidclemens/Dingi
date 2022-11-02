@@ -36,7 +36,7 @@ function dispFitTypesSummary(obj)
 %
     
     % Display table
-    disp(obj.fitTypesSummary)
+    disp(obj.createFitTypesSummaryTable)
     
     fprintf('%u fit variables are excluded over %u bigoFluxAnalysis instances (e.g. because there were not enough data points) and are not shown here.\n',sum([obj.ExcludeFluxParameter]),numel(obj))
 end

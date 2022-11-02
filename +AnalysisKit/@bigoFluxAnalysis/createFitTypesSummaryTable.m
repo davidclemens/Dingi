@@ -1,4 +1,4 @@
-function T = fitTypesSummary(obj)
+function T = createFitTypesSummaryTable(obj)
 
     T = table();
     
