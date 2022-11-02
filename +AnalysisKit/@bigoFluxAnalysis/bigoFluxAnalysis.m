@@ -483,7 +483,7 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
 
         % Stack depth 5
         calculateFluxes(obj)
-        createRateTable(obj)
+        createRateTablePerFit(obj)
     end
 
     % Event handler methods

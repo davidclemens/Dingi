@@ -1,4 +1,4 @@
-function createRateTable(obj)
+function createRateTablePerFit(obj)
     
     maskInd         = obj.RateIndex;
     nRows           = numel(maskInd);
