@@ -54,12 +54,13 @@ function T = createRateTablePerFit(obj)
         fluxErrNeg      = obj(oo).FluxStatistics(:,3) - fluxMean;
         fluxErrPos      = obj(oo).FluxStatistics(:,4) - fluxMean;
         fluxUnit        = repmat(categorical({['mmol m⁻² ',obj(oo).TimeUnit,'⁻¹']}),nRows,1);
+        fitType         = categorical(obj(oo).FitTypes(maskInd)');
         fitR2           = cat(1,obj(oo).Fits.R2);
         fluxes          = obj(oo).Fluxes;
 
         % Create table
-        tbl = table(cruise,gear,areaId,deviceDomains,variables,fluxMean,fluxErrNeg,fluxErrPos,fluxUnit,fitR2,fluxes,...
-            'VariableNames', {'Cruise','Gear','AreaId','DeviceDomain','Variable','FluxMean','FluxErrNeg','FluxErrPos','FluxUnit','FitR2','Fluxes'});
+        tbl = table(cruise,gear,areaId,deviceDomains,variables,fluxMean,fluxErrNeg,fluxErrPos,fluxUnit,fitType,fitR2,fluxes,...
+            'VariableNames', {'Cruise','Gear','AreaId','DeviceDomain','Variable','FluxMean','FluxErrNeg','FluxErrPos','FluxUnit','FitType','FitR2','Fluxes'});
         
         % Append
         T = cat(1,T,tbl);
