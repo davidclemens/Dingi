@@ -28,7 +28,7 @@ function checkUpdateStack(obj,stackDepth)
                 
             case 5 % Fluxes need to be recalculated from the fits
                 calculateFluxes(obj)
-                createRateTablePerFit(obj)
+                setRateTable(obj)
         end
         
         % Set the current update index to 'Updated'

@@ -240,6 +240,7 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
         dispFitTypesSummary(obj)
         T = fitTypesSummary(obj)
         varargout   = plot(obj,varargin)
+        T = createRateTablePerFit(obj) % make private
     end
     methods (Access = private)
         varargout = plotFits(obj,variable,showConfidenceInterval,axesProperties)
@@ -483,7 +484,7 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
 
         % Stack depth 5
         calculateFluxes(obj)
-        createRateTablePerFit(obj)
+        setRateTable(obj)
     end
 
     % Event handler methods
