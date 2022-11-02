@@ -1,5 +1,5 @@
 function T = createRateTablePerFit(obj)
-% createRateTablePerFit  rate table per fit
+% createRateTablePerFit  Create rate table per fit
 %   CREATERATETABLEPERFIT create a table with one row per fit summarizing all
 %   fluxes of an array of bigoFluxAnalyis instances.
 %

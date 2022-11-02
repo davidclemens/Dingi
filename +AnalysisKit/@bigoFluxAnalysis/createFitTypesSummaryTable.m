@@ -1,4 +1,39 @@
 function T = createFitTypesSummaryTable(obj)
+% createFitTypesSummaryTable  Create fit types table
+%   CREATEFITTYPESSUMMARYTABLE creates a table that summarizes all fit types for
+%   an array of bigoFluxAnalysis instances.
+%
+%   Syntax
+%     T = CREATEFITTYPESSUMMARYTABLE(obj)
+%
+%   Description
+%     T = CREATEFITTYPESSUMMARYTABLE(obj)  Creates a table T that
+%       summarizies all fit types of the bigoFluxAnalysis instance(s) obj.
+%
+%   Example(s)
+%     T = CREATEFITTYPESSUMMARYTABLE(obj)  rreturns table T.
+%
+%
+%   Input Arguments
+%     obj - bigoFluxAnalysis
+%       AnalysisKit.bigoFluxAnalysis array
+%         An array of bigoFluxAnalyis instances from which the fit types should
+%         be extracted.
+%
+%
+%   Output Arguments
+%     T - rates table
+%       table
+%         The fit types table summarizing all fit types.
+%
+%
+%   Name-Value Pair Arguments
+%
+%
+%   See also ANALYSISKIT.BIGOFLUXANALYSIS.DISPFITTYPESSUMMARY
+%
+%   Copyright (c) 2022-2022 David Clemens (dclemens@geomar.de)
+%
 
     T = table();
     

@@ -1,5 +1,5 @@
 function T = createRateTablePerDeviceDomain(obj)
-% createRateTablePerDeviceDomain  rate table per device domain
+% createRateTablePerDeviceDomain  Create rate table per device domain
 %   CREATERATETABLEPERDEVICEDOMAIN create a table with one row per device domain
 %   summarizing all fluxes of an array of bigoFluxAnalyis instances.
 %
