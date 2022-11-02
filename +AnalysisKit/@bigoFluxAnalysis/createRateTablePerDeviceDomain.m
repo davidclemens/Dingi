@@ -1,5 +1,40 @@
 function T = createRateTablePerDeviceDomain(obj)
-    
+% createRateTablePerDeviceDomain  rate table per device domain
+%   CREATERATETABLEPERDEVICEDOMAIN create a table with one row per device domain
+%   summarizing all fluxes of an array of bigoFluxAnalyis instances.
+%
+%   Syntax
+%     T = CREATERATETABLEPERDEVICEDOMAIN(obj)
+%
+%   Description
+%     T = CREATERATETABLEPERDEVICEDOMAIN(obj)  Creates a table T that
+%       summarizies all fluxes of the bigoFluxAnalysis instance(s) obj.
+%
+%   Example(s)
+%     T = CREATERATETABLEPERDEVICEDOMAIN(obj)  returns table T.
+%
+%
+%   Input Arguments
+%     obj - bigoFluxAnalysis
+%       AnalysisKit.bigoFluxAnalysis array
+%         An array of bigoFluxAnalyis instances from which the fluxes should be
+%         extracted.
+%
+%
+%   Output Arguments
+%     T - rates table
+%       table
+%         The rates table summarizing the fluxes.
+%
+%
+%   Name-Value Pair Arguments
+%
+%
+%   See also ANALYSISKIT.BIGOFLUXANALYSIS.CREATERATETABLEPERFIT
+%
+%   Copyright (c) 2022-2022 David Clemens (dclemens@geomar.de)
+%
+
     % Get the rates table of all instances
     rates = cat(1,obj.Rates);
     
