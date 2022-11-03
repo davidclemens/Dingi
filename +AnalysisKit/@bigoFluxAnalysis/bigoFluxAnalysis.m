@@ -17,7 +17,6 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
     % Frontend
     properties (Dependent)
         % Stack independent
-        FitTypes % Fit methods
         
         % Stack depth 1 (Data)
         FitVariables DataKit.Metadata.variable
@@ -25,6 +24,7 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
         FitOriginTime datetime % The absolute time origin
         Time double % Time
         FluxParameter double % Flux parameters
+        FitTypes % Fit methods
 
         % Stack depth 2 (Exclusion evaluation)
         Exclude logical % Exclusions
@@ -44,7 +44,6 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
     % Backend
     properties (Access = 'private')
         % Stack independent
-        FitTypes_ cell
         
         % Stack depth 1 (Data)
         FitVariables_ DataKit.Metadata.variable
@@ -52,6 +51,7 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
         FitOriginTime_ datetime
         Time_ datetime
         FluxParameter_ double
+        FitTypes_ cell
 
         % Stack depth 2 (Exclusion evaluation)
         Exclude_ logical % Exclusions
@@ -238,7 +238,7 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
     methods
         checkUpdateStack(obj,stackDepth) % make private
         dispFitTypesSummary(obj)
-        T = createFitTypesSummaryTable(obj)
+        T = createFitTypesSummaryTable(obj) 
         varargout   = plot(obj,varargin)
         T = createRateTablePerFit(obj) % make private
         T = createRateTablePerDeviceDomain(obj) % make private
@@ -292,9 +292,6 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
         function updateStack = get.UpdateStack(obj)
             updateStack = obj.UpdateStack_;
         end
-        function fitTypes = get.FitTypes(obj)
-            fitTypes = obj.FitTypes_;
-        end
 
         % Stack depth 1
         function fitVariables = get.FitVariables(obj)
@@ -321,6 +318,11 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
             stackDepth = 1;
             obj.checkUpdateStack(stackDepth)
             fluxParameter = obj.FluxParameter_;
+        end
+        function fitTypes = get.FitTypes(obj)
+            stackDepth = 1;
+            obj.checkUpdateStack(stackDepth)
+            fitTypes = obj.FitTypes_;
         end
 
         % Stack depth 2

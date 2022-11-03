@@ -83,7 +83,7 @@ function setRawData(obj)
         'Verbose','Setting initial fit types to ''%s'' ...',obj.FitTypeInitial)
     
     % Set fit types
-    obj.FitTypes = repmat({obj.FitTypeInitial},1,obj.NFits);
+    obj.FitTypes = repmat({obj.FitTypeInitial},obj.NFits,1);
     
     printDebugMessage('Dingi:AnalysisKit:bigoFluxAnalysis:setRawData:settingInitialFitTypes',...
         'Verbose','Setting initial fit types to ''%s'' ... done',obj.FitTypeInitial)
