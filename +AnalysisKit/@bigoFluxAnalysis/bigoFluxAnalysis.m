@@ -242,6 +242,7 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
         varargout   = plot(obj,varargin)
         T = createRateTablePerFit(obj) % make private
         T = createRateTablePerDeviceDomain(obj) % make private
+        setFitTypeForVariables(obj,variables,fitTypes)
     end
     methods (Access = private)
         varargout = plotFits(obj,variable,showConfidenceInterval,axesProperties)
