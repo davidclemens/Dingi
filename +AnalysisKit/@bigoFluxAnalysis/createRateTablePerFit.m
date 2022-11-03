@@ -54,7 +54,7 @@ function T = createRateTablePerFit(obj)
         fluxErrNeg      = obj(oo).FluxStatistics(:,3) - fluxMean;
         fluxErrPos      = obj(oo).FluxStatistics(:,4) - fluxMean;
         fluxUnit        = repmat(categorical({['mmol m⁻² ',obj(oo).TimeUnit,'⁻¹']}),nRows,1);
-        fitType         = categorical(obj(oo).FitTypes(maskInd)');
+        fitType         = categorical(obj(oo).FitTypes(maskInd));
         fitR2           = cat(1,obj(oo).Fits.R2);
         fluxes          = obj(oo).Fluxes;
 
