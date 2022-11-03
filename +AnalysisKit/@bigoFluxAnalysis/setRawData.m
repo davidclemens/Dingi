@@ -78,6 +78,17 @@ function setRawData(obj)
     printDebugMessage('Dingi:AnalysisKit:bigoFluxAnalysis:setRawData:settingExclusionFlags',...
         'Verbose','Setting raw data exclusion flags ... done')
     
+    
+    printDebugMessage('Dingi:AnalysisKit:bigoFluxAnalysis:setRawData:settingInitialFitTypes',...
+        'Verbose','Setting initial fit types to ''%s'' ...',obj.FitTypeInitial)
+    
+    % Set fit types
+    obj.FitTypes = repmat({obj.FitTypeInitial},obj.NFits,1);
+    
+    printDebugMessage('Dingi:AnalysisKit:bigoFluxAnalysis:setRawData:settingInitialFitTypes',...
+        'Verbose','Setting initial fit types to ''%s'' ... done',obj.FitTypeInitial)
+    
+    
     printDebugMessage('Dingi:AnalysisKit:bigoFluxAnalysis:setRawData:settingRawData',...
         'Info','Setting raw data ... done')
 end

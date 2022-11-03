@@ -22,7 +22,7 @@ function calculateFits(obj)
         
         X = xData(~exData(:,fi),fi);
         Y = yData(~exData(:,fi),fi);
-        switch obj.FitType
+        switch obj.FitTypes{fi}
             case {'linear','poly1'}
                 [p,S]   = polyfit(X,Y,1);
                 R2      = errorEst2R2(S.normr,Y);
