@@ -15,7 +15,7 @@ function fitTypes = validateFitTypes(obj,C)
     end
     
     % Validate shape
-    validateattributes(C,{'cell'},{'size',[1,obj.NFits]},mfilename,'C')
+    validateattributes(C,{'cell'},{'size',[obj.NFits,1]},mfilename,'C')
     
     % Validate fit types
     fitTypes = cellfun(@(s) validatestring(s,obj.ValidFitTypes),C,'un',0);

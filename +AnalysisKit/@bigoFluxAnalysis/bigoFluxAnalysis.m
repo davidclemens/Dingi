@@ -411,19 +411,18 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
             obj.setUpdateStackToUpdated(stackDepth)
         end
         function obj = set.FitTypes(obj,value)
-            stackDepth	= 1;
-            obj.setUpdateStackToUpdating(stackDepth)
             value = validateFitTypes(obj,value);
             if ~isequaln(value,obj.FitTypes)
                 % Only update if value changed
+                stackDepth	= 1;
+                obj.setUpdateStackToUpdating(stackDepth)
                 obj.FitTypes_   = validateFitTypes(obj,value);
+                obj.setUpdateStackToUpdated(stackDepth)
             
                 % The fit types have been set. The fits need to be recalculated.
                 stackDepth  = 3;
                 obj.setUpdateStackToUpdateRequired(stackDepth)
             end
-            stackDepth	= 1;
-            obj.setUpdateStackToUpdated(stackDepth)
         end
 
         % Stack depth 2
