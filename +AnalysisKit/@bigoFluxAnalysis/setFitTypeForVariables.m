@@ -91,7 +91,7 @@ function setFitTypeForVariables(obj,variables,fitTypes)
         'Expected input number 2, variables, to have unique entries.')
     
     % Validate variables
-    DataKit.Metadata.variable.validatePropertyValues('DataKit.Metadata.variable','Variable',variables)
+    DataKit.Metadata.variable.validatePropertyValues('DataKit.Metadata.variable','Variable',variables);
     
     % Set fit types
     tbl         = obj.createFitTypesSummaryTable;
