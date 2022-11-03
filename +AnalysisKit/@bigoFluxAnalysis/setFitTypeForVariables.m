@@ -1,4 +1,54 @@
 function setFitTypeForVariables(obj,variables,fitTypes)
+% setFitTypeForVariables  Set the fit types for variables
+%   SETFITTYPEFORVARIABLES allows setting the fit type per variable of a
+%   bigoFluxAnalysis array.
+%
+%   Syntax
+%     SETFITTYPEFORVARIABLES(obj,variables,fitTypes)
+%
+%   Description
+%     SETFITTYPEFORVARIABLES(obj,variables,fitTypes)  Sets the fit types for the
+%       variables variables to fitTypes for bigoFluxAnalysis array obj. The
+%       shapes of variables & fitTypes need to be compatible. Only unique
+%       entries are allowed for variables.
+%
+%   Example(s)
+%     SETFITTYPEFORVARIABLES(analysis,{'Oxygen','Nitrate'},'linear')  sets the 
+%       fit type for all fits in the bigoFluxAnalysis array analysis that have
+%       variable Oxygen or Nitrate to linear.
+%     SETFITTYPEFORVARIABLES(analysis,{'Oxygen','Nitrate'},{'linear','poly2'})  
+%       sets the fit type for all fits in the bigoFluxAnalysis array analysis 
+%       that have variable Oxygen or Nitrate to linear and poly2 respectively.
+%
+%
+%   Input Arguments
+%     obj - bigoFluxAnalysis
+%       AnalysisKit.bigoFluxAnalysis array
+%         An array of bigoFluxAnalyis instances for which the fit types should
+%         be set.
+%
+%     variables - variables
+%       char | cellstr
+%         The variable name(s) for which to change the fit type(s) specified as
+%         a char row vector or a cellstr. Its shape needs to be compatible with
+%         the shape of fitTypes.
+%
+%     fitTypes - fit types
+%       char | cellstr
+%         The fit types specified as a char row vector or a cellstr. Its shape 
+%         needs to be compatible with the shape of variables.
+%
+%
+%   Output Arguments
+%
+%
+%   Name-Value Pair Arguments
+%
+%
+%   See also 
+%
+%   Copyright (c) 2022-2022 David Clemens (dclemens@geomar.de)
+%
 
     import UtilityKit.Utilities.arrayhom
     
