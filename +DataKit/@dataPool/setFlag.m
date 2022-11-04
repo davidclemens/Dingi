@@ -1,6 +1,6 @@
 function varargout = setFlag(obj,poolIdx,i,j,flag,highlow)
 
-    import DataKit.arrayhom
+    import UtilityKit.Utilities.arrayhom
 
     nargoutchk(0,1)
 

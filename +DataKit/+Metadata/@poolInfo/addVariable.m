@@ -1,7 +1,7 @@
 function varargout = addVariable(obj,variable,varargin)
     
     import internal.stats.parseArgs
-    import DataKit.arrayhom
+    import UtilityKit.Utilities.arrayhom
     import DataKit.Metadata.poolInfo
     
     nargoutchk(0,1)

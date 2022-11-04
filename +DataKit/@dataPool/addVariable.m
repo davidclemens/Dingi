@@ -82,7 +82,7 @@ function varargout = addVariable(obj,variable,data,varargin)
 %   Copyright (c) 2020-2022 David Clemens (dclemens@geomar.de)
 %
 
-    import DataKit.arrayhom
+    import UtilityKit.Utilities.arrayhom
     import DataKit.bitflag
     import internal.stats.parseArgs
 
