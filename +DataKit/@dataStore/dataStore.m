@@ -3,7 +3,7 @@ classdef dataStore < handle
     properties (SetAccess = 'private')
         Type char = 'single'
         IndexVariables table = table([],[],[],[],'VariableNames',{'SetId','VariableId','Start','End'})
-        IndexSets table = table([],[],[],'VariableNames',{'SetId','Length','NVariables'})
+        IndexSets table = table([],[],[],'VariableNames',{'SetId','Length','NVariables'})        
     end
     properties (Access = 'protected')
         Data = single.empty
@@ -90,6 +90,7 @@ classdef dataStore < handle
     methods
         addDataToExistingSet(obj,setId,data)
         addDataAsNewSet(obj,data)
+        removeData(obj,setId,variableId)
         data = getData(obj,setId,variableId,groupMode)
     end
     methods (Access = 'protected')
@@ -98,6 +99,7 @@ classdef dataStore < handle
         validateSetId(obj,setId)
         validateVariableId(obj,setId,variableId)
         setId = getNewSetId(obj)
+        removeIndexVariablesEntry(obj,row)
     end
     
     % GET methods
@@ -121,6 +123,20 @@ classdef dataStore < handle
         end
         function bytesPerSample = get.BytesPerSample(obj)
             bytesPerSample = round(obj.Bytes/obj.NSamples,1);
+        end
+    end
+    
+    % SET methods
+    methods
+        function obj = set.IndexVariables(obj,value)
+            % Make sure the IndexVariables table is always sorted
+            valueSorted = sortrows(value,'Start','ascend');
+            obj.IndexVariables = valueSorted;
+        end
+        function obj = set.IndexSets(obj,value)
+            % Make sure the IndexSets table is always sorted
+            valueSorted = sortrows(value,'SetId','ascend');
+            obj.IndexSets = valueSorted;
         end
     end
 end
