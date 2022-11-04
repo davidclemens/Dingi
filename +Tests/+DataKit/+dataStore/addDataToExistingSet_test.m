@@ -1,10 +1,14 @@
 classdef (SharedTestFixtures = { ...
             matlab.unittest.fixtures.PathFixture(subsref(strsplit(mfilename('fullpath'),'/+'),substruct('{}',{':'})))
         }) addDataToExistingSet_test < matlab.unittest.TestCase
-
-    % run:
-    % tests = matlab.unittest.TestSuite.fromClass(?Tests.DataKit.dataStore.addDataToExistingSet_test);
-    % run(tests)
+    % addDataToExistingSet_test  Unittests for DataKit.dataStore.addDataToExistingSet
+    % This class holds the unittests for the DataKit.dataStore.addDataToExistingSet
+    % method.
+    %
+    % It can be run with runtests('Tests.DataKit.dataStore.addDataToExistingSet_test').
+    %
+    %
+    % Copyright (c) 2022-2022 David Clemens (dclemens@geomar.de)
 
     properties
         DataStoreInstance

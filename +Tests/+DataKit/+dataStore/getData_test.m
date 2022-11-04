@@ -1,10 +1,14 @@
 classdef (SharedTestFixtures = { ...
             matlab.unittest.fixtures.PathFixture(subsref(strsplit(mfilename('fullpath'),'/+'),substruct('{}',{':'})))
         }) getData_test < matlab.unittest.TestCase
-
-    % run:
-    % tests = matlab.unittest.TestSuite.fromClass(?Tests.DataKit.dataStore.getData_test);
-    % run(tests)
+    % getData_test  Unittests for DataKit.dataStore.getData
+    % This class holds the unittests for the DataKit.dataStore.getData method.
+    %
+    % It can be run with runtests('Tests.DataKit.dataStore.getData_test').
+    %
+    %
+    % Copyright (c) 2022-2022 David Clemens (dclemens@geomar.de)
+    %
 
     properties
         DataStoreInstance
@@ -84,6 +88,10 @@ classdef (SharedTestFixtures = { ...
             else
                 % Calculate expected metadata
                 dataExp = testCase.TestCaseData;
+                
+                % The output type is either double or single, depending on the storage type of
+                % the dataStore.
+                dataExp = cellfun(@(d) cast(d,ds.Type),dataExp,'un',0);
                 switch GroupMode
                     case 'NaN'
                         dataExp = arrayfun(@(s,v) reshape(cat(1,dataExp{s}(:,v),NaN(1,1,testCase.TestCaseType)),[],1),setId,variableId,'un',0);
@@ -96,9 +104,6 @@ classdef (SharedTestFixtures = { ...
                 % Call getData
                 dataAct = ds.getData(SetId{1},SetId{2},GroupMode);
 
-                if ~isequal(dataAct,dataExp)
-                   # TODO 
-                end
                 testCase.verifyEqual(dataAct,dataExp)
             end
         end

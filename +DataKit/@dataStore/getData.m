@@ -56,7 +56,9 @@ function data = getData(obj,setId,variableId,groupMode)
 %   Output Arguments
 %     data - output data
 %       numeric column vector | cell
-%         Output data. The type depends on the groupMode input argument.
+%         Output data. The type depends on the groupMode input argument: For
+%         'NaNSeperated' the type is double or single and for 'Cell' it is a
+%         cell array.
 %
 %
 %   Name-Value Pair Arguments

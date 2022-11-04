@@ -1,10 +1,14 @@
 classdef (SharedTestFixtures = { ...
             matlab.unittest.fixtures.PathFixture(subsref(strsplit(mfilename('fullpath'),'/+'),substruct('{}',{':'})))
         }) dataStore_test < matlab.unittest.TestCase
-
-    % run:
-    % tests = matlab.unittest.TestSuite.fromClass(?Tests.DataKit.dataStore.dataStore_test);
-    % run(tests)
+    % dataStore_test  Unittests for DataKit.dataStore
+    % This class holds the unittests for the DataKit.dataStore constructor method.
+    %
+    % It can be run with runtests('Tests.DataKit.dataStore.dataStore_test').
+    %
+    %
+    % Copyright (c) 2022-2022 David Clemens (dclemens@geomar.de)
+    %
 
     properties
         
