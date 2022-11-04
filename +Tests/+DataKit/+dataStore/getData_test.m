@@ -75,7 +75,7 @@ classdef (SharedTestFixtures = { ...
 
         function testValidDataInput(testCase,SetId,GroupMode)
             
-            import DataKit.arrayhom
+            import UtilityKit.Utilities.arrayhom
             
             ds = testCase.DataStoreInstance;
             

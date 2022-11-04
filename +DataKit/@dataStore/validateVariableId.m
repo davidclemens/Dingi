@@ -3,7 +3,7 @@ function validateVariableId(obj,setId,variableId)
 %   VALIDATESETID tests if setId-variableId combination(s) exist(s) and is(are)
 %   valid in a dataStore instance.
 
-    import DataKit.arrayhom
+    import UtilityKit.Utilities.arrayhom
     
     validateattributes(setId,{'numeric'},{'vector','nonempty','positive','integer'},mfilename,'setId',2);
     validateattributes(variableId,{'numeric'},{'vector','nonempty','positive','integer'},mfilename,'variableId',3);

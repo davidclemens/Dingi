@@ -69,7 +69,7 @@ function data = getData(obj,setId,variableId,groupMode)
 %   Copyright (c) 2022-2022 David Clemens (dclemens@geomar.de)
 %
 
-    import DataKit.arrayhom
+    import UtilityKit.Utilities.arrayhom
     
     narginchk(4,4)
     
