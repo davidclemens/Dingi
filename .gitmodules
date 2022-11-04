@@ -6,3 +6,7 @@
 	path = +GraphKit/+GraphTools
 	url = https://github.com/davidclemens/GraphTools.git
 	branch = release
+[submodule "+UtilityKit/+Utilities"]
+	path = +UtilityKit/+Utilities
+	url = https://github.com/davidclemens/Utilities.git
+	branch = release

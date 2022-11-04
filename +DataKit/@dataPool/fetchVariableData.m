@@ -72,7 +72,7 @@ function [data,flags] = fetchVariableData(obj,poolIdx,variableIdx,varargin)
 %   Copyright (c) 2020-2022 David Clemens (dclemens@geomar.de)
 %
 
-    import DataKit.arrayhom
+    import UtilityKit.Utilities.arrayhom
 
     % parse Name-Value pairs
     optionName          = {'ReturnRawData','ForceCellOutput'}; % valid options (Name)

@@ -1,10 +1,11 @@
 function t = readProtocolFile(filename,version,controlUnit)
 % READPROTOCOLFILE
 
-    import DataKit.importTableFile
     import DebuggerKit.Debugger.printDebugMessage
+    import UtilityKit.Utilities.table.readTableFile
+    import UtilityKit.Utilities.toolbox.*
 
-    pathRessources  = getToolboxRessources('GearKit');
+    pathRessources  = toolbox.ressources('GearKit');
 
     % read raw text first
     rawText     = fileread(filename);
@@ -27,7 +28,7 @@ function t = readProtocolFile(filename,version,controlUnit)
     rawData.Date    = [];
 
     % load ressource table
-    bigoEventRE	= importTableFile([pathRessources '/_BIGO_data_RE.xlsx']);
+    bigoEventRE	= readTableFile([pathRessources '/_BIGO_data_RE.xlsx']);
   	% get appropriate event dictionary version
     if ismember(version,bigoEventRE.Version)
         EventDict   = bigoEventRE(bigoEventRE.Version == version,:);  % extract relevant regular expression dictionary

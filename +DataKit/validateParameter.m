@@ -1,6 +1,9 @@
 function [parameterIsValid,varargout] = validateParameter(parameter,varargin)
 % VALIDATEPARAMETER
     
+    import UtilityKit.Utilities.table.readTableFile
+    import UtilityKit.Utilities.toolbox.*
+
     nargoutchk(0,2)
     
 	% input check: parameter
@@ -23,7 +26,7 @@ function [parameterIsValid,varargout] = validateParameter(parameter,varargin)
     elseif ~iscellstr(Unit)
         error('Dingi:DataKit:validateParameter:invalidUnitType',...
               'The units of parameter(s) to validate have to be specified as a char or cellstr.')
-    end
+	end
     if numel(Unit) ~= nRequestedParameters
         error('Dingi:DataKit:validateParameter:sameNumberOfUnitsAndParametersRequired',...
             'The same number of units and parameters have to be specified')
@@ -31,7 +34,7 @@ function [parameterIsValid,varargout] = validateParameter(parameter,varargin)
     unitsProvided   = ~all(ismember(Unit,'<unspecified>'));
     
     % load remote table
-    validParameters	= DataKit.importTableFile([getToolboxRessources('DataKit'),'/validParameters.xlsx']);
+    validParameters	= readTableFile([toolbox.ressources('DataKit'),'/validParameters.xlsx']);
  
     maskRequestedParameters         = false(size(validParameters,1),nRequestedParameters);
     maskRequestedParametersUnits    = false(size(validParameters,1),nRequestedParameters);

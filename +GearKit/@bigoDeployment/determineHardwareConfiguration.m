@@ -1,12 +1,12 @@
 function determineHardwareConfiguration(obj)
 % DETERMINEHARDWARECONFIGURATION
     
-    import DataKit.importTableFile
+    import UtilityKit.Utilities.table.readTableFile
     import GearKit.hardwareConfiguration
     
     obj.HardwareConfiguration   = hardwareConfiguration(obj);
     
-    RecoveryTable       = importTableFile([obj.dataFolderInfo.rootFolder,'/',char(obj.cruise),'_BIGO_recovery.xlsx']);
+    RecoveryTable       = readTableFile([obj.dataFolderInfo.rootFolder,'/',char(obj.cruise),'_BIGO_recovery.xlsx']);
     
     % Get chamber data
     indRecoveryTable    = find(all(RecoveryTable{:,{'Cruise','Gear'}} == [obj.cruise,obj.gear],2));

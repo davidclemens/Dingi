@@ -1,13 +1,14 @@
 function [parameterIdIsValid,varargout] = validateParameterId(parameterId)
 % VALIDATEPARAMETERID
     
-    nargoutchk(0,2)
+    import UtilityKit.Utilities.table.readTableFile
+    import UtilityKit.Utilities.toolbox.*
     
+    nargoutchk(0,2)
    
     nRequestedParameters  	= numel(parameterId);
-    
-    
-    validParameters         = DataKit.importTableFile([getToolboxRessources('DataKit'),'/validParameters.xlsx']);
+   
+    validParameters         = readTableFile([toolbox.ressources('DataKit'),'/validParameters.xlsx']);
      
     [parameterIdIsValid,parameterInfoIndex] = ismember(parameterId,validParameters{:,'ParameterId'});
 
