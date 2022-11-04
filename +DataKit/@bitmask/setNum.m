@@ -79,7 +79,7 @@ function obj = setNum(obj,num,varargin)
 %   Copyright (c) 2021-2022 David Clemens (dclemens@geomar.de)
 %
 
-    import DataKit.arrayhom
+    import UtilityKit.Utilities.arrayhom
     import DebuggerKit.Debugger.printDebugMessage
 
     % Check number of input arguments

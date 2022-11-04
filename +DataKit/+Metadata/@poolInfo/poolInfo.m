@@ -33,7 +33,7 @@ classdef poolInfo < handle
         function obj = poolInfo(parent,variable,varargin)
             
             import internal.stats.parseArgs
-            import DataKit.arrayhom
+            import UtilityKit.Utilities.arrayhom
             
             uuid    = DataKit.uuid;
             obj.Id = uuid{:};

@@ -82,7 +82,7 @@ function obj = setBit(obj,bit,highlow,varargin)
 %   Copyright (c) 2021-2022 David Clemens (dclemens@geomar.de)
 %
 
-    import DataKit.arrayhom
+    import UtilityKit.Utilities.arrayhom
     
     % Check number of input arguments
     narginchk(4,inf)

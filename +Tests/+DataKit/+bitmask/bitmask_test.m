@@ -138,7 +138,7 @@ classdef (SharedTestFixtures = { ...
                 sb	= bitmask(i,j,bit);
             catch ME
                 switch ME.identifier
-                    case 'Dingi:DataKit:arrayhom:invalidNumberOfSingletonDimensions'
+                    case 'Utilities:arrayhom:invalidNumberOfSingletonDimensions'
                         return
                     otherwise
                         rethrow(ME)
