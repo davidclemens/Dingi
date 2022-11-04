@@ -39,8 +39,9 @@ classdef (SharedTestFixtures = { ...
             'vector_scalar',    {{1:2,1}},...
             'vector_vector',    {{1:2,1:2}})
         GroupMode = struct(...
-            'NaN',      'NaN',...
-            'Cell',     'Cell')
+            'NaN',              'NaN',...
+            'CellByVariable',   'CellByVariable',...
+            'CellBySet',        'CellBySet')
     end
 
     methods (TestClassSetup)
@@ -56,7 +57,7 @@ classdef (SharedTestFixtures = { ...
             testCase.DataStoreInstance      = dataStore(SetupData1,Types);
             testCase.DataStoreInstance.addDataAsNewSet(SetupData2);
             
-            testCase.TestCaseData           = {SetupData1,SetupData2};
+            testCase.TestCaseData           = {SetupData1;SetupData2};
             testCase.TestCaseType           = Types;
 
             testCase.addTeardown(@delete,testCase.DataStoreInstance)
@@ -97,13 +98,22 @@ classdef (SharedTestFixtures = { ...
                         dataExp = arrayfun(@(s,v) reshape(cat(1,dataExp{s}(:,v),NaN(1,1,testCase.TestCaseType)),[],1),setId,variableId,'un',0);
                         dataExp = cat(1,dataExp{:});
                         dataExp = dataExp(1:end - 1);
-                    case 'Cell'
+                    case 'CellByVariable'
                         dataExp = arrayfun(@(s,v) reshape(dataExp{s}(:,v),[],1),setId,variableId,'un',0);
+                    case 'CellBySet'
+                        [uSetId,~,uSetIdInd] = unique(setId,'Stable');
+                        nuSetId = numel(uSetId);
+                        tmp = cell(nuSetId,1);
+                        for ii = 1:nuSetId
+                            mask = uSetIdInd == ii;
+                            tmp{ii} = dataExp{uSetId(ii)}(:,variableId(mask));
+                        end
+                        dataExp = tmp;
                 end
                 
                 % Call getData
                 dataAct = ds.getData(SetId{1},SetId{2},GroupMode);
-
+                
                 testCase.verifyEqual(dataAct,dataExp)
             end
         end
