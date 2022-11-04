@@ -9,6 +9,7 @@ classdef (SharedTestFixtures = { ...
     %
     %
     % Copyright (c) 2022-2022 David Clemens (dclemens@geomar.de)
+    %
 
     properties
         DataStoreInstance
