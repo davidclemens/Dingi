@@ -92,6 +92,7 @@ classdef dataStore < handle
         addDataAsNewSet(obj,data)
         removeData(obj,setId,variableId)
         data = getData(obj,setId,variableId,groupMode)
+        varargout = subsref(obj,S)
     end
     methods (Access = 'protected')
         setType(obj,type)
@@ -100,6 +101,12 @@ classdef dataStore < handle
         validateVariableId(obj,setId,variableId)
         setId = getNewSetId(obj)
         removeIndexVariablesEntry(obj,row)
+        A = getSet(obj,setId)
+        A = getSetVariable(obj,setId,variableId)
+        A = getSetChunk(obj,setId,rowSub,varSub)
+    end
+    methods (Static, Access = 'protected')
+        ind = startend2ind(indStart,indEnd)
     end
     
     % GET methods
