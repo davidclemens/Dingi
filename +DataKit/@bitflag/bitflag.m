@@ -164,6 +164,7 @@ classdef bitflag < DataKit.bitmask
     % Overloaded methods
     methods
         varargout = subsref(obj,s)
+        obj = subsasgn(obj,S,varargin)
         disp(obj,varargin)
         obj = reshape(obj,varargin)
     end
