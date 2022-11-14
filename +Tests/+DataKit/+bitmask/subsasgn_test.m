@@ -1,15 +1,14 @@
 classdef (SharedTestFixtures = { ...
             matlab.unittest.fixtures.PathFixture(subsref(strsplit(mfilename('fullpath'),'/+'),substruct('{}',{':'})))
         }) subsasgn_test < matlab.unittest.TestCase
-    
-% run and stop if verification fails:
-%     tests     = matlab.unittest.TestSuite.fromClass(?Tests.DataKit.bitmask.subsasgn_test);
-%     runner    = matlab.unittest.TestRunner.withTextOutput;
-%     runner.addPlugin(matlab.unittest.plugins.StopOnFailuresPlugin);
-%     runner.run(tests)
-% run :
-%     tests     = matlab.unittest.TestSuite.fromClass(?Tests.DataKit.bitmask.subsasgn_test);
-%     run(tests)
+    % subsasgn_test  Unittests for DataKit.bitmask.subsasgn
+    % This class holds the unittests for the DataKit.bitmask.subsasgn method.
+    %
+    % It can be run with runtests('Tests.DataKit.bitmask.subsasgn_test').
+    %
+    %
+    % Copyright (c) 2021-2022 David Clemens (dclemens@geomar.de)
+    %
     
     properties
         Ain = uint8([...
