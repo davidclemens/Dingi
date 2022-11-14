@@ -1,23 +1,34 @@
 classdef quantity < double
     properties (SetAccess = immutable)
         StDev double
-        Flag uint8
+        Flag DataKit.bitflag
     end
     
     methods
-        function obj = quantity(A,dA,flag)
+        function obj = quantity(A,dA,flag,varargin)
             
+            import internal.stats.parseArgs
             
+            % Parse Name-Value pairs
+            optionName          = {'FlagEnumerationClass'}; % valid options (Name)
+            optionDefaultValue  = {'DataKit.Metadata.validators.validFlag'}; % default value (Value)
+            [flagEnumerationClass ...
+                ] = parseArgs(optionName,optionDefaultValue,varargin{:}); % parse function arguments
+         
             if nargin == 0
                 A       = [];
                 dA      = [];
-                flag	= [];
+                flag	= DataKit.bitflag(flagEnumerationClass);
             elseif nargin == 1
                 dA      = sparse(size(A,1),size(A,2));
-                flag    = zeros(size(A),'uint8');
+                flag    = DataKit.bitflag(flagEnumerationClass,size(A,1),size(A,2));
             elseif nargin == 2
-                flag    = zeros(size(A),'uint8');                
+                flag    = DataKit.bitflag(flagEnumerationClass,size(A,1),size(A,2));
             end
+            
+            validateattributes(A,{'numeric'},{},mfilename,'A',1)
+            validateattributes(dA,{'numeric'},{'size',size(A)},mfilename,'dA',2)
+            validateattributes(flag,{'DataKit.bitflag'},{'size',size(A)},mfilename,'flag',3)
             
             obj = obj@double(A);
             
@@ -26,47 +37,10 @@ classdef quantity < double
         end
     end
     methods
-        function C = disp(obj)
-            [dblFmt,snglFmt] = getFloatFormats();
-            
-            
-            formatSpecQuantity = [dblFmt,' ',char(177),' ',dblFmt,'\n'];
-            
-            [m,n] = size(obj);
-            
-            
-            for row = 1:m
-                
-            end
-            sc = sprintf(formatSpecQuantity,double(obj),obj.StDev);
-            
-            disp(sc)
-            
-            function [dblFmt,snglFmt] = getFloatFormats()
-            % Display for double/single will follow 'format long/short g/e' or 'format bank'
-            % from the command window. 'format long/short' (no 'g/e') is not supported
-            % because it often needs to print a leading scale factor.
-                switch lower(matlab.internal.display.format)
-                    case {'short' 'shortg' 'shorteng'}
-                        dblFmt  = '%.5g';
-                        snglFmt = '%.5g';
-                    case {'long' 'longg' 'longeng'}
-                        dblFmt  = '%.15g';
-                        snglFmt = '%.7g';
-                    case 'shorte'
-                        dblFmt  = '%.4e';
-                        snglFmt = '%.4e';
-                    case 'longe'
-                        dblFmt  = '%.14e';
-                        snglFmt = '%.6e';
-                    case 'bank'
-                        dblFmt  = '%.2f';
-                        snglFmt = '%.2f';
-                    otherwise % rat, hex, + fall back to shortg
-                        dblFmt  = '%.5g';
-                        snglFmt = '%.5g';
-                end
-            end
-        end
+        C = char(obj)
+        disp(obj,varargin)
+    end
+    methods (Static)
+        [dblFmt,snglFmt] = getDisplayFloatFormats()
     end
 end
