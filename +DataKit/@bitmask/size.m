@@ -1,7 +1,7 @@
 function varargout = size(obj,varargin)
-% size  Short description of the function/method
-%   SIZE long description goes here. It can hold multiple
-%   lines as it can go into lots of detail.
+% size  Bitmask size
+%   SIZE returns a row vector whose elements contain the length of the
+%   corresponding dimension of a bitmask.
 %
 %   Syntax
 %     sz = SIZE(bm)
