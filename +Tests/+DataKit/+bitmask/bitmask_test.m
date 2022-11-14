@@ -1,15 +1,14 @@
 classdef (SharedTestFixtures = { ...
             matlab.unittest.fixtures.PathFixture(subsref(strsplit(mfilename('fullpath'),'/+'),substruct('{}',{':'})))
         }) bitmask_test < matlab.unittest.TestCase
-    
-% run and stop if verification fails:
-%     tests     = matlab.unittest.TestSuite.fromClass(?Tests.DataKit.bitmask.bitmask_test);
-%     runner    = matlab.unittest.TestRunner.withTextOutput;
-%     runner.addPlugin(matlab.unittest.plugins.StopOnFailuresPlugin);
-%     runner.run(tests)
-% run :
-%     tests     = matlab.unittest.TestSuite.fromClass(?Tests.DataKit.bitmask.bitmask_test);
-%     run(tests)
+    % bitmask_test  Unittests for DataKit.bitmask.bitmask
+    % This class holds the unittests for the DataKit.bitmask.bitmask method.
+    %
+    % It can be run with runtests('Tests.DataKit.bitmask.bitmask_test').
+    %
+    %
+    % Copyright (c) 2021-2022 David Clemens (dclemens@geomar.de)
+    %
     
     properties
         Bitmask
