@@ -6,13 +6,15 @@ function C = char(obj)
     % Reshape into column vectors
     d = reshape(double(obj),[],1);
     u = reshape(obj.StDev,[],1);
+    f = reshape(obj.Flag,[],1);
 
     % Align values and uncertainties on decimal seperator, respectively
     value       = num2dotalignedstr(d,dblFmt);
     uncertainty = num2dotalignedstr(u,dblFmt);
+    flag        = flag2indicatorstr(f);
 
     % Join values and uncertainties with plus/minus sign
-    cellStr = strcat(value,{[' ',char(177),' ']},uncertainty);
+    cellStr = strcat(value,{[' ',char(177),' ']},uncertainty,flag);
 
     % Return as a char array
     C = cat(1,cellStr{:});
@@ -31,5 +33,15 @@ function C = char(obj)
         paddingRight    = max(strLength - strDotPosition) - (strLength - strDotPosition);
 
         S = strcat(padding(paddingLeft),str,padding(paddingRight));
+    end
+    function S = flag2indicatorstr(F)
+        
+        nF = arrayfun(@(b) F.isBit(b),1:64,'un',0);
+        nF = sum(cat(3,nF{:}),3);
+        
+        %char(hex2dec('2691'))
+        hasFlag	= nF > 0;
+        S       = repmat({''},size(nF,1),1);
+        S(hasFlag) = strcat({' '},cellstr(num2str(nF(hasFlag),'%u')),{char(hex2dec('2691'))});
     end
 end

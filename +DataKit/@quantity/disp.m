@@ -37,27 +37,12 @@ function disp(obj,varargin)
 
     if n > 0
         % If non-empty
-        if nDims <= 2
-            dblFmt = DataKit.quantity.getDisplayFloatFormats();
-            d = double(obj);
-            d = d(1:szDisp(1),1:szDisp(2));
-            u = obj.StDev;
-            u = full(u(1:szDisp(1),1:szDisp(2)));
-            f = obj.Flag;
-            f = f(1:szDisp(1),1:szDisp(2));
-            nF = arrayfun(@(b) f.isBit(b),1:64,'un',0);
-            nF = sum(cat(3,nF{:}),3);
-            
+        if nDims <= 2            
             colStr  = cell(szDisp);
             for col = 1:szDisp(2)
-                value = num2dotalignedstr(d(:,col),dblFmt);
-                uncertainty = num2dotalignedstr(u(:,col),dblFmt);
-                flag = num2dotalignedstr(nF(:,col),'%u');
-                %char(hex2dec('2691'))
-                hasFlag     = nF(:,col) > 0;
-                flagStr     = repmat({''},size(flag,1),1);
-                flagStr(hasFlag) = strcat({' '},flag(hasFlag),{char(hex2dec('2691'))});
-                colStr(:,col) = strcat(value,{[' ',char(177),' ']},uncertainty,flagStr);
+                % TODO implement subsasgn for DataKit.bitflag...
+                tmp = reshape(cellstr(char(obj(1:szDisp(1),col.*ones(1,szDisp(1))))),szDisp);
+                colStr(:,col) = tmp;
             end
 
             printStr = colStr';
@@ -80,25 +65,11 @@ function disp(obj,varargin)
             end
         else
             % Higher dimensions
+            % TODO: Implement display of all 2D pages
             fprintf('%s[]\n\n',minTab)
         end
     else
         % If quantity is empty
         fprintf('%s[]\n\n',minTab)
-    end
-    function S = num2dotalignedstr(A,fmt)
-
-        dotPosition = @(C) cellfun(@(c) numel(c{1}),cellfun(@(s) split(s,{'.','e','E'}),C,'un',0),'un',1) + 1;
-        padding = @(l) arrayfun(@(l) repmat(' ',1,l),l,'un',0);
-
-        str           	= splitlines(sprintf([fmt,'\n'],A));
-        str            	= str(1:end - 1);
-        strLength     	= cellfun(@numel,str);
-        strDotPosition	= dotPosition(str);
-
-        paddingLeft     = max(strDotPosition) - strDotPosition;
-        paddingRight    = max(strLength - strDotPosition) - (strLength - strDotPosition);
-
-        S = strcat(padding(paddingLeft),str,padding(paddingRight));
     end
 end
