@@ -39,6 +39,7 @@ classdef quantity < double
     methods
         C = char(obj)
         disp(obj,varargin)
+        varargout = subsref(obj,S)
     end
     methods (Static)
         [dblFmt,snglFmt] = getDisplayFloatFormats()
