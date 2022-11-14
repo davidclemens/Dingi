@@ -54,7 +54,10 @@ function disp(obj,varargin)
                 uncertainty = num2dotalignedstr(u(:,col),dblFmt);
                 flag = num2dotalignedstr(nF(:,col),'%u');
                 %char(hex2dec('2691'))
-                colStr(:,col) = strcat(value,{[' ',char(177),' ']},uncertainty,{' ('},flag,{')'});
+                hasFlag     = nF(:,col) > 0;
+                flagStr     = repmat({''},size(flag,1),1);
+                flagStr(hasFlag) = strcat({' '},flag(hasFlag),{char(hex2dec('2691'))});
+                colStr(:,col) = strcat(value,{[' ',char(177),' ']},uncertainty,flagStr);
             end
 
             printStr = colStr';
@@ -82,32 +85,6 @@ function disp(obj,varargin)
     else
         % If quantity is empty
         fprintf('%s[]\n\n',minTab)
-    end
-
-    function [dblFmt,snglFmt] = getFloatFormats()
-    % Display for double/single will follow 'format long/short g/e' or 'format bank'
-    % from the command window. 'format long/short' (no 'g/e') is not supported
-    % because it often needs to print a leading scale factor.
-        switch lower(matlab.internal.display.format)
-            case {'short' 'shortg' 'shorteng'}
-                dblFmt  = '%.5g';
-                snglFmt = '%.5g';
-            case {'long' 'longg' 'longeng'}
-                dblFmt  = '%.15g';
-                snglFmt = '%.7g';
-            case 'shorte'
-                dblFmt  = '%.4e';
-                snglFmt = '%.4e';
-            case 'longe'
-                dblFmt  = '%.14e';
-                snglFmt = '%.6e';
-            case 'bank'
-                dblFmt  = '%.2f';
-                snglFmt = '%.2f';
-            otherwise % rat, hex, + fall back to shortg
-                dblFmt  = '%.5g';
-                snglFmt = '%.5g';
-        end
     end
     function S = num2dotalignedstr(A,fmt)
 
