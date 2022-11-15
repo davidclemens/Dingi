@@ -36,12 +36,12 @@ function C = char(obj)
     end
     function S = flag2indicatorstr(F)
         
+        flagChar = char(hex2dec('2691'));
+        
         nF = arrayfun(@(b) F.isBit(b),1:64,'un',0);
         nF = sum(cat(3,nF{:}),3);
         
-        %char(hex2dec('2691'))
-        hasFlag	= nF > 0;
-        S       = repmat({''},size(nF,1),1);
-        S(hasFlag) = strcat({' '},cellstr(num2str(nF(hasFlag),'%u')),{char(hex2dec('2691'))});
+        S = strcat({' '},cellstr(num2str(nF,'%u')),{flagChar});
+        S = regexprep(S,['^(\s+)0',flagChar,'$'],'$1  ');
     end
 end
