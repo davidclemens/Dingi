@@ -1,4 +1,43 @@
 function disp(obj,varargin)
+% disp  Display quantity array
+%   DISP displays a quantity array, including its value, uncertainty and number
+%   of set flags.
+%
+%   Syntax
+%     DISP(obj)
+%     DISP(obj,opts)
+%
+%   Description
+%     DISP(obj)  Displays the quantity array obj.
+%     DISP(obj,opts)  Additionally specifies options opts.
+%
+%   Example(s)
+%     DISP(DataKit.quantity(4))  display quantity 4 ± 0.
+%     DISP(DataKit.quantity(4),'builtin')  displays quantity 4 using the builtin
+%       method.
+%
+%
+%   Input Arguments
+%     obj - Quantity
+%       DataKit.quantity array
+%         Input quantity specified as a DataKit.quantity array.
+%
+%     opts - Options
+%       'quantity' (default) | 'builtin'
+%         Options specified as either 'quantity' (default) or 'builtin'. If set
+%         to 'builtin', the builtin DISP method is called.
+%
+%
+%   Output Arguments
+%
+%
+%   Name-Value Pair Arguments
+%
+%
+%   See also DataKit.quantity, DataKit.quantity.char
+%
+%   Copyright (c) 2022-2022 David Clemens (dclemens@geomar.de)
+%
 
     % Input checks
     narginchk(1,2)
