@@ -1,6 +1,6 @@
 classdef quantity < double
     properties (SetAccess = immutable)
-        StDev double
+        Sigma double
         Flag DataKit.bitflag
     end
     
@@ -32,7 +32,7 @@ classdef quantity < double
             
             obj = obj@double(A);
             
-            obj.StDev   = dA;
+            obj.Sigma   = dA;
             obj.Flag    = flag;
         end
     end

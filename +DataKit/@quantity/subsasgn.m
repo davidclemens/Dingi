@@ -4,7 +4,7 @@ function obj = subsasgn(obj,S,varargin)
             if numel(S) == 1
             % Implement obj(indices) = varargin{:};
                 A = subsasgn(double(obj),S,double(varargin{1}));
-                dA = subsasgn(obj.StDev,S,varargin{1}.StDev);
+                dA = subsasgn(obj.Sigma,S,varargin{1}.Sigma);
                 % TODO: Implement subsasgn for DataKit.bitflag
                 flag = subsasgn(obj.Flag,S,varargin{1}.Flag.Bits);
                 obj = DataKit.quantity(A,dA,flag);

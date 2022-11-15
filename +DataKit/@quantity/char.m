@@ -48,7 +48,7 @@ function C = char(obj)
 
     % Reshape into column vectors
     d = reshape(double(obj),[],1);
-    u = reshape(obj.StDev,[],1);
+    u = reshape(obj.Sigma,[],1);
     f = reshape(obj.Flag,[],1);
 
     % Align values and uncertainties on decimal seperator, respectively
