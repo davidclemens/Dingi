@@ -24,6 +24,15 @@ classdef quantity < double
                 flag    = DataKit.bitflag(flagEnumerationClass,size(A,1),size(A,2));
             elseif nargin == 2
                 flag    = DataKit.bitflag(flagEnumerationClass,size(A,1),size(A,2));
+            elseif nargin == 3
+                if isa(flag,'DataKit.bitflag')
+                    % Ok
+                elseif isnumeric(flag)
+                    % Try to convert numeric input to a bitflag
+                    flag = DataKit.bitflag(flagEnumerationClass,flag);
+                else
+                    % Is handled in the validation below
+                end
             end
             
             validateattributes(A,{'numeric'},{},mfilename,'A',1)
