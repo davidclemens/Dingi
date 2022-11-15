@@ -44,7 +44,7 @@ function obj = setNum(obj,num,varargin)
 %       vectors
 %         Linear index into the bitmask.
 %         Note: If the linear index exceeds the number of bitmask elements,
-%         the bitmask is grown along its first dimension to accomodate the
+%         the bitmask is grown along its last dimension to accomodate the
 %         linear index.
 %
 %     dim1,...,dimN - Bitmask subscripts
@@ -99,7 +99,7 @@ function obj = setNum(obj,num,varargin)
         return
     elseif nargin == 3
         % Only 1 index is given. Interpret it as a linear index into the bitmask.
-        % If the linear index > prod(obj.Size) the array grows along the first
+        % If the linear index > prod(obj.Size) the array grows along the last
         % dimension.
         subs       	= cell(1,ndims(obj.Bits));
         [subs{:}]	= ind2sub(obj.Size,varargin{:});
