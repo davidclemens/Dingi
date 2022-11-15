@@ -1,11 +1,70 @@
 classdef quantity < double
     properties (SetAccess = immutable)
-        Sigma double
-        Flag DataKit.bitflag
+        Sigma double % Uncertainty
+        Flag DataKit.bitflag % Flags
     end
     
     methods
         function obj = quantity(A,sigma,flag,varargin)
+        % quantity  Create a quantity array
+        %   QUANTITY creates a quantity array.
+        %
+        %   Syntax
+        %     obj = QUANTITY(A)
+        %     obj = QUANTITY(A,sigma)
+        %     obj = QUANTITY(A,sigma,flag)
+        %     obj = QUANTITY(__,Name,Value)
+        %
+        %   Description
+        %     obj = QUANTITY(A)  Convert the values in A to quantities with no
+        %       uncertainty and no flags.
+        %     obj = QUANTITY(A,sigma)  Additionally specify the uncertainty as
+        %       standard deviation.
+        %     obj = QUANTITY(A,sigma,flag)  Additionally specify the flag(s).
+        %     obj = QUANTITY(__,Name,Value)  Add additional options
+        %       specified by one or more Name,Value pair arguments. You can include any
+        %       of the input arguments in previous syntaxes.
+        %
+        %   Example(s)
+        %     obj = QUANTITY(5)  returns 5 ± 0
+        %     obj = QUANTITY(5,0.1)  returns 5 ± 0.1
+        %     obj = QUANTITY(5,0.1,2)  returns 5 ± 0.1 1⚑
+        %
+        %
+        %   Input Arguments
+        %     A - Value
+        %       numeric array
+        %         The input values to be converted to a quantity array of the same
+        %         shape.
+        %
+        %     sigma - Uncertainty
+        %       numeric array
+        %         The value's uncertainty, specified as standard deviation in the form
+        %         of a numeric array with the same shape as A.
+        %
+        %     flag - Flags
+        %       DataKit.bitflag array | numeric array
+        %         The values flag(s), specified as a bitflag array or a numeric array
+        %         that can be converted to a bitflag with the same shape as A.
+        %
+        %
+        %   Output Arguments
+        %     obj - Quantity
+        %       DataKit.quantity array
+        %         Output quantity specified as a DataKit.quantity array.
+        %
+        %
+        %   Name-Value Pair Arguments
+        %     FlagEnumerationClass - Flag enumeration class name
+        %       'DataKit.Metadata.validators.validFlag' (default) | char
+        %         The enumeration class to be used for the bitflag. See the
+        %         DataKit.bitflag documentation for details.
+        %
+        %
+        %   See also DataKit.bitflag
+        %
+        %   Copyright (c) 2022-2022 David Clemens (dclemens@geomar.de)
+        %
             
             import internal.stats.parseArgs
             
@@ -39,8 +98,10 @@ classdef quantity < double
             validateattributes(sigma,{'numeric'},{'size',size(A)},mfilename,'sigma',2)
             validateattributes(flag,{'DataKit.bitflag'},{'size',size(A)},mfilename,'flag',3)
             
+            % Call superclass constructor
             obj = obj@double(A);
             
+            % Assign property values
             obj.Sigma   = sigma;
             obj.Flag    = flag;
         end
