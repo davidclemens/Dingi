@@ -5,7 +5,7 @@ classdef quantity < double
     end
     
     methods
-        function obj = quantity(A,dA,flag,varargin)
+        function obj = quantity(A,sigma,flag,varargin)
             
             import internal.stats.parseArgs
             
@@ -17,22 +17,22 @@ classdef quantity < double
          
             if nargin == 0
                 A       = [];
-                dA      = [];
+                sigma  	= [];
                 flag	= DataKit.bitflag(flagEnumerationClass);
             elseif nargin == 1
-                dA      = sparse(size(A,1),size(A,2));
+                sigma  	= sparse(size(A,1),size(A,2));
                 flag    = DataKit.bitflag(flagEnumerationClass,size(A,1),size(A,2));
             elseif nargin == 2
                 flag    = DataKit.bitflag(flagEnumerationClass,size(A,1),size(A,2));
             end
             
             validateattributes(A,{'numeric'},{},mfilename,'A',1)
-            validateattributes(dA,{'numeric'},{'size',size(A)},mfilename,'dA',2)
+            validateattributes(sigma,{'numeric'},{'size',size(A)},mfilename,'sigma',2)
             validateattributes(flag,{'DataKit.bitflag'},{'size',size(A)},mfilename,'flag',3)
             
             obj = obj@double(A);
             
-            obj.Sigma   = dA;
+            obj.Sigma   = sigma;
             obj.Flag    = flag;
         end
     end
