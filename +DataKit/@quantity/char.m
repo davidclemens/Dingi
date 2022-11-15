@@ -1,4 +1,47 @@
 function C = char(obj)
+% char  Convert to character array
+%   CHAR converts quantity array obj into a character array. The quantity array
+%   is vectorized such that C(i,:) holds the character representation of obj(i).
+%   The character representation is of the form value ± uncertainty flag.
+%
+%   Syntax
+%     C = CHAR(obj)
+%
+%   Description
+%     C = CHAR(obj)  Convert the quantity array obj to its character 
+%     representation C.
+%
+%   Example(s)
+%     C = CHAR(DataKit.quantity(2,0.5,3))  returns C = '2 ± 0.5 2⚑'
+%
+%
+%   Input Arguments
+%     obj - Input quantity
+%       DataKit.quantity array
+%         Input quantity specified as a DataKit.quantity array.
+%
+%
+%   Output Arguments
+%     C - Output array
+%       char array
+%         Output array, returned as a character array. It has as many rows as
+%         obj has elements.
+%         The character representation consists of the value ± its uncertainty
+%         and the number of flags that are set to high, indicated by the count
+%         and a flag symbol.
+%          
+%         Tip: Using reshape(num2cell(C,2),sz), where sz = size(obj), returns
+%         the character representation as cellstr with the shape of the original
+%         quantity array.
+%
+%
+%   Name-Value Pair Arguments
+%
+%
+%   See also DataKit.quantity, DataKit.quantity.disp
+%
+%   Copyright (c) 2022-2022 David Clemens (dclemens@geomar.de)
+%
 
     % Get current float format setting
     dblFmt = DataKit.quantity.getDisplayFloatFormats();
