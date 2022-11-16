@@ -112,6 +112,15 @@ classdef quantity < double
         varargout = subsref(obj,S)
         obj = subsasgn(obj,S,varargin)
     end
+    
+    % Arithmetic
+    methods
+        obj = plus(A,B)
+        obj = minus(A,B)
+        obj = times(A,B)
+        obj = rdivide(A,B)
+    end
+    
     methods (Static)
         [dblFmt,snglFmt] = getDisplayFloatFormats()
     end
