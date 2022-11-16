@@ -1,20 +1,20 @@
-function obj = and(objA,objB)
-% and  Combine bitmask with logical AND
-%   AND combines bitmasks with the bitwise logical AND operation.
+function obj = or(objA,objB)
+% or  Combine bitmask with logical OR
+%   OR combines bitmasks with the bitwise logical OR operation.
 %
 %   Syntax
-%     C = AND(A,B)
+%     C = OR(A,B)
 %
 %   Description
-%     C = AND(A,B)  performs a bitwise logical AND of bitmasks A and B and
+%     C = OR(A,B)  performs a bitwise logical OR of bitmasks A and B and
 %       returns a bitmask array containing elements with each bit set
 %       accordingly. A bit of an elemnt in the output array is set to high if
-%       both A and B contain the same high bit for the same element. Otherwise
+%       either A or B contain the same high bit for the same element. Otherwise
 %       the bit is set to low.
 %
 %   Example(s)
-%     C = AND(DataKit.bitmask(7),DataKit.bitmask(3)  returns C =
-%       DataKit.bitmask(3) or ......11 (where . is low and 1 is high).
+%     C = OR(DataKit.bitmask(7),DataKit.bitmask(3)  returns C =
+%       DataKit.bitmask(7) or .....111 (where . is low and 1 is high).
 %
 %
 %   Input Arguments
@@ -36,7 +36,7 @@ function obj = and(objA,objB)
 %   Name-Value Pair Arguments
 %
 %
-%   See also DataKit.bitmask, DataKit.bitmask.or
+%   See also DataKit.bitmask, DataKit.bitmask.and
 %
 %   Copyright (c) 2022-2022 David Clemens (dclemens@geomar.de)
 %
@@ -53,7 +53,7 @@ function obj = and(objA,objB)
     if castTypeInd == 2
         objA = objA.changeStorageType(castType);
     end
-    bitsC   = bitand(objA.Bits,objB.Bits,castType);
+    bitsC   = bitor(objA.Bits,objB.Bits,castType);
     
     obj     = DataKit.bitmask(bitsC);    
 end
