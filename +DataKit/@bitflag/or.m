@@ -1,20 +1,20 @@
-function obj = and(objA,objB)
-% and  Combine bitflags with logical AND
-%   AND combines bitflags with the flagwise logical AND operation.
+function obj = or(objA,objB)
+% or  Combine bitflags with logical OR
+%   OR combines bitflags with the flagwise logical OR operation.
 %
 %   Syntax
-%     C = AND(A,B)
+%     C = OR(A,B)
 %
 %   Description
-%     C = AND(A,B)  performs a flagwise logical AND of bitflags A and B and
+%     C = OR(A,B)  performs a flagwise logical OR of bitflags A and B and
 %       returns a bitflag array containing elements with each flag set
 %       accordingly. A flag of an elemnt in the output array is set to high if
-%       both A and B contain the same high flag for the same element. Otherwise
+%       either A or B contain the same high flag for the same element. Otherwise
 %       the flag is set to low.
 %
 %   Example(s)
-%     C = AND(DataKit.bitflag(7),DataKit.bitflag(3)  returns C =
-%       DataKit.bitflag(3) or ......11 (where . is low and 1 is high).
+%     C = OR(DataKit.bitflag(7),DataKit.bitflag(3)  returns C =
+%       DataKit.bitflag(7) or .....111 (where . is low and 1 is high).
 %
 %
 %   Input Arguments
@@ -36,7 +36,7 @@ function obj = and(objA,objB)
 %   Name-Value Pair Arguments
 %
 %
-%   See also DataKit.bitflag, DataKit.bitflag.or
+%   See also DataKit.bitflag, DataKit.bitflag.and
 %
 %   Copyright (c) 2022-2022 David Clemens (dclemens@geomar.de)
 %
@@ -45,7 +45,7 @@ function obj = and(objA,objB)
         'DataKit:bitflag:and:EnumerationClassMissmatch',...
         'The enumeration class names have to match.')
     
-    bitsC   = and@DataKit.bitmask(objA,objB);
+    bitsC   = or@DataKit.bitmask(objA,objB);
     
     obj     = DataKit.bitflag(objA.EnumerationClassName,bitsC.Bits);    
 end
