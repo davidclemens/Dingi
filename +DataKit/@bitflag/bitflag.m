@@ -167,6 +167,8 @@ classdef bitflag < DataKit.bitmask
         obj = subsasgn(obj,S,varargin)
         disp(obj,varargin)
         obj = reshape(obj,varargin)
+        obj = and(objA,objB)
+        obj = or(objA,objB)
     end
     
     methods
