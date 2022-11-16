@@ -1,10 +1,10 @@
 classdef (SharedTestFixtures = { ...
             matlab.unittest.fixtures.PathFixture(subsref(strsplit(mfilename('fullpath'),'/+'),substruct('{}',{':'})))
         }) and_test < matlab.unittest.TestCase
-    % and_test  Unittests for DataKit.bitmask.and
-    % This class holds the unittests for the DataKit.bitmask.and method.
+    % and_test  Unittests for DataKit.bitflag.and
+    % This class holds the unittests for the DataKit.bitflag.and method.
     %
-    % It can be run with runtests('Tests.DataKit.bitmask.and_test').
+    % It can be run with runtests('Tests.DataKit.bitflag.and_test').
     %
     %
     % Copyright (c) 2022-2022 David Clemens (dclemens@geomar.de)
@@ -14,6 +14,7 @@ classdef (SharedTestFixtures = { ...
         Ain = [...
                512    24     5
                  4     8    20]
+        objEnumName = 'DataKit.Metadata.validators.validFlag'
         obj
     end
     properties (MethodSetupParameter)
@@ -42,9 +43,9 @@ classdef (SharedTestFixtures = { ...
     methods (TestClassSetup)
         function createInitialBitmask(testCase)
             
-            import DataKit.bitmask
+            import DataKit.bitflag
             
-            testCase.obj = bitmask(testCase.Ain);
+            testCase.obj = bitflag(testCase.objEnumName,testCase.Ain);
         end
     end
     methods (TestMethodSetup)
@@ -56,11 +57,11 @@ classdef (SharedTestFixtures = { ...
     methods (Test)        
         function testDotSubsrefProperty(testCase,B)
             
-            bfA     = testCase.obj;
-            bfB     = DataKit.bitmask(B.B);
-            bfAct   = bfA & bfB;
+            bmA     = testCase.obj;
+            bmB     = DataKit.bitflag(testCase.objEnumName,B.B);
+            bmAct   = bmA & bmB;
             
-            act     = bfAct.Bits;
+            act     = bmAct.Bits;
             exp     = B.exp;
             
             testCase.verifyEqual(act,exp);
