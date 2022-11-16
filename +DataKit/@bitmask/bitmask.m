@@ -163,6 +163,8 @@ classdef bitmask
         obj = cat(dim,varargin)
         varargout = size(obj,varargin)
         obj = reshape(obj,varargin)
+        obj = and(objA,objB)
+        obj = or(objA,objB)
     end
 
     methods (Access = private)

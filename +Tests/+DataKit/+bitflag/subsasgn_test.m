@@ -1,22 +1,26 @@
 classdef (SharedTestFixtures = { ...
             matlab.unittest.fixtures.PathFixture(subsref(strsplit(mfilename('fullpath'),'/+'),substruct('{}',{':'})))
-        }) setNum_test < matlab.unittest.TestCase
-    % setNum_test  Unittests for DataKit.bitmask.setNum
-    % This class holds the unittests for the DataKit.bitmask.setNum method.
+        }) subsasgn_test < matlab.unittest.TestCase
+    % subsasgn_test  Unittests for DataKit.bitflag.subsasgn
+    % This class holds the unittests for the DataKit.bitflag.subsasgn method.
     %
-    % It can be run with runtests('Tests.DataKit.bitmask.setNum_test').
+    % It can be run with runtests('Tests.DataKit.bitflag.subsasgn_test').
     %
     %
     % Copyright (c) 2021-2022 David Clemens (dclemens@geomar.de)
     %
     
     properties
+        Ain = uint8([...
+                17    24     5
+                 4     8    20])
+        EnumName = 'DataKit.Metadata.validators.validFlag'
         obj
     end
     properties (MethodSetupParameter)
         
     end
-    properties (TestParameter)        
+    properties (TestParameter)
         % {IndexType}_{IndexShape}_{IndexIsWithinShape}_{IndexHasNewDimension}
         % Where:
         %   IndexType: lInd (linear index), sub (subscripted index)
@@ -61,12 +65,9 @@ classdef (SharedTestFixtures = { ...
     methods (TestClassSetup)
         function createInitialBitmask(testCase)
             
-            import DataKit.bitmask
+            import DataKit.bitflag
             
-          	Ain = [...
-                17    24     5
-                 4     8    20];
-            testCase.obj = bitmask(Ain);
+            testCase.obj = bitflag(testCase.EnumName,testCase.Ain);
         end
     end
     methods (TestMethodSetup)
@@ -76,29 +77,7 @@ classdef (SharedTestFixtures = { ...
     end
     
     methods (Test)
-        function testStorageTypeIncrease(testCase)
-            
-            import DataKit.bitmask
-            
-            bm  = bitmask(0);
-            
-            act = bm.setNum(intmax('uint64'),1,1);
-            exp = intmax('uint64');
-            
-            testCase.verifyEqual(act.Bits,exp);
-        end
-        function testStorageTypeDecrease(testCase)
-            
-            import DataKit.bitmask
-            
-            bm  = bitmask(1,1,64);
-            
-            act = bm.setNum(0,1,1);
-            exp = zeros(1,'uint8');
-            
-            testCase.verifyEqual(act.Bits,exp);
-        end        
-        function testSetNum2(testCase,sub)
+        function testSubsasgn(testCase,sub)
             
             S       = substruct('()',sub.subs);
             B       = sub.num;
