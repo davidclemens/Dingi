@@ -1,6 +1,7 @@
 function obj = minus(A,B)
-    % Q = A - B
+    % valueQ = valueA - valueB
     % sigmaQ = sqrt(sigmaA.^2 + sigmaB.^2)
+    % flagQ  = flagA | flagB
     
     % Convert to quantity
     if ~isa(A,'DataKit.quantity')
@@ -10,7 +11,11 @@ function obj = minus(A,B)
         B = DataKit.quantity(B);
     end
     
+    % Define error propagation function
+    sigmaFunc = @(dA,dB) sqrt(dA.^2 + dB.^2);
+    
     obj = DataKit.quantity(...
         minus@double(A,B),...
-        sqrt(A.Sigma.^2 + B.Sigma.^2));
+        sigmaFunc(A.Sigma,B.Sigma),...
+        or(A.Flag,B.Flag));
 end
