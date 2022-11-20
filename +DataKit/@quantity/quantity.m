@@ -2,10 +2,11 @@ classdef quantity < double
     properties (SetAccess = immutable)
         Sigma double % Uncertainty
         Flag DataKit.bitflag % Flags
+        Unit % Unit
     end
     
     methods
-        function obj = quantity(A,sigma,flag,varargin)
+        function obj = quantity(A,sigma,flag,unit,varargin)
         % quantity  Create a quantity array
         %   QUANTITY creates a quantity array.
         %
@@ -13,6 +14,7 @@ classdef quantity < double
         %     obj = QUANTITY(A)
         %     obj = QUANTITY(A,sigma)
         %     obj = QUANTITY(A,sigma,flag)
+        %     obj = QUANTITY(A,sigma,flag,unit)
         %     obj = QUANTITY(__,Name,Value)
         %
         %   Description
@@ -21,6 +23,7 @@ classdef quantity < double
         %     obj = QUANTITY(A,sigma)  Additionally specify the uncertainty as
         %       standard deviation.
         %     obj = QUANTITY(A,sigma,flag)  Additionally specify the flag(s).
+        %     obj = QUANTITY(A,sigma,flag,unit)  Additionally specify the unit.
         %     obj = QUANTITY(__,Name,Value)  Add additional options
         %       specified by one or more Name,Value pair arguments. You can include any
         %       of the input arguments in previous syntaxes.
@@ -78,11 +81,14 @@ classdef quantity < double
                 A       = [];
                 sigma  	= [];
                 flag	= DataKit.bitflag(flagEnumerationClass);
+                unit    = [];
             elseif nargin == 1
                 sigma  	= sparse(size(A,1),size(A,2));
                 flag    = DataKit.bitflag(flagEnumerationClass,size(A,1),size(A,2));
+                unit    = [];
             elseif nargin == 2
                 flag    = DataKit.bitflag(flagEnumerationClass,size(A,1),size(A,2));
+                unit    = [];
             elseif nargin == 3
                 if isa(flag,'DataKit.bitflag')
                     % Ok
@@ -92,6 +98,9 @@ classdef quantity < double
                 else
                     % Is handled in the validation below
                 end
+                unit    = [];
+            elseif nargin == 4
+                % TODO: process unit input by user
             end
             
             validateattributes(A,{'numeric'},{},mfilename,'A',1)
@@ -104,6 +113,7 @@ classdef quantity < double
             % Assign property values
             obj.Sigma   = sigma;
             obj.Flag    = flag;
+            obj.Unit    = unit;
         end
     end
     methods
