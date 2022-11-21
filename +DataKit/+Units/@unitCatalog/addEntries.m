@@ -1,6 +1,4 @@
 function addEntries(obj,name,object)
-
-    nargoutchk(0,1)
     
     if ismember(name,obj.Keys)
         error('Dingi:DataKit:Units:unitCatalog:addEntries:DuplicateKey',...
