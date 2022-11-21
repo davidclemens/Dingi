@@ -18,20 +18,28 @@ classdef unitCatalog < handle
         function obj = unitCatalog(varargin)
             
             if nargin == 0
-                fileParts       = split(mfilename('fullpath'),filesep);
-                fileParts{end}  = 'default_en.txt';
-                fileName        = fullfile(fileParts{:});
-                obj = DataKit.Units.unitCatalog.fromPint(fileName);
                 return
+            elseif nargin == 1
+                opts = varargin{1};
+                
+                validatestring(opts,{'default'},mfilename,'opts')
+            end
+            
+            switch opts
+                case 'default'
+                    fileParts       = split(mfilename('fullpath'),filesep);
+                    fileParts{end}  = 'default_en.txt';
+                    fileName        = fullfile(fileParts{:});
+                    obj = DataKit.Units.unitCatalog.fromPint(fileName);
             end
         end
     end
 
     methods
-        addUnit(name,links,symbol,alias)
-        addDimension(name,links)
-        addPrefix(name,value,symbol,alias)
-        addAlias(name,alias)
+        addUnit(obj,name,links,symbol,alias)
+        addDimension(obj,name,links)
+        addPrefix(obj,name,value,symbol,alias)
+        addAlias(obj,name,alias)
     end
     
     methods %(Access = protected)
