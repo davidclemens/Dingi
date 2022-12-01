@@ -22,7 +22,7 @@ classdef unitCatalog < handle
             elseif nargin == 1
                 opts = varargin{1};
                 
-                validatestring(opts,{'default'},mfilename,'opts')
+                opts = validatestring(opts,{'default'},mfilename,'opts');
             end
             
             switch opts

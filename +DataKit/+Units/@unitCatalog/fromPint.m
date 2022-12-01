@@ -27,6 +27,13 @@ function obj = fromPint(file)
         error('Parsing error')
     end
     
+    % Make compatible with MATLAB syntax
+    % Replace power operator '**' with '^'
+    raw(~isEmpty & ~isGroupWrapper) = regexprep(raw(~isEmpty & ~isGroupWrapper),'(?<=.+)\*{2}(?=.+)','^');
+    
+    % Remove spaces around operators
+    raw(~isEmpty & ~isGroupWrapper) = regexprep(raw(~isEmpty & ~isGroupWrapper),'\s(\+|\-|\*|/|\^)\s','$1');
+    
     % Parse lines
     tblPrefix   	= parsePrefix(raw(isPrefix));
     tblUnit         = parseUnit(raw(isUnit));
@@ -34,6 +41,8 @@ function obj = fromPint(file)
     
     % Add to unitCatalog
     obj.addPrefix(tblPrefix{:,'name'},tblPrefix{:,'value'},tblPrefix{:,'symbol'},tblPrefix{:,'alias'})
+    
+    obj.addDimension(tblDimension{:,'name'},tblDimension{:,'parents'},tblDimension{:,'exponents'})
     
     
     function tbl = parsePrefix(raw)
@@ -79,7 +88,6 @@ function obj = fromPint(file)
         tbl{:,'symbol'} = regexprep(tbl{:,'symbol'},'^_$','');
 
         % Convert value to number
-        tbl{:,'value'} = regexprep(tbl{:,'value'},'(\d)\*{2}(\d)','$1\^$2'); % Replace power operator '**' with '^'
         tbl.value = cat(1,cellfun(@eval,tbl{:,'value'},'un',1));
     end
     function tbl = parseUnit(raw)
@@ -119,20 +127,17 @@ function obj = fromPint(file)
 
         % Remove '_' in symbol
         tbl{:,'symbol'} = regexprep(tbl{:,'symbol'},'^_$','');
-
-        % Replace power operator '**' with '^'
-        tbl{:,'link'} = regexprep(tbl{:,'link'},'(\s?)\*{2}(\s?)','$1\^$2');
     end
     function tbl = parseDimension(raw)
     % parseDimension  Parse dimension line
     %   PARSEDIMENSION parses a dimension line and returns a table with variables
-    %   'name' & 'link'.
+    %   'name' & 'parentsExpression'.
     %
         
         % Split each line at '='
-        rawUnit	= regexp(raw,'\s=\s','split');
-        for ii = 1:numel(rawUnit)
-            l = numel(rawUnit{ii});
+        rawDimension	= regexp(raw,'\s=\s','split');
+        for ii = 1:numel(rawDimension)
+            l = numel(rawDimension{ii});
 
             if l < 2 || l > 2
                 % Invalid prefix definition line
@@ -142,10 +147,13 @@ function obj = fromPint(file)
         end
         
         % Convert to table
-        varNamesPrefix  = {'name','link'};
-        tbl = cell2table(cat(1,rawUnit{:}),'VariableNames',varNamesPrefix);
-
-        % Replace power operator '**' with '^'
-        tbl{:,'link'} = regexprep(tbl{:,'link'},'(\s?)\*{2}(\s?)','$1\^$2'); 
+        varNamesPrefix  = {'name','parentsExpression'};
+        tbl = cell2table(cat(1,rawDimension{:}),'VariableNames',varNamesPrefix);
+        
+        % Parse expressions
+        p = DataKit.Units.Parser.parser();
+        for ii = 1:numel(rawDimension)
+            p(ii,1) = DataKit.Units.Parser.parser(tbl{ii,'parentsExpression'}{:},'Expression');
+        end
     end
 end
