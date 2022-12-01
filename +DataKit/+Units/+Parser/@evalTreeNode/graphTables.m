@@ -32,7 +32,9 @@ function [edgeTable,nodeTable] = graphTables(obj,varargin)
 %     nodeTable - Table of node information
 %       table
 %         Table of node information. The first variable in NodeTable is a
-%         cellstr called Label and holds the label of the node.
+%         cellstr called Label and holds the label of the node. The second
+%         variable is a logical called DependsOnName and is true if the
+%         respective node depends on a token of type NAME.
 %
 %
 %   Name-Value Pair Arguments
@@ -78,7 +80,7 @@ function [edgeTable,nodeTable] = graphTables(obj,varargin)
             operator = 'TIMES';
         end
         nodeId = size(nodeTable,1) + 1;
-        nodeTable.Label(nodeId) = {operator};
+        nodeTable(nodeId,{'Label','DependsOnName'}) = table({operator},obj.Left.dependsOnName || obj.Right.dependsOnName);
         
         [edgeTable,nodeTable] = graphTables(obj.Left,...
             'EdgeTable',        edgeTable,...
@@ -96,7 +98,7 @@ function [edgeTable,nodeTable] = graphTables(obj,varargin)
     elseif ~isempty(obj.Operator)
         % Unary operator
         nodeId = size(nodeTable,1) + 1;
-        nodeTable.Label(nodeId) = {obj.Operator.Text};
+        nodeTable(nodeId,{'Label','DependsOnName'}) = table({obj.Operator.ExactType},obj.Left.dependsOnName);
         
         [edgeTable,nodeTable] = graphTables(obj.Left,...
             'EdgeTable',        edgeTable,...
@@ -109,7 +111,7 @@ function [edgeTable,nodeTable] = graphTables(obj,varargin)
     else
         % Single value
         nodeId = size(nodeTable,1) + 1;
-        nodeTable.Label(nodeId) = {obj.Left.Text};
+        nodeTable(nodeId,{'Label','DependsOnName'}) = table({obj.Left.Text},strcmp(obj.Left.Type,'NAME'));
         edgeTable   = cat(1,edgeTable,table([nodeId,ParentNodeInd],'VariableNames',{'EndNodes'}));
         return
     end

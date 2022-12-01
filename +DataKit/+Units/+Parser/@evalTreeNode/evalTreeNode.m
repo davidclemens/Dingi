@@ -15,6 +15,7 @@ classdef evalTreeNode
 %
 % EVALTREENODE Methods:
 %   char - Evaluation tree node to character array
+%   dependsOnName - Determine if node depends on any NAME token
 %   graphTables - Evaluation tree node to edgeTable & nodeTable
 %
 %
@@ -50,6 +51,7 @@ classdef evalTreeNode
     methods
         C = char(obj,varargin)
         [edgeTable,nodeTable] = graphTables(obj,varargin)
+        tf = dependsOnName(obj)
     end
 end
 
