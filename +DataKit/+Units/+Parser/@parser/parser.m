@@ -87,6 +87,8 @@ classdef parser
                 return
             end
             
+            narginchk(2,2)
+
             % Validate input
             validateattributes(C,{'char'},{'row'},mfilename,'C',1)
             type = validatestring(type,obj.ValidTypes,mfilename,'type',2);
