@@ -71,9 +71,11 @@ function tkns = tokenize(stream)
     % For '+': look behind to check that the '+' is not part of an exponent, e.g. '3e+5'
     % For '-': look behind to check that the '-' is not part of an exponent, e.g. '3e-5'
     operators       = {'\^','\*','\/','(?<![eE])\+','(?<![eE])\-'};
+    operatorTypes   = {'POWER','TIMES','DIVIDE','PLUS','MINUS'};
     
     % Delimiters
     delimiters      = {'\(','\)'};
+    delimiterTypes  = {'PAROPEN','PARCLOSE'};
     
     % Split the stream into tokens
     stream = splitStream(stream);
@@ -96,11 +98,18 @@ function tkns = tokenize(stream)
     [typesInd,~]    = find(types');
     typeNames       = {'OP';'OP';'NAME';'NAME';'NUMBER';'NUMBER'};
     exactTypeNames 	= {'OP';'DELIM';'VAR';'DIM';'INT';'FLOAT'};
+    typesList       = typeNames(typesInd);
+    exactTypesList  = exactTypeNames(typesInd);
+    
+    exactTypesList  = assignExactOpType(exactTypesList);
+    exactTypesList  = assignExactDelimType(exactTypesList);
+
     tkns            = struct(...
         'Text',         stream,...
-        'Type',         typeNames(typesInd),...
-        'ExactType',    exactTypeNames(typesInd));
+        'Type',         typesList,...
+        'ExactType',    exactTypesList);
     
+
     function S = splitStream(stream)
         % splitStream  Split char stream into tokens
         %   SPLITSTREAM splits char row vector stream at whitspace characters, operators
@@ -123,6 +132,20 @@ function tkns = tokenize(stream)
             % Remove empty entries
             S(cellfun(@isempty,S)) = [];
         end
+    end
+    function lst = assignExactOpType(lst)
+        isOp                = strcmp(lst,'OP');
+        tmp                 = cellfun(@(e) ~cellfun(@isempty,regexp(stream(isOp),e)),operators,'un',0);
+        exactTypes          = cat(2,tmp{:});
+        [exactTypesInd,~]	= find(exactTypes');
+        lst(isOp)           = operatorTypes(exactTypesInd);
+    end
+    function lst = assignExactDelimType(lst)
+        isDelim             = strcmp(lst,'DELIM');
+        tmp                 = cellfun(@(e) ~cellfun(@isempty,regexp(stream(isDelim),e)),delimiters,'un',0);
+        exactTypes          = cat(2,tmp{:});
+        [exactTypesInd,~]	= find(exactTypes');
+        lst(isDelim)        = delimiterTypes(exactTypesInd);
     end
 end
 

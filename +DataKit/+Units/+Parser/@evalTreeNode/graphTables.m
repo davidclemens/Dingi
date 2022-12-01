@@ -72,10 +72,10 @@ function [edgeTable,nodeTable] = graphTables(obj,varargin)
         
         if ~isempty(obj.Operator)
             % Binary operator
-            operator = obj.Operator.Text;
+            operator = obj.Operator.ExactType;
         else
             % Implicit operator
-            operator = '';
+            operator = 'TIMES';
         end
         nodeId = size(nodeTable,1) + 1;
         nodeTable.Label(nodeId) = {operator};
