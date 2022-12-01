@@ -17,6 +17,7 @@ classdef evalTreeNode
 %   char - Evaluation tree node to character array
 %   dependsOnName - Determine if node depends on any NAME token
 %   graphTables - Evaluation tree node to edgeTable & nodeTable
+%   isMultiplicative - Determines if node is multiplicative
 %
 %
 % Copyright (c) 2022-2022 David Clemens (dclemens@geomar.de)
@@ -51,6 +52,7 @@ classdef evalTreeNode
     methods
         C = char(obj,varargin)
         [edgeTable,nodeTable] = graphTables(obj,varargin)
+        tf = isMultiplicative(obj)
         tf = dependsOnName(obj)
     end
 end

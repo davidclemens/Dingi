@@ -24,8 +24,7 @@ classdef parser
         Type char % Input text type
     end
     properties (Dependent)
-        Tokens struct
-        Tree
+        IsMultiplicative logical % Determine if expression is multiplicative
     end
     properties (Constant, Access = private)
         ValidTypes = {'Expression'}
@@ -100,6 +99,7 @@ classdef parser
     methods
         C = toChar(obj,varargin)
         h = graph(obj)
+        tf = isMultiplicative(obj)
     end
     methods (Static)
         tkns = tokenize(stream)
@@ -116,6 +116,10 @@ classdef parser
             
             tree = DataKit.Units.Parser.parser.createEvalTreeNode(obj.Tokens,...
                 'OperatorPriority',     obj.OperatorPriorityMap);
+        end
+        function isMultiplicative = get.IsMultiplicative(obj)
+            
+            isMultiplicative = obj.Tree.isMultiplicative;
         end
     end
 end
