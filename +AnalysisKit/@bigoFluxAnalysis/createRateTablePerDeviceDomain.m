@@ -39,8 +39,9 @@ function T = createRateTablePerDeviceDomain(obj)
     rates = cat(1,obj.Rates);
     
     % Get unique device domains
-    [uDeviceDomain,~,uDeviceDomainInd] = unique(rates(:,{'Cruise','Gear','DeviceDomain'}),'rows','stable');
-    nuDeviceDomain = size(uDeviceDomain,1);
+    [uDeviceDomain,uDeviceDomainInd2,uDeviceDomainInd] = unique(rates(:,{'Cruise','Gear','DeviceDomain'}),'rows','stable');
+    uDeviceDomain.AreaId    = rates{uDeviceDomainInd2,'AreaId'};
+    nuDeviceDomain          = size(uDeviceDomain,1);
     
     % Get unique variables
     uVariables = unique(rates{:,'Variable'},'stable');
@@ -64,9 +65,11 @@ function T = createRateTablePerDeviceDomain(obj)
         
         for vv = 1:nuVariables
             mask = maskDeviceDomain & rates{:,'Variable'} == uVariables(vv);
-            if sum(mask == 1)
+            if sum(mask) == 1
                 % Write the mean flux to the table
                 tbl{dd,cellstr(uVariables(vv))} = rates{mask,'FluxMean'};
+            elseif sum(mask) == 0
+                % No flux is available
             else
                 error('Dingi:AnalysisKit:bigoFluxAnalysis:createRateTablePerDeviceDomain:MultipleDeviceDomainMatches',...
                     'Mulitple device domains matched.')
