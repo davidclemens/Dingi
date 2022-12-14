@@ -7,6 +7,7 @@ classdef parser
     % PARSER Properties:
     %   IsMultiplicative - Determine if expression is multiplicative
     %   IsNumeric - Determine if expression has only numbers
+    %   DependsOnDimensions - Determine if expression depends on one or more dimensions
     %   Text - Input text stream
     %   Tokens - Tokens extracted from Text
     %   Tree - Evaluation tree extracted form Tokens
@@ -32,6 +33,7 @@ classdef parser
         Tree % Evaluation tree extracted form Tokens
         IsMultiplicative logical % Determine if expression has no sums that depend on names
         IsNumeric logical % Determine if expression has only numbers
+        DependsOnDimensions logical % Determine if expression depends on one or more dimensions
     end
     properties (Constant, Access = private)
         ValidTypes = {'Expression'}
@@ -133,6 +135,10 @@ classdef parser
         function isNumeric = get.IsNumeric(obj)
             
             isNumeric = obj.Tree.isNumeric;
+        end
+        function dependsOnDimensions = get.DependsOnDimensions(obj)
+            
+            dependsOnDimensions = obj.Tree.dependsOnDimension;
         end
     end
 end

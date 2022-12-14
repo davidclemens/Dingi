@@ -15,6 +15,7 @@ classdef evalTreeNode
 %
 % EVALTREENODE Methods:
 %   char - Evaluation tree node to character array
+%   dependsOnDimension - Determine if node depends on any DIM token
 %   dependsOnName - Determine if node depends on any NAME token
 %   graphTables - Evaluation tree node to edgeTable & nodeTable
 %   isMultiplicative - Determines if node is multiplicative
@@ -56,6 +57,7 @@ classdef evalTreeNode
         tf = isMultiplicative(obj)
         tf = dependsOnName(obj)
         tf = isNumeric(obj)
+        tf = dependsOnDimension(obj)
     end
 end
 
