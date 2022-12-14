@@ -5,8 +5,11 @@ classdef parser
     % handles)
     %
     % PARSER Properties:
+    %   IsMultiplicative - Determine if expression is multiplicative
     %   IsNumeric - Determine if expression has only numbers
     %   Text - Input text stream
+    %   Tokens - Tokens extracted from Text
+    %   Tree - Evaluation tree extracted form Tokens
     %   Type - Input text type
     %
     % PARSER Methods:
@@ -25,6 +28,9 @@ classdef parser
         Type char % Input text type
     end
     properties (Dependent)
+        Tokens struct % Tokens extracted from Text
+        Tree % Evaluation tree extracted form Tokens
+        IsMultiplicative logical % Determine if expression has no sums that depend on names
         IsNumeric logical % Determine if expression has only numbers
     end
     properties (Constant, Access = private)
