@@ -52,5 +52,8 @@ function C = toChar(obj,varargin)
         case 'Expression'
             C = char(obj.Tree,...
                 'DivisionAsNegativeExponent',     divisionAsNegativeExponent);
+            
+            % Remove the redundant outer brackets
+            C = C(2:end - 1);
     end
 end

@@ -51,27 +51,27 @@ function C = char(obj,varargin)
         % Node has a right side (Cases 1 or 3)
         
         % Start with the left side
-        comps = {char(obj.Left,'DivideAsNegativeExponent',divisionAsNegativeExponent)};
+        comps = {char(obj.Left,'DivisionAsNegativeExponent',divisionAsNegativeExponent)};
         
         % Append the operator, if existent (Case 1)
         if ~isempty(obj.Operator)
             if divisionAsNegativeExponent
                 switch obj.Operator.Text
                     case '/'
-                        comps = cat(2,comps,{['* (',char(obj.Right,'DivideAsNegativeExponent',divisionAsNegativeExponent),' ^ (- 1))']});
+                        comps = cat(2,comps,{['* (',char(obj.Right,'DivisionAsNegativeExponent',divisionAsNegativeExponent),' ^ (- 1))']});
                     otherwise
-                        comps = cat(2,comps,{obj.Operator.Text},{char(obj.Right,'DivideAsNegativeExponent',divisionAsNegativeExponent)});
+                        comps = cat(2,comps,{obj.Operator.Text},{char(obj.Right,'DivisionAsNegativeExponent',divisionAsNegativeExponent)});
                 end
             else
-                comps = cat(2,comps,{obj.Operator.Text},{char(obj.Right,'DivideAsNegativeExponent',divisionAsNegativeExponent)});
+                comps = cat(2,comps,{obj.Operator.Text},{char(obj.Right,'DivisionAsNegativeExponent',divisionAsNegativeExponent)});
             end
         else
             % Finally, append the right side (Cases 1 or 3)
-            comps = cat(2,comps,{char(obj.Right,'DivideAsNegativeExponent',divisionAsNegativeExponent)});
+            comps = cat(2,comps,{char(obj.Right,'DivisionAsNegativeExponent',divisionAsNegativeExponent)});
         end
     elseif ~isempty(obj.Operator)
         % Node has no right side but an operator (Case 2)
-        comps = cat(2,{obj.Operator.Text},char(obj.Left,'DivideAsNegativeExponent',divisionAsNegativeExponent));
+        comps = cat(2,{obj.Operator.Text},char(obj.Left,'DivisionAsNegativeExponent',divisionAsNegativeExponent));
     else
         % Node has no operator and no right side (Case 4)
         C = obj.Left.Text;
