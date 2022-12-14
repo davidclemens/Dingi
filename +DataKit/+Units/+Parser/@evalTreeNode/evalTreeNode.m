@@ -18,6 +18,7 @@ classdef evalTreeNode
 %   dependsOnDimension - Determine if node depends on any DIM token
 %   dependsOnName - Determine if node depends on any NAME token
 %   dependsOnVariable - Determine if node depends on any VAR token
+%   eval - 
 %   graphTables - Evaluation tree node to edgeTable & nodeTable
 %   isMultiplicative - Determines if node is multiplicative
 %   isNumeric - Determine if node depends only on NUMBER tokens
@@ -60,6 +61,7 @@ classdef evalTreeNode
         tf = isNumeric(obj)
         tf = dependsOnVariable(obj)
         tf = dependsOnDimension(obj)
+        func = eval(obj,tokenFunc,binaryOperators,unaryOperators)
     end
 end
 

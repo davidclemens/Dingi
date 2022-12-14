@@ -18,8 +18,10 @@ classdef parser
     % PARSER Methods:
     %   parser - Construct text stream parser
     %   createEvalTreeNode - Recursively create evaluation tree from tokens
+    %   evalToken - 
     %   graph - Plot parser as graph
     %   toChar - Parsing result as character array
+    %   toFunction - 
     %   tokenize - Basic lexical scanner for maths expressions
     %
     %
@@ -113,12 +115,14 @@ classdef parser
     
     methods
         C = toChar(obj,varargin)
+        func = toFunction(obj)
         h = graph(obj)
         tf = isMultiplicative(obj)
     end
     methods (Static)
         tkns = tokenize(stream)
         varargout = createEvalTreeNode(tokens,varargin)
+        output = evalToken(token)
     end
     
     % GET methods
