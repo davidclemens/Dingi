@@ -5,6 +5,7 @@ classdef parser
     % handles)
     %
     % PARSER Properties:
+    %   IsNumeric - Determine if expression has only numbers
     %   Text - Input text stream
     %   Type - Input text type
     %
@@ -24,7 +25,7 @@ classdef parser
         Type char % Input text type
     end
     properties (Dependent)
-        IsMultiplicative logical % Determine if expression is multiplicative
+        IsNumeric logical % Determine if expression has only numbers
     end
     properties (Constant, Access = private)
         ValidTypes = {'Expression'}
@@ -122,6 +123,10 @@ classdef parser
         function isMultiplicative = get.IsMultiplicative(obj)
             
             isMultiplicative = obj.Tree.isMultiplicative;
+        end
+        function isNumeric = get.IsNumeric(obj)
+            
+            isNumeric = obj.Tree.isNumeric;
         end
     end
 end

@@ -18,6 +18,7 @@ classdef evalTreeNode
 %   dependsOnName - Determine if node depends on any NAME token
 %   graphTables - Evaluation tree node to edgeTable & nodeTable
 %   isMultiplicative - Determines if node is multiplicative
+%   isNumeric - Determine if node depends only on NUMBER tokens
 %
 %
 % Copyright (c) 2022-2022 David Clemens (dclemens@geomar.de)
@@ -54,6 +55,7 @@ classdef evalTreeNode
         [edgeTable,nodeTable] = graphTables(obj,varargin)
         tf = isMultiplicative(obj)
         tf = dependsOnName(obj)
+        tf = isNumeric(obj)
     end
 end
 
