@@ -29,9 +29,10 @@ classdef (SharedTestFixtures = { ...
             {'meter - km', false}
             {'meter * km', true}
             {'meter / km', true}
-            {'meter ^ km', true}
+            {'meter ^ km', false}
             {'km (3 - 10)', true}
             {'(km (3 - 10))^5', true}
+            {'(km (3 - 10))^(3^meter)', false}
             }
     end
     

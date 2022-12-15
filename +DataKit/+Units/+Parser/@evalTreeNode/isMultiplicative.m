@@ -43,14 +43,20 @@ function tf = isMultiplicative(obj)
         else
             opText = '';
         end
-        leftIsMultiplicative = obj.Left.isMultiplicative;
-        leftDependsOnName = obj.Left.dependsOnName;
-        rightIsMultiplicative = obj.Right.isMultiplicative;
-        rightDependsOnName = obj.Right.dependsOnName;
-        operatorIsMultiplicative = ~ismember(opText,{'+','-'});
-
+        leftIsMultiplicative        = obj.Left.isMultiplicative;
+        leftDependsOnName           = obj.Left.dependsOnName;
+        rightIsMultiplicative       = obj.Right.isMultiplicative;
+        rightDependsOnName          = obj.Right.dependsOnName;
+        operatorIsMultiplicative	= ~ismember(opText,{'+','-'});
+        nameInExponent              = strcmp(opText,'^') & rightDependsOnName;
+        
         tf = (leftIsMultiplicative && operatorIsMultiplicative && rightIsMultiplicative) || ...
              (~leftDependsOnName && ~rightDependsOnName);
+        
+        % If a name is in the exponent, the expression is not solely multiplicative with
+        % respect to the names.
+        tf = ~nameInExponent && tf;
+        
     elseif ~isempty(obj.Operator)
         % Unary operator
 
