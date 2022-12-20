@@ -62,6 +62,7 @@ classdef evalTreeNode
         tf = dependsOnVariable(obj)
         tf = dependsOnDimension(obj)
         func = eval(obj,tokenFunc,binaryOperators,unaryOperators)
+        [names,dimensionality,value] = getDimensionality(obj)
     end
 end
 
