@@ -41,9 +41,7 @@ function obj = fromPint(file)
     
     % Add to unitCatalog
     obj.addPrefix(tblPrefix{:,'name'},tblPrefix{:,'value'},tblPrefix{:,'symbol'},tblPrefix{:,'alias'})
-    
     obj.addDimension(tblDimension{:,'name'},tblDimension{:,'parents'},tblDimension{:,'exponents'})
-    
     
     function tbl = parsePrefix(raw)
     % parsePrefix  Parse prefix line
@@ -152,8 +150,23 @@ function obj = fromPint(file)
         
         % Parse expressions
         p = DataKit.Units.Parser.parser();
+        tbl{:,'parents'} = {''};
+        tbl{:,'exponents'} = {[]};
         for ii = 1:numel(rawDimension)
             p(ii,1) = DataKit.Units.Parser.parser(tbl{ii,'parentsExpression'}{:},'Expression');
+            try
+            [parentDimensionNames,parentDimensionExponents] = p(ii).Tree.getDimensionality;
+            catch ME
+                switch ME.identifier
+                    case 'Dingi:DataKit:Units:Parser:evalTreeNode:getDimensionality:NonMultiplicativeDimensionExpression'
+                        error('Dingi:DataKit:Units:unitCatalog:fromPint:NonMultiplicativeDimensionExpression',...
+                            'The dimension expression ''%s'' is not multiplicative and therefore an invalid dimension definition.',tbl{ii,'parentsExpression'}{:})
+                    otherwise
+                        rethrow(ME)
+                end
+            end
+            tbl{ii,'parents'}{1} = parentDimensionNames;
+            tbl{ii,'exponents'}{1} = parentDimensionExponents;
         end
     end
 end
