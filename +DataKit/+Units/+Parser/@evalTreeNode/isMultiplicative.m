@@ -31,7 +31,7 @@ function tf = isMultiplicative(obj)
 %   Name-Value Pair Arguments
 %
 %
-%   See also OTHERMETHOD, OTHERCLASS
+%   See also DATAKIT.UNITS.PARSER.EVALTREENODE
 %
 %   Copyright (c) 2022-2022 David Clemens (dclemens@geomar.de)
 %
