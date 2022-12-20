@@ -37,7 +37,7 @@ classdef unitCatalog < handle
 
     methods
         addUnit(obj,name,links,symbol,alias)
-        addDimension(obj,name,links)
+        addDimension(obj,name,parents,exponents)
         addPrefix(obj,name,value,symbol,alias)
         addAlias(obj,name,alias)
     end
