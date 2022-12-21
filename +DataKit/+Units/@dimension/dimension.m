@@ -5,6 +5,9 @@ classdef dimension < double
         Dimensions = {} % dimensions
         Degrees % power of each dimension
     end
+    properties (Dependent)
+        IsBaseDimension logical
+    end
     
     % Constructor
     methods
@@ -62,6 +65,13 @@ classdef dimension < double
         C = rdivide(obj,B)
         C = power(obj,B)
         tf = eq(obj,B)
+    end
+    
+    % GET methods
+    methods
+        function isBaseDimension = get.IsBaseDimension(obj)
+            isBaseDimension = ~isa(obj.Value,'DataKit.Units.dimension');
+        end
     end
     
     methods
