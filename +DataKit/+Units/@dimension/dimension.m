@@ -33,12 +33,17 @@ classdef dimension < double
             end
             
             % Processing
-            if value == 1
-                p = parser(name,'Expression');
+            if isa(value,'DataKit.Units.dimension')
+                dimensions  = value.Dimensions;
+                exponents	= value.Degrees;
             else
-                p = parser(value.Name,'Expression');
+                if value == 1
+                    p = parser(name,'Expression');
+                else
+                    p = parser(value.Name,'Expression');
+                end
+                [dimensions,exponents] = p.Tree.getDimensionality;
             end
-            [dimensions,exponents] = p.Tree.getDimensionality;
             
             % Create object and populate properties    
             obj             = obj@double(value);

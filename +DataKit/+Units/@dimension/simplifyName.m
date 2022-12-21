@@ -1,5 +1,10 @@
 function name = simplifyName(obj)
 
+    if isa(obj.Value,'DataKit.Units.dimension')
+        name = obj.Name;
+        return
+    end
+    
     exponents   = strcat({'^'},strtrim(cellstr(num2str(obj.Degrees))));
     exponents   = regexprep(exponents,'^\^1$',''); % Remove power of 1
 
