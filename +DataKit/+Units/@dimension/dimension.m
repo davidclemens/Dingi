@@ -58,6 +58,7 @@ classdef dimension < double
     
     % Overloaded methods
     methods
+        disp(obj,varargin)
         C = char(obj)
         B = subsref(obj,S)
         obj = subsasgn(obj,S,B)
