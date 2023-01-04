@@ -37,6 +37,7 @@ classdef parser
         Tree % Evaluation tree extracted form Tokens
         IsMultiplicative logical % Determine if expression has no sums that depend on names
         IsNumeric logical % Determine if expression has only numbers
+        IsScalar logical % Determine if expression only consists of one node
         DependsOnNames logical % Determine if expression depends on one or more names
         DependsOnVariables logical % Determine if expression depends on one or more variables
         DependsOnDimensions logical % Determine if expression depends on one or more dimensions
@@ -143,6 +144,12 @@ classdef parser
         function isNumeric = get.IsNumeric(obj)
             
             isNumeric = obj.Tree.isNumeric;
+        end
+        function isScalar = get.IsScalar(obj)
+            
+            isScalar = isstruct(obj.Tree.Left) && ...
+                       isempty(obj.Tree.Operator) && ...
+                       isempty(obj.Tree.Right);
         end
         function dependsOnNames = get.DependsOnNames(obj)
             
