@@ -12,7 +12,55 @@ classdef dimension < double
     % Constructor
     methods
         function obj = dimension(name,value)
-            
+        % dimension  Create dimension
+        %   DIMENSION creates a dimension instance
+        %
+        %   Syntax
+        %     obj = DIMENSION(name)
+        %     obj = DIMENSION(name,value)
+        %
+        %   Description
+        %     obj = DIMENSION(name)
+        %     obj = DIMENSION(name,value)  Description of syntax 1.
+        %
+        %   Example(s)
+        %     obj = DIMENSION('[length]')  returns a base dimension [length].
+        %     obj = DIMENSION('[velocity]',DIMENSION('[length]')/DIMENSION('[time]'))
+        %       returns a dimension depending on other base dimensions.
+        %     obj = DIMENSION('[length]/[time]')  same as above but not specifying a
+        %       name for the new dimension
+        %
+        %
+        %   Input Arguments
+        %     name - Dimension name
+        %       char row vector
+        %         The dimension name, specified as a char row vector. If it contains
+        %         only a name, a base dimension is returned as obj. If it contains an
+        %         expression, the expression is evaluated and the dimension name is
+        %         generated automatically.
+        %
+        %     value - Dimension value
+        %       numeric scalar
+        %         The dimension value, specified as a numeric scalar. Note that this
+        %         includes the DATAKIT.UNITS.DIMENSION class. This way you can define a
+        %         dimension, that depends on other dimensions.
+        %
+        %
+        %   Output Arguments
+        %     obj - Dimension object
+        %       DataKit.Units.dimension scalar
+        %         The output dimension object, returned as a scalar
+        %         DataKit.Units.dimension instance array.
+        %
+        %
+        %   Name-Value Pair Arguments
+        %
+        %
+        %   See also DATAKIT.UNITS.PREFIX, DATAKIT.UNITS.UNIT, DATAKIT.UNITS.UNITCATALOG
+        %
+        %   Copyright (c) 2022-2022 David Clemens (dclemens@geomar.de)
+        %
+        
             import DataKit.Units.Parser.parser
             
             narginchk(1,2)
