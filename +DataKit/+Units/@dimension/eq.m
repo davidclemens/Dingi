@@ -4,7 +4,10 @@ function tf = eq(obj,B)
     isDimension = cat(2,isa(obj,'DataKit.Units.dimension'),isa(B,'DataKit.Units.dimension'));
 
     if sum(isDimension) == 2
-        tf = strcmp(obj.Name,B.Name);
+        tf = ...
+            strcmp(obj.Name,B.Name) && ...
+            all(ismember(obj.Dimensions,B.Dimensions)) && ...
+            all(obj.Degrees == B.Degrees);
     elseif sum(isDimension) == 1
         if ischar(inputs{~isDimension})
             tf = strcmp(inputs{isDimension}.Name,inputs{~isDimension});

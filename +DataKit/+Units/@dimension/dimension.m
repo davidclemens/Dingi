@@ -42,6 +42,12 @@ classdef dimension < double
                 else
                     p = parser(value.Name,'Expression');
                 end
+                
+                % Validate name
+                assert(~p.IsNumeric,...
+                    'Dingi:DataKit:Units:dimension:dimension:InvalidName',...
+                    'Expected input number 1, name, to be non-numeric.')
+                
                 [dimensions,exponents] = p.Tree.getDimensionality;
             end
             
@@ -76,7 +82,9 @@ classdef dimension < double
     % GET methods
     methods
         function isBaseDimension = get.IsBaseDimension(obj)
-            isBaseDimension = ~isa(obj.Value,'DataKit.Units.dimension');
+            isBaseDimension = ...
+                numel(obj.Dimensions) == 1 && ...
+                obj.Degrees == 1;
         end
     end
     
