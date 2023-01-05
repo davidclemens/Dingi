@@ -4,6 +4,7 @@ classdef unitCatalog < handle
         Catalog containers.Map = containers.Map(...
                                     'KeyType', 	'char',...
                                     'ValueType','any')
+        BaseDimensions cell = cell.empty
     end
     properties (Dependent)
         Count

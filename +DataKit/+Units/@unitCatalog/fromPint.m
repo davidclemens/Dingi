@@ -148,6 +148,10 @@ function obj = fromPint(file)
         varNamesPrefix  = {'name','parentsExpression'};
         tbl = cell2table(cat(1,rawDimension{:}),'VariableNames',varNamesPrefix);
         
+        % Remove square brackets
+        tbl{:,'name'}               = regexprep(tbl{:,'name'},'[\[\]]','');
+        tbl{:,'parentsExpression'}  = regexprep(tbl{:,'parentsExpression'},'[\[\]]','');
+        
         % Parse expressions
         p = DataKit.Units.Parser.parser();
         tbl{:,'parents'} = {''};
@@ -155,7 +159,7 @@ function obj = fromPint(file)
         for ii = 1:numel(rawDimension)
             p(ii,1) = DataKit.Units.Parser.parser(tbl{ii,'parentsExpression'}{:},'Expression');
             try
-            [parentDimensionNames,parentDimensionExponents] = p(ii).Tree.getDimensionality;
+                [parentDimensionNames,parentDimensionExponents] = p(ii).Tree.getDimensionality;
             catch ME
                 switch ME.identifier
                     case 'Dingi:DataKit:Units:Parser:evalTreeNode:getDimensionality:NonMultiplicativeDimensionExpression'
@@ -167,6 +171,6 @@ function obj = fromPint(file)
             end
             tbl{ii,'parents'}{1} = parentDimensionNames;
             tbl{ii,'exponents'}{1} = parentDimensionExponents;
-        end
+        end 
     end
 end
