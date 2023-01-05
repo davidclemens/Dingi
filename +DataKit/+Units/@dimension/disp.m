@@ -47,20 +47,24 @@ function disp(obj,varargin)
     sz     	= size(obj);
     nDims	= ndims(obj);
     
-    % Print header
-	fprintf(['  %u',repmat('x%u',1,nDims - 1),' <a href="matlab:help(''DataKit.Units.dimension'')">dimension</a>\n\n'],sz)
+    % Display header
+    if obj.IsBaseDimension
+        fprintf(['  %u',repmat('x%u',1,nDims - 1),' base <a href="matlab:help(''DataKit.Units.dimension'')">dimension</a>\n\n'],sz)
+    else
+        fprintf(['  %u',repmat('x%u',1,nDims - 1),' <a href="matlab:help(''DataKit.Units.dimension'')">dimension</a>\n\n'],sz)
+    end
+    
+    % Display expression
     fprintf('Expression:\n\n')
-	if obj.IsBaseDimension
+	if obj.IsBaseDimension || ~isa(obj.Value,'DataKit.Units.dimension')
         displayStr = ['\t',obj.Name,'\n'];
 	else
         displayStr = ['\t',obj.Name,' = ',obj.Value.Name,'\n\n'];
-	end
-    
+	end    
     fprintf(displayStr)
     
-    fprintf('Dimensionalities:\n\n')
-    
+    % Display dimensionalites
+    fprintf('\nDimensionalities:\n\n')
     displayStr = cellstr(cat(2,char(strcat(obj.Dimensions,{': '})),num2str(obj.Degrees)));
     fprintf('\t%s\n',displayStr{:})
 end
-
