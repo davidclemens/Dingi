@@ -43,24 +43,53 @@ function T = createRateTablePerFit(obj)
     
     % Loop over instances
     for oo = 1:nObj
-        maskInd         = obj(oo).RateIndex;
-        nRows           = numel(maskInd);
-        cruise          = repmat(obj(oo).Parent.cruise,nRows,1);
-        gear            = repmat(obj(oo).Parent.gear,nRows,1);
-        areaId          = repmat(obj(oo).Parent.areaId,nRows,1);
-        deviceDomains	= obj(oo).FitDeviceDomains(maskInd);
-        variables       = obj(oo).FitVariables(maskInd);
-        fluxMean        = obj(oo).FluxStatistics(:,1);
-        fluxErrNeg      = obj(oo).FluxStatistics(:,3) - fluxMean;
-        fluxErrPos      = obj(oo).FluxStatistics(:,4) - fluxMean;
-        fluxUnit        = repmat(categorical({['mmol m⁻² ',obj(oo).TimeUnit,'⁻¹']}),nRows,1);
-        fitType         = categorical(obj(oo).FitTypes(maskInd));
-        fitR2           = cat(1,obj(oo).Fits.R2);
-        fluxes          = obj(oo).Fluxes;
+        maskInd             = obj(oo).RateIndex;
+        nRows               = numel(maskInd);
+        isRelevantSample  	= isFlag(obj(oo).FlagData(:,maskInd),{'IsSample'}) & ~isFlag(obj(oo).FlagData(:,maskInd),{'IsNotInFitInterval'});
+        
+        
+        cruise              = repmat(obj(oo).Parent.cruise,nRows,1);
+        cruiseDsc           = 'Cruise Id of the flux''s gear deployment';
+        gear                = repmat(obj(oo).Parent.gear,nRows,1);
+        gearDsc             = 'Gear Id of the flux''s gear deployment';
+        areaId              = repmat(obj(oo).Parent.areaId,nRows,1);
+        areaIdDsc           = 'Area Id of the flux''s gear deployment';
+        deviceDomains	    = obj(oo).FitDeviceDomains(maskInd);
+        deviceDomainsDsc    = 'Device domain of the fluxes';
+        variables           = obj(oo).FitVariables(maskInd);
+        variablesDsc        = 'Variable name of the fluxes';
+        fluxMean            = round(obj(oo).FluxStatistics(:,1),4,'significant');
+        fluxMeanDsc         = 'The mean flux of the fluxes derived from the fit within the fit evaluation interval [see ''FitEvaluationInterval'']';
+        fluxErrNeg          = round(obj(oo).FluxStatistics(:,3) - fluxMean,4,'significant');
+        fluxErrNegDsc       = 'The absolute difference of the 25th percentile to the mean flux of the fluxes derived from the fit within the fit evaluation interval [see ''FitEvaluationInterval'']';
+        fluxErrPos          = round(obj(oo).FluxStatistics(:,4) - fluxMean,4,'significant');
+        fluxErrPosDsc       = 'The absolute difference of the 75th percentile to the mean flux of the fluxes derived from the fit within the fit evaluation interval [see ''FitEvaluationInterval'']';
+        fluxUnit            = repmat(categorical({['mmol m⁻² ',obj(oo).TimeUnit,'⁻¹']}),nRows,1);
+        fluxUnitDsc         = 'Unit of the fluxes';
+        fitType             = categorical(obj(oo).FitTypes(maskInd));
+        fitTypeDsc          = 'Fit type of the fluxes';
+        fitR2               = round(cat(1,obj(oo).Fits.R2),4,'significant');
+        fitR2Dsc            = 'R² value of the fit of the flux';
+        fitNExcluded        = sum(isRelevantSample & obj(oo).Exclude(:,maskInd));
+        fitNExcludedDsc     = 'Number of samples of the total number of samples that are excluded from the fit';
+        fitNTotal           = sum(isRelevantSample);
+        fitNTotalDsc        = 'Total number of samples that available for the fit';
+        fitEvalInt          = repmat(obj(oo).FitEvaluationInterval,nRows,1);
+        fitEvalIntDsc       = 'The incubation interval within which the fits are evaluated to calculate the flux mean & errors';
+        fluxes              = obj(oo).Fluxes;
+        fluxesDsc           = '';
 
+        % Correct errors for linear fits
+        isLinearFit = fitType == 'linear';
+        fluxErrNeg(isLinearFit) = 0;
+        fluxErrPos(isLinearFit) = 0;
+        
         % Create table
-        tbl = table(cruise,gear,areaId,deviceDomains,variables,fluxMean,fluxErrNeg,fluxErrPos,fluxUnit,fitType,fitR2,fluxes,...
-            'VariableNames', {'Cruise','Gear','AreaId','DeviceDomain','Variable','FluxMean','FluxErrNeg','FluxErrPos','FluxUnit','FitType','FitR2','Fluxes'});
+        tbl = table(cruise,gear,areaId,deviceDomains,variables,fluxMean,fluxErrNeg,fluxErrPos,fluxUnit,fitType,fitR2,fitNExcluded',fitNTotal',fitEvalInt,fluxes,...
+            'VariableNames', ...
+            {'Cruise','Gear','AreaId','DeviceDomain','Variable','FluxMean','FluxErrNeg','FluxErrPos','FluxUnit','FitType','FitR2','FitNExcluded','FitNTotal','FitEvaluationInterval','Fluxes'});
+        tbl.Properties.VariableDescriptions = ...
+            {cruiseDsc,gearDsc,areaIdDsc,deviceDomainsDsc,variablesDsc,fluxMeanDsc,fluxErrNegDsc,fluxErrPosDsc,fluxUnitDsc,fitTypeDsc,fitR2Dsc,fitNExcludedDsc,fitNTotalDsc,fitEvalIntDsc,fluxesDsc};
         
         % Append
         T = cat(1,T,tbl);
