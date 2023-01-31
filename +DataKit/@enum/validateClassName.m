@@ -1,22 +1,15 @@
 function className = validateClassName(className)
 
-    if ~ischar(className)
-        error('Dingi:DataKit:enum:validateClassName:invalidInputType',...
-            'Invalid input type ''%s'' for input argument ''className''. The input has to be char.',class(className))
-    end
-
-    infoDingi       = what('Dingi');
-    pathDingi       = infoDingi.path;
-    enumSubclasses	= getSubclasses('DataKit.enum',pathDingi);
-    validClassNames = {enumSubclasses.Class}';
-            
+    % Test that the class is valid
     try
-        className        = validatestring(className,validClassNames);
+        assert(~isempty(meta.class.fromName(className)),...
+            'Dingi:DataKit:enum:validateClassName:InvalidClassName',...
+            'The enumeration class name ''%s'' doesn''t exist.',className)
     catch ME
         switch ME.identifier
-            case 'MATLAB:unrecognizedStringChoice'
-                error('Dingi:DataKit:enum:validateClassName:invalidClassName',...
-                    'The enumeration class name ''%s'' does not exist. Valid enumeration class names are:\n\t%s\n',className,strjoin(validClassNames,'\n\t'))
+            case 'MATLAB:class:RequireString'
+                error('Dingi:DataKit:enum:validateClassName:invalidInputType',...
+                    'Invalid input type ''%s'' for input argument ''className''. The input has to be char.',class(className))
             otherwise
                 rethrow(ME)
         end
