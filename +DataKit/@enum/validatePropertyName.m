@@ -2,10 +2,9 @@ function propertyName = validatePropertyName(className,propertyName)
 
     import DataKit.enum.validateClassName
 
-    if ~ischar(propertyName)
-        error('Dingi:DataKit:enum:validatePropertyName:invalidInputType',...
-            'Invalid input type ''%s'' for input argument ''propertyName''. The input has to be char.',class(propertyName))
-    end
+    assert(ischar(propertyName),...
+        'Dingi:DataKit:enum:validatePropertyName:invalidInputType',...
+        'Invalid input type ''%s'' for input argument ''propertyName''. The input has to be char.',class(propertyName))
 
     className           = validateClassName(className);
     classHierarchy      = strsplit(className,'.');
