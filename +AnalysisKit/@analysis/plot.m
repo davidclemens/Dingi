@@ -53,6 +53,11 @@ function varargout = plot(obj,varargin)
                 case 'fluxViolin'
                     figNums = 42;
             end
+        case 'AnalysisKit.bigoSalinityInjectionAnalysis'
+            switch plotType
+                case 'overview'
+                    figNums = 50;
+            end
         otherwise
             figNums = 20;
     end
