@@ -41,6 +41,10 @@ function T = createRateTablePerDeviceDomain(obj)
     % Get unique device domains
     [uDeviceDomain,uDeviceDomainInd2,uDeviceDomainInd] = unique(rates(:,{'Cruise','Gear','DeviceDomain'}),'rows','stable');
     uDeviceDomain.AreaId    = rates{uDeviceDomainInd2,'AreaId'};
+    uDeviceDomain.Properties.VariableDescriptions{end} = rates.Properties.VariableDescriptions{strcmp(rates.Properties.VariableNames,'AreaId')};
+    uDeviceDomain.Volume    = round(rates{uDeviceDomainInd2,'Volume'},3,'significant');
+    uDeviceDomain.Properties.VariableDescriptions{end} = rates.Properties.VariableDescriptions{strcmp(rates.Properties.VariableNames,'Volume')};
+
     nuDeviceDomain          = size(uDeviceDomain,1);
     
     % Get unique variables

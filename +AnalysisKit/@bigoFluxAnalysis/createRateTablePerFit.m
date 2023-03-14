@@ -58,6 +58,8 @@ function T = createRateTablePerFit(obj)
         deviceDomainsDsc    = 'Device domain of the fluxes';
         variables           = obj(oo).FitVariables(maskInd);
         variablesDsc        = 'Variable name of the fluxes';
+        fluxVolume          = obj(oo).FluxVolume(maskInd);
+        fluxVolumeDsc       = 'The chamber volume (L) used for the flux calculation';
         fluxMean            = round(obj(oo).FluxStatistics(:,1),4,'significant');
         fluxMeanDsc         = 'The mean flux of the fluxes derived from the fit within the fit evaluation interval [see ''FitEvaluationInterval'']';
         fluxErrNeg          = round(obj(oo).FluxStatistics(:,3) - fluxMean,4,'significant');
@@ -85,11 +87,11 @@ function T = createRateTablePerFit(obj)
         fluxErrPos(isLinearFit) = 0;
         
         % Create table
-        tbl = table(cruise,gear,areaId,deviceDomains,variables,fluxMean,fluxErrNeg,fluxErrPos,fluxUnit,fitType,fitR2,fitNExcluded',fitNTotal',fitEvalInt,fluxes,...
+        tbl = table(cruise,gear,areaId,deviceDomains,variables,fluxVolume,fluxMean,fluxErrNeg,fluxErrPos,fluxUnit,fitType,fitR2,fitNExcluded',fitNTotal',fitEvalInt,fluxes,...
             'VariableNames', ...
-            {'Cruise','Gear','AreaId','DeviceDomain','Variable','FluxMean','FluxErrNeg','FluxErrPos','FluxUnit','FitType','FitR2','FitNExcluded','FitNTotal','FitEvaluationInterval','Fluxes'});
+            {'Cruise','Gear','AreaId','DeviceDomain','Variable','Volume','FluxMean','FluxErrNeg','FluxErrPos','FluxUnit','FitType','FitR2','FitNExcluded','FitNTotal','FitEvaluationInterval','Fluxes'});
         tbl.Properties.VariableDescriptions = ...
-            {cruiseDsc,gearDsc,areaIdDsc,deviceDomainsDsc,variablesDsc,fluxMeanDsc,fluxErrNegDsc,fluxErrPosDsc,fluxUnitDsc,fitTypeDsc,fitR2Dsc,fitNExcludedDsc,fitNTotalDsc,fitEvalIntDsc,fluxesDsc};
+            {cruiseDsc,gearDsc,areaIdDsc,deviceDomainsDsc,variablesDsc,fluxVolumeDsc,fluxMeanDsc,fluxErrNegDsc,fluxErrPosDsc,fluxUnitDsc,fitTypeDsc,fitR2Dsc,fitNExcludedDsc,fitNTotalDsc,fitEvalIntDsc,fluxesDsc};
         
         % Append
         T = cat(1,T,tbl);
