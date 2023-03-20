@@ -165,6 +165,11 @@ classdef bitmask
         obj = reshape(obj,varargin)
         obj = and(objA,objB)
         obj = or(objA,objB)
+        obj = horzcat(varargin)
+        obj = vertcat(varargin)
+        obj = permute(obj,order)
+        obj = transpose(obj)
+        obj = ctranspose(obj)
     end
 
     methods (Access = private)
