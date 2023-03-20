@@ -245,7 +245,7 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
         setFitTypeForVariables(obj,variables,fitTypes)
     end
     methods (Access = private)
-        varargout = plotFits(obj,variable,showConfidenceInterval,axesProperties)
+        varargout = plotFits(obj,variable,showConfidenceInterval,showR2,omitCruiseIdInTitle,axesProperties)
         varargout = plotFlux(obj,variable,groupingParameter,axesProperties)
         varargout = plotFluxViolin(obj,variable,groupingParameter,axesProperties)
         fitTypes = validateFitTypes(obj,C)

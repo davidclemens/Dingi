@@ -15,10 +15,24 @@ function varargout = plot(obj,varargin)
     paperHeight   	= maxFigureSize(2);
     paperWidth  	= paperHeight/2;
     paperPos       	= [paperWidth paperHeight];
-
     cMap            = cm('Set1',7);
-
+    
+    switch class(obj)
+        case 'AnalysisKit.bigoFluxAnalysis'
+            switch plotType
+                case 'fits'
+                    defaultFigureNumber = 40;
+                case 'flux'
+                    defaultFigureNumber = 41;
+                case 'fluxViolin'
+                    defaultFigureNumber = 42;
+            end
+        otherwise
+            defaultFigureNumber = 20;
+    end
+    
     defaultFigureProperties = {...
+        'Number',               defaultFigureNumber,...
         'Visible',              'on',...
         'Name',                 'Analysis',...
         'Menubar',              'figure',...
@@ -43,24 +57,14 @@ function varargout = plot(obj,varargin)
     figureProperties    = mergeWithDefaults(figureProperties,defaultFigureProperties);
     axesProperties      = mergeWithDefaults(axesProperties,defaultAxesProperties);
     
-    switch class(obj)
-        case 'AnalysisKit.bigoFluxAnalysis'
-            switch plotType
-                case 'fits'
-                    figNums = 40;
-                case 'flux'
-                    figNums = 41;
-                case 'fluxViolin'
-                    figNums = 42;
-            end
-        otherwise
-            figNums = 20;
-    end
+    % Extract figure number
+    numberPropertyIndex = find(ismember(figureProperties(1:2:end),{'Number'}))*2;
+    figureNumber        = figureProperties{numberPropertyIndex};
+    figureProperties(numberPropertyIndex - 1:numberPropertyIndex) = [];
     
-    fig     = figNums(1);
-    hfig    = figure(fig);
+    % Create figure and set properties
+    hfig    = figure(figureNumber);
     clf
-
     set(hfig,figureProperties{:},...
         'Visible',  'off')
     

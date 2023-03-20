@@ -65,6 +65,20 @@ function varargout = plot(obj,varargin)
 %         Determines if the confidence interval of the fits should also be
 %         shown, if the plotType is set to fits.
 %
+%     ShowLegend - Also show the legend
+%       true (default) | false
+%         Determines if the legend should also be shown.
+%
+%     ShowR2 - Also show fit's R2 value
+%       true (default) | false
+%         Determines if the fit's R2 value should be shown in the upper right
+%         corner.
+%
+%     OmitCruiseIdInTitle - Omit cruise id in title
+%       false (default) | true
+%         Determines if the cruise id should be omitted from the column titles,
+%         if plotType is set to fits.
+%
 %     FigureProperties - Figure properties
 %       cell array
 %         Name-Value pairs in form of a cell array that should be set as figure 
@@ -93,6 +107,9 @@ function varargout = plot(obj,varargin)
         plotType,...
         groupingParameter,...
         showConfidenceInterval,...
+        showLegend,...
+        showR2,...
+        omitCruiseIdInTitle,...
         figureProperties,...
         axesProperties] = parseInputs(obj,varargin{:});
 
@@ -142,18 +159,52 @@ function varargout = plot(obj,varargin)
                 printDebugMessage('Dingi:AnalysisKit:bigoFluxAnalysis:plot:ignoredGroupingParameter',...
                     'Verbose','For PlotType ''fits'', the grouping parameter is ignored. It was set to ''%s''.',groupingParameter)
             end
-            [hsp,spi] = plotFits(obj,variable,showConfidenceInterval,axesProperties);
+            [hsp,spi,hlgd] = plotFits(obj,variable,showConfidenceInterval,showR2,omitCruiseIdInTitle,axesProperties);
         case 'flux'
             [hsp,spi] = plotFlux(obj,variable,groupingParameter,axesProperties);
         case 'fluxViolin'
             plotFluxViolin(obj,variable,axesProperties)
     end
-
-    marginOuter     = 0.2;
+    
+    % Set margins depending on showLegend
+    if showLegend
+        switch plotType
+            case 'fits'
+                lgdUnits    = hlgd.Units;
+                set(hlgd,...
+                    'Orientation',  'horizontal',...
+                    'Units',        'centimeters')
+                marginOuter     = [0.2 0.7 + hlgd.Position(4) 0.2 0.2];
+            otherwise
+                marginOuter = 0.2;
+        end
+    else
+        switch plotType
+            case 'fits'
+                hlgd.Visible	= 'off';
+        end
+        marginOuter     = 0.2;
+    end
     marginInner     = 0.2;
+    
+    % Remove empty space around axes
     figUnits        = hfig.Units;
     set(hfig,'Units','centimeters')
     tightFig(hfig,hsp,spi,hfig.PaperPosition(3:4),marginOuter,marginInner);
+    
+    % Show the legend if required
+    if showLegend
+        switch plotType
+            case 'fits'
+                set(hlgd,...
+                    'Position',     [
+                        hfig.PaperPosition(3)/2 - hlgd.Position(3)/2,...
+                        0.2,...
+                        hlgd.Position(3:4)])
+                hlgd.Units = lgdUnits;
+        end
+    end
+    
     set(hfig,...
         'Visible',      'on',...
         'Units',        figUnits);
@@ -174,6 +225,9 @@ function varargout = parseInputs(obj,varargin)
     defaultPlotType = 'flux';
     defaultGroupingParameter = 'Gear';
     defaultShowConfidenceInterval = true;
+    defaultShowLegend = true;
+    defaultShowR2 = true;
+    defaultOmitCruiseIdInTitle = false;
     defaultFigureProperties = {};
     defaultAxesProperties = {};
 
@@ -182,6 +236,9 @@ function varargout = parseInputs(obj,varargin)
     validatePlotType = @(x) ~isempty(validatestring(x,validPlotTypes));
     validateVariable = @(x) validateattributes(x,{'char','cell'},{'nonempty'});
     validateShowConfidenceInterval = @(x) validateattributes(x,{'logical'},{'scalar','nonempty'});
+    validateShowLegend = @(x) validateattributes(x,{'logical'},{'scalar','nonempty'});
+    validateShowR2 = @(x) validateattributes(x,{'logical'},{'scalar','nonempty'});
+    validateOmitCruiseIdInTitle = @(x) validateattributes(x,{'logical'},{'scalar','nonempty'});
 
     % Create input parser
     p = inputParser;
@@ -190,6 +247,9 @@ function varargout = parseInputs(obj,varargin)
     addOptional(p,'plotType',defaultPlotType,validatePlotType)
     addParameter(p,'GroupingParameter',defaultGroupingParameter)
     addParameter(p,'ShowConfidenceInterval',defaultShowConfidenceInterval,validateShowConfidenceInterval)
+    addParameter(p,'ShowLegend',defaultShowLegend,validateShowLegend)
+    addParameter(p,'ShowR2',defaultShowR2,validateShowR2)
+    addParameter(p,'OmitCruiseIdInTitle',defaultOmitCruiseIdInTitle,validateOmitCruiseIdInTitle)
     addParameter(p,'FigureProperties',defaultFigureProperties)
     addParameter(p,'AxesProperties',defaultAxesProperties)
 
@@ -200,6 +260,9 @@ function varargout = parseInputs(obj,varargin)
     plotType                = validatestring(p.Results.plotType,validPlotTypes);
     groupingParameter       = validatestring(p.Results.GroupingParameter,validGroupingParameters);
     showConfidenceInterval	= p.Results.ShowConfidenceInterval;
+    showLegend              = p.Results.ShowLegend;
+    showR2                  = p.Results.ShowR2;
+    omitCruiseIdInTitle   	= p.Results.OmitCruiseIdInTitle;
     figureProperties        = p.Results.FigureProperties;
     axesProperties          = p.Results.AxesProperties;
     varargout   = {...
@@ -208,6 +271,9 @@ function varargout = parseInputs(obj,varargin)
         plotType,...
         groupingParameter,...
         showConfidenceInterval,...
+        showLegend,...
+        showR2,...
+        omitCruiseIdInTitle,...
         figureProperties,...
         axesProperties};
 
