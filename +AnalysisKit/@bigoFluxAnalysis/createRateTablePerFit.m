@@ -70,6 +70,8 @@ function T = createRateTablePerFit(obj)
         fluxUnitDsc         = 'Unit of the fluxes';
         fitType             = categorical(obj(oo).FitTypes(maskInd));
         fitTypeDsc          = 'Fit type of the fluxes';
+        fitFlags            = reshape(obj(oo).FlagDataset(maskInd),[],1);
+        fitFlagsDsc         = 'Fit flags that have been set';
         fitR2               = round(cat(1,obj(oo).Fits.R2),4,'significant');
         fitR2Dsc            = 'R² value of the fit of the flux';
         fitNExcluded        = sum(isRelevantSample & obj(oo).Exclude(:,maskInd));
@@ -87,11 +89,11 @@ function T = createRateTablePerFit(obj)
         fluxErrPos(isLinearFit) = 0;
         
         % Create table
-        tbl = table(cruise,gear,areaId,deviceDomains,variables,fluxVolume,fluxMean,fluxErrNeg,fluxErrPos,fluxUnit,fitType,fitR2,fitNExcluded',fitNTotal',fitEvalInt,fluxes,...
+        tbl = table(cruise,gear,areaId,deviceDomains,variables,fluxVolume,fluxMean,fluxErrNeg,fluxErrPos,fluxUnit,fitType,fitFlags,fitR2,fitNExcluded',fitNTotal',fitEvalInt,fluxes,...
             'VariableNames', ...
-            {'Cruise','Gear','AreaId','DeviceDomain','Variable','Volume','FluxMean','FluxErrNeg','FluxErrPos','FluxUnit','FitType','FitR2','FitNExcluded','FitNTotal','FitEvaluationInterval','Fluxes'});
+            {'Cruise','Gear','AreaId','DeviceDomain','Variable','Volume','FluxMean','FluxErrNeg','FluxErrPos','FluxUnit','FitType','FitFlags','FitR2','FitNExcluded','FitNTotal','FitEvaluationInterval','Fluxes'});
         tbl.Properties.VariableDescriptions = ...
-            {cruiseDsc,gearDsc,areaIdDsc,deviceDomainsDsc,variablesDsc,fluxVolumeDsc,fluxMeanDsc,fluxErrNegDsc,fluxErrPosDsc,fluxUnitDsc,fitTypeDsc,fitR2Dsc,fitNExcludedDsc,fitNTotalDsc,fitEvalIntDsc,fluxesDsc};
+            {cruiseDsc,gearDsc,areaIdDsc,deviceDomainsDsc,variablesDsc,fluxVolumeDsc,fluxMeanDsc,fluxErrNegDsc,fluxErrPosDsc,fluxUnitDsc,fitTypeDsc,fitFlagsDsc,fitR2Dsc,fitNExcludedDsc,fitNTotalDsc,fitEvalIntDsc,fluxesDsc};
         
         % Append
         T = cat(1,T,tbl);
