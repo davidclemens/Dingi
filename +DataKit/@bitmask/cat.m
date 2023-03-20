@@ -10,14 +10,14 @@ function obj = cat(dim,varargin)
 %     C = CAT(dim,A,B)  Concatetnates bitmasks A and B along the dimension
 %       specified by dim.
 %     C = CAT(dim,A1,A2,A3,A4,...)  Concatetnates all the input bitmasks (A1,
-%       A2, A3, A4, and so on) along dimension dimension specified by dim.
+%       A2, A3, A4, and so on) along dimension specified by dim.
 %
 %   Example(s)
 %
 %
 %   Input Arguments
 %     dim - concatenation dimension
-%       data type restriction 1 | data type restriction 2
+%       positive integer scalar
 %         The concatenation dimension, specified as a real, positive, integer
 %         value.
 %
