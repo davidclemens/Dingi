@@ -169,6 +169,12 @@ classdef bitflag < DataKit.bitmask
         obj = reshape(obj,varargin)
         obj = and(objA,objB)
         obj = or(objA,objB)
+        obj = cat(dim,varargin)
+        obj = vertcat(varargin)
+        obj = horzcat(varargin)
+        obj = permute(objA,order)
+        obj = transpose(objA)
+        obj = ctranspose(objA)
     end
     
     methods

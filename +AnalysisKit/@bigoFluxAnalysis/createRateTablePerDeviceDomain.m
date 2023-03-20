@@ -70,8 +70,10 @@ function T = createRateTablePerDeviceDomain(obj)
         for vv = 1:nuVariables
             mask = maskDeviceDomain & rates{:,'Variable'} == uVariables(vv);
             if sum(mask) == 1
-                % Write the mean flux to the table
-                tbl{dd,cellstr(uVariables(vv))} = rates{mask,'FluxMean'};
+                % Write the mean flux to the table if fit is good
+                if ~isFlag(rates{mask,'FitFlags'},'BadGoodnessOfFit')
+                    tbl{dd,cellstr(uVariables(vv))} = rates{mask,'FluxMean'};
+                end
             elseif sum(mask) == 0
                 % No flux is available
             else
