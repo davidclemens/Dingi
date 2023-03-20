@@ -4,6 +4,7 @@ classdef bigoFluxAnalysisDatasetFlag < DataKit.enum
         undefined                                       (0,     NaN,        '',                     '')
         MissingDataThresholdExceeded                    (1,     0.50,       'miss. data',           'Too many values are flagged for missing data.')
         InsufficientFittingData                         (2,     2,          'insuf. fit data',      'Insufficient data for fitting available.')
+        BadGoodnessOfFit                                (3,     NaN,        'bad GOF',              'The goodness of fit is not satisfactory.')
     end
     properties (SetAccess = 'immutable')
         Id uint8

@@ -12,6 +12,7 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
 
         FitInterval (1,2) duration = hours([0,5]) % The interval that should be fitted to
         FitEvaluationInterval (1,2) duration = hours([0,4]) % The interval in which the fit statistics should be evaluated
+        FitR2Threshold (1,1) double = 0.3; % The R2 threshold below which a fit is deemed bad.
     end
 
     % Frontend
@@ -163,6 +164,12 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
         %         are included in the fitting. FitEvaluationInterval(2) has to
         %         be greater than FitEvaluationInterval(1).
         %
+        %     FitR2Threshold - Fit R2 threshold
+        %       0.3 (default) | scalar double
+        %         The threshold for the fit R2 values below which the fits are flagged
+        %         with the 'BadGoodnessOfFit' flag and omitted from some later
+        %         processing steps.
+        %
         %     TimeUnit - Relative time unit
         %       'h' (default') | 'ms' | 's' or 'sec' | 'm' or 'min' | 'd' | 'y'
         %         The duration unit used to normalize the fluxes to. The unit of
@@ -196,12 +203,13 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
             end
 
             % Parse Name-Value pairs
-            optionName          = {'DeviceDomains','FitType','FitInterval','FitEvaluationInterval','TimeUnit'}; % valid options (Name)
-            optionDefaultValue  = {GearKit.deviceDomain.fromProperty('Abbreviation',{'Ch1';'Ch2'}),'linear',[hours(0),bigoDeployment.timeRecovery - bigoDeployment.timeDeployment],hours([0,4]),'h'}; % default value (Value)
+            optionName          = {'DeviceDomains','FitType','FitInterval','FitEvaluationInterval','FitR2Threshold','TimeUnit'}; % valid options (Name)
+            optionDefaultValue  = {GearKit.deviceDomain.fromProperty('Abbreviation',{'Ch1';'Ch2'}),'linear',[hours(0),bigoDeployment.timeRecovery - bigoDeployment.timeDeployment],hours([0,4]),0.3,'h'}; % default value (Value)
             [deviceDomains,...
              fitType,...
              fitInterval,...
              fitEvaluationInterval,...
+             fitR2Threshold,...
              timeUnit] = parseArgs(optionName,optionDefaultValue,varargin{:}); % parse function arguments
 
 
@@ -231,6 +239,10 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
             % Update stack depth 3
             addlistener(obj,'FitEvaluationInterval','PostSet',@AnalysisKit.bigoFluxAnalysis.handlePropertyChangeEvents);
             obj.FitEvaluationInterval  	= fitEvaluationInterval;
+
+            % Update stack depth 4
+            addlistener(obj,'FitR2Threshold','PostSet',@AnalysisKit.bigoFluxAnalysis.handlePropertyChangeEvents);
+            obj.FitR2Threshold          = fitR2Threshold;
         end
     end
 
@@ -484,6 +496,7 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
         calculateFits(obj)
 
         % Stack depth 4
+        setFlags(obj)
 
         % Stack depth 5
         calculateFluxes(obj)
@@ -512,12 +525,17 @@ classdef bigoFluxAnalysis < AnalysisKit.analysis
                     % A fitting parameter has been set. The exclusions need to be set again.
                     stackDepth  = 2;
                     evnt.AffectedObject.setUpdateStackToUpdateRequired(stackDepth)
-
+                    
                 case 'TimeUnit'
                     % The fit & flux are normalized to the time unit. The fits need to be
                     % recalculated.
                     stackDepth  = 3;
                     setRelativeTimeFunction(evnt.AffectedObject)
+                    evnt.AffectedObject.setUpdateStackToUpdateRequired(stackDepth)
+
+                case 'FitR2Threshold'
+                    % The fit R2 threshold has been set. The dataset flags need to be set again.
+                    stackDepth  = 4;
                     evnt.AffectedObject.setUpdateStackToUpdateRequired(stackDepth)
 
                 case 'FitEvaluationInterval'

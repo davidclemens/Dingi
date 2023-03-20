@@ -25,7 +25,7 @@ function checkUpdateStack(obj,stackDepth)
             case 3 % The fits must be recalculated from the data
                 calculateFits(obj)
             case 4 % The fits have to be quality controlled
-                
+                setFlags(obj)
             case 5 % Fluxes need to be recalculated from the fits
                 calculateFluxes(obj)
                 setRateTable(obj)
